@@ -2397,6 +2397,21 @@
                         <button id="refreshHistory" class="btn btn-info">
                             <i class="fas fa-sync-alt"></i> Actualizar
                         </button>
+                        <!-- Selector de mes y año -->
+                        <div id="monthYearSelectors" style="display: flex; gap: 10px; align-items: center;">
+                            <div class="form-group" style="margin: 0;">
+                                <label for="monthSelect" style="font-size: 0.9rem; margin-bottom: 5px;"><i class="fas fa-calendar-day"></i> Mes</label>
+                                <select id="monthSelect" class="form-control" style="width: 120px; padding: 8px;">
+                                    <!-- Se llenará dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="yearSelect" style="font-size: 0.9rem; margin-bottom: 5px;"><i class="fas fa-calendar"></i> Año</label>
+                                <select id="yearSelect" class="form-control" style="width: 100px; padding: 8px;">
+                                    <!-- Se llenará dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -3521,18 +3536,26 @@
             const cardsContainer = document.getElementById('historyCardsView');
             
             // Obtener todos los datos
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
-            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-            const pendingSales = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+            const sales = JSON.parse(localStorage.getItem('destelloOroSales')) || [];
+            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
+            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
+            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+            const pendingSales = JSON.parse(localStorage.getItem('destelloOroPendingSales')) || [];
             
-            // Filtrar por tipo si es necesario
-            let filteredSales = sales;
-            let filteredExpenses = expenses;
-            let filteredRestocks = restocks;
-            let filteredWarranties = warranties;
-            let filteredPending = pendingSales;
+            // Función auxiliar para filtrar por fecha
+            function filterByDate(data) {
+                return data.filter(item => {
+                    const itemDate = new Date(item.date || item.createdAt);
+                    return itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear;
+                });
+            }
+            
+            // Filtrar por fecha actual
+            let filteredSales = filterByDate(sales);
+            let filteredExpenses = filterByDate(expenses);
+            let filteredRestocks = filterByDate(restocks);
+            let filteredWarranties = filterByDate(warranties);
+            let filteredPending = filterByDate(pendingSales);
             
             if (currentHistoryType !== 'all') {
                 switch(currentHistoryType) {
@@ -6527,12 +6550,12 @@
             // Agregar eventos
             monthSelect.addEventListener('change', function() {
                 currentMonth = parseInt(this.value);
-                loadHistoryData();
+                loadHistoryCards();
             });
             
             yearSelect.addEventListener('change', function() {
                 currentYear = parseInt(this.value);
-                loadHistoryData();
+                loadHistoryCards();
             });
         }
         
