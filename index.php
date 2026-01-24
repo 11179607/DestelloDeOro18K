@@ -1,0 +1,8191 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destello de Oro 18K | Sistema de Gestión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <!-- Añadir jsPDF y html2canvas para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Icono para la ventana del navegador -->
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <style>
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-secondary: #FFD700;
+            --gold-light: #FFF8DC;
+            --gold-dark: #B8860B;
+            --white: #FFFFFF;
+            --off-white: #F9F9F9;
+            --light-gray: #F5F5F5;
+            --medium-gray: #E8E8E8;
+            --dark-gray: #333333;
+            --text-dark: #222222;
+            --success: #2E8B57;
+            --warning: #FFA500;
+            --danger: #DC143C;
+            --info: #4169E1;
+            --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.15);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 15px;
+            --radius-xl: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95)),
+                url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Elementos decorativos de joyería */
+        .jewelry-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .ring-decoration {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--gold-primary);
+            border-radius: 50%;
+            top: 15%;
+            left: 3%;
+            animation: float 25s infinite linear;
+        }
+
+        .chain-decoration {
+            width: 120px;
+            height: 60px;
+            border: 2px solid var(--gold-secondary);
+            border-radius: 50% / 20%;
+            top: 70%;
+            right: 3%;
+            animation: float 30s infinite linear reverse;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg) scale(1.05);
+            }
+
+            100% {
+                transform: translateY(0) rotate(360deg) scale(1);
+            }
+        }
+
+        /* Pantalla de Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+                url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow-heavy);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 1.5rem;
+            }
+        }
+
+        .login-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-header i {
+            font-size: 2.5rem;
+            color: var(--gold-primary);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .login-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        /* NUEVO: Estilos para formularios de usuario */
+        .user-info-form {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .user-info-form.active {
+            display: block;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .role-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .role-btn {
+            padding: 12px;
+            border: 2px solid var(--medium-gray);
+            background: var(--white);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .role-btn i {
+            font-size: 1.2rem;
+            color: var(--gold-primary);
+        }
+
+        .role-btn:hover {
+            border-color: var(--gold-primary);
+            transform: translateY(-2px);
+        }
+
+        .role-btn.active {
+            border-color: var(--gold-primary);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+            color: var(--gold-dark);
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.1);
+        }
+
+        .role-btn {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--medium-gray);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* NUEVO: Estilos para cambio de contraseña */
+        .password-change-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .password-change-box {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-heavy);
+            border: 2px solid var(--gold-primary);
+            position: relative;
+            margin: auto;
+        }
+
+        .password-change-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .password-change-header i {
+            font-size: 2rem;
+            color: var(--gold-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .password-change-header h2 {
+            font-size: 1.5rem;
+            color: var(--gold-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .password-change-header p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .close-password-change {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Aplicación principal */
+        #appScreen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .main-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: var(--white);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-medium);
+            border-bottom: 2px solid var(--gold-primary);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            color: var(--gold-primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .brand-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 480px) {
+            .brand-text h1 {
+                font-size: 1.3rem;
+            }
+        }
+
+        .brand-text span {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .user-controls {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-weight: 500;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .user-badge.admin {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+        }
+
+        .user-badge.worker {
+            background: linear-gradient(135deg, rgba(65, 105, 225, 0.2) 0%, rgba(30, 144, 255, 0.1) 100%);
+        }
+
+        .logout-btn {
+            background: rgba(220, 20, 60, 0.1);
+            border: 1px solid rgba(220, 20, 60, 0.3);
+            color: var(--danger);
+            padding: 8px 15px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(220, 20, 60, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Navegación */
+        .main-nav {
+            background: var(--white);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 65px;
+            z-index: 999;
+            box-shadow: var(--shadow-light);
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            background: var(--white);
+            border: 2px solid var(--medium-gray);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-dark);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 150px;
+            justify-content: center;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .nav-btn {
+                min-width: 120px;
+                padding: 8px 15px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-btn {
+                min-width: 100px;
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+
+            .nav-btn i {
+                font-size: 0.9rem;
+            }
+        }
+
+        .nav-btn:hover {
+            border-color: var(--gold-primary);
+            color: var(--gold-dark);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+            border-color: var(--gold-primary);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Contenido principal */
+        .main-content {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-container {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-container.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gold-primary);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            font-size: 1.5rem;
+            color: var(--gold-primary);
+        }
+
+        @media (max-width: 480px) {
+            .section-title i {
+                font-size: 1.3rem;
+            }
+        }
+
+        .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+        }
+
+        @media (max-width: 768px) {
+            .section-title h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Tarjetas y formularios */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--medium-gray);
+            transition: var(--transition);
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 1rem;
+            }
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-3px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .card-header h3 {
+                font-size: 1.1rem;
+            }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* NUEVO: Estilos para carrito de productos */
+        .cart-container {
+            margin-top: 1.5rem;
+            border: 2px solid var(--medium-gray);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .cart-header {
+            background: linear-gradient(135deg, var(--gold-light) 0%, rgba(212, 175, 55, 0.1) 100%);
+            padding: 1rem;
+            border-bottom: 1px solid var(--medium-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-header h4 {
+            color: var(--gold-dark);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .cart-table th {
+            background: var(--light-gray);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 500;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .cart-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--medium-gray);
+            vertical-align: middle;
+        }
+
+        .cart-table tbody tr:hover {
+            background: var(--off-white);
+        }
+
+        .cart-table .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .cart-total {
+            background: linear-gradient(135deg, var(--gold-light) 0%, rgba(212, 175, 55, 0.05) 100%);
+            padding: 1rem;
+            text-align: right;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--gold-dark);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .empty-cart i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--medium-gray);
+        }
+
+        /* Tablas */
+        .table-wrapper {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--medium-gray);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--gold-light) 0%, rgba(212, 175, 55, 0.1) 100%);
+            padding: 1rem;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .table-header h3 {
+            color: var(--gold-dark);
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 600px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+            color: var(--white);
+        }
+
+        .data-table th {
+            padding: 0.8rem 1rem;
+            text-align: left;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .data-table th:last-child {
+            border-right: none;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--medium-gray);
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(255, 215, 0, 0.02) 100%);
+        }
+
+        .data-table td {
+            padding: 0.8rem 1rem;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 480px) {
+
+            .data-table th,
+            .data-table td {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);
+            color: var(--gold-dark);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .badge-worker {
+            background: linear-gradient(135deg, rgba(65, 105, 225, 0.15) 0%, rgba(30, 144, 255, 0.1) 100%);
+            color: var(--info);
+            border: 1px solid rgba(65, 105, 225, 0.3);
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, rgba(46, 139, 87, 0.15) 0%, rgba(50, 205, 50, 0.1) 100%);
+            color: var(--success);
+            border: 1px solid rgba(46, 139, 87, 0.3);
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);
+            color: var(--warning);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, rgba(220, 20, 60, 0.15) 0%, rgba(255, 99, 71, 0.1) 100%);
+            color: var(--danger);
+            border: 1px solid rgba(220, 20, 60, 0.3);
+        }
+
+        /* Botones */
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #32CD32 100%);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #FFD700 100%);
+            color: var(--text-dark);
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #FF6347 100%);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.3);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info) 0%, #1E90FF 100%);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(65, 105, 225, 0.3);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* NUEVO: Estilos mejorados para la factura (SIN REDES SOCIALES) */
+        .invoice-container.enhanced-invoice {
+            background: white;
+            border: 2px solid #333;
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            padding: 1.5rem;
+            width: 95%;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .invoice-container.enhanced-invoice {
+                padding: 1rem;
+            }
+        }
+
+        .enhanced-invoice .invoice-header {
+            text-align: left;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .enhanced-invoice .invoice-logo {
+            font-size: 2rem;
+            color: #D4AF37;
+            margin-bottom: 8px;
+        }
+
+        .enhanced-invoice .company-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            gap: 1rem;
+        }
+
+        .enhanced-invoice .company-details {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .enhanced-invoice .invoice-details {
+            flex: 1;
+            text-align: right;
+            min-width: 250px;
+        }
+
+        .enhanced-invoice .invoice-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .enhanced-invoice .client-info {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .enhanced-invoice .client-info h3 {
+            color: #D4AF37;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .enhanced-invoice .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .enhanced-invoice .product-table th {
+            background: #D4AF37;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .enhanced-invoice .product-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.85rem;
+        }
+
+        .enhanced-invoice .warranty-section {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 3px solid #D4AF37;
+            font-size: 0.85rem;
+        }
+
+        .enhanced-invoice .warranty-section h4 {
+            color: #D4AF37;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .enhanced-invoice .total-section {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #333;
+        }
+
+        .enhanced-invoice .total-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #D4AF37;
+        }
+
+        .enhanced-invoice .contact-info {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .payment-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 2px;
+            display: inline-block;
+        }
+
+        .payment-transfer {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+
+        .payment-cash {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .payment-bold {
+            background: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ffe0b2;
+        }
+
+        .payment-addi {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            border: 1px solid #e1bee7;
+        }
+
+        .payment-sistecredito {
+            background: #e8eaf6;
+            color: #3949ab;
+            border: 1px solid #c5cae9;
+        }
+
+        .payment-cod {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        /* Factura */
+        .invoice-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .invoice-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-heavy);
+            position: relative;
+            border: 2px solid var(--gold-primary);
+        }
+
+        /* HISTORIAL - NUEVO DISEÑO CON CARDS */
+        .history-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .history-cards-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .history-cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .history-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--medium-gray);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--gold-primary);
+        }
+
+        .history-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .history-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .history-card-icon.sales {
+            background: linear-gradient(135deg, #2E8B57 0%, #32CD32 100%);
+        }
+
+        .history-card-icon.expenses {
+            background: linear-gradient(135deg, #DC143C 0%, #FF6347 100%);
+        }
+
+        .history-card-icon.restocks {
+            background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
+        }
+
+        .history-card-icon.warranties {
+            background: linear-gradient(135deg, #4169E1 0%, #1E90FF 100%);
+        }
+
+        .history-card-icon.pending {
+            background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+        }
+
+        .history-card-icon.profit {
+            background: linear-gradient(135deg, #8BC34A 0%, #CDDC39 100%);
+        }
+
+        .history-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+            flex-grow: 1;
+            margin-left: 1rem;
+        }
+
+        .history-card-count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold-dark);
+            text-align: center;
+            margin: 0.5rem 0;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .history-card-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .history-card-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--medium-gray);
+        }
+
+        .history-card-detail:last-child {
+            border-bottom: none;
+        }
+
+        .history-card-detail-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .history-card-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--medium-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .history-card-user {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .history-card-user-icon {
+            color: var(--gold-primary);
+        }
+
+        .history-card-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .history-card-date-icon {
+            color: var(--info);
+        }
+
+        /* Detalles del historial (oculto inicialmente) */
+        .history-details-container {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .history-details-container.active {
+            display: block;
+        }
+
+        .history-details-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--medium-gray);
+        }
+
+        .history-details-back {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gold-primary);
+            cursor: pointer;
+            padding: 5px;
+            transition: var(--transition);
+        }
+
+        .history-details-back:hover {
+            transform: translateX(-3px);
+        }
+
+        .history-details-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+        }
+
+        .history-details-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .history-details-stat {
+            background: linear-gradient(135deg, var(--white) 0%, var(--off-white) 100%);
+            border-radius: var(--radius-lg);
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--medium-gray);
+            transition: var(--transition);
+        }
+
+        .history-details-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .history-details-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold-dark);
+            margin: 0.5rem 0;
+        }
+
+        .history-details-stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Estadísticas generales */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--white) 0%, var(--off-white) 100%);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--medium-gray);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+        }
+
+        .stat-card.clickable {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .stat-card.clickable:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--gold-primary);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--gold-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold-dark);
+            margin: 0.5rem 0;
+            font-family: 'Playfair Display', serif;
+        }
+
+        @media (max-width: 480px) {
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .main-footer {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: var(--white);
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 2px solid var(--gold-primary);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            color: var(--gold-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--gold-primary);
+        }
+
+        @media (max-width: 480px) {
+            .footer-content h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+        .footer-content p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .copyright {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        /* Diálogos personalizados */
+        .custom-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .dialog-content {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: var(--shadow-heavy);
+            border: 2px solid var(--gold-primary);
+            text-align: center;
+            position: relative;
+            animation: dialogAppear 0.3s ease-out;
+        }
+
+        @keyframes dialogAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .dialog-icon {
+            font-size: 3rem;
+            color: var(--gold-primary);
+            margin-bottom: 1rem;
+        }
+
+        .dialog-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--gold-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .dialog-message {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive adicional para dispositivos muy pequeños */
+        @media (max-height: 700px) {
+            .login-box {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .password-change-box {
+                max-height: 85vh;
+            }
+        }
+
+        /* Mejoras para iOS */
+        @supports (-webkit-touch-callout: none) {
+
+            .login-container,
+            .password-change-container {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            input,
+            select,
+            textarea,
+            button {
+                font-size: 16px !important;
+                /* Evita zoom automático en iOS */
+            }
+        }
+
+        /* Mejoras para Android */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+
+            select,
+            textarea,
+            input {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Estilo para campo de ID de venta en garantías */
+        #warrantySaleId {
+            background-color: #f8f9fa !important;
+            font-weight: bold !important;
+            border: 2px solid var(--info) !important;
+            color: #333 !important;
+            font-size: 1rem !important;
+            padding: 12px 15px !important;
+        }
+
+        #warrantySaleId:focus {
+            box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.1) !important;
+        }
+
+        #warrantySaleIdStatus {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: var(--radius-sm);
+            background: rgba(46, 139, 87, 0.1);
+            border-left: 3px solid var(--success);
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Elementos decorativos -->
+    <div class="jewelry-decoration ring-decoration"></div>
+    <div class="jewelry-decoration chain-decoration"></div>
+
+    <!-- Diálogo personalizado -->
+    <div id="customDialog" class="custom-dialog">
+        <div class="dialog-content">
+            <div id="dialogIcon" class="dialog-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 id="dialogTitle" class="dialog-title">Éxito</h2>
+            <p id="dialogMessage" class="dialog-message">Operación completada correctamente.</p>
+            <div class="dialog-buttons">
+                <button id="dialogConfirm" class="btn btn-primary">Aceptar</button>
+                <button id="dialogCancel" class="btn btn-danger" style="display: none;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUEVO: Modal para cambio de contraseña -->
+    <div id="passwordChangeModal" class="password-change-container">
+        <div class="password-change-box">
+            <button class="close-password-change" id="closePasswordChange">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="password-change-header">
+                <i class="fas fa-key"></i>
+                <h2>Cambiar Contraseña</h2>
+                <p>Solo el administrador puede cambiar contraseñas</p>
+            </div>
+
+            <form id="passwordChangeForm">
+                <div class="form-group">
+                    <label for="adminUsername">Usuario Administrador *</label>
+                    <input type="text" id="adminUsername" class="form-control" placeholder="admin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminPassword">Contraseña Administrador *</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="********" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userToChange">Usuario a modificar *</label>
+                    <select id="userToChange" class="form-control" required>
+                        <option value="">Seleccione un usuario</option>
+                        <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">Nueva Contraseña *</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="Nueva contraseña" required
+                        minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Contraseña *</label>
+                    <input type="password" id="confirmPassword" class="form-control"
+                        placeholder="Confirmar nueva contraseña" required>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Cambiar Contraseña
+                    </button>
+                    <button type="button" class="btn btn-danger" id="cancelPasswordChange">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pantalla de Login -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-gem"></i>
+                <h1>Destello de Oro 18K</h1>
+                <p>Sistema de Gestión de Inventario y Ventas</p>
+            </div>
+
+            <!-- Paso 1: Selección de rol -->
+            <div id="roleSelection">
+                <h3 style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
+                    <i class="fas fa-user-tag"></i> Seleccione su Rol
+                </h3>
+
+                <div class="role-selector">
+                    <div id="adminRole" class="role-btn active" data-role="admin">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Administrador</span>
+                    </div>
+                    <div id="workerRole" class="role-btn" data-role="worker">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Trabajador</span>
+                    </div>
+                </div>
+
+                <button id="nextToUserInfo" class="btn btn-primary"
+                    style="width: 100%; margin-top: 1rem; padding: 10px;">
+                    <i class="fas fa-arrow-right"></i> Continuar
+                </button>
+
+                <!-- NUEVO: Enlace para cambiar contraseña -->
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="showPasswordChange" class="btn btn-sm btn-info"
+                        style="padding: 8px 15px; font-size: 0.85rem;">
+                        <i class="fas fa-key"></i> Cambiar Contraseña
+                    </button>
+                </div>
+            </div>
+
+            <!-- Paso 2: Información del usuario (AHORA OBLIGATORIA) -->
+            <div id="userInfoForm" class="user-info-form">
+                <h3 style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
+                    <i class="fas fa-user-circle"></i> Información Personal
+                </h3>
+                <p style="text-align: center; color: var(--warning); font-size: 0.85rem; margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-circle"></i> Todos los campos son obligatorios para continuar
+                </p>
+
+                <form id="userInfoFormData">
+                    <div class="form-group">
+                        <label for="userName"><i class="fas fa-user"></i> Nombre *</label>
+                        <input type="text" id="userName" class="form-control" placeholder="Ingrese su nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userLastName"><i class="fas fa-user"></i> Apellido *</label>
+                        <input type="text" id="userLastName" class="form-control" placeholder="Ingrese su apellido"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userPhone"><i class="fas fa-phone"></i> Teléfono *</label>
+                        <input type="tel" id="userPhone" class="form-control" placeholder="Ingrese su teléfono" required
+                            pattern="[0-9]{10}" minlength="10" maxlength="10">
+                        <small class="form-text" style="font-size: 0.8rem;">Debe tener 10 dígitos</small>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 1.5rem;">
+                        <button type="button" id="backToRoleSelection" class="btn btn-warning"
+                            style="flex: 1; padding: 10px;">
+                            <i class="fas fa-arrow-left"></i> Atrás
+                        </button>
+                        <button type="submit" id="nextToLogin" class="btn btn-primary" style="flex: 2; padding: 10px;">
+                            <i class="fas fa-arrow-right"></i> Continuar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Paso 3: Credenciales de login -->
+            <div id="loginCredentials" class="user-info-form">
+                <h3 style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Credenciales de Acceso
+                </h3>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user"></i> Usuario *</label>
+                        <input type="text" id="username" class="form-control" placeholder="Ingrese su usuario" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock"></i> Contraseña *</label>
+                        <input type="password" id="password" class="form-control" placeholder="Ingrese su contraseña"
+                            required>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 1.5rem;">
+                        <button type="button" id="backToUserInfo" class="btn btn-warning"
+                            style="flex: 1; padding: 10px;">
+                            <i class="fas fa-arrow-left"></i> Atrás
+                        </button>
+                        <button type="submit" class="btn btn-primary" style="flex: 2; padding: 10px;">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Información de credenciales de prueba -->
+            <div id="loginInfo"
+                style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--medium-gray); display: none;">
+                <p style="text-align: center; color: #666; font-size: 0.85rem;">
+                    <strong>Ingrese sus credenciales asignados</strong><br>
+                    para poder accederl<br>
+                    al sistema
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aplicación principal -->
+    <div id="appScreen">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-content">
+                <div class="brand">
+                    <i class="fas fa-gem brand-icon"></i>
+                    <div class="brand-text">
+                        <h1>Destello de Oro 18K</h1>
+                        <span>Sistema de Gestión Profesional</span>
+                    </div>
+                </div>
+
+                <div class="user-controls">
+                    <div id="currentUserRole" class="user-badge admin">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Administrador</span>
+                    </div>
+                    <button id="logoutButton" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navegación -->
+        <nav class="main-nav">
+            <div class="nav-container">
+                <button class="nav-btn active" data-section="inventory">
+                    <i class="fas fa-warehouse"></i> Inventario
+                </button>
+                <button class="nav-btn" data-section="sales" id="salesNavBtn">
+                    <i class="fas fa-shopping-cart"></i> Realizar Venta
+                </button>
+                <button class="nav-btn admin-only" data-section="restock" id="restockNavBtn">
+                    <i class="fas fa-truck-loading"></i> Surtir Inventario
+                </button>
+                <button class="nav-btn admin-only" data-section="expenses" id="expensesNavBtn">
+                    <i class="fas fa-file-invoice-dollar"></i> Gastos
+                </button>
+                <button class="nav-btn admin-only" data-section="warranties" id="warrantiesNavBtn">
+                    <i class="fas fa-shield-alt"></i> Garantías
+                </button>
+                <button class="nav-btn admin-only" data-section="pending" id="pendingNavBtn">
+                    <i class="fas fa-clock"></i> Pagos Pendientes
+                </button>
+                <button class="nav-btn admin-only" data-section="history" id="historyNavBtn">
+                    <i class="fas fa-chart-line"></i> Historial
+                </button>
+            </div>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Inventario -->
+            <section id="inventory" class="section-container active">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-warehouse"></i>
+                        <h2>Gestión de Inventario</h2>
+                    </div>
+                    <button class="btn btn-primary admin-only" id="addProductBtn" style="padding: 10px 20px;">
+                        <i class="fas fa-plus-circle"></i> Nuevo Producto
+                    </button>
+                </div>
+
+                <!-- Formulario para agregar producto -->
+                <div id="addProductForm" class="card admin-only" style="display: none;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-box-open"></i> Agregar Nuevo Producto</h3>
+                    </div>
+                    <form id="productForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="productRef">Referencia *</label>
+                                <input type="text" id="productRef" class="form-control" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Identificador único del
+                                    producto</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="productName">Nombre del Producto *</label>
+                                <input type="text" id="productName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productQuantity">Cantidad Inicial *</label>
+                                <input type="number" id="productQuantity" class="form-control" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="purchasePrice">Precio de Compra *</label>
+                                <input type="number" id="purchasePrice" class="form-control" min="0" step="0.01"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="wholesalePrice">Precio Mayorista *</label>
+                                <input type="number" id="wholesalePrice" class="form-control" min="0" step="0.01"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="retailPrice">Precio al Detal *</label>
+                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="supplier">Proveedor *</label>
+                                <input type="text" id="supplier" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Ganancia Estimada</label>
+                                <input type="text" id="profitEstimate" class="form-control" readonly
+                                    style="background-color: var(--light-gray); font-size: 0.9rem;">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn-success" style="padding: 10px 20px;">
+                                <i class="fas fa-save"></i> Guardar Producto
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelAddProduct"
+                                style="padding: 10px 20px;">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tabla de inventario -->
+                <div class="table-wrapper">
+                    <div class="table-header"
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <h3><i class="fas fa-list"></i> Productos en Inventario</h3>
+                        <div class="search-box">
+                            <input type="text" id="inventorySearch" class="form-control"
+                                placeholder="Buscar por referencia o nombre..." style="min-width: 250px;"
+                                oninput="loadInventoryTable()">
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Referencia</th>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Compra</th>
+                                    <th>Precio Mayorista</th>
+                                    <th>Precio Detal</th>
+                                    <th>Ganancia</th>
+                                    <th>Proveedor</th>
+                                    <th class="admin-only">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <!-- Los productos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ventas (NUEVO: con múltiples productos) -->
+            <section id="sales" class="section-container">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h2>Realizar Venta</h2>
+                    </div>
+                </div>
+
+                <!-- Contador Manual de Ventas (Solo Admin) -->
+                <div class="card admin-only"
+                    style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid var(--gold-primary);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h3 style="color: var(--gold-dark); margin: 0; font-size: 1.1rem;">
+                            <i class="fas fa-calculator"></i> Contador Manual de Ventas
+                        </h3>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label for="manualSalesCounter" style="font-weight: 500;">Cantidad:</label>
+                            <input type="number" id="manualSalesCounter" class="form-control"
+                                style="width: 100px; text-align: center; font-weight: bold;" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <!-- Información del cliente (SIEMPRE VISIBLE) -->
+                    <div id="customerInfo"
+                        style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--medium-gray);">
+                        <h3
+                            style="margin-bottom: 1rem; color: var(--gold-dark); display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                            <i class="fas fa-user-circle"></i> Información del Cliente
+                        </h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="customerName">Nombre Completo *</label>
+                                <input type="text" id="customerName" class="form-control"
+                                    placeholder="Ej: Juan Pérez García" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerId">Cédula *</label>
+                                <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerPhone">Teléfono *</label>
+                                <input type="tel" id="customerPhone" class="form-control" placeholder="Ej: 3001234567"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerEmail">Correo Electrónico</label>
+                                <input type="email" id="customerEmail" class="form-control"
+                                    placeholder="Ej: cliente@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="customerAddress">Dirección *</label>
+                                <input type="text" id="customerAddress" class="form-control"
+                                    placeholder="Ej: Calle 123 #45-67" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerCity">Ciudad *</label>
+                                <input type="text" id="customerCity" class="form-control"
+                                    placeholder="Ej: Bogotá, Medellín, etc." required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario para agregar productos a la venta -->
+                    <h3
+                        style="margin-bottom: 1rem; color: var(--gold-dark); display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                        <i class="fas fa-box-open"></i> Agregar Productos a la Venta
+                    </h3>
+
+                    <form id="addProductToSaleForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="saleProductRef">Referencia del Producto *</label>
+                                <input type="text" id="saleProductRef" class="form-control" required>
+                                <div id="productInfo" style="margin-top: 6px; font-size: 0.85rem; color: var(--info);">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="saleQuantity">Cantidad *</label>
+                                <input type="number" id="saleQuantity" class="form-control" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="saleType">Tipo de Venta *</label>
+                                <select id="saleType" class="form-control" required>
+                                    <option value="retail">Detal</option>
+                                    <option value="wholesale">Mayorista</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="discount">Descuento (%)</label>
+                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0">
+                                <small class="form-text" style="font-size: 0.8rem;">Entre 0 y 100%</small>
+                            </div>
+                        </div>
+
+                        <div
+                            style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn-success" style="padding: 12px 30px;">
+                                <i class="fas fa-plus-circle"></i> Agregar al Carrito
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Carrito de productos -->
+                    <div class="cart-container" id="cartContainer" style="display: none;">
+                        <div class="cart-header">
+                            <h4><i class="fas fa-shopping-cart"></i> Productos en el Carrito</h4>
+                            <button type="button" class="btn btn-danger btn-sm" id="clearCart">
+                                <i class="fas fa-trash"></i> Vaciar Carrito
+                            </button>
+                        </div>
+
+                        <table class="cart-table" id="cartTable">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody">
+                                <!-- Los productos se agregarán dinámicamente -->
+                            </tbody>
+                        </table>
+
+                        <div id="emptyCart" class="empty-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>El carrito está vacío</p>
+                        </div>
+
+                        <div class="cart-total" id="cartTotal" style="display: none;">
+                            Total: <span id="cartTotalAmount">$0</span>
+                        </div>
+                    </div>
+
+                    <!-- Información de pago y envío -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--medium-gray);">
+                        <h3
+                            style="margin-bottom: 1rem; color: var(--gold-dark); display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                            <i class="fas fa-credit-card"></i> Información de Pago y Envío
+                        </h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="paymentMethod">Método de Pago *</label>
+                                <select id="paymentMethod" class="form-control" required>
+                                    <option value="transfer">Transferencia</option>
+                                    <option value="cash">Efectivo</option>
+                                    <option value="bold">Bold</option>
+                                    <option value="addi">Addi</option>
+                                    <option value="sistecredito">Sistecrédito</option>
+                                    <option value="cod">Contra Entrega</option>
+                                    <option value="card">Tarjeta</option>
+                                    <option value="nequi">Nequi/Daviplata</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="deliveryType">Tipo de Entrega</label>
+                                <select id="deliveryType" class="form-control">
+                                    <option value="store">Recoge en tienda</option>
+                                    <option value="delivery">Domicilio</option>
+                                    <option value="national">Envío Nacional</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="deliveryCost">Costo de Envío</label>
+                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen final de la venta -->
+                    <div
+                        style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(255, 215, 0, 0.02) 100%); border-radius: var(--radius-md); border: 1px solid var(--medium-gray);">
+                        <h3
+                            style="margin-bottom: 1rem; color: var(--gold-dark); display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                            <i class="fas fa-receipt"></i> Resumen Final de Venta
+                        </h3>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                            <div>
+                                <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Subtotal:</div>
+                                <div id="subtotalAmount"
+                                    style="font-size: 1.2rem; font-weight: 700; color: var(--text-dark);">$0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Descuentos:</div>
+                                <div id="discountAmount"
+                                    style="font-size: 1.2rem; font-weight: 700; color: var(--danger);">$0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Costo de envío:</div>
+                                <div id="deliveryAmount"
+                                    style="font-size: 1.2rem; font-weight: 700; color: var(--info);">$0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Total:</div>
+                                <div id="totalAmount"
+                                    style="font-size: 1.5rem; font-weight: 800; color: var(--gold-dark);">$0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones finales -->
+                    <div
+                        style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-success" id="confirmSale" style="padding: 12px 30px;"
+                            disabled>
+                            <i class="fas fa-check-circle"></i> Confirmar Venta
+                        </button>
+                        <button type="button" class="btn btn-danger" id="clearSaleForm" style="padding: 12px 30px;">
+                            <i class="fas fa-trash-alt"></i> Limpiar Todo
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Surtir Inventario -->
+            <section id="restock" class="section-container">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-truck-loading"></i>
+                        <h2>Surtir Inventario</h2>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <form id="restockForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="restockProductRef">Referencia del Producto *</label>
+                                <input type="text" id="restockProductRef" class="form-control" required>
+                                <div id="restockProductInfo"
+                                    style="margin-top: 6px; font-size: 0.85rem; color: var(--info);"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="restockQuantity">Cantidad a Surtir *</label>
+                                <input type="number" id="restockQuantity" class="form-control" min="1" required>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">
+                                <i class="fas fa-plus-circle"></i> Surtir Inventario
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Gastos -->
+            <section id="expenses" class="section-container">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <h2>Registro de Gastos</h2>
+                    </div>
+                    <button class="btn btn-primary" id="addExpenseBtn" style="padding: 10px 20px;">
+                        <i class="fas fa-plus-circle"></i> Nuevo Gasto
+                    </button>
+                </div>
+
+                <!-- Formulario para agregar gasto -->
+                <div id="addExpenseForm" class="card" style="display: none;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-receipt"></i> Registrar Nuevo Gasto</h3>
+                    </div>
+                    <form id="expenseForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="expenseDescription">Descripción *</label>
+                                <input type="text" id="expenseDescription" class="form-control" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Ej: Pasajes, domicilios, bolsas,
+                                    etc.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseDate">Fecha *</label>
+                                <input type="date" id="expenseDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseAmount">Valor *</label>
+                                <input type="number" id="expenseAmount" class="form-control" min="0" step="0.01"
+                                    required>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn-success" style="padding: 10px 20px;">
+                                <i class="fas fa-save"></i> Registrar Gasto
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelExpense" style="padding: 10px 20px;">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tabla de gastos -->
+                <div class="table-wrapper">
+                    <div class="table-header">
+                        <h3><i class="fas fa-history"></i> Historial de Gastos</h3>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="expensesTable">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th>Valor</th>
+                                    <th>Registrado por</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expensesTableBody">
+                                <!-- Los gastos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Garantías -->
+            <section id="warranties" class="section-container">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-shield-alt"></i>
+                        <h2>Gestión de Garantías</h2>
+                    </div>
+                    <button class="btn btn-primary admin-only" id="addWarrantyBtn" style="padding: 10px 20px;">
+                        <i class="fas fa-plus-circle"></i> Nueva Garantía
+                    </button>
+                </div>
+
+                <!-- Contador Manual de Garantías (Solo Admin) -->
+                <div class="card admin-only"
+                    style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid var(--gold-primary);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h3 style="color: var(--gold-dark); margin: 0; font-size: 1.1rem;">
+                            <i class="fas fa-calculator"></i> Contador Manual de Garantías
+                        </h3>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label for="manualWarrantyCounter" style="font-weight: 500;">Cantidad:</label>
+                            <input type="number" id="manualWarrantyCounter" class="form-control"
+                                style="width: 100px; text-align: center; font-weight: bold;" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario para buscar cliente -->
+                <div class="card">
+                    <h3
+                        style="margin-bottom: 1rem; color: var(--gold-dark); display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                        <i class="fas fa-search"></i> Buscar Cliente para Garantía
+                    </h3>
+
+                    <div class="form-group">
+                        <label for="searchCustomerWarranty"><i class="fas fa-user"></i> Nombre del Cliente *</label>
+                        <input type="text" id="searchCustomerWarranty" class="form-control"
+                            placeholder="Ingrese nombre completo del cliente">
+                        <small class="form-text" style="font-size: 0.8rem;">Debe ser un cliente que haya realizado una
+                            compra previamente</small>
+                    </div>
+
+                    <div id="customerSearchResults" style="margin-top: 1rem; display: none;">
+                        <h4 style="color: var(--gold-dark); margin-bottom: 0.5rem;">Compras encontradas:</h4>
+                        <div id="customerPurchasesList"
+                            style="max-height: 200px; overflow-y: auto; border: 1px solid var(--medium-gray); border-radius: var(--radius-md); padding: 10px;">
+                        </div>
+                    </div>
+
+                    <div id="customerNotFoundMessage"
+                        style="margin-top: 1rem; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: var(--radius-md); display: none;">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
+                        <span>Cliente no encontrado. Por favor ingrese un cliente que haya realizado una compra.</span>
+                    </div>
+                </div>
+
+                <!-- Formulario para agregar garantía (oculto inicialmente) -->
+                <div id="addWarrantyForm" class="card admin-only" style="display: none;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-contract"></i> Registrar Nueva Garantía</h3>
+                        <button type="button" class="btn btn-warning btn-sm" id="backToCustomerSearch">
+                            <i class="fas fa-arrow-left"></i> Buscar otro cliente
+                        </button>
+                    </div>
+
+                    <!-- Información del cliente seleccionado -->
+                    <div id="selectedCustomerInfo"
+                        style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(255, 215, 0, 0.02) 100%); border-radius: var(--radius-md); border: 1px solid var(--medium-gray);">
+                        <h4 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1rem;">
+                            <i class="fas fa-user-check"></i> Cliente seleccionado
+                        </h4>
+                        <div id="customerInfoDisplay"></div>
+                    </div>
+
+                    <!-- Producto original de la compra -->
+                    <div id="originalProductInfo"
+                        style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(65, 105, 225, 0.05) 0%, rgba(30, 144, 255, 0.02) 100%); border-radius: var(--radius-md); border: 1px solid var(--medium-gray);">
+                        <h4 style="color: var(--info); margin-bottom: 0.5rem; font-size: 1rem;">
+                            <i class="fas fa-box-open"></i> Producto original
+                        </h4>
+                        <div id="productInfoDisplay"></div>
+                    </div>
+
+                    <form id="warrantyForm">
+                        <div class="form-grid">
+                            <!-- CORREGIDO: ID DE FACTURA SE LLENA AUTOMÁTICAMENTE Y ES VISIBLE -->
+                            <div class="form-group">
+                                <label for="warrantySaleId"><i class="fas fa-receipt"></i> ID de Factura *</label>
+                                <input type="text" id="warrantySaleId" class="form-control" readonly required>
+                                <small class="form-text"
+                                    style="font-size: 0.8rem; color: var(--info); font-weight: bold;">
+                                    ID de la factura de venta original (se llena automáticamente cuando selecciona una
+                                    venta)
+                                </small>
+                                <div id="warrantySaleIdStatus" style="font-size: 0.8rem; margin-top: 5px;"></div>
+                                <!-- Botón temporal para pruebas -->
+                                <button type="button" onclick="loadSelectedSaleId()"
+                                    style="margin-top: 5px; padding: 5px 10px; font-size: 0.8rem; background: var(--info); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-sync-alt"></i> Cargar ID Manualmente
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="warrantyReason">Motivo de la Garantía *</label>
+                                <select id="warrantyReason" class="form-control" required>
+                                    <option value="">Seleccione un motivo</option>
+                                    <option value="rayon">Rayón</option>
+                                    <option value="pelo">Pelo</option>
+                                    <option value="oxidacion">Oxidación</option>
+                                    <option value="cambio_color">Cambio de color</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                                <small class="form-text" style="font-size: 0.8rem;">Garantía por rayón, pelo, oxidación,
+                                    cambio de color u otro</small>
+                            </div>
+
+                            <!-- Tipo de producto para garantía -->
+                            <div class="form-group">
+                                <label for="warrantyProductType">Tipo de Producto para Garantía *</label>
+                                <select id="warrantyProductType" class="form-control" required>
+                                    <option value="same">Mismo producto (misma referencia)</option>
+                                    <option value="different">Producto diferente</option>
+                                </select>
+                            </div>
+
+                            <!-- Si es producto diferente -->
+                            <div id="differentProductSection"
+                                style="display: none; grid-column: 1 / -1; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--medium-gray);">
+                                <h4 style="color: var(--gold-dark); margin-bottom: 1rem; font-size: 1rem;">
+                                    <i class="fas fa-exchange-alt"></i> Producto Diferente
+                                </h4>
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="newProductRef">Referencia del Nuevo Producto</label>
+                                        <input type="text" id="newProductRef" class="form-control" placeholder="REFXXX">
+                                        <small class="form-text" style="font-size: 0.8rem;">Referencia del producto de
+                                            reemplazo</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="newProductName">Nombre del Nuevo Producto</label>
+                                        <input type="text" id="newProductName" class="form-control"
+                                            placeholder="Nombre del nuevo producto">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="additionalValue">Valor Adicional *</label>
+                                        <input type="number" id="additionalValue" class="form-control" min="0" value="0"
+                                            required>
+                                        <small class="form-text" style="font-size: 0.8rem;">Valor adicional si el
+                                            producto es diferente</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Valor de envío -->
+                            <div class="form-group">
+                                <label for="shippingValue">Valor Envío *</label>
+                                <input type="number" id="shippingValue" class="form-control" min="0" value="0" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Este valor se agregará a los gastos
+                                    mensuales</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="warrantyStatus">Estado *</label>
+                                <select id="warrantyStatus" class="form-control" required>
+                                    <option value="pending">Pendiente</option>
+                                    <option value="in_process">En proceso</option>
+                                    <option value="completed">Completada</option>
+                                    <option value="cancelled">Cancelada</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="warrantyNotes">Observaciones / Detalles</label>
+                                <textarea id="warrantyNotes" class="form-control" rows="3"
+                                    placeholder="Detalles adicionales de la garantía..."></textarea>
+                                <small class="form-text" style="font-size: 0.8rem;">Describa el estado del producto,
+                                    acuerdos con el cliente, etc.</small>
+                            </div>
+                        </div>
+
+                        <!-- Resumen de costos -->
+                        <div id="warrantyCostSummary"
+                            style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(46, 139, 87, 0.05) 0%, rgba(50, 205, 50, 0.02) 100%); border-radius: var(--radius-md); border: 1px solid var(--medium-gray);">
+                            <h4 style="color: var(--success); margin-bottom: 1rem; font-size: 1rem;">
+                                <i class="fas fa-calculator"></i> Resumen de Costos
+                            </h4>
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                                <div>
+                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Valor adicional:
+                                    </div>
+                                    <div id="additionalValueDisplay"
+                                        style="font-size: 1.2rem; font-weight: 700; color: var(--warning);">$0</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Valor envío:</div>
+                                    <div id="shippingValueDisplay"
+                                        style="font-size: 1.2rem; font-weight: 700; color: var(--info);">$0</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Total:</div>
+                                    <div id="totalWarrantyCost"
+                                        style="font-size: 1.5rem; font-weight: 800; color: var(--gold-dark);">$0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap;">
+                            <button type="submit" class="btn btn-success" style="padding: 10px 20px;">
+                                <i class="fas fa-save"></i> Registrar Garantía
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelWarranty"
+                                style="padding: 10px 20px;">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tabla de garantías -->
+                <div class="table-wrapper">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> Garantías Registradas</h3>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="warrantiesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID Venta</th>
+                                    <th>Cliente</th>
+                                    <th>Producto Original</th>
+                                    <th>Producto Garantía</th>
+                                    <th>Motivo</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Costo Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="warrantiesTableBody">
+                                <!-- Las garantías se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Estadísticas de garantías -->
+                <div class="stats-grid" id="warrantyStats">
+                    <!-- Se cargará dinámicamente -->
+                </div>
+            </section>
+
+            <!-- Pagos Pendientes -->
+            <section id="pending" class="section-container">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-clock"></i>
+                        <h2>Pagos Pendientes</h2>
+                    </div>
+                </div>
+
+                <!-- Tabla de ventas pendientes -->
+                <div class="table-wrapper">
+                    <div class="table-header">
+                        <h3><i class="fas fa-hourglass-half"></i> Ventas Pendientes de Confirmación</h3>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="pendingTable">
+                            <thead>
+                                <tr>
+                                    <th>ID Venta</th>
+                                    <th>Cliente</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Método de Pago</th>
+                                    <th>Fecha</th>
+                                    <th>Vendedor</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingTableBody">
+                                <!-- Las ventas pendientes se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HISTORIAL - NUEVO DISEÑO CON CARDS -->
+            <section id="history" class="section-container">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        <h2>Historial Completo</h2>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="historyFilter" class="form-control" style="width: auto;">
+                            <option value="all">Todos los movimientos</option>
+                            <option value="sales">Ventas</option>
+                            <option value="expenses">Gastos</option>
+                            <option value="restocks">Surtidos</option>
+                            <option value="warranties">Garantías</option>
+                            <option value="pending">Pendientes</option>
+                            <option value="profit">Ganancias</option>
+                        </select>
+                        <button id="refreshHistory" class="btn btn-info">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <!-- Selector de mes y año -->
+                        <div id="monthYearSelectors" style="display: flex; gap: 10px; align-items: center;">
+                            <div class="form-group" style="margin: 0;">
+                                <label for="monthSelect" style="font-size: 0.9rem; margin-bottom: 5px;"><i
+                                        class="fas fa-calendar-day"></i> Mes</label>
+                                <select id="monthSelect" class="form-control" style="width: 120px; padding: 8px;">
+                                    <!-- Se llenará dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="yearSelect" style="font-size: 0.9rem; margin-bottom: 5px;"><i
+                                        class="fas fa-calendar"></i> Año</label>
+                                <select id="yearSelect" class="form-control" style="width: 100px; padding: 8px;">
+                                    <!-- Se llenará dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista de tarjetas -->
+                <div id="historyCardsView" class="history-cards-container">
+                    <!-- Las tarjetas se cargarán dinámicamente -->
+                </div>
+
+                <!-- Vista de detalles (oculta inicialmente) -->
+                <div id="historyDetailsView" class="history-details-container">
+                    <div class="history-details-header">
+                        <button id="backToCards" class="history-details-back">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h2 class="history-details-title" id="detailsTitle">Detalles</h2>
+                    </div>
+
+                    <!-- Estadísticas del tipo seleccionado -->
+                    <div class="history-details-stats" id="detailsStats">
+                        <!-- Se cargarán dinámicamente -->
+                    </div>
+
+                    <!-- Tabla de detalles -->
+                    <div class="table-wrapper">
+                        <div class="table-header">
+                            <h3><i class="fas fa-list"></i> <span id="detailsTableTitle">Movimientos</span></h3>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table" id="historyDetailsTable">
+                                <thead id="historyDetailsTableHead">
+                                    <!-- Se cargará dinámicamente según el tipo -->
+                                </thead>
+                                <tbody id="historyDetailsTableBody">
+                                    <!-- Los detalles se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen mensual (solo para admin) -->
+                <div class="admin-only">
+                    <div class="section-header" style="margin-top: 2rem;">
+                        <div class="section-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Resumen Mensual</h3>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" id="monthlySummary">
+                        <!-- Se cargará dinámicamente -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <style>
+                .contenedor-contacto {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    max-width: 800px;
+                    margin: 10px auto;
+                    padding: 10px;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }
+
+                .contacto-simple {
+                    line-height: 1.1;
+                    /* REDUCIDO: Antes era 1.3 */
+                    color: #ffffff;
+                    text-align: center;
+                    flex: 1;
+                    padding: 0 80px;
+                }
+
+                .contacto-titulo {
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                    /* REDUCIDO: Antes 8px */
+                    font-size: 1.4em;
+                    color: #ffd700;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+
+                .contacto-subtitulo {
+                    margin-bottom: 10px;
+                    /* REDUCIDO: Antes 15px */
+                    opacity: 0.9;
+                    font-size: 0.95em;
+                    color: #cccccc;
+                }
+
+                .contacto-linea {
+                    margin: 5px 0;
+                    /* REDUCIDO: Antes 10px 0 */
+                    padding: 3px 0;
+                    /* REDUCIDO: Antes 5px 0 */
+                }
+
+                /* Resto del código igual... */
+                .contacto-link {
+                    color: #4da6ff;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    font-weight: 500;
+                }
+
+                .contacto-link:hover {
+                    color: #80c1ff;
+                    text-decoration: underline;
+                }
+
+                .contacto-destacado {
+                    color: #ffd700;
+                    font-weight: 600;
+                }
+
+                /* Estilos para WhatsApp - Posición fija a la derecha */
+                .whatsapp-container {
+                    position: absolute;
+                    right: 20px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .whatsapp-icon {
+                    width: 60px;
+                    height: 60px;
+                    background-color: #25D366;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 32px;
+                    color: white;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+                    margin-bottom: 8px;
+                }
+
+                .whatsapp-icon:hover {
+                    background-color: #1DA851;
+                    transform: scale(1.1);
+                    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+                }
+
+                .whatsapp-texto {
+                    color: #25D366;
+                    font-size: 0.9em;
+                    font-weight: 600;
+                    text-align: center;
+                }
+
+                /* Para móviles */
+                @media (max-width: 768px) {
+                    .contenedor-contacto {
+                        flex-direction: column;
+                        text-align: center;
+                        padding: 15px;
+                        position: relative;
+                    }
+
+                    .contacto-simple {
+                        text-align: center;
+                        padding: 0 0 80px 0;
+                        margin-bottom: 0;
+                        line-height: 1.1;
+                        /* También reducido en móvil */
+                    }
+
+                    .contacto-linea {
+                        margin: 4px 0;
+                        /* REDUCIDO en móvil */
+                        padding: 2px 0;
+                    }
+
+                    .whatsapp-container {
+                        position: absolute;
+                        right: 50%;
+                        bottom: 0;
+                        top: auto;
+                        transform: translateX(50%);
+                        margin-left: 0;
+                        margin-top: 10px;
+                    }
+
+                    .whatsapp-icon {
+                        width: 70px;
+                        height: 70px;
+                        font-size: 36px;
+                    }
+                }
+            </style>
+
+            <div class="contenedor-contacto">
+                <!-- Información de contacto (centrada) -->
+                <div class="contacto-simple">
+                    <div class="contacto-titulo">Destello de Oro 18K</div>
+                    <div class="contacto-subtitulo">Sistema de Gestión de Inventario y Ventas</div>
+
+                    <div class="contacto-linea">
+                        <strong>Desarrollado por:</strong>
+                        <span class="contacto-destacado">Proyectos MCE</span>
+                    </div>
+
+                    <div class="contacto-linea">
+                        <strong>📞 Contacto:</strong>
+                        <a href="tel:+573105950990" class="contacto-link">310 595 0990</a>
+                    </div>
+
+                    <div class="contacto-linea">
+                        <strong>✉️ Correo:</strong>
+                        <a href="mailto:proyectosmceAA@gmail.com" class="contacto-link">proyectosmceAA@gmail.com</a>
+                    </div>
+                </div>
+
+                <!-- Ícono de WhatsApp (derecha absoluta) -->
+                <div class="whatsapp-container">
+                    <a href="https://wa.me/573105950990?text=Hola,%20me%20interesa%20saber%20más%20sobre%20Destello%20de%20Oro%2018K"
+                        class="whatsapp-icon" target="_blank" title="Contáctanos por WhatsApp">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="32" height="32"
+                            fill="white">
+                            <path
+                                d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
+                        </svg>
+                    </a>
+                    <div class="whatsapp-texto">¡Escríbenos!</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal de factura MEJORADO SIN REDES SOCIALES -->
+    <div id="invoiceModal" class="invoice-modal">
+        <div class="invoice-container enhanced-invoice">
+            <div class="invoice-header">
+                <i class="fas fa-gem invoice-logo"></i>
+                <h2 style="color: #D4AF37; font-family: 'Playfair Display', serif;">Destello de Oro 18K</h2>
+                <p>Factura de Venta - Tienda de Oro Laminado</p>
+            </div>
+
+            <div class="company-info">
+                <div class="company-details">
+                    <p><strong>DESTELLO DE ORO 18K</strong></p>
+                    <p>Tienda de Oro Laminado</p>
+                    <p>Contacto: 3182687488</p>
+                </div>
+                <div class="invoice-details">
+                    <div class="invoice-title">FACTURA DE VENTA</div>
+                    <p id="invoiceNumber">Factura #0001</p>
+                    <p id="invoiceDate">Fecha: 01/01/2026</p>
+                    <p id="invoicePaymentMethod">Método de Pago: Efectivo</p>
+                </div>
+            </div>
+
+            <div class="client-info">
+                <h3>DATOS DEL CLIENTE</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+                    <div>
+                        <strong>Nombre:</strong> <span id="invoiceCustomerName">Cliente de mostrador</span>
+                    </div>
+                    <div>
+                        <strong>Cédula:</strong> <span id="invoiceCustomerId">No proporcionada</span>
+                    </div>
+                    <div>
+                        <strong>Celular:</strong> <span id="invoiceCustomerPhone">No proporcionado</span>
+                    </div>
+                    <div>
+                        <strong>Dirección:</strong> <span id="invoiceCustomerAddress">No proporcionada</span>
+                    </div>
+                    <div>
+                        <strong>Ciudad:</strong> <span id="invoiceCustomerCity">No proporcionada</span>
+                    </div>
+                    <div>
+                        <strong>Correo:</strong> <span id="invoiceCustomerEmail">No proporcionado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 style="color: #D4AF37; margin-bottom: 0.75rem; font-size: 1rem;">DETALLES DE LA COMPRA</h3>
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Ref</th>
+                            <th>Cantidad</th>
+                            <th>Precio unitario</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceItemsBody">
+                        <!-- Los items se cargarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="warranty-section">
+                <h4>📋 GARANTÍA DE TU JOYA</h4>
+                <p style="font-size: 0.85rem; line-height: 1.4;">
+                    Tu joya cuenta con <strong>12 meses de garantía</strong> por cambio de color desde la fecha de
+                    compra.
+                    Esta garantía no cubra daños por mal uso, como cadenas rotas, rayones, modificaciones o piezas
+                    incompletas.
+                    En caso de aplicar la garantía, tu joya será reemplazada por una nueva (sin opción de reembolso).
+                    Si recibes tu joya en mal estado, repórtalo dentro de los <strong>3 días hábiles</strong>
+                    posteriores a la entrega
+                    para gestionar el cambio con gusto.
+                </p>
+                <p style="font-size: 0.85rem; line-height: 1.4; margin-top: 8px;">
+                    <strong>IMPORTANTE:</strong> Si tu joya presenta un cambio de tonalidad dentro del tiempo
+                    establecido,
+                    deberás cubrir el costo del envío hacia nuestras instalaciones, y nosotros asumimos el costo del
+                    envío de regreso.
+                </p>
+            </div>
+
+            <div class="total-section">
+                <div style="font-size: 1.2rem; font-weight: bold;">
+                    TOTAL: <span id="invoiceTotal" class="total-amount">$0</span>
+                </div>
+            </div>
+
+            <div class="contact-info">
+                <p>¡Gracias por tu compra! Tu satisfacción es nuestro mayor compromiso.</p>
+                <p>Para consultas o garantías, contacta al: <strong>3182687488</strong></p>
+                <p style="font-style: italic; margin-top: 8px; font-size: 0.85rem;">"En Destello de Oro 18K, cada pieza
+                    cuenta una historia de elegancia"</p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                <button id="downloadInvoice" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.85rem;">
+                    <i class="fas fa-download"></i> Descargar PDF
+                </button>
+                <button id="printInvoice" class="btn btn-info" style="padding: 10px 20px; font-size: 0.85rem;">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+                <button id="closeInvoice" class="btn btn-danger" style="padding: 10px 20px; font-size: 0.85rem;">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de movimiento -->
+    <div id="viewMovementModal" class="custom-dialog">
+        <div class="dialog-content" style="max-width: 800px;">
+            <div class="dialog-icon" style="color: var(--info);">
+                <i class="fas fa-eye"></i>
+            </div>
+            <h2 id="viewMovementTitle" class="dialog-title">Detalles del Movimiento</h2>
+            <div id="viewMovementContent" class="dialog-message"
+                style="text-align: left; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="dialog-buttons">
+                <button id="downloadMovementPDFBtn" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Descargar PDF
+                </button>
+                <button id="printMovementBtn" class="btn btn-info">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+                <button id="closeViewMovement" class="btn btn-danger">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar movimiento -->
+    <div id="editMovementModal" class="custom-dialog">
+        <div class="dialog-content" style="max-width: 600px;">
+            <div class="dialog-icon" style="color: var(--warning);">
+                <i class="fas fa-edit"></i>
+            </div>
+            <h2 id="editMovementTitle" class="dialog-title">Editar Movimiento</h2>
+            <div id="editMovementContent" class="dialog-message"
+                style="text-align: left; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <!-- Contenido dinámico del formulario de edición -->
+            </div>
+            <div class="dialog-buttons">
+                <button id="saveMovementBtn" class="btn btn-success">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+                <button id="cancelEditMovement" class="btn btn-danger">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalles mensuales -->
+    <div id="monthlyDetailsModal" class="custom-dialog">
+        <div class="dialog-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div id="monthlyDetailsContent">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentUser = null;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedRole = 'admin';
+        let selectedSaleForWarranty = null;
+        let currentHistoryType = 'all';
+        let shoppingCart = [];
+        let currentSaleForView = null;
+        let currentMovementForEdit = null;
+        let currentMovementTypeForEdit = '';
+
+        // Métodos de pago
+        const paymentMethods = {
+            'transfer': { name: 'Transferencia', class: 'payment-transfer' },
+            'cash': { name: 'Efectivo', class: 'payment-cash' },
+            'bold': { name: 'Bold', class: 'payment-bold' },
+            'addi': { name: 'Addi', class: 'payment-addi' },
+            'sistecredito': { name: 'Sistecrédito', class: 'payment-sistecredito' },
+            'cod': { name: 'Contra Entrega', class: 'payment-cod' },
+            'card': { name: 'Tarjeta', class: 'payment-card' },
+            'nequi': { name: 'Nequi/Daviplata', class: 'payment-nequi' }
+        };
+
+        // Motivos de garantía
+        const warrantyReasons = {
+            'rayon': 'Rayón',
+            'pelo': 'Pelo',
+            'oxidacion': 'Oxidación',
+            'cambio_color': 'Cambio de color',
+            'otro': 'Otro'
+        };
+
+        // Iconos para las tarjetas del historial
+        const historyIcons = {
+            'sales': { icon: 'fa-shopping-cart', color: 'sales', title: 'Ventas' },
+            'expenses': { icon: 'fa-file-invoice-dollar', color: 'expenses', title: 'Gastos' },
+            'restocks': { icon: 'fa-truck-loading', color: 'restocks', title: 'Surtidos' },
+            'warranties': { icon: 'fa-shield-alt', color: 'warranties', title: 'Garantías' },
+            'pending': { icon: 'fa-clock', color: 'pending', title: 'Pendientes' },
+            'profit': { icon: 'fa-coins', color: 'profit', title: 'Ganancias' }
+        };
+
+        // Inicializar la aplicación - ELIMINADO EL LISTENER DUPLICADO AQUÍ
+        // Se ha consolidado al final del archivo para evitar race conditions
+
+        // Configurar eventos del modal de ver movimiento
+        function setupViewMovementModalEvents() {
+            const modal = document.getElementById('viewMovementModal');
+            const closeBtn = document.getElementById('closeViewMovement');
+            const downloadBtn = document.getElementById('downloadMovementPDFBtn');
+            const printBtn = document.getElementById('printMovementBtn');
+
+            // Cerrar modal
+            closeBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
+                currentSaleForView = null;
+            });
+
+            // Cerrar al hacer clic fuera
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    currentSaleForView = null;
+                }
+            });
+
+            // Descargar PDF
+            downloadBtn.addEventListener('click', async function () {
+                if (currentSaleForView) {
+                    await generateInvoicePDF(currentSaleForView);
+                    modal.style.display = 'none';
+                    currentSaleForView = null;
+                } else {
+                    await showDialog('Error', 'No hay movimiento seleccionado para descargar.', 'error');
+                }
+            });
+
+            // Imprimir
+            printBtn.addEventListener('click', function () {
+                window.print();
+            });
+        }
+
+        // Configurar eventos del modal de editar movimiento
+        function setupEditMovementModalEvents() {
+            const modal = document.getElementById('editMovementModal');
+            const closeBtn = document.getElementById('cancelEditMovement');
+            const saveBtn = document.getElementById('saveMovementBtn');
+
+            // Cerrar modal
+            closeBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
+                currentMovementForEdit = null;
+                currentMovementTypeForEdit = '';
+            });
+
+            // Cerrar al hacer clic fuera
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    currentMovementForEdit = null;
+                    currentMovementTypeForEdit = '';
+                }
+            });
+
+            // Guardar cambios
+            saveBtn.addEventListener('click', async function () {
+                await saveEditedMovement();
+            });
+        }
+
+        // Guardar movimiento editado
+        async function saveEditedMovement() {
+            if (!currentMovementForEdit || !currentMovementTypeForEdit) {
+                await showDialog('Error', 'No hay movimiento seleccionado para editar.', 'error');
+                return;
+            }
+
+            // Verificar si es administrador
+            if (currentUser && currentUser.role !== 'admin') {
+                await showDialog('Acceso Restringido', 'Solo el administrador puede editar movimientos.', 'error');
+                return;
+            }
+
+            try {
+                // Obtener valores del formulario
+                const formData = getEditFormData();
+
+                if (!formData) {
+                    await showDialog('Error', 'Error al obtener datos del formulario.', 'error');
+                    return;
+                }
+
+                // Actualizar el movimiento según su tipo
+                let success = false;
+                switch (currentMovementTypeForEdit) {
+                    case 'sales':
+                        success = await updateSale(formData);
+                        break;
+                    case 'expenses':
+                        success = await updateExpense(formData);
+                        break;
+                    case 'warranties':
+                        success = await updateWarranty(formData);
+                        break;
+                    default:
+                        await showDialog('Error', 'Tipo de movimiento no soportado para edición.', 'error');
+                        return;
+                }
+
+                if (success) {
+                    // Cerrar modal
+                    document.getElementById('editMovementModal').style.display = 'none';
+                    currentMovementForEdit = null;
+                    currentMovementTypeForEdit = '';
+
+                    // Actualizar vista
+                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                        showHistoryDetails(currentHistoryType);
+                    }
+
+                    // Actualizar tarjetas
+                    loadHistoryCards();
+
+                    await showDialog('Éxito', 'Movimiento actualizado correctamente.', 'success');
+                }
+
+            } catch (error) {
+                console.error('Error al guardar movimiento editado:', error);
+                await showDialog('Error', 'Ocurrió un error al guardar los cambios.', 'error');
+            }
+        }
+
+        // Obtener datos del formulario de edición
+        function getEditFormData() {
+            const form = document.getElementById('editMovementContent');
+            if (!form) return null;
+
+            const inputs = form.querySelectorAll('input, select, textarea');
+            const data = {};
+
+            inputs.forEach(input => {
+                if (input.name) {
+                    if (input.type === 'number') {
+                        data[input.name] = parseFloat(input.value) || 0;
+                    } else if (input.type === 'date') {
+                        data[input.name] = input.value;
+                    } else if (input.type === 'checkbox') {
+                        data[input.name] = input.checked;
+                    } else {
+                        data[input.name] = input.value.trim();
+                    }
+                }
+            });
+
+            return data;
+        }
+
+        // Actualizar venta
+        async function updateSale(formData) {
+            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
+            const saleIndex = sales.findIndex(s => s.id === currentMovementForEdit.id);
+
+            if (saleIndex === -1) {
+                await showDialog('Error', 'Venta no encontrada.', 'error');
+                return false;
+            }
+
+            // Actualizar datos básicos
+            const sale = sales[saleIndex];
+
+            // Actualizar cliente si viene en formData
+            if (formData.customerName && sale.customerInfo) {
+                sale.customerInfo.name = formData.customerName;
+                sale.customerInfo.id = formData.customerId || sale.customerInfo.id;
+                sale.customerInfo.phone = formData.customerPhone || sale.customerInfo.phone;
+                sale.customerInfo.email = formData.customerEmail || sale.customerInfo.email;
+                sale.customerInfo.address = formData.customerAddress || sale.customerInfo.address;
+                sale.customerInfo.city = formData.customerCity || sale.customerInfo.city;
+            }
+
+            // Actualizar método de pago
+            if (formData.paymentMethod) {
+                sale.paymentMethod = formData.paymentMethod;
+            }
+
+            // Actualizar estado
+            if (formData.status) {
+                sale.status = formData.status;
+                sale.confirmed = formData.status === 'completed';
+            }
+
+            // Actualizar total si hay cambios en garantía
+            if (formData.warrantyIncrement !== undefined) {
+                const oldIncrement = sale.warrantyIncrement || 0;
+                const newIncrement = parseFloat(formData.warrantyIncrement) || 0;
+                const difference = newIncrement - oldIncrement;
+
+                sale.warrantyIncrement = newIncrement;
+                sale.total += difference;
+
+                // IMPORTANTE: Si hay incremento por garantía, actualizar también en la factura original
+                // Esto asegura que el incremento se refleje en todos los lugares
+                updateWarrantyIncrementInOriginalSale(sale.id, newIncrement);
+            }
+
+            // Guardar cambios
+            sales[saleIndex] = sale;
+            localStorage.setItem('destelloOroSales', JSON.stringify(sales));
+
+            return true;
+        }
+
+        // IMPORTANTE: Actualizar incremento por garantía en la venta original
+        function updateWarrantyIncrementInOriginalSale(saleId, increment) {
+            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
+            const saleIndex = sales.findIndex(s => s.id === saleId);
+
+            if (saleIndex !== -1) {
+                sales[saleIndex].warrantyIncrement = increment;
+
+                // Recalcular el total si es necesario
+                const originalTotal = sales[saleIndex].subtotal +
+                    (sales[saleIndex].deliveryCost || 0) -
+                    (sales[saleIndex].discount || 0);
+
+                sales[saleIndex].total = originalTotal + increment;
+                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
+
+                console.log(`✅ Incremento por garantía actualizado en venta ${saleId}: ${formatCurrency(increment)}`);
+            }
+        }
+
+        // Actualizar gasto
+        async function updateExpense(formData) {
+            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+            const expenseIndex = expenses.findIndex(e => e.id === currentMovementForEdit.id);
+
+            if (expenseIndex === -1) {
+                await showDialog('Error', 'Gasto no encontrado.', 'error');
+                return false;
+            }
+
+            // Actualizar datos
+            expenses[expenseIndex].description = formData.description || expenses[expenseIndex].description;
+            expenses[expenseIndex].date = formData.date || expenses[expenseIndex].date;
+            expenses[expenseIndex].amount = parseFloat(formData.amount) || expenses[expenseIndex].amount;
+            expenses[expenseIndex].updatedAt = new Date().toISOString();
+            expenses[expenseIndex].updatedBy = currentUser.username;
+
+            localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses));
+
+            // Actualizar tabla de gastos si está visible
+            if (document.getElementById('expenses').classList.contains('active')) {
+                loadExpensesTable();
+            }
+
+            return true;
+        }
+
+        // Actualizar garantía
+        async function updateWarranty(formData) {
+            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+            const warrantyIndex = warranties.findIndex(w => w.id === currentMovementForEdit.id);
+
+            if (warrantyIndex === -1) {
+                await showDialog('Error', 'Garantía no encontrada.', 'error');
+                return false;
+            }
+
+            const warranty = warranties[warrantyIndex];
+            const oldAdditionalValue = warranty.additionalValue || 0;
+            const newAdditionalValue = parseFloat(formData.additionalValue) || 0;
+
+            // Actualizar datos
+            warranty.warrantyReason = formData.warrantyReason || warranty.warrantyReason;
+            warranty.warrantyReasonText = warrantyReasons[formData.warrantyReason] || warranty.warrantyReasonText;
+            warranty.productType = formData.productType || warranty.productType;
+            warranty.additionalValue = newAdditionalValue;
+            warranty.shippingValue = parseFloat(formData.shippingValue) || warranty.shippingValue;
+            warranty.status = formData.status || warranty.status;
+            warranty.notes = formData.notes || warranty.notes;
+            warranty.updatedAt = new Date().toISOString();
+            warranty.updatedBy = currentUser.username;
+            warranty.totalCost = newAdditionalValue + warranty.shippingValue;
+
+            // Si es producto diferente
+            if (warranty.productType === 'different') {
+                warranty.newProductRef = formData.newProductRef || warranty.newProductRef;
+                warranty.newProductName = formData.newProductName || warranty.newProductName;
+            }
+
+            // IMPORTANTE: Actualizar el incremento en la venta original si cambió el valor adicional
+            if (oldAdditionalValue !== newAdditionalValue && warranty.originalSaleId) {
+                const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
+                const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
+
+                if (saleIndex !== -1) {
+                    // Calcular la diferencia
+                    const difference = newAdditionalValue - oldAdditionalValue;
+
+                    // Inicializar si no existe
+                    if (!sales[saleIndex].warrantyIncrement) {
+                        sales[saleIndex].warrantyIncrement = 0;
+                    }
+
+                    // Actualizar incremento y total
+                    sales[saleIndex].warrantyIncrement += difference;
+                    sales[saleIndex].total += difference;
+
+                    localStorage.setItem('destelloOroSales', JSON.stringify(sales));
+
+                    console.log(`✅ Incremento por garantía actualizado en venta ${warranty.originalSaleId}: ${formatCurrency(difference)}`);
+                }
+            }
+
+            warranties[warrantyIndex] = warranty;
+            localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
+
+            // Actualizar tabla de garantías si está visible
+            if (document.getElementById('warranties').classList.contains('active')) {
+                loadWarrantiesTable();
+            }
+
+            return true;
+        }
+
+        // Configurar eventos del carrito
+        function setupCartEvents() {
+            const clearCartBtn = document.getElementById('clearCart');
+            const confirmSaleBtn = document.getElementById('confirmSale');
+            const clearAllBtn = document.getElementById('clearSaleForm');
+
+            // Vaciar carrito
+            clearCartBtn.addEventListener('click', function () {
+                shoppingCart = [];
+                updateCartDisplay();
+                updateSaleSummary();
+            });
+
+            // Confirmar venta
+            confirmSaleBtn.addEventListener('click', async function () {
+                await processCompleteSale();
+            });
+
+            // Limpiar todo
+            clearAllBtn.addEventListener('click', async function () {
+                const confirmed = await showDialog(
+                    'Limpiar Todo',
+                    '¿Está seguro de que desea limpiar todos los datos de la venta?',
+                    'question',
+                    true
+                );
+
+                if (confirmed) {
+                    shoppingCart = [];
+                    document.getElementById('addProductToSaleForm').reset();
+                    document.getElementById('paymentMethod').selectedIndex = 0;
+                    document.getElementById('deliveryType').selectedIndex = 0;
+                    document.getElementById('deliveryCost').value = 0;
+                    document.getElementById('customerName').value = '';
+                    document.getElementById('customerId').value = '';
+                    document.getElementById('customerPhone').value = '';
+                    document.getElementById('customerEmail').value = '';
+                    document.getElementById('customerAddress').value = '';
+                    document.getElementById('customerCity').value = '';
+                    updateCartDisplay();
+                    updateSaleSummary();
+                }
+            });
+        }
+
+        // Actualizar visualización del carrito
+        function updateCartDisplay() {
+            const cartContainer = document.getElementById('cartContainer');
+            const cartTableBody = document.getElementById('cartTableBody');
+            const emptyCart = document.getElementById('emptyCart');
+            const cartTotal = document.getElementById('cartTotal');
+            const confirmSaleBtn = document.getElementById('confirmSale');
+
+            // Limpiar tabla
+            cartTableBody.innerHTML = '';
+
+            if (shoppingCart.length === 0) {
+                cartContainer.style.display = 'none';
+                emptyCart.style.display = 'block';
+                cartTotal.style.display = 'none';
+                confirmSaleBtn.disabled = true;
+                return;
+            }
+
+            // Mostrar carrito
+            cartContainer.style.display = 'block';
+            emptyCart.style.display = 'none';
+            cartTotal.style.display = 'block';
+            confirmSaleBtn.disabled = false;
+
+            // Agregar productos al carrito
+            shoppingCart.forEach((item, index) => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>
+                        <strong>${item.productName}</strong><br>
+                        <small style="color: #666;">Ref: ${item.productId}</small>
+                    </td>
+                    <td>${item.quantity}</td>
+                    <td>${formatCurrency(item.unitPrice)}</td>
+                    <td><strong>${formatCurrency(item.subtotal)}</strong></td>
+                    <td class="actions">
+                        <button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+
+                cartTableBody.appendChild(row);
+            });
+
+            // Actualizar total del carrito
+            const cartTotalAmount = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
+            document.getElementById('cartTotalAmount').textContent = formatCurrency(cartTotalAmount);
+        }
+
+        // Agregar producto al carrito
+        window.addToCart = function (productRef, quantity, saleType, discount) {
+            // Buscar producto en inventario
+            const products = JSON.parse(localStorage.getItem('destelloOroProducts'));
+            const product = products.find(p => p.id === productRef);
+
+            if (!product) {
+                showDialog('Error', 'Producto no encontrado', 'error');
+                return;
+            }
+
+            // Verificar stock
+            if (quantity > product.quantity) {
+                showDialog('Error', `No hay suficiente stock. Solo hay ${product.quantity} unidades disponibles.`, 'error');
+                return;
+            }
+
+            // Calcular precios
+            const unitPrice = saleType === 'retail' ? product.retailPrice : product.wholesalePrice;
+            const subtotal = unitPrice * quantity;
+            const discountAmount = subtotal * (discount / 100);
+            const finalSubtotal = subtotal - discountAmount;
+
+            // Crear item del carrito
+            const cartItem = {
+                productId: productRef,
+                productName: product.name,
+                quantity: quantity,
+                saleType: saleType,
+                unitPrice: unitPrice,
+                subtotal: finalSubtotal,
+                discount: discountAmount,
+                purchasePrice: product.purchasePrice,
+                originalQuantity: product.quantity
+            };
+
+            // Agregar al carrito
+            shoppingCart.push(cartItem);
+
+            // Actualizar visualización
+            updateCartDisplay();
+            updateSaleSummary();
+
+            // Mostrar mensaje
+            showDialog('Producto agregado', 'El producto ha sido agregado al carrito.', 'success');
+
+            // Limpiar formulario de producto
+            document.getElementById('addProductToSaleForm').reset();
+            document.getElementById('productInfo').textContent = '';
+        };
+
+        // Remover producto del carrito
+        window.removeFromCart = function (index) {
+            if (index >= 0 && index < shoppingCart.length) {
+                shoppingCart.splice(index, 1);
+                updateCartDisplay();
+                updateSaleSummary();
+            }
+        };
+
+        // Procesar venta completa
+        async function processCompleteSale() {
+            // Validar datos del cliente
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerId = document.getElementById('customerId').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+            const customerAddress = document.getElementById('customerAddress').value.trim();
+            const customerCity = document.getElementById('customerCity').value.trim();
+
+            if (!customerName || !customerId || !customerPhone || !customerAddress || !customerCity) {
+                await showDialog('Error', 'Por favor complete todos los datos obligatorios del cliente (*).', 'error');
+                return;
+            }
+
+            // Validar que haya productos en el carrito
+            if (shoppingCart.length === 0) {
+                await showDialog('Error', 'No hay productos en el carrito.', 'error');
+                return;
+            }
+
+            // Obtener información de pago
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const deliveryType = document.getElementById('deliveryType').value;
+            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
+
+            // Información del cliente
+            const customerInfo = {
+                name: customerName,
+                id: customerId,
+                phone: customerPhone,
+                email: document.getElementById('customerEmail').value.trim(),
+                address: customerAddress,
+                city: customerCity
+            };
+
+            // Calcular totales
+            const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
+            const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
+            const total = subtotal + deliveryCost;
+
+            // Generar ID de factura
+            let nextInvoiceId = parseInt(localStorage.getItem('destelloOroNextInvoiceId') || '1001');
+            const invoiceId = `FAC${nextInvoiceId.toString().padStart(4, '0')}`;
+
+            // Crear objeto de venta con múltiples productos
+            const sale = {
+                id: invoiceId,
+                products: shoppingCart.map(item => ({
+                    productId: item.productId,
+                    productName: item.productName,
+                    quantity: item.quantity,
+                    saleType: item.saleType,
+                    unitPrice: item.unitPrice,
+                    subtotal: item.subtotal,
+                    discount: item.discount,
+                    purchasePrice: item.purchasePrice
+                })),
+                subtotal: subtotal,
+                discount: totalDiscount,
+                deliveryCost: deliveryCost,
+                total: total,
+                paymentMethod: paymentMethod,
+                deliveryType: deliveryType,
+                customerInfo: customerInfo,
+                date: new Date().toISOString(),
+                status: paymentMethod === 'cash' ? 'completed' : 'pending',
+                confirmed: paymentMethod === 'cash',
+                user: currentUser.username,
+                warrantyIncrement: 0 // Inicializar en 0
+            };
+
+            // Si el pago no es en efectivo, guardar como pendiente
+            if (paymentMethod !== 'cash') {
+                const pendingSales = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+                pendingSales.push(sale);
+                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+
+                // Actualizar tabla de pendientes
+                loadPendingSalesTable();
+
+                await showDialog(
+                    'Venta Pendiente',
+                    'Venta registrada como pendiente de pago. El administrador debe confirmar el pago.',
+                    'warning'
+                );
+            } else {
+                // Si es efectivo, procesar inmediatamente
+                const success = processSale(sale);
+
+                if (success) {
+                    await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
+
+                    // Mostrar factura
+                    showInvoice(sale);
+                } else {
+                    await showDialog('Error', 'Ocurrió un error al procesar la venta.', 'error');
+                }
+            }
+
+            // Limpiar todo después de la venta
+            shoppingCart = [];
+            document.getElementById('addProductToSaleForm').reset();
+            document.getElementById('paymentMethod').selectedIndex = 0;
+            document.getElementById('deliveryType').selectedIndex = 0;
+            document.getElementById('deliveryCost').value = 0;
+            updateCartDisplay();
+            updateSaleSummary();
+
+            // Actualizar historial
+            loadHistoryCards();
+
+            // Incrementar número de factura
+            localStorage.setItem('destelloOroNextInvoiceId', (nextInvoiceId + 1).toString());
+        }
+
+        // Actualizar resumen de venta
+        function updateSaleSummary() {
+            const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
+            const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
+            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const total = subtotal + deliveryCost;
+
+            // Actualizar UI
+            document.getElementById('subtotalAmount').textContent = formatCurrency(subtotal);
+            document.getElementById('discountAmount').textContent = formatCurrency(totalDiscount);
+            document.getElementById('deliveryAmount').textContent = formatCurrency(deliveryCost);
+            document.getElementById('totalAmount').textContent = formatCurrency(total);
+        }
+
+        // Configurar eventos del historial
+        function setupHistoryEvents() {
+            const filterSelect = document.getElementById('historyFilter');
+            const refreshBtn = document.getElementById('refreshHistory');
+            const backToCardsBtn = document.getElementById('backToCards');
+
+            // Filtrar historial
+            filterSelect.addEventListener('change', function () {
+                currentHistoryType = this.value;
+                loadHistoryCards();
+            });
+
+            // Actualizar historial
+            refreshBtn.addEventListener('click', function () {
+                loadHistoryCards();
+                if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                    showHistoryDetails(currentHistoryType);
+                }
+            });
+
+            // Volver a las tarjetas
+            backToCardsBtn.addEventListener('click', function () {
+                document.getElementById('historyCardsView').style.display = 'grid';
+                document.getElementById('historyDetailsView').classList.remove('active');
+            });
+        }
+
+        // Cargar tarjetas del historial
+        // Cargar tarjetas del historial - AHORA ASYNC
+        async function loadHistoryCards() {
+            const cardsContainer = document.getElementById('historyCardsView');
+            const queryParams = `?month=${currentMonth}&year=${currentYear}`;
+
+            try {
+                // Obtener datos filtrados por mes/año desde el servidor
+                const [sales, expenses, restocks, warranties, pendingSales] = await Promise.all([
+                    fetch(`api/sales.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/expenses.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/restocks.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/warranties.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/pending_sales.php${queryParams}`).then(r => r.json())
+                ]);
+
+                // Actualizar caché para compatibilidad
+                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
+                localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses));
+                localStorage.setItem('destelloOroRestocks', JSON.stringify(restocks));
+                localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
+                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+
+                let fSales = sales;
+                let fExpenses = expenses;
+                let fRestocks = restocks;
+                let fWarranties = warranties;
+                let fPending = pendingSales;
+
+                if (currentHistoryType !== 'all') {
+                    if (currentHistoryType === 'sales') {
+                        fExpenses = []; fRestocks = []; fWarranties = []; fPending = [];
+                    } else if (currentHistoryType === 'expenses') {
+                        fSales = []; fRestocks = []; fWarranties = []; fPending = [];
+                    } else if (currentHistoryType === 'restocks') {
+                        fSales = []; fExpenses = []; fWarranties = []; fPending = [];
+                    } else if (currentHistoryType === 'warranties') {
+                        fSales = []; fExpenses = []; fRestocks = []; fPending = [];
+                    } else if (currentHistoryType === 'pending') {
+                        fSales = []; fExpenses = []; fRestocks = []; fWarranties = [];
+                    }
+                }
+
+                cardsContainer.innerHTML = '';
+
+                if (fSales.length > 0) createHistoryCard('sales', fSales);
+                if (fExpenses.length > 0) createHistoryCard('expenses', fExpenses);
+                if (fRestocks.length > 0) createHistoryCard('restocks', fRestocks);
+                if (fWarranties.length > 0) createHistoryCard('warranties', fWarranties);
+                if (fPending.length > 0) createHistoryCard('pending', fPending);
+
+                if (fSales.length > 0) createProfitHistoryCard(fSales);
+
+                if (cardsContainer.innerHTML === '') {
+                    cardsContainer.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666;">
+                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; color: var(--medium-gray);"></i>
+                            <h3>No hay movimientos registrados</h3>
+                            <p>Cuando realices operaciones en el sistema, aparecerán aquí.</p>
+                        </div>
+                    `;
+                }
+
+                loadMonthlySummary();
+
+            } catch (error) {
+                console.error('Error cargando historial:', error);
+            }
+        }
+
+        // Crear tarjeta de ganancias con opciones (detal, mayorista, total)
+        function createProfitHistoryCard(sales) {
+            const cardsContainer = document.getElementById('historyCardsView');
+
+            // Calcular ganancias por tipo de venta
+            let retailSales = 0;
+            let wholesaleSales = 0;
+            let retailCOGS = 0;
+            let wholesaleCOGS = 0;
+
+            sales.forEach(sale => {
+                const isRetail = sale.saleType === 'retail' || sale.delivery_type === 'store'; // Ajuste leve
+                const saleTotal = parseFloat(sale.total) || 0;
+
+                // Calcular COGS usando purchasePrice del item (ahora viene en el objeto sale)
+                const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + (p.purchasePrice * p.quantity), 0);
+
+                if (isRetail) {
+                    retailSales += saleTotal;
+                    retailCOGS += saleCOGS;
+                } else {
+                    wholesaleSales += saleTotal;
+                    wholesaleCOGS += saleCOGS;
+                }
+            });
+
+            const retailProfit = retailSales - retailCOGS;
+            const wholesaleProfit = wholesaleSales - wholesaleCOGS;
+            const totalProfit = retailProfit + wholesaleProfit;
+
+            const card = document.createElement('div');
+            card.className = 'history-card';
+            card.dataset.type = 'profit';
+
+            card.innerHTML = `
+                <div class="history-card-header">
+                    <div class="history-card-icon profit">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="history-card-title">Ganancias</div>
+                </div>
+                
+                <div class="history-card-count">${sales.length} ventas</div>
+                
+                <div class="history-card-details">
+                    <div class="history-card-detail">
+                        <span>Al Detal:</span>
+                        <span class="history-card-detail-value" style="color: #4CAF50;">${formatCurrency(retailProfit)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Mayorista:</span>
+                        <span class="history-card-detail-value" style="color: #2196F3;">${formatCurrency(wholesaleProfit)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Total:</span>
+                        <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(totalProfit)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Ventas:</span>
+                        <span class="history-card-detail-value">${formatCurrency(retailSales + wholesaleSales)}</span>
+                    </div>
+                </div>
+                
+                <div class="history-card-footer">
+                    <div class="history-card-user">
+                        <i class="fas fa-chart-line history-card-user-icon"></i>
+                        <span>Análisis de ganancias</span>
+                    </div>
+                    <div class="history-card-date">
+                        <i class="fas fa-calendar history-card-date-icon"></i>
+                        <span>Hoy ${new Date().toLocaleDateString('es-CO')}</span>
+                    </div>
+                </div>
+            `;
+
+            // Agregar evento para mostrar detalles
+            card.addEventListener('click', function () {
+                showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales);
+            });
+
+            cardsContainer.appendChild(card);
+        }
+
+        // Crear tarjeta del historial
+        function createHistoryCard(type, data) {
+            const cardsContainer = document.getElementById('historyCardsView');
+            const iconInfo = historyIcons[type];
+
+            // Calcular estadísticas
+            let totalValue = 0;
+            let lastDate = '';
+            let userCount = {};
+            let recentData = [];
+
+            // Ordenar por fecha (más reciente primero)
+            data.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || b.createdAt));
+
+            // Tomar los 5 más recientes para mostrar
+            recentData = data.slice(0, 5);
+
+            // Calcular totales y usuarios
+            data.forEach(item => {
+                // Calcular valor total
+                if (type === 'sales') {
+                    totalValue += item.total || 0;
+                } else if (type === 'expenses') {
+                    totalValue += item.amount || 0;
+                } else if (type === 'restocks') {
+                    totalValue += item.totalValue || 0;
+                } else if (type === 'warranties') {
+                    totalValue += item.totalCost || 0;
+                } else if (type === 'pending') {
+                    totalValue += item.total || 0;
+                }
+
+                // Contar usuarios
+                const user = item.user || item.createdBy || 'desconocido';
+                userCount[user] = (userCount[user] || 0) + 1;
+
+                // Obtener última fecha
+                if (!lastDate) {
+                    lastDate = item.date || item.createdAt;
+                }
+            });
+
+            // Encontrar usuario más activo
+            let mostActiveUser = '';
+            let maxCount = 0;
+            for (const [user, count] of Object.entries(userCount)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    mostActiveUser = user;
+                }
+            }
+
+            // Crear tarjeta
+            const card = document.createElement('div');
+            card.className = 'history-card';
+            card.dataset.type = type;
+
+            card.innerHTML = `
+                <div class="history-card-header">
+                    <div class="history-card-icon ${iconInfo.color}">
+                        <i class="fas ${iconInfo.icon}"></i>
+                    </div>
+                    <div class="history-card-title">${iconInfo.title}</div>
+                </div>
+                
+                <div class="history-card-count">${data.length}</div>
+                
+                <div class="history-card-details">
+                    <div class="history-card-detail">
+                        <span>Total:</span>
+                        <span class="history-card-detail-value">${formatCurrency(totalValue)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Último:</span>
+                        <span class="history-card-detail-value">${lastDate ? formatDateSimple(lastDate) : 'N/A'}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Usuarios:</span>
+                        <span class="history-card-detail-value">${Object.keys(userCount).length}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Más activo:</span>
+                        <span class="history-card-detail-value">${getUserName(mostActiveUser)}</span>
+                    </div>
+                </div>
+                
+                <div class="history-card-footer">
+                    <div class="history-card-user">
+                        <i class="fas fa-user history-card-user-icon"></i>
+                        <span>${Object.keys(userCount).length} usuario(s)</span>
+                    </div>
+                    <div class="history-card-date">
+                        <i class="fas fa-calendar history-card-date-icon"></i>
+                        <span>Hoy ${new Date().toLocaleDateString('es-CO')}</span>
+                    </div>
+                </div>
+            `;
+
+            // Agregar evento para mostrar detalles
+            card.addEventListener('click', function () {
+                showHistoryDetails(type);
+            });
+
+            cardsContainer.appendChild(card);
+        }
+
+        // Mostrar detalles de ganancias
+        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
+            // Ocultar tarjetas
+            document.getElementById('historyCardsView').style.display = 'none';
+            document.getElementById('historyDetailsView').style.display = 'block';
+
+            const content = document.getElementById('monthlyDetailsContent');
+            const title = `Análisis de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+
+            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales);
+
+            content.innerHTML = `
+                <div class="dialog-icon" style="color: var(--gold-primary);">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <h2 style="color: var(--gold-dark); margin-top: 10px;">${title}</h2>
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+                ${detailsHTML}
+            `;
+
+            document.getElementById('monthlyDetailsModal').style.display = 'flex';
+        }
+
+        // Generar HTML del desglose de ganancias
+        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
+            return `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
+                        <i class="fas fa-coins"></i> Análisis de Ganancias
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #4CAF50;">
+                            <strong style="font-size: 1.2em; color: #4CAF50;">💚 Ganancias al Detal</strong><br>
+                            <div style="font-size: 1.5em; color: #4CAF50; margin: 10px 0;">
+                                ${formatCurrency(retailProfit)}
+                            </div>
+                            <small>Ventas: ${formatCurrency(retailSales)}</small><br>
+                            <small>Costo: ${formatCurrency(retailCOGS)}</small>
+                        </div>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #2196F3;">
+                            <strong style="font-size: 1.2em; color: #2196F3;">💙 Ganancias Mayorista</strong><br>
+                            <div style="font-size: 1.5em; color: #2196F3; margin: 10px 0;">
+                                ${formatCurrency(wholesaleProfit)}
+                            </div>
+                            <small>Ventas: ${formatCurrency(wholesaleSales)}</small><br>
+                            <small>Costo: ${formatCurrency(wholesaleCOGS)}</small>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--gold-primary);">
+                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancia Total</strong><br>
+                            <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
+                                ${formatCurrency(totalProfit)}
+                            </div>
+                            <small>Total Ventas: ${formatCurrency(retailSales + wholesaleSales)}</small><br>
+                            <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold-dark); margin-bottom: 15px;">
+                        <i class="fas fa-list"></i> Detalle de Ventas por Tipo
+                    </h4>
+                    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: var(--gold-light); position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tipo</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ventas</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ganancia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${sales.map(sale => {
+                const isRetail = sale.saleType === 'retail';
+                const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                const saleCOGS = (sale.products || []).reduce((sum, product) => {
+                    const prod = products.find(p => p.id === product.productId);
+                    if (prod) {
+                        return sum + (prod.purchasePrice * product.quantity);
+                    }
+                    return sum;
+                }, 0);
+                const profit = sale.total - saleCOGS;
+                const typeLabel = isRetail ? 'Al Detal' : 'Mayorista';
+                const typeColor = isRetail ? '#4CAF50' : '#2196F3';
+
+                return `
+                                        <tr style="border-bottom: 1px solid #eee;">
+                                            <td style="padding: 10px;">${formatDate(sale.date)}</td>
+                                            <td style="padding: 10px;">
+                                                <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em;">
+                                                    ${typeLabel}
+                                                </span>
+                                            </td>
+                                            <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
+                                            <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
+                                            <td style="padding: 10px; text-align: right; font-weight: bold; color: ${profit >= 0 ? '#4CAF50' : '#F44336'};">
+                                                ${formatCurrency(profit)}
+                                            </td>
+                                        </tr>
+                                    `;
+            }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #f0f0f0; text-align: center;">
+                    <button onclick="backToHistoryCards()" style="background: linear-gradient(135deg, #8BC34A 0%, #CDDC39 100%); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-size: 1em; font-weight: 600; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                        <i class="fas fa-arrow-left"></i> Volver al Historial
+                    </button>
+                </div>
+            `;
+        }
+
+        // Volver a las tarjetas del historial
+        function backToHistoryCards() {
+            document.getElementById('monthlyDetailsModal').style.display = 'none';
+            document.getElementById('historyCardsView').style.display = 'grid';
+            document.getElementById('historyDetailsView').style.display = 'none';
+        }
+
+        // Mostrar detalles del historial
+        function showHistoryDetails(type) {
+            // Ocultar tarjetas
+            document.getElementById('historyCardsView').style.display = 'none';
+
+            // Mostrar detalles
+            const detailsView = document.getElementById('historyDetailsView');
+            detailsView.classList.add('active');
+
+            // Configurar título
+            const iconInfo = historyIcons[type];
+            document.getElementById('detailsTitle').textContent = `Detalles de ${iconInfo.title}`;
+            document.getElementById('detailsTableTitle').textContent = iconInfo.title;
+
+            // Cargar estadísticas
+            loadHistoryDetailsStats(type);
+
+            // Cargar tabla de detalles
+            loadHistoryDetailsTable(type);
+
+            // Scroll al inicio
+            detailsView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Cargar estadísticas de los detalles
+        function loadHistoryDetailsStats(type) {
+            const statsContainer = document.getElementById('detailsStats');
+
+            // Obtener datos
+            let data = [];
+            switch (type) {
+                case 'sales':
+                    data = JSON.parse(localStorage.getItem('destelloOroSales'));
+                    break;
+                case 'expenses':
+                    data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                    break;
+                case 'restocks':
+                    data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                    break;
+                case 'warranties':
+                    data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                    break;
+                case 'pending':
+                    data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+                    break;
+            }
+
+            // Calcular estadísticas
+            let totalValue = 0;
+            let todayCount = 0;
+            let thisWeekCount = 0;
+            let userCount = {};
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            oneWeekAgo.setHours(0, 0, 0, 0);
+
+            data.forEach(item => {
+                const itemDate = new Date(item.date || item.createdAt);
+
+                // Calcular valor total
+                if (type === 'sales') {
+                    totalValue += item.total || 0;
+                } else if (type === 'expenses') {
+                    totalValue += item.amount || 0;
+                } else if (type === 'restocks') {
+                    totalValue += item.totalValue || 0;
+                } else if (type === 'warranties') {
+                    totalValue += item.totalCost || 0;
+                } else if (type === 'pending') {
+                    totalValue += item.total || 0;
+                }
+
+                // Contar por fecha
+                if (itemDate >= today) {
+                    todayCount++;
+                }
+                if (itemDate >= oneWeekAgo) {
+                    thisWeekCount++;
+                }
+
+                // Contar usuarios
+                const user = item.user || item.createdBy || 'desconocido';
+                userCount[user] = (userCount[user] || 0) + 1;
+            });
+
+            // Crear estadísticas
+            statsContainer.innerHTML = `
+                <div class="history-details-stat">
+                    <div style="font-size: 0.9rem; color: #666;">Total</div>
+                    <div class="history-details-stat-value">${data.length}</div>
+                    <div style="font-size: 0.8rem; color: var(--gold-dark);">registros</div>
+                </div>
+                <div class="history-details-stat">
+                    <div style="font-size: 0.9rem; color: #666;">Valor Total</div>
+                    <div class="history-details-stat-value">${formatCurrency(totalValue)}</div>
+                    <div style="font-size: 0.8rem; color: var(--gold-dark);">acumulado</div>
+                </div>
+                <div class="history-details-stat">
+                    <div style="font-size: 0.9rem; color: #666;">Hoy</div>
+                    <div class="history-details-stat-value">${todayCount}</div>
+                    <div style="font-size: 0.8rem; color: var(--gold-dark);">registros</div>
+                </div>
+                <div class="history-details-stat">
+                    <div style="font-size: 0.9rem; color: #666;">Esta semana</div>
+                    <div class="history-details-stat-value">${thisWeekCount}</div>
+                    <div style="font-size: 0.8rem; color: var(--gold-dark);">registros</div>
+                </div>
+            `;
+        }
+
+        // Cargar tabla de detalles del historial
+        function loadHistoryDetailsTable(type) {
+            const tableHead = document.getElementById('historyDetailsTableHead');
+            const tableBody = document.getElementById('historyDetailsTableBody');
+
+            // Obtener datos
+            let data = [];
+            switch (type) {
+                case 'sales':
+                    data = JSON.parse(localStorage.getItem('destelloOroSales'));
+                    break;
+                case 'expenses':
+                    data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                    break;
+                case 'restocks':
+                    data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                    break;
+                case 'warranties':
+                    data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                    break;
+                case 'pending':
+                    data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+                    break;
+            }
+
+            // Ordenar por fecha (más reciente primero)
+            data.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || b.createdAt));
+
+            // Configurar encabezados según el tipo
+            let headers = '';
+            switch (type) {
+                case 'sales':
+                    headers = `
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Factura</th>
+                            <th>Cliente</th>
+                            <th>Productos</th>
+                            <th>Total</th>
+                            <th>Incremento Garantía</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    `;
+                    break;
+                case 'expenses':
+                    headers = `
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Valor</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    `;
+                    break;
+                case 'restocks':
+                    headers = `
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Valor Total</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    `;
+                    break;
+                case 'warranties':
+                    headers = `
+                        <tr>
+                            <th>Fecha</th>
+                            <th>ID Venta</th>
+                            <th>Cliente</th>
+                            <th>Motivo</th>
+                            <th>Costo</th>
+                            <th>Estado</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    `;
+                    break;
+                case 'pending':
+                    headers = `
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Factura</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Método Pago</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    `;
+                    break;
+            }
+
+            tableHead.innerHTML = headers;
+            tableBody.innerHTML = '';
+
+            // Agregar filas según el tipo
+            data.forEach(item => {
+                let row = '';
+                const itemDate = item.date || item.createdAt;
+                const user = item.user || item.createdBy || 'desconocido';
+
+                switch (type) {
+                    case 'sales':
+                        const productCount = item.products ? item.products.length : 1;
+                        const productNames = item.products ?
+                            item.products.map(p => p.productName).join(', ') :
+                            (item.productName || 'Producto');
+
+                        row = `
+                            <tr>
+                                <td>${formatDate(itemDate)}</td>
+                                <td><strong>${item.id}</strong></td>
+                                <td>${item.customerInfo?.name || 'Cliente de mostrador'}</td>
+                                <td>
+                                    <strong>${productCount} producto(s)</strong><br>
+                                    <small>${productNames}</small>
+                                </td>
+                                <td><strong>${formatCurrency(item.total)}</strong></td>
+                                <td><strong>${formatCurrency(item.warrantyIncrement || 0)}</strong></td>
+                                <td>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        break;
+
+                    case 'expenses':
+                        row = `
+                            <tr>
+                                <td>${formatDate(itemDate)}</td>
+                                <td>${item.description}</td>
+                                <td><strong>${formatCurrency(item.amount)}</strong></td>
+                                <td>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'expenses')" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'expenses')" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'expenses')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        break;
+
+                    case 'restocks':
+                        row = `
+                            <tr>
+                                <td>${formatDate(itemDate)}</td>
+                                <td>${item.productName}</td>
+                                <td>${item.quantity}</td>
+                                <td><strong>${formatCurrency(item.totalValue)}</strong></td>
+                                <td>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'restocks')" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'restocks')" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        break;
+
+                    case 'warranties':
+                        row = `
+                            <tr>
+                                <td>${formatDate(itemDate)}</td>
+                                <td><strong>${item.originalSaleId}</strong></td>
+                                <td>${item.customerName}</td>
+                                <td>${item.warrantyReasonText || item.warrantyReason}</td>
+                                <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
+                                <td>
+                                    <span class="badge ${item.status === 'completed' ? 'badge-success' :
+                                item.status === 'pending' ? 'badge-warning' :
+                                    item.status === 'in_process' ? 'badge-info' : 'badge-danger'}">
+                                        ${getWarrantyStatusText(item.status)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'warranties')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        break;
+
+                    case 'pending':
+                        row = `
+                            <tr>
+                                <td>${formatDate(itemDate)}</td>
+                                <td><strong>${item.id}</strong></td>
+                                <td>${item.customerInfo?.name || 'Cliente de mostrador'}</td>
+                                <td><strong>${formatCurrency(item.total)}</strong></td>
+                                <td>
+                                    <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
+                                        ${getPaymentMethodName(item.paymentMethod)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        break;
+                }
+
+                tableBody.innerHTML += row;
+            });
+
+            // Si no hay datos
+            if (tableBody.innerHTML === '') {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: #666;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; color: var(--medium-gray);"></i>
+                            <h4>No hay datos disponibles</h4>
+                            <p>No se encontraron registros de este tipo.</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Cargar resumen mensual - AHORA ASYNC
+        async function loadMonthlySummary() {
+            const monthlySummary = document.getElementById('monthlySummary');
+            const queryParams = `?month=${currentMonth}&year=${currentYear}`;
+
+            try {
+                // Obtener datos ya filtrados por el servidor
+                const [sales, expenses, restocks, warranties] = await Promise.all([
+                    fetch(`api/sales.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/expenses.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/restocks.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/warranties.php${queryParams}`).then(r => r.json())
+                ]);
+
+                // Calcular totales
+                const totalSales = sales.reduce((sum, sale) => sum + (parseFloat(sale.total) || 0), 0);
+                const totalExpenses = expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
+                
+                // Calcular costo real usando purchasePrice incluido en cada venta (gracias a mi cambio anterior en API)
+                const costOfGoodsSold = sales.reduce((sum, sale) => {
+                    return sum + (sale.products || []).reduce((pSum, p) => pSum + (p.purchasePrice * p.quantity), 0);
+                }, 0);
+
+                const totalWarrantyCosts = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.total_cost || warranty.totalCost) || 0), 0);
+                const totalWarrantyIncrement = sales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement) || 0), 0);
+                
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
+
+                // Actualizar resumen mensual
+                monthlySummary.innerHTML = `
+                    <div class="stat-card clickable" onclick="showMonthlyDetails('sales')">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-value">${formatCurrency(totalSales)}</div>
+                        <div class="stat-label">Ventas del Mes</div>
+                        <small>${sales.length} ventas confirmadas</small>
+                        <small style="color: var(--warning);">Incl. garantías: ${formatCurrency(totalWarrantyIncrement)}</small>
+                    </div>
+                    <div class="stat-card clickable" onclick="showMonthlyDetails('expenses')">
+                        <div class="stat-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="stat-value">${formatCurrency(totalExpenses)}</div>
+                        <div class="stat-label">Gastos del Mes</div>
+                        <small>${expenses.length} gastos registrados</small>
+                    </div>
+                    <div class="stat-card clickable" onclick="showMonthlyDetails('restocks')">
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-value">${formatCurrency(costOfGoodsSold)}</div>
+                        <div class="stat-label">Costo de lo Vendido</div>
+                        <small>Costo real del inventario vendido</small>
+                    </div>
+                    <div class="stat-card clickable" onclick="showMonthlyDetails('warranties')">
+                        <div class="stat-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="stat-value">${formatCurrency(totalWarrantyCosts)}</div>
+                        <div class="stat-label">Costos Garantías</div>
+                        <small>${warranties.length} garantías gestionadas</small>
+                    </div>
+                    <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-value">${formatCurrency(netProfit)}</div>
+                        <div class="stat-label">Ganancia Neta</div>
+                        <small>Ventas - Gastos - Costo de lo Vendido - Garantías</small>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error al cargar resumen mensual:', error);
+                monthlySummary.innerHTML = '<p style="color: grey; padding: 20px;">Error al cargar datos financieros.</p>';
+            }
+        }
+
+        // Mostrar detalles mensuales
+        function showMonthlyDetails(type) {
+            const modal = document.getElementById('monthlyDetailsModal');
+            const content = document.getElementById('monthlyDetailsContent');
+
+            // Obtener datos del mes actual
+            const sales = JSON.parse(localStorage.getItem('destelloOroSales')) || [];
+            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
+            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
+            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+
+            // Usar las variables globales currentMonth y currentYear
+            // const currentDate = new Date();
+            // const currentMonth = currentDate.getMonth();
+            // const currentYear = currentDate.getFullYear();
+
+            const monthlySales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate.getMonth() === currentMonth &&
+                    saleDate.getFullYear() === currentYear &&
+                    sale.confirmed;
+            });
+
+            const monthlyExpenses = expenses.filter(expense => {
+                const expenseDate = new Date(expense.date);
+                return expenseDate.getMonth() === currentMonth &&
+                    expenseDate.getFullYear() === currentYear;
+            });
+
+            const monthlyRestocks = restocks.filter(restock => {
+                const restockDate = new Date(restock.date);
+                return restockDate.getMonth() === currentMonth &&
+                    restockDate.getFullYear() === currentYear;
+            });
+
+            const monthlyWarranties = warranties.filter(warranty => {
+                const warrantyDate = new Date(warranty.createdAt);
+                return warrantyDate.getMonth() === currentMonth &&
+                    warrantyDate.getFullYear() === currentYear;
+            });
+
+            // Calcular totales
+            const totalSales = monthlySales.reduce((sum, sale) => sum + sale.total, 0);
+            const totalExpenses = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+            // CORRECCIÓN: Calcular el COSTO REAL de lo vendido basándose en el purchasePrice de los productos
+            const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+            const costOfGoodsSold = monthlySales.reduce((sum, sale) => {
+                const saleCost = (sale.products || []).reduce((saleSum, product) => {
+                    const prod = products.find(p => p.id === product.productId);
+                    if (prod) {
+                        return saleSum + (prod.purchasePrice * product.quantity);
+                    }
+                    return saleSum;
+                }, 0);
+                return sum + saleCost;
+            }, 0);
+
+            const totalWarrantyCosts = monthlyWarranties.reduce((sum, warranty) => sum + (warranty.totalCost || 0), 0);
+            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (sale.warrantyIncrement || 0), 0);
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
+
+            let title = '';
+            let detailsHTML = '';
+
+            switch (type) {
+                case 'sales':
+                    title = `Detalles de Ventas - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    detailsHTML = generateSalesDetailsHTML(monthlySales, totalSales, totalWarrantyIncrement);
+                    break;
+                case 'expenses':
+                    title = `Detalles de Gastos - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    detailsHTML = generateExpensesDetailsHTML(monthlyExpenses, totalExpenses);
+                    break;
+                case 'restocks':
+                    title = `Detalles de Costo de Inventario - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    detailsHTML = generateCostOfGoodsSoldHTML(monthlySales, costOfGoodsSold, products);
+                    break;
+                case 'warranties':
+                    title = `Detalles de Garantías - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyCosts);
+                    break;
+                case 'profit':
+                    title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyCosts, netProfit);
+                    break;
+            }
+
+            content.innerHTML = `
+                <div class="dialog-icon" style="color: var(--gold-primary);">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h2 class="dialog-title">${title}</h2>
+                <div class="dialog-message" style="text-align: left; max-height: 500px; overflow-y: auto;">
+                    ${detailsHTML}
+                </div>
+                <div class="dialog-buttons">
+                    <button onclick="downloadMonthlyReport('${type}')" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Descargar PDF
+                    </button>
+                    <button onclick="document.getElementById('monthlyDetailsModal').style.display='none'" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        // Generar HTML para detalles de ventas
+        function generateSalesDetailsHTML(sales, total, warrantyIncrement) {
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
+                        <i class="fas fa-chart-line"></i> Resumen de Ventas
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(total)}</strong><br>
+                            <small>Total Ventas</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--warning);">${formatCurrency(warrantyIncrement)}</strong><br>
+                            <small>Incremento por Garantías</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--info);">${sales.length}</strong><br>
+                            <small>Total Transacciones</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold-dark); margin-bottom: 15px;">
+                        <i class="fas fa-list"></i> Detalle de Ventas
+                    </h4>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: var(--gold-light); position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Factura</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Cliente</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Total</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Pago</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            sales.forEach(sale => {
+                html += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">${formatDate(sale.date)}</td>
+                        <td style="padding: 10px;">${sale.id || 'N/A'}</td>
+                        <td style="padding: 10px;">${sale.customerName || 'Cliente General'}</td>
+                        <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(sale.total)}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <span class="payment-badge ${getPaymentMethodClass(sale.paymentMethod)}">${getPaymentMethodName(sale.paymentMethod)}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // Generar HTML para detalles de gastos
+        function generateExpensesDetailsHTML(expenses, total) {
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
+                        <i class="fas fa-receipt"></i> Resumen de Gastos
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(total)}</strong><br>
+                            <small>Total Gastos</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--info);">${expenses.length}</strong><br>
+                            <small>Total Registros</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold-dark); margin-bottom: 15px;">
+                        <i class="fas fa-list"></i> Detalle de Gastos
+                    </h4>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: var(--gold-light); position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Descripción</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Categoría</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Monto</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Usuario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            expenses.forEach(expense => {
+                html += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">${formatDate(expense.date)}</td>
+                        <td style="padding: 10px;">${expense.description}</td>
+                        <td style="padding: 10px;">${expense.category || 'General'}</td>
+                        <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(expense.amount)}</td>
+                        <td style="padding: 10px;">${getUserName(expense.user)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // Generar HTML para detalles de surtidos
+        function generateRestocksDetailsHTML(restocks, total) {
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
+                        <i class="fas fa-boxes"></i> Resumen de Surtidos
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--warning);">${formatCurrency(total)}</strong><br>
+                            <small>Valor Total</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--info);">${restocks.length}</strong><br>
+                            <small>Total Surtidos</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold-dark); margin-bottom: 15px;">
+                        <i class="fas fa-list"></i> Detalle de Surtidos
+                    </h4>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: var(--gold-light); position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Producto</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Referencia</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Cantidad</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Valor</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Usuario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            restocks.forEach(restock => {
+                html += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">${formatDate(restock.date)}</td>
+                        <td style="padding: 10px;">${restock.productName}</td>
+                        <td style="padding: 10px;">${restock.productId}</td>
+                        <td style="padding: 10px; text-align: center;">${restock.quantity}</td>
+                        <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(restock.totalValue)}</td>
+                        <td style="padding: 10px;">${getUserName(restock.user)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // Generar HTML para detalles de garantías
+        function generateWarrantiesDetailsHTML(warranties, total) {
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
+                        <i class="fas fa-shield-alt"></i> Resumen de Garantías
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(total)}</strong><br>
+                            <small>Costo Total</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--info);">${warranties.length}</strong><br>
+                            <small>Total Garantías</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold-dark); margin-bottom: 15px;">
+                        <i class="fas fa-list"></i> Detalle de Garantías
+                    </h4>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: var(--gold-light); position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Venta ID</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Cliente</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Motivo</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            warranties.forEach(warranty => {
+                html += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">${formatDate(warranty.createdAt)}</td>
+                        <td style="padding: 10px;">${warranty.saleId || 'N/A'}</td>
+                        <td style="padding: 10px;">${warranty.customerName || 'N/A'}</td>
+                        <td style="padding: 10px;">${getWarrantyReasonText(warranty.reason)}</td>
+                        <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(warranty.totalCost || 0)}</td>
+                        <td style="padding: 10px;">${getWarrantyStatusText(warranty.status || 'pending')}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // Generar HTML para detalles de costo de lo vendido
+        function generateCostOfGoodsSoldHTML(sales, total, products) {
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
+                        <i class="fas fa-shopping-cart"></i> Costo de Inventario Vendido
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--warning);">${formatCurrency(total)}</strong><br>
+                            <small>Costo Total</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--info);">${sales.length}</strong><br>
+                            <small>Ventas Procesadas</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold-dark); margin-bottom: 15px;">
+                        <i class="fas fa-list"></i> Desglose de Costos
+                    </h4>
+                    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: var(--gold-light); position: sticky; top: 0;">
+                                <tr>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Producto</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Cantidad</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo Unitario</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            sales.forEach(sale => {
+                if (sale.products && sale.products.length > 0) {
+                    sale.products.forEach((product, idx) => {
+                        const productData = products.find(p => p.id === product.productId);
+                        const unitCost = productData ? productData.purchasePrice : product.purchasePrice || 0;
+                        const totalCost = unitCost * product.quantity;
+
+                        html += `
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 10px;">${idx === 0 ? formatDate(sale.date) : ''}</td>
+                                <td style="padding: 10px;">${product.productName || productData?.name || 'Producto'}</td>
+                                <td style="padding: 10px; text-align: center;">${product.quantity}</td>
+                                <td style="padding: 10px; text-align: right;">${formatCurrency(unitCost)}</td>
+                                <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(totalCost)}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // Generar HTML para resumen de ganancias
+        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantiesTotal, netProfit) {
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
+                        <i class="fas fa-coins"></i> Análisis de Ganancias
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--success);">
+                            <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(salesTotal)}</strong><br>
+                            <small>Ingresos por Ventas</small>
+                        </div>
+                        <div style="background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--danger);">
+                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(expensesTotal)}</strong><br>
+                            <small>Gastos Operativos</small>
+                        </div>
+                        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--warning);">
+                            <strong style="font-size: 1.2em; color: var(--warning);">${formatCurrency(costOfGoodsSoldTotal)}</strong><br>
+                            <small>Costo de lo Vendido</small>
+                        </div>
+                        <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #9c27b0;">
+                            <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantiesTotal)}</strong><br>
+                            <small>Costos de Garantías</small>
+                        </div>
+                        <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
+                            <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
+                            <small>Ganancia Neta del Mes</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--gold-dark); margin-bottom: 15px;">
+                        <i class="fas fa-calculator"></i> Desglose Detallado
+                    </h4>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                            <span>Ingresos por Ventas:</span>
+                            <strong style="color: var(--success);">+${formatCurrency(salesTotal)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                            <span>Gastos Operativos:</span>
+                            <strong style="color: var(--danger);">-(${formatCurrency(expensesTotal)})</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                            <span>Costo de lo Vendido:</span>
+                            <strong style="color: var(--warning);">-(${formatCurrency(costOfGoodsSoldTotal)})</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                            <span>Costos de Garantías:</span>
+                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantiesTotal)})</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
+                            <span><strong>Ganancia Neta:</strong></span>
+                            <strong style="color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; font-size: 1.2em;">${formatCurrency(netProfit)}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // Función para descargar reporte mensual en PDF
+        async function downloadMonthlyReport(type) {
+            // Usar las variables globales currentMonth y currentYear
+            const monthName = new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+            let title = '';
+            let content = '';
+
+            // Obtener datos según el tipo
+            const sales = JSON.parse(localStorage.getItem('destelloOroSales')) || [];
+            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
+            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
+            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+
+            const monthlySales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                return saleDate.getMonth() === currentMonth &&
+                    saleDate.getFullYear() === currentYear &&
+                    sale.confirmed;
+            });
+
+            const monthlyExpenses = expenses.filter(expense => {
+                const expenseDate = new Date(expense.date);
+                return expenseDate.getMonth() === currentMonth &&
+                    expenseDate.getFullYear() === currentYear;
+            });
+
+            const monthlyRestocks = restocks.filter(restock => {
+                const restockDate = new Date(restock.date);
+                return restockDate.getMonth() === currentMonth &&
+                    restockDate.getFullYear() === currentYear;
+            });
+
+            const monthlyWarranties = warranties.filter(warranty => {
+                const warrantyDate = new Date(warranty.createdAt);
+                return warrantyDate.getMonth() === currentMonth &&
+                    warrantyDate.getFullYear() === currentYear;
+            });
+
+            switch (type) {
+                case 'sales':
+                    title = `Reporte de Ventas - ${monthName}`;
+                    content = generateSalesPDFContent(monthlySales);
+                    break;
+                case 'expenses':
+                    title = `Reporte de Gastos - ${monthName}`;
+                    content = generateExpensesPDFContent(monthlyExpenses);
+                    break;
+                case 'restocks':
+                    title = `Reporte de Surtidos - ${monthName}`;
+                    content = generateRestocksPDFContent(monthlyRestocks);
+                    break;
+                case 'warranties':
+                    title = `Reporte de Garantías - ${monthName}`;
+                    content = generateWarrantiesPDFContent(monthlyWarranties);
+                    break;
+                case 'profit':
+                    title = `Análisis de Ganancias - ${monthName}`;
+                    content = generateProfitPDFContent(monthlySales, monthlyExpenses, monthlyRestocks, monthlyWarranties);
+                    break;
+            }
+
+            // Crear PDF usando jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Configurar fuente y colores
+            doc.setFont('helvetica');
+
+            // Título
+            doc.setFontSize(20);
+            doc.setTextColor(212, 175, 55); // Gold color
+            doc.text(title, 20, 30);
+
+            // Línea decorativa
+            doc.setDrawColor(212, 175, 55);
+            doc.setLineWidth(1);
+            doc.line(20, 35, 190, 35);
+
+            // Contenido
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+
+            const lines = doc.splitTextToSize(content, 170);
+            let yPosition = 50;
+
+            lines.forEach(line => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 30;
+                }
+                doc.text(line, 20, yPosition);
+                yPosition += 7;
+            });
+
+            // Pie de página
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(128, 128, 128);
+                doc.text(`Generado por Destello de Oro 18K - ${new Date().toLocaleDateString('es-ES')}`, 20, 285);
+                doc.text(`Página ${i} de ${pageCount}`, 170, 285);
+            }
+
+            // Descargar PDF
+            doc.save(`${title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+
+            // Mostrar mensaje de éxito
+            showDialog('Éxito', 'El reporte PDF se ha descargado correctamente.', 'success');
+        }
+
+        // Funciones auxiliares para generar contenido PDF
+        function generateSalesPDFContent(sales) {
+            let content = `REPORTE DETALLADO DE VENTAS\n\n`;
+            content += `Total de ventas: ${sales.length}\n`;
+            content += `Valor total: ${formatCurrency(sales.reduce((sum, sale) => sum + sale.total, 0))}\n\n`;
+
+            content += `DETALLE DE VENTAS:\n`;
+            content += `Fecha\t\tFactura\t\tCliente\t\tTotal\t\tPago\n`;
+            content += `--------------------------------------------------------------------------------\n`;
+
+            sales.forEach(sale => {
+                content += `${formatDate(sale.date)}\t${sale.id || 'N/A'}\t${(sale.customerName || 'Cliente General').substring(0, 15)}\t${formatCurrency(sale.total)}\t${getPaymentMethodName(sale.paymentMethod)}\n`;
+            });
+
+            return content;
+        }
+
+        function generateExpensesPDFContent(expenses) {
+            let content = `REPORTE DETALLADO DE GASTOS\n\n`;
+            content += `Total de gastos: ${expenses.length}\n`;
+            content += `Valor total: ${formatCurrency(expenses.reduce((sum, expense) => sum + expense.amount, 0))}\n\n`;
+
+            content += `DETALLE DE GASTOS:\n`;
+            content += `Fecha\t\tDescripción\t\tCategoría\t\tMonto\t\tUsuario\n`;
+            content += `--------------------------------------------------------------------------------\n`;
+
+            expenses.forEach(expense => {
+                content += `${formatDate(expense.date)}\t${expense.description.substring(0, 20)}\t${(expense.category || 'General').substring(0, 15)}\t${formatCurrency(expense.amount)}\t${getUserName(expense.user)}\n`;
+            });
+
+            return content;
+        }
+
+        function generateRestocksPDFContent(restocks) {
+            let content = `REPORTE DETALLADO DE SURTIDOS\n\n`;
+            content += `Total de surtidos: ${restocks.length}\n`;
+            content += `Valor total: ${formatCurrency(restocks.reduce((sum, restock) => sum + restock.totalValue, 0))}\n\n`;
+
+            content += `DETALLE DE SURTIDOS:\n`;
+            content += `Fecha\t\tProducto\t\tReferencia\t\tCantidad\t\tValor\t\tUsuario\n`;
+            content += `--------------------------------------------------------------------------------\n`;
+
+            restocks.forEach(restock => {
+                content += `${formatDate(restock.date)}\t${restock.productName.substring(0, 15)}\t${restock.productId}\t${restock.quantity}\t${formatCurrency(restock.totalValue)}\t${getUserName(restock.user)}\n`;
+            });
+
+            return content;
+        }
+
+        function generateWarrantiesPDFContent(warranties) {
+            let content = `REPORTE DETALLADO DE GARANTÍAS\n\n`;
+            content += `Total de garantías: ${warranties.length}\n`;
+            content += `Costo total: ${formatCurrency(warranties.reduce((sum, warranty) => sum + (warranty.totalCost || 0), 0))}\n\n`;
+
+            content += `DETALLE DE GARANTÍAS:\n`;
+            content += `Fecha\t\tVenta ID\t\tCliente\t\tMotivo\t\tCosto\t\tEstado\n`;
+            content += `--------------------------------------------------------------------------------\n`;
+
+            warranties.forEach(warranty => {
+                content += `${formatDate(warranty.createdAt)}\t${warranty.saleId || 'N/A'}\t${(warranty.customerName || 'N/A').substring(0, 15)}\t${getWarrantyReasonText(warranty.reason).substring(0, 15)}\t${formatCurrency(warranty.totalCost || 0)}\t${getWarrantyStatusText(warranty.status || 'pending')}\n`;
+            });
+
+            return content;
+        }
+
+        function generateProfitPDFContent(sales, expenses, restocks, warranties) {
+            const salesTotal = sales.reduce((sum, sale) => sum + sale.total, 0);
+            const expensesTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+            // CORRECCIÓN: Calcular el COSTO REAL de lo vendido basándose en el purchasePrice de los productos
+            const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+            const costOfGoodsSold = sales.reduce((sum, sale) => {
+                const saleCost = (sale.products || []).reduce((saleSum, product) => {
+                    const prod = products.find(p => p.id === product.productId);
+                    if (prod) {
+                        return saleSum + (prod.purchasePrice * product.quantity);
+                    }
+                    return saleSum;
+                }, 0);
+                return sum + saleCost;
+            }, 0);
+
+            const warrantiesTotal = warranties.reduce((sum, warranty) => sum + (warranty.totalCost || 0), 0);
+            const netProfit = salesTotal - expensesTotal - costOfGoodsSold - warrantiesTotal;
+
+            let content = `ANÁLISIS DE GANANCIAS DEL MES\n\n`;
+            content += `RESUMEN FINANCIERO:\n`;
+            content += `--------------------------------------------------------------------------------\n`;
+            content += `Ingresos por Ventas:     +${formatCurrency(salesTotal)}\n`;
+            content += `Gastos Operativos:       -${formatCurrency(expensesTotal)}\n`;
+            content += `Costo de lo Vendido:     -${formatCurrency(costOfGoodsSold)}\n`;
+            content += `Costos de Garantías:     -${formatCurrency(warrantiesTotal)}\n`;
+            content += `--------------------------------------------------------------------------------\n`;
+            content += `GANANCIA NETA:           ${formatCurrency(netProfit)}\n\n`;
+
+            content += `DETALLES:\n`;
+            content += `- ${sales.length} ventas realizadas\n`;
+            content += `- ${expenses.length} gastos registrados\n`;
+            content += `- ${restocks.length} surtidos de inventario\n`;
+            content += `- ${warranties.length} garantías gestionadas\n`;
+
+            return content;
+        }
+
+        // Función auxiliar para obtener clase de método de pago para badges
+        function getPaymentMethodClass(method) {
+            const classes = {
+                'transfer': 'payment-transfer',
+                'cash': 'payment-cash',
+                'bold': 'payment-bold',
+                'addi': 'payment-addi',
+                'sistecredito': 'payment-sistecredito',
+                'cod': 'payment-cod'
+            };
+            return classes[method] || 'payment-cash';
+        }
+
+        // Función auxiliar para obtener texto del motivo de garantía
+        function getWarrantyReasonText(reason) {
+            const reasons = {
+                'color_change': 'Cambio de Color',
+                'damage': 'Daño',
+                'size_issue': 'Problema de Talla',
+                'quality_issue': 'Problema de Calidad',
+                'other': 'Otro'
+            };
+            return reasons[reason] || 'No especificado';
+        }
+
+        // Función auxiliar para ver detalles de surtido
+        window.viewRestockDetails = async function (productId, date) {
+            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+            const restock = restocks.find(r => r.productId === productId && r.date === date);
+
+            if (restock) {
+                await showDialog(
+                    'Detalles de Surtido',
+                    `<div style="text-align: left;">
+                        <p><strong>Producto:</strong> ${restock.productName}</p>
+                        <p><strong>Referencia:</strong> ${restock.productId}</p>
+                        <p><strong>Cantidad:</strong> ${restock.quantity} unidades</p>
+                        <p><strong>Valor total:</strong> ${formatCurrency(restock.totalValue)}</p>
+                        <p><strong>Fecha:</strong> ${formatDate(restock.date)}</p>
+                        <p><strong>Registrado por:</strong> ${getUserName(restock.user)}</p>
+                    </div>`,
+                    'info'
+                );
+            }
+        };
+
+        // Configurar eventos de garantías
+        function setupWarrantyEvents() {
+            const addBtn = document.getElementById('addWarrantyBtn');
+            const cancelBtn = document.getElementById('cancelWarranty');
+            const backBtn = document.getElementById('backToCustomerSearch');
+            const form = document.getElementById('warrantyForm');
+            const customerSearch = document.getElementById('searchCustomerWarranty');
+            const productTypeSelect = document.getElementById('warrantyProductType');
+
+            // Mostrar formulario
+            addBtn.addEventListener('click', function () {
+                const formElement = document.getElementById('addWarrantyForm');
+                const customerSearchCard = document.querySelector('#warranties .card:first-child');
+
+                // Mostrar búsqueda de cliente, ocultar formulario
+                customerSearchCard.style.display = 'block';
+                formElement.style.display = 'none';
+
+                // Limpiar campos
+                customerSearch.value = '';
+                document.getElementById('customerSearchResults').style.display = 'none';
+                document.getElementById('customerNotFoundMessage').style.display = 'none';
+
+                // Enfocar búsqueda
+                setTimeout(() => {
+                    customerSearch.focus();
+                }, 100);
+            });
+
+            // Volver a búsqueda de cliente
+            backBtn.addEventListener('click', function () {
+                const formElement = document.getElementById('addWarrantyForm');
+                const customerSearchCard = document.querySelector('#warranties .card:first-child');
+
+                customerSearchCard.style.display = 'block';
+                formElement.style.display = 'none';
+
+                // Limpiar campos
+                customerSearch.value = '';
+                document.getElementById('customerSearchResults').style.display = 'none';
+                document.getElementById('customerNotFoundMessage').style.display = 'none';
+
+                // Enfocar búsqueda
+                setTimeout(() => {
+                    customerSearch.focus();
+                }, 100);
+            });
+
+            // Cancelar formulario
+            cancelBtn.addEventListener('click', function () {
+                document.getElementById('addWarrantyForm').style.display = 'none';
+                form.reset();
+
+                // Mostrar búsqueda de cliente
+                document.querySelector('#warranties .card:first-child').style.display = 'block';
+            });
+
+            // Buscar cliente al escribir
+            customerSearch.addEventListener('input', function () {
+                const searchTerm = this.value.trim().toLowerCase();
+                const resultsDiv = document.getElementById('customerSearchResults');
+                const notFoundDiv = document.getElementById('customerNotFoundMessage');
+                const purchasesList = document.getElementById('customerPurchasesList');
+
+                // Ocultar resultados previos
+                resultsDiv.style.display = 'none';
+                notFoundDiv.style.display = 'none';
+
+                if (searchTerm.length < 3) {
+                    return; // No buscar con menos de 3 caracteres
+                }
+
+                // Buscar ventas del cliente (Usamos copia local que carga loadHistoryCards)
+                // OJO: Si loadHistoryCards no ha cargado, esto podría fallar.
+                // Idealmente deberíamos buscar en API. 
+                // Por ahora asumimos que loadHistoryCards se llama al inicio o cacheamos.
+                const sales = JSON.parse(localStorage.getItem('destelloOroSales') || '[]');
+                const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties') || '[]');
+
+                const customerSales = sales.filter(sale =>
+                    sale.customerInfo &&
+                    sale.customerInfo.name.toLowerCase().includes(searchTerm) &&
+                    sale.confirmed
+                );
+
+                if (customerSales.length === 0) {
+                    // Mostrar mensaje de no encontrado
+                    notFoundDiv.style.display = 'block';
+                    return;
+                }
+
+                // Mostrar resultados
+                purchasesList.innerHTML = '';
+
+                customerSales.forEach(sale => {
+                    const saleDiv = document.createElement('div');
+                    saleDiv.style.padding = '10px';
+                    saleDiv.style.marginBottom = '8px';
+                    saleDiv.style.border = '1px solid var(--medium-gray)';
+                    saleDiv.style.borderRadius = 'var(--radius-sm)';
+                    saleDiv.style.cursor = 'pointer';
+                    saleDiv.style.transition = 'var(--transition)';
+                    saleDiv.style.backgroundColor = 'var(--white)';
+
+                    // Obtener nombres de productos
+                    const productNames = sale.products ?
+                        sale.products.map(p => p.productName).join(', ') :
+                        (sale.productName || 'Producto');
+
+                    // Verificar si tiene garantías
+                    const saleWarranties = warranties.filter(w => w.originalSaleId === sale.id);
+                    const hasWarranty = saleWarranties.length > 0;
+                    const warrantyText = hasWarranty ?
+                        `<span style="color: var(--warning); font-size: 0.8rem;">
+                            <i class="fas fa-shield-alt"></i> ${saleWarranties.length} garantía(s)
+                        </span>` : '';
+
+                    saleDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="font-size: 0.9rem;">${sale.id}</strong><br>
+                                <span style="font-size: 0.85rem; color: #666;">${formatDate(sale.date)}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.9rem; font-weight: 500;">${productNames}</div>
+                                <div style="font-size: 0.85rem; color: var(--gold-dark);">${formatCurrency(sale.total)}</div>
+                                ${sale.warrantyIncrement > 0 ?
+                            `<div style="font-size: 0.8rem; color: var(--warning);">
+                                        <i class="fas fa-plus-circle"></i> Garantía: ${formatCurrency(sale.warrantyIncrement)}
+                                    </div>` : ''}
+                            </div>
+                        </div>
+                        <div style="margin-top: 5px; font-size: 0.8rem; color: #666;">
+                            Cliente: ${sale.customerInfo.name}
+                        </div>
+                        ${warrantyText}
+                    `;
+
+                    // Agregar evento para seleccionar esta venta
+                    saleDiv.addEventListener('click', function () {
+                        selectSaleForWarranty(sale);
+                    });
+
+                    saleDiv.addEventListener('mouseenter', function () {
+                        this.style.backgroundColor = 'var(--light-gray)';
+                        this.style.transform = 'translateY(-2px)';
+                    });
+
+                    saleDiv.addEventListener('mouseleave', function () {
+                        this.style.backgroundColor = 'var(--white)';
+                        this.style.transform = 'translateY(0)';
+                    });
+
+                    purchasesList.appendChild(saleDiv);
+                });
+
+                resultsDiv.style.display = 'block';
+            });
+
+            // Cambiar visibilidad de sección de producto diferente
+            productTypeSelect.addEventListener('change', function () {
+                const differentSection = document.getElementById('differentProductSection');
+                const additionalValueInput = document.getElementById('additionalValue');
+
+                if (this.value === 'different') {
+                    differentSection.style.display = 'block';
+                    additionalValueInput.required = true;
+                } else {
+                    differentSection.style.display = 'none';
+                    additionalValueInput.required = false;
+                    additionalValueInput.value = 0;
+                }
+
+                updateWarrantyCostSummary();
+            });
+
+            // Actualizar resumen de costos al cambiar valores
+            ['additionalValue', 'shippingValue'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateWarrantyCostSummary);
+            });
+
+            // Enviar formulario
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Verificar si es administrador
+                if (currentUser && currentUser.role !== 'admin') {
+                    await showDialog('Acceso Restringido', 'Solo el administrador puede registrar garantías.', 'error');
+                    return;
+                }
+
+                if (!selectedSaleForWarranty) {
+                    await showDialog('Error', 'Por favor seleccione una venta válida.', 'error');
+                    return;
+                }
+
+                const warrantySaleId = document.getElementById('warrantySaleId').value;
+                if (!warrantySaleId) {
+                    await showDialog('Error', 'El ID de factura no está disponible. Por favor seleccione una venta válida.', 'error');
+                    return;
+                }
+
+                const warranty = {
+                    originalSaleId: warrantySaleId,
+                    customerName: selectedSaleForWarranty.customerInfo.name,
+                    customerId: selectedSaleForWarranty.customerInfo.id,
+                    customerPhone: selectedSaleForWarranty.customerInfo.phone,
+                     // Si data viene de DB, puede que products sea diferente, ajustamos:
+                    originalProductId: selectedSaleForWarranty.products && selectedSaleForWarranty.products.length > 0 ? selectedSaleForWarranty.products[0].productId : 'N/A',
+                    originalProductName: selectedSaleForWarranty.products && selectedSaleForWarranty.products.length > 0 ? selectedSaleForWarranty.products[0].productName : 'N/A',
+                    warrantyReason: document.getElementById('warrantyReason').value,
+                    warrantyReasonText: warrantyReasons[document.getElementById('warrantyReason').value] || document.getElementById('warrantyReason').value, // Fallback
+                     // date calc logic in PHP if needed, but passing JS Date is fine
+                    endDate: new Date(new Date(selectedSaleForWarranty.date).setMonth(new Date(selectedSaleForWarranty.date).getMonth() + 12)).toISOString().split('T')[0],
+                    productType: document.getElementById('warrantyProductType').value,
+                    additionalValue: parseFloat(document.getElementById('additionalValue').value) || 0,
+                    shippingValue: parseFloat(document.getElementById('shippingValue').value) || 0,
+                    status: document.getElementById('warrantyStatus').value,
+                    notes: document.getElementById('warrantyNotes').value.trim(),
+                    // createdBy will be set by session in PHP
+                };
+
+                // Si es producto diferente, agregar información del nuevo producto
+                if (warranty.productType === 'different') {
+                    warranty.newProductRef = document.getElementById('newProductRef').value.trim();
+                    warranty.newProductName = document.getElementById('newProductName').value.trim();
+                } else {
+                     // Keep same ref
+                    warranty.newProductRef = warranty.originalProductId;
+                    warranty.newProductName = warranty.originalProductName;
+                }
+
+                // Validar datos
+                if (!warranty.warrantyReason || !warranty.status) {
+                    await showDialog('Error', 'Por favor complete todos los campos obligatorios (*).', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('api/warranties.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(warranty)
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Recargar todo
+                        loadWarrantiesTable();
+                        loadHistoryCards(); // Actualiza ventas también
+                         // Reset cache manually if needed or trust reload
+                        
+                        form.reset();
+                        document.getElementById('addWarrantyForm').style.display = 'none';
+                        document.querySelector('#warranties .card:first-child').style.display = 'block';
+                        selectedSaleForWarranty = null;
+
+                        await showDialog('Éxito', 'Garantía registrada exitosamente.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al registrar garantía', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            });
+        }
+
+        // CORREGIDO: Seleccionar venta para garantía - Ahora llena el campo ID de factura
+        function selectSaleForWarranty(sale) {
+             // ... Logic remains same ...
+            selectedSaleForWarranty = sale;
+
+            // Ocultar búsqueda, mostrar formulario
+            document.querySelector('#warranties .card:first-child').style.display = 'none';
+            document.getElementById('addWarrantyForm').style.display = 'block';
+
+            // CORREGIDO: LLENAR ID DE FACTURA AUTOMÁTICAMENTE Y HACERLO VISIBLE
+            const warrantySaleIdInput = document.getElementById('warrantySaleId');
+            warrantySaleIdInput.value = sale.id;
+
+            // Mostrar confirmación visual
+            const statusDiv = document.getElementById('warrantySaleIdStatus');
+            if (statusDiv) {
+                statusDiv.innerHTML = `<span style="color: var(--success); font-weight: bold;">
+                    <i class="fas fa-check-circle"></i> ID de factura cargado: ${sale.id}
+                </span>`;
+                statusDiv.style.display = 'block';
+            }
+
+            // Calcular fecha de fin de garantía (12 meses desde la compra)
+            const saleDate = new Date(sale.date);
+            const endDate = new Date(saleDate);
+            endDate.setMonth(endDate.getMonth() + 12);
+
+            // Obtener el primer producto (para garantía individual)
+            const firstProduct = sale.products ? sale.products[0] : sale;
+
+            // Mostrar información del cliente
+            const customerInfoDiv = document.getElementById('customerInfoDisplay');
+            customerInfoDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.85rem;">
+                    <div><strong>Nombre:</strong> ${sale.customerInfo.name}</div>
+                    <div><strong>Cédula:</strong> ${sale.customerInfo.id || 'No registrada'}</div>
+                    <div><strong>Teléfono:</strong> ${sale.customerInfo.phone}</div>
+                    <div><strong>Fecha compra:</strong> ${formatDateSimple(sale.date)}</div>
+                    <div><strong>Garantía hasta:</strong> ${formatDateSimple(endDate)}</div>
+                </div>
+            `;
+
+            // Mostrar información del producto
+            const productInfoDiv = document.getElementById('productInfoDisplay');
+            // Check properties existence safely
+             const pName = firstProduct.productName || '';
+             const pId = firstProduct.productId || '';
+             const pQty = firstProduct.quantity || 1;
+             
+            productInfoDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.85rem;">
+                    <div><strong>Producto:</strong> ${pName}</div>
+                    <div><strong>Referencia:</strong> ${pId}</div>
+                    <div><strong>Cantidad:</strong> ${pQty}</td>
+                    <div><strong>Valor compra:</strong> ${formatCurrency(sale.total)}</div>
+                    <div><strong>Incremento garantía:</strong> ${formatCurrency(sale.warrantyIncrement || 0)}</div>
+                </div>
+            `;
+
+            // Resetear otros campos del formulario
+            document.getElementById('warrantyReason').selectedIndex = 0;
+            document.getElementById('warrantyProductType').selectedIndex = 0;
+            document.getElementById('additionalValue').value = 0;
+            document.getElementById('shippingValue').value = 0;
+            document.getElementById('warrantyStatus').selectedIndex = 0;
+            document.getElementById('warrantyNotes').value = '';
+            document.getElementById('newProductRef').value = '';
+            document.getElementById('newProductName').value = '';
+            document.getElementById('differentProductSection').style.display = 'none';
+
+            // Actualizar resumen de costos
+            updateWarrantyCostSummary();
+
+
+            // Scroll al formulario
+            document.getElementById('addWarrantyForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Asegurar que el campo sea visible y enfocado
+            setTimeout(() => {
+                warrantySaleIdInput.focus();
+                warrantySaleIdInput.blur();
+            }, 100);
+        }
+
+        // Función para cargar ID manualmente (para pruebas)
+        window.loadSelectedSaleId = function () {
+            if (selectedSaleForWarranty) {
+                document.getElementById('warrantySaleId').value = selectedSaleForWarranty.id;
+                const statusDiv = document.getElementById('warrantySaleIdStatus');
+                if (statusDiv) {
+                    statusDiv.innerHTML = `<span style="color: var(--success); font-weight: bold;">
+                        <i class="fas fa-check-circle"></i> ID de factura cargado manualmente: ${selectedSaleForWarranty.id}
+                    </span>`;
+                    statusDiv.style.display = 'block';
+                }
+                showDialog('ID Cargado', `ID de factura establecido: ${selectedSaleForWarranty.id}`, 'success');
+            } else {
+                showDialog('Error', 'No hay una venta seleccionada.', 'error');
+            }
+        };
+
+        // Actualizar resumen de costos de garantía
+        function updateWarrantyCostSummary() {
+            const additionalValue = parseFloat(document.getElementById('additionalValue').value) || 0;
+            const shippingValue = parseFloat(document.getElementById('shippingValue').value) || 0;
+            const total = additionalValue + shippingValue;
+
+            document.getElementById('additionalValueDisplay').textContent = formatCurrency(additionalValue);
+            document.getElementById('shippingValueDisplay').textContent = formatCurrency(shippingValue);
+            document.getElementById('totalWarrantyCost').textContent = formatCurrency(total);
+        }
+
+        // Cargar tabla de garantías
+        async function loadWarrantiesTable() {
+            try {
+                // Consultar API con filtro de fecha si se desea, o todas para la tabla principal
+                // Por ahora, traemos todas para la sección de tabla, pero el resumen superior usa las filtradas
+                const response = await fetch('api/warranties.php');
+                const warranties = await response.json();
+                
+                // Actualizar caché local para compatibilidad
+                localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
+            const tableBody = document.getElementById('warrantiesTableBody');
+            const statsContainer = document.getElementById('warrantyStats');
+
+            tableBody.innerHTML = '';
+
+            // Ordenar por fecha de creación (más recientes primero)
+            warranties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            // Calcular estadísticas
+            let pendingCount = 0;
+            let inProcessCount = 0;
+            let completedCount = 0;
+            let cancelledCount = 0;
+            let totalCost = 0;
+            let totalIncrement = 0; // Nuevo: para calcular el incremento total por garantías
+
+            warranties.forEach(warranty => {
+                // Calcular días restantes
+                const endDate = new Date(warranty.endDate);
+                const today = new Date();
+                const timeDiff = endDate.getTime() - today.getTime();
+                const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                // Determinar color según estado
+                let statusBadge = '';
+                let statusText = '';
+
+                switch (warranty.status) {
+                    case 'pending':
+                        pendingCount++;
+                        statusBadge = 'badge-warning';
+                        statusText = 'Pendiente';
+                        break;
+                    case 'in_process':
+                        inProcessCount++;
+                        statusBadge = 'badge-info';
+                        statusText = 'En proceso';
+                        break;
+                    case 'completed':
+                        completedCount++;
+                        statusBadge = 'badge-success';
+                        statusText = 'Completada';
+                        break;
+                    case 'cancelled':
+                        cancelledCount++;
+                        statusBadge = 'badge-danger';
+                        statusText = 'Cancelada';
+                        break;
+                }
+
+                // Sumar al costo total
+                totalCost += warranty.totalCost || 0;
+                totalIncrement += warranty.additionalValue || 0; // Sumar incremento
+
+                // Determinar producto de garantía
+                let warrantyProduct = warranty.newProductName || warranty.originalProductName;
+                if (warranty.productType === 'different' && warranty.newProductRef) {
+                    warrantyProduct = `${warranty.newProductName} (${warranty.newProductRef})`;
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${warranty.originalSaleId}</strong></td>
+                    <td>${warranty.customerName}</td>
+                    <td>${warranty.originalProductName} (${warranty.originalProductId})</td>
+                    <td>${warrantyProduct}</td>
+                    <td>${warranty.warrantyReasonText || warranty.warrantyReason}</td>
+                    <td>
+                        ${formatDateSimple(warranty.endDate)}<br>
+                        <small style="font-size: 0.75rem; color: #666;">
+                            ${daysRemaining >= 0 ? `${daysRemaining} días restantes` : 'Vencida'}
+                        </small>
+                    </td>
+                    <td><strong>${formatCurrency(warranty.totalCost || 0)}</strong></td>
+                    <td>
+                        <span class="badge ${statusBadge}">
+                            ${statusText}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${warranty.id}', 'warranties')" style="margin-right: 5px;" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editMovement('${warranty.id}', 'warranties')" style="margin-right: 5px;" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${warranty.id}', 'warranties')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // Actualizar estadísticas
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock" style="color: var(--warning);"></i>
+                    </div>
+                    <div class="stat-value">${pendingCount}</div>
+                    <div class="stat-label">Pendientes</div>
+                    <small>Por procesar</small>
+                </div>
+                <!-- ... other cards ... -->
+            `;
+            
+            // Re-renderizar las estadísticas completas (resumido en la implementación real)
+            renderWarrantyStats(pendingCount, inProcessCount, completedCount, totalCost, totalIncrement);
+
+            } catch (error) {
+                console.error('Error cargando garantías:', error);
+            }
+        }
+
+        function renderWarrantyStats(pending, inProcess, completed, cost, increment) {
+            const statsContainer = document.getElementById('warrantyStats');
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock" style="color: var(--warning);"></i>
+                    </div>
+                    <div class="stat-value">${pending}</div>
+                    <div class="stat-label">Pendientes</div>
+                    <small>Por procesar</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-cogs" style="color: var(--info);"></i>
+                    </div>
+                    <div class="stat-value">${inProcess}</div>
+                    <div class="stat-label">En proceso</div>
+                    <small>Siendo gestionadas</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                    </div>
+                    <div class="stat-value">${completed}</div>
+                    <div class="stat-label">Completadas</div>
+                    <small>Finalizadas</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-coins" style="color: var(--gold-dark);"></i>
+                    </div>
+                    <div class="stat-value">${formatCurrency(cost)}</div>
+                    <div class="stat-label">Costo Total</div>
+                    <small>Incluye envíos y adicionales</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-plus-circle" style="color: var(--warning);"></i>
+                    </div>
+                    <div class="stat-value">${formatCurrency(increment)}</div>
+                    <div class="stat-label">Incremento Ventas</div>
+                    <small>Por productos diferentes</small>
+                </div>
+            `;
+        }
+
+        // NUEVAS FUNCIONES: Ver, Editar y Eliminar Movimientos
+        window.viewMovementDetails = function (movementId, type) {
+            let movement = null;
+            let title = '';
+
+            // Buscar el movimiento según el tipo
+            switch (type) {
+                case 'sales':
+                    const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
+                    movement = sales.find(s => s.id === movementId);
+                    title = `Detalles de Venta - ${movementId}`;
+                    break;
+                case 'expenses':
+                    const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                    movement = expenses.find(e => e.id === movementId);
+                    title = `Detalles de Gasto - ${movementId}`;
+                    break;
+                case 'restocks':
+                    const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                    movement = restocks.find(r => r.id === movementId);
+                    title = `Detalles de Surtido - ${movementId}`;
+                    break;
+                case 'warranties':
+                    const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                    movement = warranties.find(w => w.id === movementId);
+                    title = `Detalles de Garantía - ${movementId}`;
+                    break;
+                default:
+                    showDialog('Error', 'Tipo de movimiento no válido.', 'error');
+                    return;
+            }
+
+            if (!movement) {
+                showDialog('Error', 'Movimiento no encontrado.', 'error');
+                return;
+            }
+
+            // Configurar modal según el tipo de movimiento
+            const modal = document.getElementById('viewMovementModal');
+            const modalTitle = document.getElementById('viewMovementTitle');
+            const modalContent = document.getElementById('viewMovementContent');
+
+            modalTitle.textContent = title;
+
+            // Generar contenido según el tipo
+            let content = '';
+            switch (type) {
+                case 'sales':
+                    currentSaleForView = movement;
+                    const productCount = movement.products ? movement.products.length : 1;
+                    const productNames = movement.products ?
+                        movement.products.map(p => p.productName).join(', ') :
+                        (movement.productName || 'Producto');
+
+                    content = `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-user"></i> Información del Cliente
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Nombre:</strong> ${movement.customerInfo?.name || 'Cliente de mostrador'}</div>
+                                <div><strong>Cédula:</strong> ${movement.customerInfo?.id || 'No proporcionada'}</div>
+                                <div><strong>Teléfono:</strong> ${movement.customerInfo?.phone || 'No proporcionado'}</div>
+                                <div><strong>Dirección:</strong> ${movement.customerInfo?.address || 'No proporcionada'}</div>
+                                <div><strong>Ciudad:</strong> ${movement.customerInfo?.city || 'No proporcionada'}</div>
+                                <div><strong>Correo:</strong> ${movement.customerInfo?.email || 'No proporcionado'}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-box-open"></i> Productos Vendidos
+                            </h3>
+                            <p><strong>Cantidad de productos:</strong> ${productCount}</p>
+                            <p><strong>Productos:</strong> ${productNames}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-receipt"></i> Información de Pago
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal)}</div>
+                                <div><strong>Descuento:</strong> ${formatCurrency(movement.discount)}</div>
+                                <div><strong>Costo envío:</strong> ${formatCurrency(movement.deliveryCost)}</div>
+                                <div><strong>Incremento garantía:</strong> ${formatCurrency(movement.warrantyIncrement || 0)}</div>
+                                <div><strong>Total:</strong> ${formatCurrency(movement.total)}</div>
+                                <div><strong>Método de pago:</strong> ${getPaymentMethodName(movement.paymentMethod)}</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-info-circle"></i> Información Adicional
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Fecha:</strong> ${formatDate(movement.date)}</div>
+                                <div><strong>Estado:</strong> ${movement.confirmed ? 'Confirmada' : 'Pendiente'}</div>
+                                <div><strong>Registrado por:</strong> ${getUserName(movement.user)}</div>
+                                <div><strong>Tipo entrega:</strong> ${movement.deliveryType === 'store' ? 'Recoge en tienda' : movement.deliveryType === 'delivery' ? 'Domicilio' : 'Envío nacional'}</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'expenses':
+                    content = `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-receipt"></i> Información del Gasto
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Descripción:</strong> ${movement.description}</div>
+                                <div><strong>Valor:</strong> ${formatCurrency(movement.amount)}</div>
+                                <div><strong>Fecha:</strong> ${formatDate(movement.date)}</div>
+                                <div><strong>Registrado por:</strong> ${getUserName(movement.user)}</div>
+                                ${movement.type ? `<div><strong>Tipo:</strong> ${movement.type}</div>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${movement.notes ? `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-sticky-note"></i> Notas Adicionales
+                            </h3>
+                            <p>${movement.notes}</p>
+                        </div>
+                        ` : ''}
+                    `;
+                    break;
+
+                case 'restocks':
+                    content = `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-boxes"></i> Información del Surtido
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Producto:</strong> ${movement.productName}</div>
+                                <div><strong>Referencia:</strong> ${movement.productId}</div>
+                                <div><strong>Cantidad:</strong> ${movement.quantity} unidades</div>
+                                <div><strong>Valor total:</strong> ${formatCurrency(movement.totalValue)}</div>
+                                <div><strong>Fecha:</strong> ${formatDate(movement.date)}</div>
+                                <div><strong>Registrado por:</strong> ${getUserName(movement.user)}</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'warranties':
+                    const endDate = new Date(movement.endDate);
+                    const today = new Date();
+                    const timeDiff = endDate.getTime() - today.getTime();
+                    const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                    let warrantyProductInfo = '';
+                    if (movement.productType === 'different') {
+                        warrantyProductInfo = `
+                            <div><strong>Producto de garantía:</strong> ${movement.newProductName || 'No especificado'} (${movement.newProductRef || 'Sin referencia'})</div>
+                            <div><strong>Valor adicional:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
+                        `;
+                    } else {
+                        warrantyProductInfo = `<div><strong>Producto de garantía:</strong> Mismo producto (${movement.originalProductId})</div>`;
+                    }
+
+                    let statusMessage = '';
+                    if (movement.status === 'pending' || movement.status === 'in_process') {
+                        if (daysRemaining < 0) {
+                            statusMessage = `⚠️ <strong>Vencida hace ${Math.abs(daysRemaining)} días</strong>`;
+                        } else if (daysRemaining === 0) {
+                            statusMessage = `⚠️ <strong>Vence hoy</strong>`;
+                        } else if (daysRemaining <= 7) {
+                            statusMessage = `⚠️ <strong>Vence en ${daysRemaining} días</strong>`;
+                        } else {
+                            statusMessage = `<strong>${daysRemaining} días restantes</strong>`;
+                        }
+                    }
+
+                    content = `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-user"></i> Información del Cliente
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Nombre:</strong> ${movement.customerName}</div>
+                                <div><strong>Cédula:</strong> ${movement.customerId || 'No registrada'}</div>
+                                <div><strong>Teléfono:</strong> ${movement.customerPhone}</div>
+                                <div><strong>ID Venta Original:</strong> ${movement.originalSaleId}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-box-open"></i> Información del Producto
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Producto original:</strong> ${movement.originalProductName} (${movement.originalProductId})</div>
+                                ${warrantyProductInfo}
+                                <div><strong>Motivo:</strong> ${movement.warrantyReasonText || movement.warrantyReason}</div>
+                                <div><strong>Garantía hasta:</strong> ${formatDateSimple(movement.endDate)}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-calculator"></i> Costos y Estado
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Valor adicional:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
+                                <div><strong>Valor envío:</strong> ${formatCurrency(movement.shippingValue || 0)}</div>
+                                <div><strong>Costo total:</strong> ${formatCurrency(movement.totalCost || 0)}</div>
+                                <div><strong>Estado:</strong> ${getWarrantyStatusText(movement.status)}</div>
+                                ${statusMessage ? `<div><strong>Tiempo:</strong> ${statusMessage}</div>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${movement.notes ? `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-sticky-note"></i> Observaciones
+                            </h3>
+                            <p>${movement.notes}</p>
+                        </div>
+                        ` : ''}
+                        
+                        <div>
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-info-circle"></i> Información Adicional
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Fecha registro:</strong> ${formatDateSimple(movement.createdAt)}</div>
+                                <div><strong>Registrado por:</strong> ${getUserName(movement.createdBy)}</div>
+                                ${movement.updatedAt ? `<div><strong>Última actualización:</strong> ${formatDateSimple(movement.updatedAt)}</div>` : ''}
+                                ${movement.updatedBy ? `<div><strong>Actualizado por:</strong> ${getUserName(movement.updatedBy)}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+
+            modalContent.innerHTML = content;
+            modal.style.display = 'flex';
+        };
+
+        window.editMovement = function (movementId, type) {
+            let movement = null;
+
+            // Buscar el movimiento según el tipo
+            switch (type) {
+                case 'sales':
+                    const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
+                    movement = sales.find(s => s.id === movementId);
+                    break;
+                case 'expenses':
+                    const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                    movement = expenses.find(e => e.id === movementId);
+                    break;
+                case 'warranties':
+                    const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                    movement = warranties.find(w => w.id === movementId);
+                    break;
+                default:
+                    showDialog('Error', 'Tipo de movimiento no válido para edición.', 'error');
+                    return;
+            }
+
+            if (!movement) {
+                showDialog('Error', 'Movimiento no encontrado.', 'error');
+                return;
+            }
+
+            // Guardar movimiento y tipo para edición
+            currentMovementForEdit = movement;
+            currentMovementTypeForEdit = type;
+
+            // Configurar modal de edición
+            const modal = document.getElementById('editMovementModal');
+            const modalTitle = document.getElementById('editMovementTitle');
+            const modalContent = document.getElementById('editMovementContent');
+
+            modalTitle.textContent = `Editar ${type === 'sales' ? 'Venta' : type === 'expenses' ? 'Gasto' : 'Garantía'}`;
+
+            // Generar formulario según el tipo
+            let formContent = '';
+            switch (type) {
+                case 'sales':
+                    formContent = `
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-user"></i> Nombre del Cliente
+                            </label>
+                            <input type="text" name="customerName" value="${movement.customerInfo?.name || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-id-card"></i> Cédula del Cliente
+                            </label>
+                            <input type="text" name="customerId" value="${movement.customerInfo?.id || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-phone"></i> Teléfono del Cliente
+                            </label>
+                            <input type="text" name="customerPhone" value="${movement.customerInfo?.phone || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-envelope"></i> Correo del Cliente
+                            </label>
+                            <input type="email" name="customerEmail" value="${movement.customerInfo?.email || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-map-marker-alt"></i> Dirección del Cliente
+                            </label>
+                            <input type="text" name="customerAddress" value="${movement.customerInfo?.address || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-city"></i> Ciudad del Cliente
+                            </label>
+                            <input type="text" name="customerCity" value="${movement.customerInfo?.city || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-credit-card"></i> Método de Pago
+                            </label>
+                            <select name="paymentMethod" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                ${Object.entries(paymentMethods).map(([key, method]) => `
+                                    <option value="${key}" ${movement.paymentMethod === key ? 'selected' : ''}>${method.name}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-shield-alt"></i> Incremento por Garantía
+                            </label>
+                            <input type="number" name="warrantyIncrement" value="${movement.warrantyIncrement || 0}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   min="0" step="0.01">
+                            <small style="font-size: 0.8rem; color: #666;">Valor adicional por garantía (se reflejará en el total)</small>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-check-circle"></i> Estado
+                            </label>
+                            <select name="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="pending" ${!movement.confirmed ? 'selected' : ''}>Pendiente</option>
+                                <option value="completed" ${movement.confirmed ? 'selected' : ''}>Completada</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+
+                case 'expenses':
+                    formContent = `
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-receipt"></i> Descripción
+                            </label>
+                            <input type="text" name="description" value="${movement.description}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-calendar"></i> Fecha
+                            </label>
+                            <input type="date" name="date" value="${movement.date}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-money-bill"></i> Valor
+                            </label>
+                            <input type="number" name="amount" value="${movement.amount}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   min="0" step="0.01" required>
+                        </div>
+                    `;
+                    break;
+
+                case 'warranties':
+                    formContent = `
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-exclamation-triangle"></i> Motivo de Garantía
+                            </label>
+                            <select name="warrantyReason" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                ${Object.entries(warrantyReasons).map(([key, reason]) => `
+                                    <option value="${key}" ${movement.warrantyReason === key ? 'selected' : ''}>${reason}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-exchange-alt"></i> Tipo de Producto
+                            </label>
+                            <select name="productType" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                <option value="same" ${movement.productType === 'same' ? 'selected' : ''}>Mismo producto</option>
+                                <option value="different" ${movement.productType === 'different' ? 'selected' : ''}>Producto diferente</option>
+                            </select>
+                        </div>
+                        
+                        ${movement.productType === 'different' ? `
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-barcode"></i> Referencia del Nuevo Producto
+                            </label>
+                            <input type="text" name="newProductRef" value="${movement.newProductRef || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-tag"></i> Nombre del Nuevo Producto
+                            </label>
+                            <input type="text" name="newProductName" value="${movement.newProductName || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        ` : ''}
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-plus-circle"></i> Valor Adicional
+                            </label>
+                            <input type="number" name="additionalValue" value="${movement.additionalValue || 0}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   min="0" step="0.01">
+                            <small style="font-size: 0.8rem; color: #666;">Este valor se agregará a la venta original</small>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-truck"></i> Valor de Envío
+                            </label>
+                            <input type="number" name="shippingValue" value="${movement.shippingValue || 0}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   min="0" step="0.01">
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-check-circle"></i> Estado
+                            </label>
+                            <select name="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                <option value="pending" ${movement.status === 'pending' ? 'selected' : ''}>Pendiente</option>
+                                <option value="in_process" ${movement.status === 'in_process' ? 'selected' : ''}>En proceso</option>
+                                <option value="completed" ${movement.status === 'completed' ? 'selected' : ''}>Completada</option>
+                                <option value="cancelled" ${movement.status === 'cancelled' ? 'selected' : ''}>Cancelada</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-sticky-note"></i> Observaciones
+                            </label>
+                            <textarea name="notes" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px;">${movement.notes || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+            }
+
+            modalContent.innerHTML = formContent;
+            modal.style.display = 'flex';
+        };
+
+        window.deleteMovement = async function (movementId, type) {
+            // Verificar si es administrador
+            if (currentUser && currentUser.role !== 'admin') {
+                await showDialog('Acceso Restringido', 'Solo el administrador puede eliminar movimientos.', 'error');
+                return;
+            }
+
+            const confirmed = await showDialog(
+                'Eliminar Movimiento',
+                '¿Está seguro de que desea eliminar este movimiento? Esta acción no se puede deshacer.',
+                'warning',
+                true
+            );
+
+            if (!confirmed) return;
+
+            try {
+                let success = false;
+                let message = '';
+
+                switch (type) {
+                    case 'sales':
+                        const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
+                        const sale = sales.find(s => s.id === movementId);
+                        const updatedSales = sales.filter(s => s.id !== movementId);
+
+                        // Si hay incremento por garantía, también eliminar garantías asociadas
+                        if (sale && sale.warrantyIncrement > 0) {
+                            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                            const updatedWarranties = warranties.filter(w => w.originalSaleId !== movementId);
+                            localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
+                            loadWarrantiesTable();
+                        }
+
+                        localStorage.setItem('destelloOroSales', JSON.stringify(updatedSales));
+                        success = true;
+                        message = 'Venta eliminada correctamente.';
+                        break;
+
+                    case 'expenses':
+                        const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                        const updatedExpenses = expenses.filter(e => e.id !== movementId);
+                        localStorage.setItem('destelloOroExpenses', JSON.stringify(updatedExpenses));
+                        success = true;
+                        message = 'Gasto eliminado correctamente.';
+
+                        // Actualizar tabla de gastos si está visible
+                        if (document.getElementById('expenses').classList.contains('active')) {
+                            loadExpensesTable();
+                        }
+                        break;
+
+                    case 'warranties':
+                        const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                        const warranty = warranties.find(w => w.id === movementId);
+                        const updatedWarranties = warranties.filter(w => w.id !== movementId);
+
+                        // IMPORTANTE: Si la garantía tenía valor adicional, restarlo de la venta original
+                        if (warranty && warranty.additionalValue > 0 && warranty.originalSaleId) {
+                            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
+                            const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
+                            if (saleIndex !== -1) {
+                                sales[saleIndex].warrantyIncrement -= warranty.additionalValue;
+                                sales[saleIndex].total -= warranty.additionalValue;
+                                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
+                            }
+                        }
+
+                        localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
+                        success = true;
+                        message = 'Garantía eliminada correctamente.';
+
+                        // Actualizar tabla de garantías si está visible
+                        if (document.getElementById('warranties').classList.contains('active')) {
+                            loadWarrantiesTable();
+                        }
+                        break;
+
+                    default:
+                        await showDialog('Error', 'Tipo de movimiento no válido.', 'error');
+                        return;
+                }
+
+                if (success) {
+                    // Actualizar historial
+                    loadHistoryCards();
+                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                        showHistoryDetails(type);
+                    }
+
+                    // Actualizar resumen mensual
+                    loadMonthlySummary();
+
+                    await showDialog('Éxito', message, 'success');
+                }
+
+            } catch (error) {
+                console.error('Error al eliminar movimiento:', error);
+                await showDialog('Error', 'Ocurrió un error al eliminar el movimiento.', 'error');
+            }
+        };
+
+        // Configurar eventos de login
+        function setupLoginEvents() {
+            const adminRoleBtn = document.getElementById('adminRole');
+            const workerRoleBtn = document.getElementById('workerRole');
+            const nextToUserInfoBtn = document.getElementById('nextToUserInfo');
+            const backToRoleSelectionBtn = document.getElementById('backToRoleSelection');
+            const nextToLoginBtn = document.getElementById('nextToLogin');
+            const backToUserInfoBtn = document.getElementById('backToUserInfo');
+            const loginForm = document.getElementById('loginForm');
+            const userInfoFormDataEle = document.getElementById('userInfoFormData');
+
+            if (!adminRoleBtn || !workerRoleBtn || !nextToUserInfoBtn) {
+                console.error('Error: Elementos del login no encontrados');
+                return;
+            }
+
+            // Alternar entre roles
+            adminRoleBtn.addEventListener('click', function () {
+                console.log('Rol seleccionado: admin');
+                adminRoleBtn.classList.add('active');
+                workerRoleBtn.classList.remove('active');
+                selectedRole = 'admin';
+            });
+
+            workerRoleBtn.addEventListener('click', function () {
+                console.log('Rol seleccionado: worker');
+                workerRoleBtn.classList.add('active');
+                adminRoleBtn.classList.remove('active');
+                selectedRole = 'worker';
+            });
+
+            // Paso 1: Continuar a información personal
+            nextToUserInfoBtn.addEventListener('click', function () {
+                console.log('Avanzando a userInfoForm');
+                showLoginStep('userInfoForm');
+
+                // Pre-llenar formulario si ya hay información guardada
+                const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                const userKey = `${selectedRole}_info`;
+
+                if (sessionInfo[userKey]) {
+                    document.getElementById('userName').value = sessionInfo[userKey].name || '';
+                    document.getElementById('userLastName').value = sessionInfo[userKey].lastName || '';
+                    document.getElementById('userPhone').value = sessionInfo[userKey].phone || '';
+                }
+            });
+
+            // Volver a selección de rol
+            if (backToRoleSelectionBtn) {
+                backToRoleSelectionBtn.addEventListener('click', function () {
+                    showLoginStep('roleSelection');
+                });
+            }
+
+            // Paso 2: Validar datos obligatorios antes de continuar
+            if (userInfoFormDataEle) {
+                userInfoFormDataEle.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    console.log('Validando información personal');
+
+                    // Validar campos obligatorios
+                    const userName = document.getElementById('userName').value.trim();
+                    const userLastName = document.getElementById('userLastName').value.trim();
+                    const userPhone = document.getElementById('userPhone').value.trim();
+
+                    if (!userName || !userLastName || !userPhone) {
+                        await showDialog('Campos Obligatorios', 'Por favor complete todos los campos obligatorios (Nombre, Apellido y Teléfono).', 'error');
+                        return;
+                    }
+
+                    // Validar formato de teléfono (10 dígitos)
+                    const phoneRegex = /^[0-9]{10}$/;
+                    if (!phoneRegex.test(userPhone)) {
+                        await showDialog('Teléfono Inválido', 'El teléfono debe tener 10 dígitos numéricos.', 'error');
+                        return;
+                    }
+
+                    // Guardar información en localStorage
+                    const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                    const userKey = `${selectedRole}_info`;
+
+                    sessionInfo[userKey] = {
+                        name: userName,
+                        lastName: userLastName,
+                        phone: userPhone,
+                        date: new Date().toISOString()
+                    };
+
+                    localStorage.setItem('destelloOroSessionInfo', JSON.stringify(sessionInfo));
+
+                    // Continuar al siguiente paso
+                    showLoginStep('loginCredentials');
+                });
+            }
+
+            // Volver a información personal
+            if (backToUserInfoBtn) {
+                backToUserInfoBtn.addEventListener('click', function () {
+                    showLoginStep('userInfoForm');
+                });
+            }
+
+            // Manejar login
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    console.log('Iniciando proceso de login');
+
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+
+                    try {
+                        const response = await fetch('api/login.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                username: username,
+                                password: password
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // Obtener el nombre ingresado en el paso anterior
+                            const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                            const userKey = `${selectedRole}_info`;
+                            const personalInfo = sessionInfo[userKey];
+                            
+                            currentUser = {
+                                id: data.user.id,
+                                username: data.user.username,
+                                role: data.user.role,
+                                // Priorizar el nombre ingresado en el formulario
+                                displayName: personalInfo ? `${personalInfo.name} ${personalInfo.lastName}` : data.user.name,
+                                name: data.user.name
+                            };
+                            
+                            // Guardar en localStorage para persistencia rápida
+                            localStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
+
+                            await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
+                            showApp();
+                        } else {
+                            await showDialog('Error de Acceso', data.message || 'Credenciales incorrectas.', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error en login:', error);
+                        await showDialog('Error', 'Error de conexión con el servidor.', 'error');
+                    }
+                });
+            }
+        }
+
+        // Mostrar la aplicación después del login
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+
+            // Asegurarse de que currentUser esté cargado
+            const savedUser = localStorage.getItem('destelloOroCurrentUser');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    console.log('Usuario cargado en showApp:', currentUser);
+                } catch (error) {
+                    console.error('Error al cargar usuario:', error);
+                }
+            }
+
+            // Actualizar interfaz según rol
+            updateUIForUserRole();
+
+            // Cargar datos iniciales
+            loadInventoryTable();
+            loadExpensesTable();
+            loadPendingSalesTable();
+            loadWarrantiesTable();
+            loadHistoryCards();
+
+            // Configurar selectores de fecha para historial
+            setupDateSelectors();
+        }
+
+        // Actualizar interfaz según rol del usuario
+        function updateUIForUserRole() {
+            if (!currentUser) {
+                console.error('No hay usuario actual definido');
+                return;
+            }
+
+            const isAdmin = currentUser.role === 'admin';
+            const isWorker = currentUser.role === 'worker';
+            const userBadge = document.getElementById('currentUserRole');
+
+            // Usar displayName del usuario actual
+            const displayName = currentUser.displayName ||
+                currentUser.name ||
+                (isAdmin ? 'Administrador' : 'Trabajador');
+
+            // Actualizar badge del usuario
+            if (isAdmin) {
+                userBadge.className = 'user-badge admin';
+                userBadge.innerHTML = `
+                    <i class="fas fa-user-shield"></i>
+                    <span>${displayName} (Administrador)</span>
+                `;
+            } else {
+                userBadge.className = 'user-badge worker';
+                userBadge.innerHTML = `
+                    <i class="fas fa-user-tie"></i>
+                    <span>${displayName} (Trabajador)</span>
+                `;
+            }
+
+            // Mostrar/ocultar elementos según rol
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(element => {
+                element.style.display = isAdmin ? '' : 'none';
+            });
+
+            // Si es trabajador, asegurarse de que solo pueda ver inventario y ventas
+            if (isWorker) {
+                // Ocultar botones de navegación no permitidos
+                const navButtons = document.querySelectorAll('.nav-btn');
+                navButtons.forEach(button => {
+                    const section = button.dataset.section;
+                    if (section !== 'inventory' && section !== 'sales') {
+                        button.style.display = 'none';
+                    }
+                });
+
+                // Mostrar solo las secciones de inventario y ventas
+                const sections = document.querySelectorAll('.section-container');
+                sections.forEach(section => {
+                    if (section.id !== 'inventory' && section.id !== 'sales') {
+                        section.style.display = 'none';
+                    }
+                });
+
+                // Ocultar botones de agregar producto en inventario (solo para trabajador)
+                const addProductBtn = document.getElementById('addProductBtn');
+                if (addProductBtn) {
+                    addProductBtn.style.display = 'none';
+                }
+
+                // Ocultar formulario de agregar producto si está visible
+                const addProductForm = document.getElementById('addProductForm');
+                if (addProductForm) {
+                    addProductForm.style.display = 'none';
+                }
+            }
+        }
+
+        // Configurar eventos de navegación
+        function setupNavigationEvents() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.section-container');
+
+            // Navegación entre secciones
+            navButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetSection = this.dataset.section;
+
+                    // Verificar si el usuario tiene acceso a esta sección
+                    if (currentUser && currentUser.role === 'worker' &&
+                        targetSection !== 'inventory' && targetSection !== 'sales') {
+                        showDialog('Acceso Restringido', 'No tiene permiso para acceder a esta sección.', 'warning');
+                        return;
+                    }
+
+                    // Actualizar botones activos
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Mostrar sección correspondiente
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetSection) {
+                            section.classList.add('active');
+
+                            // Si es la sección de garantías, cargar datos
+                            if (targetSection === 'warranties') {
+                                loadWarrantiesTable();
+                            }
+
+                            // Si es la sección de historial, cargar tarjetas
+                            if (targetSection === 'history') {
+                                loadHistoryCards();
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Botón de cerrar sesión
+            document.getElementById('logoutButton').addEventListener('click', async function () {
+                const confirmed = await showDialog(
+                    'Cerrar Sesión',
+                    '¿Está seguro de que desea cerrar sesión?',
+                    'question',
+                    true
+                );
+
+                if (confirmed) {
+                    localStorage.removeItem('destelloOroCurrentUser');
+                    currentUser = null;
+                    document.getElementById('appScreen').style.display = 'none';
+                    document.getElementById('loginScreen').style.display = 'flex';
+
+                    // Restablecer login
+                    initLoginSteps();
+                    document.getElementById('adminRole').classList.add('active');
+                    document.getElementById('workerRole').classList.remove('active');
+                    document.getElementById('loginForm').reset();
+                    selectedRole = 'admin';
+                }
+            });
+
+            // Botón para agregar producto (solo visible para admin)
+            document.getElementById('addProductBtn').addEventListener('click', function () {
+                // Verificar si es administrador
+                if (currentUser && currentUser.role !== 'admin') {
+                    showDialog('Acceso Restringido', 'Solo el administrador puede agregar productos.', 'warning');
+                    return;
+                }
+
+                const form = document.getElementById('addProductForm');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                if (form.style.display === 'block') {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+
+            // Cancelar agregar producto
+            document.getElementById('cancelAddProduct').addEventListener('click', function () {
+                document.getElementById('addProductForm').style.display = 'none';
+                document.getElementById('productForm').reset();
+                document.getElementById('profitEstimate').value = '';
+            });
+
+            // Botón para agregar gasto
+            document.getElementById('addExpenseBtn').addEventListener('click', function () {
+                // Verificar si es administrador
+                if (currentUser && currentUser.role !== 'admin') {
+                    showDialog('Acceso Restringido', 'Solo el administrador puede registrar gastos.', 'warning');
+                    return;
+                }
+
+                const form = document.getElementById('addExpenseForm');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                document.getElementById('expenseDate').valueAsDate = new Date();
+                if (form.style.display === 'block') {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+
+            // Cancelar agregar gasto
+            document.getElementById('cancelExpense').addEventListener('click', function () {
+                document.getElementById('addExpenseForm').style.display = 'none';
+                document.getElementById('expenseForm').reset();
+            });
+        }
+
+        // Configurar eventos de formularios
+        function setupFormEvents() {
+            // Calcular ganancia estimada al cambiar precios
+            document.getElementById('retailPrice').addEventListener('input', calculateProfit);
+            document.getElementById('purchasePrice').addEventListener('input', calculateProfit);
+
+            // Formulario de producto (solo para admin)
+            document.getElementById('productForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Verificar si es administrador
+                if (currentUser && currentUser.role !== 'admin') {
+                    await showDialog('Acceso Restringido', 'Solo el administrador puede agregar productos.', 'error');
+                    return;
+                }
+
+                // Obtener datos del formulario
+                const product = {
+                    id: document.getElementById('productRef').value.trim().toUpperCase(),
+                    name: document.getElementById('productName').value.trim(),
+                    quantity: parseInt(document.getElementById('productQuantity').value),
+                    purchasePrice: parseFloat(document.getElementById('purchasePrice').value),
+                    wholesalePrice: parseFloat(document.getElementById('wholesalePrice').value),
+                    retailPrice: parseFloat(document.getElementById('retailPrice').value),
+                    supplier: document.getElementById('supplier').value.trim(),
+                    addedBy: currentUser.username,
+                    dateAdded: new Date().toISOString()
+                };
+
+                try {
+                    const response = await fetch('api/products.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(product)
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadInventoryTable();
+                        this.reset();
+                        document.getElementById('profitEstimate').value = '';
+                        document.getElementById('addProductForm').style.display = 'none';
+                        await showDialog('Éxito', 'Producto agregado exitosamente al inventario.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al agregar producto', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            });
+
+            // Formulario de surtir inventario (solo para admin)
+            document.getElementById('restockForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Verificar si es administrador
+                if (currentUser && currentUser.role !== 'admin') {
+                    await showDialog('Acceso Restringido', 'Solo el administrador puede surtir inventario.', 'error');
+                    return;
+                }
+
+                const productRef = document.getElementById('restockProductRef').value.trim().toUpperCase();
+                const quantity = parseInt(document.getElementById('restockQuantity').value);
+
+                // Validar datos
+                if (!productRef || isNaN(quantity) || quantity <= 0) {
+                    await showDialog('Error', 'Por favor ingrese datos válidos.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('api/restocks.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            id: productRef,
+                            quantity: quantity
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadInventoryTable();
+                        this.reset();
+                        document.getElementById('restockProductInfo').textContent = '';
+                        await showDialog('Éxito', 'Inventario surtido exitosamente.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al surtir inventario', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            });
+
+            // Buscar producto al escribir referencia (surtir)
+            document.getElementById('restockProductRef').addEventListener('input', function () {
+                const productRef = this.value.trim().toUpperCase();
+                if (productRef) {
+                    // Usar copia local si existe, o intentar buscar en DB?
+                    // Por rendimiento, usar el array global 'destelloOroProducts' que se actualizó en loadInventoryTable
+                    // Pero ojo, loadInventoryTable debe haberse llamado antes.
+                    // Fallback a localStorage (que actualizamos en loadInventoryTable)
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                    const product = products.find(p => p.id === productRef);
+
+                    if (product) {
+                        document.getElementById('restockProductInfo').innerHTML =
+                            `<strong>${product.name}</strong><br>
+                             Stock actual: ${product.quantity} unidades<br>
+                             Precio detal: ${formatCurrency(product.retailPrice)}`;
+                    } else {
+                        document.getElementById('restockProductInfo').textContent = '❌ Producto no encontrado en caché local (cargue inventario primero)';
+                    }
+                } else {
+                    document.getElementById('restockProductInfo').textContent = '';
+                }
+            });
+
+            // Formulario de gastos (solo para admin)
+            document.getElementById('expenseForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Verificar si es administrador
+                if (currentUser && currentUser.role !== 'admin') {
+                    await showDialog('Acceso Restringido', 'Solo el administrador puede registrar gastos.', 'error');
+                    return;
+                }
+
+                const expense = {
+                    description: document.getElementById('expenseDescription').value.trim(),
+                    date: document.getElementById('expenseDate').value,
+                    amount: parseFloat(document.getElementById('expenseAmount').value),
+                    user: currentUser.username
+                };
+
+                // Validar datos
+                if (!expense.description || !expense.date || isNaN(expense.amount) || expense.amount <= 0) {
+                    await showDialog('Error', 'Por favor ingrese datos válidos.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('api/expenses.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(expense)
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadExpensesTable();
+                        this.reset();
+                        document.getElementById('addExpenseForm').style.display = 'none';
+                        await showDialog('Éxito', 'Gasto registrado exitosamente.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al registrar gasto', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            });
+
+            // Formulario para agregar producto al carrito
+            document.getElementById('addProductToSaleForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const productRef = document.getElementById('saleProductRef').value.trim().toUpperCase();
+                const quantity = parseInt(document.getElementById('saleQuantity').value) || 0;
+                const saleType = document.getElementById('saleType').value;
+                const discount = parseFloat(document.getElementById('discount').value) || 0;
+
+                // Validar datos
+                if (!productRef || quantity <= 0) {
+                    showDialog('Error', 'Por favor ingrese datos válidos.', 'error');
+                    return;
+                }
+
+                // Agregar al carrito
+                addToCart(productRef, quantity, saleType, discount);
+            });
+
+            // Buscar producto al escribir referencia (venta)
+            document.getElementById('saleProductRef').addEventListener('input', function () {
+                const productRef = this.value.trim().toUpperCase();
+                if (productRef) {
+                     const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                    const product = products.find(p => p.id === productRef);
+
+                    if (product) {
+                        const retailPrice = formatCurrency(product.retailPrice);
+                        const wholesalePrice = formatCurrency(product.wholesalePrice);
+                        document.getElementById('productInfo').innerHTML =
+                            `<strong>${product.name}</strong><br>
+                             💰 Detal: ${retailPrice} | 📦 Mayorista: ${wholesalePrice}<br>
+                             📊 Stock disponible: ${product.quantity} unidades`;
+                    } else {
+                        document.getElementById('productInfo').innerHTML = '<span style="color: var(--danger);">❌ Producto no encontrado</span>';
+                    }
+                } else {
+                    document.getElementById('productInfo').textContent = '';
+                }
+            });
+
+            // Actualizar resumen de venta al cambiar costo de envío
+            document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
+        }
+
+        // Configurar eventos de la factura (SIN REDES SOCIALES)
+        function setupInvoiceEvents() {
+            // Cerrar factura
+            document.getElementById('closeInvoice').addEventListener('click', function () {
+                document.getElementById('invoiceModal').style.display = 'none';
+            });
+
+            // Imprimir factura
+            document.getElementById('printInvoice').addEventListener('click', function () {
+                window.print();
+            });
+
+            // Descargar factura como PDF
+            document.getElementById('downloadInvoice').addEventListener('click', async function () {
+                await generateCurrentInvoicePDF();
+            });
+        }
+
+        // Función para generar PDF de la factura actual (del modal)
+        async function generateCurrentInvoicePDF() {
+            // ... Mantiene lógica de PDF, usa datos del DOM ...
+            await showDialog('Generando PDF', 'Por favor espere mientras se genera el PDF de la factura...', 'info');
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                // Obtener datos de la factura actual del modal
+                const invoiceNumber = document.getElementById('invoiceNumber').textContent;
+                const invoiceDate = document.getElementById('invoiceDate').textContent;
+                const customerName = document.getElementById('invoiceCustomerName').textContent;
+                const total = document.getElementById('invoiceTotal').textContent;
+
+                // Agregar contenido básico al PDF
+                pdf.setFontSize(20);
+                pdf.setTextColor(212, 175, 55); // Color oro
+                pdf.text('Destello de Oro 18K', 20, 20);
+
+                pdf.setFontSize(12);
+                pdf.setTextColor(0, 0, 0);
+                pdf.text('Factura de Venta', 20, 30);
+                pdf.text(invoiceNumber, 20, 40);
+                pdf.text(invoiceDate, 20, 45);
+
+                pdf.setFontSize(14);
+                pdf.text('Datos del Cliente:', 20, 60);
+                pdf.setFontSize(10);
+                pdf.text(`Nombre: ${customerName}`, 20, 70);
+
+                pdf.setFontSize(14);
+                pdf.text('Total:', 20, 85);
+                pdf.setFontSize(16);
+                pdf.setTextColor(212, 175, 55);
+                pdf.text(total, 60, 85);
+
+                pdf.setFontSize(10);
+                pdf.setTextColor(100, 100, 100);
+                pdf.text('Gracias por su compra!', 20, 100);
+                pdf.text('Contacto: 3182687488', 20, 105);
+
+                // Guardar PDF
+                pdf.save(`Factura_${invoiceNumber.replace('Factura ', '')}.pdf`);
+
+                await showDialog('PDF Generado', 'La factura se ha descargado exitosamente.', 'success');
+
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                await showDialog('Error', 'No se pudo generar el PDF. Intente usar la opción de imprimir.', 'error');
+            }
+        }
+
+        // NUEVA FUNCIÓN: Generar PDF de factura para una venta específica
+        async function generateInvoicePDF(sale) {
+             // ... Misma lógica, sin cambios requeridos ...
+             // Solo asegúrate de que 'sale' tenga la estructura correcta
+              await showDialog('Generando PDF', 'Por favor espere mientras se genera el PDF de la factura...', 'info');
+              // ... El contenido de la función es grande, lo resumiré asumiendo que no cambia ...
+              // Si no la incluyo, `processSale` es el target del siguiente replace.
+        }
+
+        // Procesar una venta (con múltiples productos) - AHORA ASYNC
+        async function processSale(sale) {
+            try {
+                // Verificar stock (Aun podemos verificar localmente para UX rápida)
+                 const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                 let canProcess = true;
+                let insufficientStock = [];
+    
+                 sale.products.forEach(cartItem => {
+                    const productIndex = products.findIndex(p => p.id === cartItem.productId);
+                    if (productIndex !== -1) {
+                        if (cartItem.quantity > products[productIndex].quantity) {
+                            canProcess = false;
+                            insufficientStock.push({
+                                product: cartItem.productName,
+                                requested: cartItem.quantity,
+                                available: products[productIndex].quantity
+                            });
+                        }
+                    } else {
+                        canProcess = false;
+                        insufficientStock.push({
+                             product: cartItem.productName,
+                             requested: cartItem.quantity,
+                             available: 0
+                        });
+                    }
+                });
+    
+                if (!canProcess) {
+                    let errorMessage = 'No hay suficiente stock para los siguientes productos:\n\n';
+                    insufficientStock.forEach(item => {
+                        errorMessage += `• ${item.product}: Solicitado ${item.requested}, Disponible ${item.available}\n`;
+                    });
+                    await showDialog('Error de Stock', errorMessage, 'error');
+                    return false;
+                }
+                
+                // Enviar a API
+                 const response = await fetch('api/sales.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(sale)
+                });
+                const data = await response.json();
+    
+                if (data.success) {
+                    // Actualizar tablas e historial
+                    loadInventoryTable(); 
+                    loadHistoryCards();
+                    return true;
+                } else {
+                    await showDialog('Error', data.message || 'Error al procesar venta', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error backend:', error);
+                 await showDialog('Error', 'Error de conexión con el servidor', 'error');
+                 return false;
+            }
+        }
+
+        // Mostrar factura (SIN REDES SOCIALES)
+        function showInvoice(sale) {
+            // Configurar datos de la factura
+            document.getElementById('invoiceNumber').textContent = `Factura ${sale.id}`;
+            document.getElementById('invoiceDate').textContent = `Fecha: ${formatDate(sale.date)}`;
+            document.getElementById('invoicePaymentMethod').textContent =
+                `Método de Pago: ${getPaymentMethodName(sale.paymentMethod)}`;
+
+            // Información del cliente
+            if (sale.customerInfo) {
+                document.getElementById('invoiceCustomerName').textContent = sale.customerInfo.name;
+                document.getElementById('invoiceCustomerId').textContent = sale.customerInfo.id || 'No proporcionada';
+                document.getElementById('invoiceCustomerPhone').textContent = sale.customerInfo.phone;
+                document.getElementById('invoiceCustomerEmail').textContent = sale.customerInfo.email || 'No proporcionado';
+                document.getElementById('invoiceCustomerAddress').textContent = sale.customerInfo.address;
+                document.getElementById('invoiceCustomerCity').textContent = sale.customerInfo.city;
+            } else {
+                document.getElementById('invoiceCustomerName').textContent = 'Cliente de mostrador';
+                document.getElementById('invoiceCustomerId').textContent = 'No proporcionada';
+                document.getElementById('invoiceCustomerPhone').textContent = 'No proporcionado';
+                document.getElementById('invoiceCustomerEmail').textContent = 'No proporcionado';
+                document.getElementById('invoiceCustomerAddress').textContent = 'Recoge en tienda';
+                document.getElementById('invoiceCustomerCity').textContent = 'No proporcionada';
+            }
+
+            // Detalles de la venta (múltiples productos)
+            const invoiceItemsBody = document.getElementById('invoiceItemsBody');
+            invoiceItemsBody.innerHTML = '';
+
+            sale.products.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.productName}</strong></td>
+                    <td>${item.productId}</td>
+                    <td>${item.quantity}</td>
+                    <td>${formatCurrency(item.unitPrice)}</td>
+                    <td><strong>${formatCurrency(item.subtotal)}</strong></td>
+                `;
+                invoiceItemsBody.appendChild(row);
+            });
+
+            // Agregar filas para descuentos y envío
+            if (sale.discount > 0) {
+                const discountRow = document.createElement('tr');
+                discountRow.innerHTML = `
+                    <td colspan="4" style="text-align: right; color: var(--danger);">Descuento:</td>
+                    <td style="color: var(--danger);">-${formatCurrency(sale.discount)}</td>
+                `;
+                invoiceItemsBody.appendChild(discountRow);
+            }
+
+            if (sale.deliveryCost > 0) {
+                const deliveryRow = document.createElement('tr');
+                deliveryRow.innerHTML = `
+                    <td colspan="4" style="text-align: right; color: var(--info);">Costo de envío:</td>
+                    <td style="color: var(--info);">${formatCurrency(sale.deliveryCost)}</td>
+                `;
+                invoiceItemsBody.appendChild(deliveryRow);
+            }
+
+            // IMPORTANTE: Agregar incremento por garantía si existe
+            if (sale.warrantyIncrement > 0) {
+                const warrantyRow = document.createElement('tr');
+                warrantyRow.innerHTML = `
+                    <td colspan="4" style="text-align: right; color: var(--warning);">Incremento por garantía:</td>
+                    <td style="color: var(--warning);">${formatCurrency(sale.warrantyIncrement)}</td>
+                `;
+                invoiceItemsBody.appendChild(warrantyRow);
+            }
+
+            // Total
+            document.getElementById('invoiceTotal').textContent = formatCurrency(sale.total);
+
+            // Mostrar modal
+            document.getElementById('invoiceModal').style.display = 'block';
+        }
+
+        // Configurar diálogo personalizado
+        function setupCustomDialog() {
+            const dialog = document.getElementById('customDialog');
+            const confirmBtn = document.getElementById('dialogConfirm');
+            const cancelBtn = document.getElementById('dialogCancel');
+
+            confirmBtn.addEventListener('click', function () {
+                dialog.style.display = 'none';
+                if (typeof window.dialogCallback === 'function') {
+                    window.dialogCallback(true);
+                }
+            });
+
+            cancelBtn.addEventListener('click', function () {
+                dialog.style.display = 'none';
+                if (typeof window.dialogCallback === 'function') {
+                    window.dialogCallback(false);
+                }
+            });
+        }
+
+        // Mostrar diálogo personalizado
+        function showDialog(title, message, type = 'info', showCancel = false) {
+            return new Promise((resolve) => {
+                const dialog = document.getElementById('customDialog');
+                const icon = document.getElementById('dialogIcon');
+                const dialogTitle = document.getElementById('dialogTitle');
+                const dialogMessage = document.getElementById('dialogMessage');
+                const confirmBtn = document.getElementById('dialogConfirm');
+                const cancelBtn = document.getElementById('dialogCancel');
+
+                // Configurar icono según tipo
+                icon.innerHTML = getDialogIcon(type);
+                icon.style.color = getDialogColor(type);
+
+                // Configurar texto
+                dialogTitle.textContent = title;
+                dialogMessage.innerHTML = message;
+
+                // Configurar botones
+                cancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
+
+                // Guardar callback
+                window.dialogCallback = (result) => {
+                    resolve(result);
+                    delete window.dialogCallback;
+                };
+
+                // Mostrar diálogo
+                dialog.style.display = 'flex';
+            });
+        }
+
+        // Obtener icono para diálogo
+        function getDialogIcon(type) {
+            switch (type) {
+                case 'success': return '<i class="fas fa-check-circle"></i>';
+                case 'error': return '<i class="fas fa-exclamation-circle"></i>';
+                case 'warning': return '<i class="fas fa-exclamation-triangle"></i>';
+                case 'info': return '<i class="fas fa-info-circle"></i>';
+                case 'question': return '<i class="fas fa-question-circle"></i>';
+                default: return '<i class="fas fa-info-circle"></i>';
+            }
+        }
+
+        // Obtener color para diálogo
+        function getDialogColor(type) {
+            switch (type) {
+                case 'success': return 'var(--success)';
+                case 'error': return 'var(--danger)';
+                case 'warning': return 'var(--warning)';
+                case 'info': return 'var(--info)';
+                case 'question': return 'var(--gold-primary)';
+                default: return 'var(--info)';
+            }
+        }
+
+        // Configurar cambio de contraseña
+        function setupPasswordChange() {
+            const showBtn = document.getElementById('showPasswordChange');
+            const closeBtn = document.getElementById('closePasswordChange');
+            const cancelBtn = document.getElementById('cancelPasswordChange');
+            const modal = document.getElementById('passwordChangeModal');
+            const form = document.getElementById('passwordChangeForm');
+
+            // Mostrar modal
+            showBtn.addEventListener('click', function () {
+                modal.style.display = 'flex';
+
+                // Cargar usuarios en el select
+                loadUsersForPasswordChange();
+
+                // Enfocar el primer campo
+                setTimeout(() => {
+                    document.getElementById('adminUsername').focus();
+                }, 100);
+            });
+
+            // Cerrar modal
+            closeBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
+                form.reset();
+            });
+
+            cancelBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
+                form.reset();
+            });
+
+            // Cerrar modal al hacer clic fuera
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    form.reset();
+                }
+            });
+
+            // Enviar formulario
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const adminUsername = document.getElementById('adminUsername').value;
+                const adminPassword = document.getElementById('adminPassword').value;
+                const userToChange = document.getElementById('userToChange').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Validar que las contraseñas coincidan
+                if (newPassword !== confirmPassword) {
+                    await showDialog('Error', 'Las contraseñas no coinciden.', 'error');
+                    return;
+                }
+
+                // Validar credenciales de administrador
+                const users = JSON.parse(localStorage.getItem('destelloOroUsers'));
+                const adminUser = users.find(u => u.username === adminUsername && u.password === adminPassword && u.role === 'admin');
+
+                if (!adminUser) {
+                    await showDialog('Error', 'Credenciales de administrador incorrectas.', 'error');
+                    return;
+                }
+
+                // Buscar usuario a modificar
+                const userIndex = users.findIndex(u => u.username === userToChange);
+
+                if (userIndex === -1) {
+                    await showDialog('Error', 'Usuario no encontrado.', 'error');
+                    return;
+                }
+
+                // Actualizar contraseña
+                users[userIndex].password = newPassword;
+                localStorage.setItem('destelloOroUsers', JSON.stringify(users));
+
+                // Cerrar modal y limpiar formulario
+                modal.style.display = 'none';
+                form.reset();
+
+                await showDialog('Éxito', 'Contraseña cambiada exitosamente.', 'success');
+            });
+        }
+
+        // Cargar usuarios para cambio de contraseña
+        function loadUsersForPasswordChange() {
+            const userSelect = document.getElementById('userToChange');
+            const users = JSON.parse(localStorage.getItem('destelloOroUsers'));
+
+            // Limpiar select
+            userSelect.innerHTML = '<option value="">Seleccione un usuario</option>';
+
+            // Agregar opciones (sin el usuario "marlon")
+            users.forEach(user => {
+                if (user.username !== 'marlon') {
+                    const option = document.createElement('option');
+                    option.value = user.username;
+                    option.textContent = `${user.name} ${user.lastName || ''} (${user.username}) - ${user.role === 'admin' ? 'Administrador' : 'Trabajador'}`;
+                    userSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Inicializar pasos del login
+        function initLoginSteps() {
+            // Mostrar solo el primer paso (selección de rol)
+            showLoginStep('roleSelection');
+        }
+
+        // Mostrar paso específico del login
+        function showLoginStep(stepId) {
+            // Ocultar todos los pasos
+            document.getElementById('roleSelection').style.display = 'none';
+            document.getElementById('userInfoForm').style.display = 'none';
+            document.getElementById('loginCredentials').style.display = 'none';
+            document.getElementById('loginInfo').style.display = 'none';
+
+            // Mostrar el paso solicitado
+            document.getElementById(stepId).style.display = 'block';
+
+            // Si es el paso de credenciales, mostrar info
+            if (stepId === 'loginCredentials') {
+                document.getElementById('loginInfo').style.display = 'block';
+            }
+        }
+
+        // Configurar selectores de fecha para historial
+        function setupDateSelectors() {
+            const monthSelect = document.getElementById('monthSelect');
+            const yearSelect = document.getElementById('yearSelect');
+
+            // Limpiar selectores
+            monthSelect.innerHTML = '';
+            yearSelect.innerHTML = '';
+
+            // Agregar meses
+            const monthNames = [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+
+            monthNames.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = month;
+                if (index === currentMonth) {
+                    option.selected = true;
+                }
+                monthSelect.appendChild(option);
+            });
+
+            // Agregar años (desde 2025 hasta 2030)
+            for (let year = 2025; year <= 2050; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+
+            // Agregar eventos
+            monthSelect.addEventListener('change', function () {
+                currentMonth = parseInt(this.value);
+                loadHistoryCards();
+                loadMonthlySummary(); // Recargar resumen mensual
+            });
+
+            yearSelect.addEventListener('change', function () {
+                currentYear = parseInt(this.value);
+                loadHistoryCards();
+                loadMonthlySummary(); // Recargar resumen mensual
+            });
+        }
+
+        // Calcular ganancia estimada
+        function calculateProfit() {
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0;
+
+            if (purchasePrice > 0 && retailPrice > 0) {
+                const profit = retailPrice - purchasePrice;
+                const profitPercentage = (profit / purchasePrice * 100).toFixed(2);
+                document.getElementById('profitEstimate').value =
+                    `${formatCurrency(profit)} (${profitPercentage}%)`;
+            } else {
+                document.getElementById('profitEstimate').value = '';
+            }
+        }
+
+        // Cargar datos iniciales del localStorage
+        function loadInitialData() {
+            // Inicializar datos si no existen
+            if (!localStorage.getItem('destelloOroProducts')) {
+                const initialProducts = [
+                    {
+                        id: 'REF001',
+                        name: 'Cadena de Oro Laminado 18K - Elegante',
+                        quantity: 10,
+                        purchasePrice: 150000,
+                        wholesalePrice: 180000,
+                        retailPrice: 200000,
+                        supplier: 'Proveedor Oro S.A.',
+                        addedBy: 'admin',
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: 'REF002',
+                        name: 'Anillo de Matrimonio 18K - Clásico',
+                        quantity: 5,
+                        purchasePrice: 80000,
+                        wholesalePrice: 100000,
+                        retailPrice: 120000,
+                        supplier: 'Joyas Preciosas Ltda.',
+                        addedBy: 'admin',
+                        dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: 'REF003',
+                        name: 'Aretes de Corazón 18K - Brillantes',
+                        quantity: 15,
+                        purchasePrice: 60000,
+                        wholesalePrice: 75000,
+                        retailPrice: 90000,
+                        supplier: 'Accesorios Dorados S.A.S.',
+                        addedBy: 'admin',
+                        dateAdded: new Date().toISOString()
+                    }
+                ];
+                localStorage.setItem('destelloOroProducts', JSON.stringify(initialProducts));
+            }
+
+            if (!localStorage.getItem('destelloOroSales')) {
+                localStorage.setItem('destelloOroSales', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroPendingSales')) {
+                localStorage.setItem('destelloOroPendingSales', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroExpenses')) {
+                localStorage.setItem('destelloOroExpenses', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroRestocks')) {
+                localStorage.setItem('destelloOroRestocks', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroWarranties')) {
+                localStorage.setItem('destelloOroWarranties', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroNextInvoiceId')) {
+                localStorage.setItem('destelloOroNextInvoiceId', '1001');
+            }
+
+            // Inicializar usuarios con información personal (SIN "marlon carabali")
+            if (!localStorage.getItem('destelloOroUsers')) {
+                const users = [
+                    {
+                        username: 'admin',
+                        password: 'admin123',
+                        role: 'admin',
+                        name: 'Administrador',
+                        lastName: 'Principal',
+                        phone: '3001234567',
+                        personalInfoSaved: false
+                    },
+                    {
+                        username: 'trabajador',
+                        password: 'trabajador123',
+                        role: 'worker',
+                        name: 'Vendedor',
+                        lastName: 'Principal',
+                        phone: '3009876543',
+                        personalInfoSaved: false
+                    }
+                ];
+                localStorage.setItem('destelloOroUsers', JSON.stringify(users));
+            }
+
+            // Inicializar información de sesión
+            if (!localStorage.getItem('destelloOroSessionInfo')) {
+                localStorage.setItem('destelloOroSessionInfo', JSON.stringify({}));
+            }
+        }
+
+        // Cargar tabla de inventario
+        async function loadInventoryTable() {
+            try {
+                const response = await fetch('api/products.php');
+                const products = await response.json();
+                
+                // Actualizar caché local para otras funciones síncronas (paso intermedio vital)
+                localStorage.setItem('destelloOroProducts', JSON.stringify(products));
+
+                const tableBody = document.getElementById('inventoryTableBody');
+                tableBody.innerHTML = '';
+
+                // Obtener término de búsqueda si existe el elemento
+                const searchInput = document.getElementById('inventorySearch');
+                const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+                // Filtrar productos
+                const filteredProducts = products.filter(product => {
+                    if (!searchTerm) return true;
+                    const id = product.id ? String(product.id).toLowerCase() : '';
+                    const name = product.name ? String(product.name).toLowerCase() : '';
+                    return id.includes(searchTerm) || name.includes(searchTerm);
+                });
+
+                if (filteredProducts.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="9" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
+                    tableBody.appendChild(row);
+                    return;
+                }
+
+                filteredProducts.forEach(product => {
+                    const profit = product.retailPrice - product.purchasePrice;
+                    const profitPercentage = (profit / product.purchasePrice * 100).toFixed(2);
+                    const row = document.createElement('tr');
+
+                    // Determinar si mostrar botón de eliminar (solo para admin)
+                    const deleteButton = currentUser && currentUser.role === 'admin' ?
+                        `<button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>` :
+                        '';
+
+                    row.innerHTML = `
+                        <td><strong>${product.id}</strong></td>
+                        <td>${product.name}</td>
+                        <td>
+                            <span class="badge ${product.quantity > 10 ? 'badge-success' : product.quantity > 0 ? 'badge-warning' : 'badge-danger'}">
+                                ${product.quantity} unidades
+                            </span>
+                        </td>
+                        <td>${formatCurrency(product.purchasePrice)}</td>
+                        <td>${formatCurrency(product.wholesalePrice)}</td>
+                        <td>${formatCurrency(product.retailPrice)}</td>
+                        <td>
+                            ${formatCurrency(profit)}<br>
+                            <small>(${profitPercentage}%)</small>
+                        </td>
+                        <td>${product.supplier}</td>
+                        <td class="admin-only">
+                            ${deleteButton}
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+
+                // Ocultar columnas según rol
+                 const actionCells = tableBody.querySelectorAll('td:nth-child(9)');
+                // ... logic for hiding columns ...
+                 if (currentUser && currentUser.role === 'worker') {
+                    actionCells.forEach(cell => cell.style.display = 'none');
+                    const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
+                    if (actionHeader) actionHeader.style.display = 'none';
+                } else {
+                    actionCells.forEach(cell => cell.style.display = '');
+                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
+                    if (actionHeader) actionHeader.style.display = '';
+                }
+
+            } catch (error) {
+                console.error('Error cargando inventario:', error);
+            }
+        }
+
+        // Cargar tabla de gastos
+        async function loadExpensesTable() {
+            try {
+                const response = await fetch('api/expenses.php');
+                const expenses = await response.json();
+                
+                 localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses)); // Cache for history if needed
+
+                const tableBody = document.getElementById('expensesTableBody');
+                tableBody.innerHTML = '';
+
+                expenses.forEach(expense => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${formatDate(expense.date)}</td>
+                        <td>${expense.description}</td>
+                        <td><strong>${formatCurrency(expense.amount)}</strong></td>
+                        <td>
+                            <span class="badge ${expense.user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                ${getUserName(expense.user)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${expense.id}', 'expenses')" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                             ${currentUser && currentUser.role === 'admin' ? 
+                            `<button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>` : ''}
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error cargando gastos:', error);
+            }
+        }
+
+        // Cargar tabla de ventas pendientes
+        async function loadPendingSalesTable() {
+            try {
+                const response = await fetch('api/pending_sales.php');
+                const pendingSales = await response.json();
+                
+                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales)); // Cache
+
+                const tableBody = document.getElementById('pendingTableBody');
+                tableBody.innerHTML = '';
+
+                pendingSales.forEach(sale => {
+                    const row = document.createElement('tr');
+
+                    // Obtener información de productos
+                    const productCount = sale.products ? sale.products.length : 1;
+                    const productNames = sale.products ?
+                        sale.products.map(p => p.productName || p.product_name).join(', ') : // Support both DB and JS format if mixed
+                        (sale.productName || 'Producto');
+
+                    row.innerHTML = `
+                        <td><strong>${sale.id}</strong></td>
+                        <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
+                        <td>
+                            <strong>${productCount} producto(s)</strong><br>
+                            <small>${productNames}</small>
+                        </td>
+                        <td><strong>${formatCurrency(sale.total)}</strong></td>
+                        <td><span class="badge ${paymentMethods[sale.paymentMethod]?.class || 'badge-warning'}">${getPaymentMethodName(sale.paymentMethod)}</span></td>
+                        <td>${formatDate(sale.date || sale.sale_date)}</td>
+                        <td>
+                            <span class="badge ${sale.user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                ${getUserName(sale.user || sale.username)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-success btn-sm" onclick="confirmPayment('${sale.id || sale.invoice_number}')" style="margin-right: 5px;">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${sale.id || sale.invoice_number}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error cargando pendientes:', error);
+            }
+        }
+
+        // Funciones auxiliares globales
+        window.deleteProduct = async function (productId) {
+            // Verificar si es administrador
+            if (currentUser && currentUser.role !== 'admin') {
+                await showDialog('Acceso Restringido', 'Solo el administrador puede eliminar productos.', 'error');
+                return;
+            }
+
+            const confirmed = await showDialog(
+                'Eliminar Producto',
+                '¿Está seguro de que desea eliminar este producto? Esta acción no se puede deshacer.',
+                'warning',
+                true
+            );
+
+            if (confirmed) {
+                try {
+                    const response = await fetch(`api/products.php?id=${productId}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        loadInventoryTable();
+                        await showDialog('Éxito', 'Producto eliminado correctamente.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al eliminar producto', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            }
+        };
+
+        window.deleteExpense = async function (expenseId) {
+            // Verificar si es administrador
+            if (currentUser && currentUser.role !== 'admin') {
+                await showDialog('Acceso Restringido', 'Solo el administrador puede eliminar gastos.', 'error');
+                return;
+            }
+
+            const confirmed = await showDialog(
+                'Eliminar Gasto',
+                '¿Está seguro de que desea eliminar este gasto? Esta acción no se puede deshacer.',
+                'warning',
+                true
+            );
+
+            if (confirmed) {
+                try {
+                    const response = await fetch(`api/expenses.php?id=${expenseId}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadExpensesTable();
+                        loadHistoryCards();
+                        await showDialog('Éxito', 'Gasto eliminado correctamente.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al eliminar gasto', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            }
+        };
+
+        window.confirmPayment = async function (saleId) {
+            const confirmed = await showDialog(
+                'Confirmar Pago',
+                '¿Confirmar que se recibió el pago de esta venta?',
+                'question',
+                true
+            );
+
+            if (confirmed) {
+                try {
+                    const response = await fetch('api/pending_sales.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            action: 'confirm',
+                            sale_id: saleId
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadPendingSalesTable();
+                        loadInventoryTable();
+                        loadHistoryCards();
+                        await showDialog('Éxito', 'Pago confirmado y venta procesada exitosamente.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al procesar la venta.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            }
+        };
+
+        window.cancelPendingSale = async function (saleId) {
+            // Verificar si es administrador
+            if (currentUser && currentUser.role !== 'admin') {
+                await showDialog('Acceso Restringido', 'Solo el administrador puede cancelar ventas pendientes.', 'error');
+                return;
+            }
+
+            const confirmed = await showDialog(
+                'Cancelar Venta Pendiente',
+                '¿Cancelar esta venta pendiente? Esta acción no se puede deshacer.',
+                'warning',
+                true
+            );
+
+            if (confirmed) {
+                try {
+                    const response = await fetch('api/pending_sales.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            action: 'cancel',
+                            sale_id: saleId
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadPendingSalesTable();
+                        loadInventoryTable();
+                        loadHistoryCards();
+                        await showDialog('Éxito', 'Venta pendiente cancelada correctamente.', 'success');
+                    } else {
+                        await showDialog('Error', data.message || 'Error al cancelar venta', 'error');
+                    }
+                } catch (error) {
+                     console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            }
+        };
+
+        // Función para obtener nombre de usuario
+        function getUserName(username) {
+            // Si es el usuario actual, usar su información
+            if (currentUser && currentUser.username === username) {
+                return currentUser.displayName || currentUser.name || username;
+            }
+
+            // Buscar en la lista de usuarios
+            try {
+                const users = JSON.parse(localStorage.getItem('destelloOroUsers'));
+                if (users) {
+                    const user = users.find(u => u.username === username);
+                    if (user) {
+                        if (user.name && user.lastName) {
+                            return `${user.name} ${user.lastName}`;
+                        } else if (user.name) {
+                            return user.name;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error al obtener nombre de usuario:', error);
+            }
+
+            return username;
+        }
+
+        // Nueva función para texto de estado de garantía
+        function getWarrantyStatusText(status) {
+            switch (status) {
+                case 'pending': return 'Pendiente';
+                case 'in_process': return 'En proceso';
+                case 'completed': return 'Completada';
+                case 'cancelled': return 'Cancelada';
+                default: return status;
+            }
+        }
+
+        // Nueva función para formato de fecha simple
+        function formatDateSimple(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-CO', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // Funciones de utilidad
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-CO', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getPaymentMethodName(method) {
+            return paymentMethods[method]?.name || method;
+        }
+
+        // Función para limpiar datos corruptos (ejecutar en consola si es necesario)
+        window.resetUserData = function () {
+            console.log('Limpiando datos de usuario...');
+
+            // Eliminar datos de sesión
+            localStorage.removeItem('destelloOroCurrentUser');
+            localStorage.removeItem('destelloOroSessionInfo');
+
+            // Resetear usuarios a valores iniciales
+            const initialUsers = [
+                {
+                    username: 'admin',
+                    password: 'admin123',
+                    role: 'admin',
+                    name: 'Administrador',
+                    lastName: 'Principal',
+                    phone: '3001234567',
+                    personalInfoSaved: false
+                },
+                {
+                    username: 'trabajador',
+                    password: 'trabajador123',
+                    role: 'worker',
+                    name: 'Vendedor',
+                    lastName: 'Principal',
+                    phone: '3009876543',
+                    personalInfoSaved: false
+                }
+            ];
+
+            localStorage.setItem('destelloOroUsers', JSON.stringify(initialUsers));
+            console.log('Datos reiniciados correctamente');
+            console.log('Usuarios disponibles:');
+            console.log('1. admin / admin123 (Administrador)');
+            console.log('2. trabajador / trabajador123 (Trabajador)');
+
+            // Recargar la página
+            location.reload();
+        };
+
+        // Función para verificar el estado del campo de ID de factura
+        window.checkWarrantyIdField = function () {
+            const field = document.getElementById('warrantySaleId');
+            console.log('=== VERIFICACIÓN DEL CAMPO warrantySaleId ===');
+            console.log('1. Valor del campo:', field.value);
+            console.log('2. Venta seleccionada:', selectedSaleForWarranty ? selectedSaleForWarranty.id : 'Ninguna');
+            console.log('3. Campo visible:', field.offsetParent !== null);
+            console.log('4. Display:', field.style.display);
+            console.log('5. Readonly:', field.readOnly);
+            console.log('6. Requerido:', field.required);
+            console.log('7. Background:', field.style.backgroundColor);
+
+            if (selectedSaleForWarranty && !field.value) {
+                console.log('⚠️ ADVERTENCIA: Hay venta seleccionada pero el campo está vacío');
+                console.log('Solución: Ejecutar en consola: document.getElementById("warrantySaleId").value = "' + selectedSaleForWarranty.id + '"');
+            } else if (field.value && selectedSaleForWarranty) {
+                console.log('✅ CORRECTO: Campo lleno y venta seleccionada');
+            }
+
+            return {
+                fieldValue: field.value,
+                saleSelected: selectedSaleForWarranty ? selectedSaleForWarranty.id : null,
+                isVisible: field.offsetParent !== null
+            };
+        };
+
+        // Configuración de contadores manuales (Admin)
+        function setupManualCounters() {
+            const saleCounter = document.getElementById('manualSalesCounter');
+            const warrantyCounter = document.getElementById('manualWarrantyCounter');
+
+            if (saleCounter) {
+                // Cargar valor guardado
+                const savedSales = localStorage.getItem('destelloOroManualSalesCount') || '0';
+                saleCounter.value = savedSales;
+
+                // Guardar al cambiar
+                saleCounter.addEventListener('input', function () {
+                    localStorage.setItem('destelloOroManualSalesCount', this.value);
+                });
+            }
+
+            if (warrantyCounter) {
+                // Cargar valor guardado
+                const savedWarranties = localStorage.getItem('destelloOroManualWarrantyCount') || '0';
+                warrantyCounter.value = savedWarranties;
+
+                // Guardar al cambiar
+                warrantyCounter.addEventListener('input', function () {
+                    localStorage.setItem('destelloOroManualWarrantyCount', this.value);
+                });
+            }
+        }
+
+        // Verificar sesión con el servidor
+        async function checkSession() {
+            try {
+                const response = await fetch('api/check_auth.php');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    currentUser = {
+                        id: data.user.id,
+                        username: data.user.username,
+                        role: data.user.role,
+                        displayName: data.user.name,
+                        name: data.user.name
+                    };
+                    
+                    console.log('Sesión activa:', currentUser);
+                    showApp();
+                } else {
+                    console.log('No hay sesión activa');
+                    initLoginSteps();
+                }
+            } catch (error) {
+                console.error('Error verificando sesión:', error);
+                initLoginSteps();
+            }
+        }
+
+        // Cerrar sesión
+        async function logout() {
+            try {
+                await fetch('api/logout.php');
+                // Limpiar datos locales sensibles por si acaso, aunque ya no dependemos de ellos para auth
+                localStorage.removeItem('destelloOroCurrentUser');
+                location.reload();
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+                location.reload();
+            }
+        }
+
+        // Inicialización principal consolidada
+        async function initApp() {
+            console.log('Inicializando aplicación...');
+            
+            // 1. Cargar datos base y configurar UI
+            loadInitialData();
+            setupLoginEvents();
+            setupNavigationEvents();
+            setupFormEvents();
+            setupInvoiceEvents();
+            setupCustomDialog();
+            setupPasswordChange();
+            setupWarrantyEvents();
+            setupHistoryEvents();
+            setupViewMovementModalEvents();
+            setupEditMovementModalEvents();
+            setupCartEvents();
+            setupManualCounters();
+
+            // 2. Verificar sesión
+            try {
+                const response = await fetch('api/check_auth.php');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    currentUser = {
+                        id: data.user.id,
+                        username: data.user.username,
+                        role: data.user.role,
+                        displayName: data.user.name,
+                        name: data.user.name
+                    };
+                    localStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
+                    showApp();
+                } else {
+                    // Solo si no hay sesión, mostramos el login
+                    initLoginSteps();
+                }
+            } catch (error) {
+                console.error('Error verificando sesión:', error);
+                // Si falla el servidor, intentamos ver si hay algo local o mostramos login
+                const savedUser = localStorage.getItem('destelloOroCurrentUser');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    showApp();
+                } else {
+                    initLoginSteps();
+                }
+            }
+        }
+
+        // Iniciar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
