@@ -2829,7 +2829,7 @@
 
                     <div class="contacto-linea">
                         <strong>📞 Contacto:</strong>
-                        <a href="tel:+573105950990" class="contacto-link">310 595 0990</a>
+                        <a href="tel:+573114125971" class="contacto-link">311 412 5971</a>
                     </div>
 
                     <div class="contacto-linea">
@@ -2840,7 +2840,7 @@
 
                 <!-- Ícono de WhatsApp (derecha absoluta) -->
                 <div class="whatsapp-container">
-                    <a href="https://wa.me/573105950990?text=Hola,%20me%20interesa%20saber%20más%20sobre%20Destello%20de%20Oro%2018K"
+                    <a href="https://wa.me/573114125971?text=Hola,%20me%20interesa%20saber%20más%20sobre%20Destello%20de%20Oro%2018K"
                         class="whatsapp-icon" target="_blank" title="Contáctanos por WhatsApp">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="32" height="32"
                             fill="white">
