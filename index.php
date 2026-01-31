@@ -3258,171 +3258,104 @@
 
         // Actualizar venta
         async function updateSale(formData) {
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-            const saleIndex = sales.findIndex(s => s.id === currentMovementForEdit.id);
+            try {
+                const payload = {
+                    id: currentMovementForEdit.id,
+                    customerName: formData.customerName,
+                    customerPhone: formData.customerPhone,
+                    customerEmail: formData.customerEmail,
+                    customerAddress: formData.customerAddress,
+                    customerCity: formData.customerCity,
+                    paymentMethod: formData.paymentMethod,
+                    status: formData.status
+                };
 
-            if (saleIndex === -1) {
-                await showDialog('Error', 'Venta no encontrada.', 'error');
+                const response = await fetch('api/sales.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar venta', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateSale:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
                 return false;
             }
-
-            // Actualizar datos básicos
-            const sale = sales[saleIndex];
-
-            // Actualizar cliente si viene en formData
-            if (formData.customerName && sale.customerInfo) {
-                sale.customerInfo.name = formData.customerName;
-                sale.customerInfo.id = formData.customerId || sale.customerInfo.id;
-                sale.customerInfo.phone = formData.customerPhone || sale.customerInfo.phone;
-                sale.customerInfo.email = formData.customerEmail || sale.customerInfo.email;
-                sale.customerInfo.address = formData.customerAddress || sale.customerInfo.address;
-                sale.customerInfo.city = formData.customerCity || sale.customerInfo.city;
-            }
-
-            // Actualizar método de pago
-            if (formData.paymentMethod) {
-                sale.paymentMethod = formData.paymentMethod;
-            }
-
-            // Actualizar estado
-            if (formData.status) {
-                sale.status = formData.status;
-                sale.confirmed = formData.status === 'completed';
-            }
-
-            // Actualizar total si hay cambios en garantía
-            if (formData.warrantyIncrement !== undefined) {
-                const oldIncrement = sale.warrantyIncrement || 0;
-                const newIncrement = parseFloat(formData.warrantyIncrement) || 0;
-                const difference = newIncrement - oldIncrement;
-
-                sale.warrantyIncrement = newIncrement;
-                sale.total += difference;
-
-                // IMPORTANTE: Si hay incremento por garantía, actualizar también en la factura original
-                // Esto asegura que el incremento se refleje en todos los lugares
-                updateWarrantyIncrementInOriginalSale(sale.id, newIncrement);
-            }
-
-            // Guardar cambios
-            sales[saleIndex] = sale;
-            localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-            return true;
         }
 
-        // IMPORTANTE: Actualizar incremento por garantía en la venta original
-        function updateWarrantyIncrementInOriginalSale(saleId, increment) {
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-            const saleIndex = sales.findIndex(s => s.id === saleId);
-
-            if (saleIndex !== -1) {
-                sales[saleIndex].warrantyIncrement = increment;
-
-                // Recalcular el total si es necesario
-                const originalTotal = sales[saleIndex].subtotal +
-                    (sales[saleIndex].deliveryCost || 0) -
-                    (sales[saleIndex].discount || 0);
-
-                sales[saleIndex].total = originalTotal + increment;
-                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-                console.log(`✅ Incremento por garantía actualizado en venta ${saleId}: ${formatCurrency(increment)}`);
-            }
-        }
+        // Función auxiliar obsoleta removida (updateWarrantyIncrementInOriginalSale)
 
         // Actualizar gasto
         async function updateExpense(formData) {
-            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-            const expenseIndex = expenses.findIndex(e => e.id === currentMovementForEdit.id);
+            try {
+                const payload = {
+                    id: currentMovementForEdit.id,
+                    description: formData.description,
+                    date: formData.date,
+                    amount: formData.amount
+                };
 
-            if (expenseIndex === -1) {
-                await showDialog('Error', 'Gasto no encontrado.', 'error');
+                const response = await fetch('api/expenses.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadExpensesTable(); // Asegurar recarga visual inmediata
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar gasto', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateExpense:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
                 return false;
             }
-
-            // Actualizar datos
-            expenses[expenseIndex].description = formData.description || expenses[expenseIndex].description;
-            expenses[expenseIndex].date = formData.date || expenses[expenseIndex].date;
-            expenses[expenseIndex].amount = parseFloat(formData.amount) || expenses[expenseIndex].amount;
-            expenses[expenseIndex].updatedAt = new Date().toISOString();
-            expenses[expenseIndex].updatedBy = currentUser.username;
-
-            localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses));
-
-            // Actualizar tabla de gastos si está visible
-            if (document.getElementById('expenses').classList.contains('active')) {
-                loadExpensesTable();
-            }
-
-            return true;
         }
 
         // Actualizar garantía
         async function updateWarranty(formData) {
-            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-            const warrantyIndex = warranties.findIndex(w => w.id === currentMovementForEdit.id);
+            try {
+                const payload = {
+                    id: currentMovementForEdit.id,
+                    status: formData.status,
+                    notes: formData.notes
+                    // Nota: Backend actualmente solo soporta editar status y notas.
+                    // Valores financieros no se editan para proteger contabilidad.
+                };
 
-            if (warrantyIndex === -1) {
-                await showDialog('Error', 'Garantía no encontrada.', 'error');
+                const response = await fetch('api/warranties.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadWarrantiesTable(); // Asegurar recarga
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar garantía', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateWarranty:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
                 return false;
             }
-
-            const warranty = warranties[warrantyIndex];
-            const oldAdditionalValue = warranty.additionalValue || 0;
-            const newAdditionalValue = parseFloat(formData.additionalValue) || 0;
-
-            // Actualizar datos
-            warranty.warrantyReason = formData.warrantyReason || warranty.warrantyReason;
-            warranty.warrantyReasonText = warrantyReasons[formData.warrantyReason] || warranty.warrantyReasonText;
-            warranty.productType = formData.productType || warranty.productType;
-            warranty.additionalValue = newAdditionalValue;
-            warranty.shippingValue = parseFloat(formData.shippingValue) || warranty.shippingValue;
-            warranty.status = formData.status || warranty.status;
-            warranty.notes = formData.notes || warranty.notes;
-            warranty.updatedAt = new Date().toISOString();
-            warranty.updatedBy = currentUser.username;
-            warranty.totalCost = newAdditionalValue + warranty.shippingValue;
-
-            // Si es producto diferente
-            if (warranty.productType === 'different') {
-                warranty.newProductRef = formData.newProductRef || warranty.newProductRef;
-                warranty.newProductName = formData.newProductName || warranty.newProductName;
-            }
-
-            // IMPORTANTE: Actualizar el incremento en la venta original si cambió el valor adicional
-            if (oldAdditionalValue !== newAdditionalValue && warranty.originalSaleId) {
-                const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
-
-                if (saleIndex !== -1) {
-                    // Calcular la diferencia
-                    const difference = newAdditionalValue - oldAdditionalValue;
-
-                    // Inicializar si no existe
-                    if (!sales[saleIndex].warrantyIncrement) {
-                        sales[saleIndex].warrantyIncrement = 0;
-                    }
-
-                    // Actualizar incremento y total
-                    sales[saleIndex].warrantyIncrement += difference;
-                    sales[saleIndex].total += difference;
-
-                    localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-                    console.log(`✅ Incremento por garantía actualizado en venta ${warranty.originalSaleId}: ${formatCurrency(difference)}`);
-                }
-            }
-
-            warranties[warrantyIndex] = warranty;
-            localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
-
-            // Actualizar tabla de garantías si está visible
-            if (document.getElementById('warranties').classList.contains('active')) {
-                loadWarrantiesTable();
-            }
-
-            return true;
         }
 
         // Configurar eventos del carrito
@@ -6511,7 +6444,7 @@
 
             const confirmed = await showDialog(
                 'Eliminar Movimiento',
-                '¿Está seguro de que desea eliminar este movimiento? Esta acción no se puede deshacer.',
+                '¿Está seguro de que desea eliminar este movimiento? Esta acción no se puede deshacer y ajustará el inventario si corresponde.',
                 'warning',
                 true
             );
@@ -6519,84 +6452,61 @@
             if (!confirmed) return;
 
             try {
-                let success = false;
-                let message = '';
-
+                let url = '';
+                // Mapear tipo a endpoint de API
                 switch (type) {
                     case 'sales':
-                        const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                        const sale = sales.find(s => s.id === movementId);
-                        const updatedSales = sales.filter(s => s.id !== movementId);
-
-                        // Si hay incremento por garantía, también eliminar garantías asociadas
-                        if (sale && sale.warrantyIncrement > 0) {
-                            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                            const updatedWarranties = warranties.filter(w => w.originalSaleId !== movementId);
-                            localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
-                            loadWarrantiesTable();
-                        }
-
-                        localStorage.setItem('destelloOroSales', JSON.stringify(updatedSales));
-                        success = true;
-                        message = 'Venta eliminada correctamente.';
+                        url = 'api/sales.php';
                         break;
-
                     case 'expenses':
-                        const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                        const updatedExpenses = expenses.filter(e => e.id !== movementId);
-                        localStorage.setItem('destelloOroExpenses', JSON.stringify(updatedExpenses));
-                        success = true;
-                        message = 'Gasto eliminado correctamente.';
-
-                        // Actualizar tabla de gastos si está visible
-                        if (document.getElementById('expenses').classList.contains('active')) {
-                            loadExpensesTable();
-                        }
+                        url = 'api/expenses.php';
                         break;
-
                     case 'warranties':
-                        const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                        const warranty = warranties.find(w => w.id === movementId);
-                        const updatedWarranties = warranties.filter(w => w.id !== movementId);
-
-                        // IMPORTANTE: Si la garantía tenía valor adicional, restarlo de la venta original
-                        if (warranty && warranty.additionalValue > 0 && warranty.originalSaleId) {
-                            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                            const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
-                            if (saleIndex !== -1) {
-                                sales[saleIndex].warrantyIncrement -= warranty.additionalValue;
-                                sales[saleIndex].total -= warranty.additionalValue;
-                                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-                            }
-                        }
-
-                        localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
-                        success = true;
-                        message = 'Garantía eliminada correctamente.';
-
-                        // Actualizar tabla de garantías si está visible
-                        if (document.getElementById('warranties').classList.contains('active')) {
-                            loadWarrantiesTable();
-                        }
+                        url = 'api/warranties.php';
                         break;
-
+                    case 'restocks':
+                        url = 'api/restocks.php';
+                        break;
+                    case 'pending':
+                        // Las ventas pendientes son ventas con status='pending', se eliminan de sales
+                        url = 'api/sales.php'; 
+                        break;
                     default:
                         await showDialog('Error', 'Tipo de movimiento no válido.', 'error');
                         return;
                 }
 
-                if (success) {
-                    // Actualizar historial
-                    loadHistoryCards();
+                const response = await fetch(`${url}?id=${movementId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success || !result.error) {
+                    // Actualizar todas las vistas
+                    loadHistoryCards(); // Recarga desde API
+                    loadMonthlySummary();
+
+                    // Si estamos viendo detalles, refrescar
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
                         showHistoryDetails(type);
                     }
+                    
+                    // Actualizar tablas específicas si están visibles
+                    if (type === 'expenses' && document.getElementById('expenses').classList.contains('active')) loadExpensesTable();
+                    if (type === 'warranties' && document.getElementById('warranties').classList.contains('active')) loadWarrantiesTable();
+                    if (type === 'pending') loadPendingSalesTable();
 
-                    // Actualizar resumen mensual
-                    loadMonthlySummary();
-
-                    await showDialog('Éxito', message, 'success');
+                    await showDialog('Éxito', result.message || 'Movimiento eliminado correctamente.', 'success');
+                } else {
+                    await showDialog('Error', result.error || 'Error al eliminar el movimiento.', 'error');
                 }
+
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                await showDialog('Error', 'Error de conexión al eliminar.', 'error');
+            }
+        };
 
             } catch (error) {
                 console.error('Error al eliminar movimiento:', error);

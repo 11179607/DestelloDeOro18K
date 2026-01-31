@@ -96,4 +96,34 @@ if ($method === 'GET') {
         echo json_encode(['error' => $e->getMessage()]);
     }
 }
+} elseif ($method === 'PUT') {
+    // Actualizar Gasto (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+    
+    $data = json_decode(file_get_contents("php://input"));
+    
+    if (!isset($data->id)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID necesario']);
+        exit;
+    }
+    
+    try {
+        $stmt = $conn->prepare("UPDATE expenses SET description = :desc, amount = :amt, expense_date = :date WHERE id = :id");
+        $stmt->execute([
+            ':desc' => $data->description,
+            ':amt' => $data->amount,
+            ':date' => $data->date,
+            ':id' => $data->id
+        ]);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
 ?>

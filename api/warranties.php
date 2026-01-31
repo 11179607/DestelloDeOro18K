@@ -100,7 +100,7 @@ if ($method === 'GET') {
     }
 
 } elseif ($method === 'PUT') {
-    // Actualizar estado (Solo admin)
+    // Actualizar estado y notas (Solo admin)
     if ($_SESSION['role'] !== 'admin') {
         http_response_code(403);
         echo json_encode(['error' => 'Acceso denegado']);
@@ -109,16 +109,52 @@ if ($method === 'GET') {
 
     $data = json_decode(file_get_contents("php://input"));
     
-    if (!isset($data->id) || !isset($data->status)) {
+    if (!isset($data->id)) {
          http_response_code(400);
-         echo json_encode(['error' => 'Datos incompletos']);
+         echo json_encode(['error' => 'ID de garantía necesario']);
          exit;
     }
     
     try {
-        $stmt = $conn->prepare("UPDATE warranties SET status = :status WHERE id = :id");
-        $stmt->execute([':status' => $data->status, ':id' => $data->id]);
-         echo json_encode(['success' => true]);
+        // Actualizar status y notas
+        $sql = "UPDATE warranties SET status = :status";
+        $params = [':status' => $data->status, ':id' => $data->id];
+        
+        if (isset($data->notes)) {
+            $sql .= ", notes = :notes";
+            $params[':notes'] = $data->notes;
+        }
+        
+        $sql .= " WHERE id = :id";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+         echo json_encode(['error' => $e->getMessage()]);
+    }
+}
+} elseif ($method === 'DELETE') {
+    // Eliminar Garantía (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+    
+    $id = $_GET['id'] ?? null;
+    
+    if (!$id) {
+         http_response_code(400);
+         echo json_encode(['error' => 'ID necesario']);
+         exit;
+    }
+    
+    try {
+        $stmt = $conn->prepare("DELETE FROM warranties WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        echo json_encode(['success' => true]);
     } catch (PDOException $e) {
         http_response_code(500);
          echo json_encode(['error' => $e->getMessage()]);
