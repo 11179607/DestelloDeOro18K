@@ -6996,6 +6996,7 @@
                     retailPrice: parseFloat(document.getElementById('retailPrice').value),
                     supplier: document.getElementById('supplier').value.trim(),
                     addedBy: currentUser.username,
+                    productDate: document.getElementById('productDate').value,
                     dateAdded: new Date().toISOString()
                 };
 
