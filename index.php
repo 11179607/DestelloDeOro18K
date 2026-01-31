@@ -1944,6 +1944,7 @@
                         <table class="data-table" id="inventoryTable">
                             <thead>
                                 <tr>
+                                    <th>Fecha</th>
                                     <th>Referencia</th>
                                     <th>Producto</th>
                                     <th>Cantidad</th>
@@ -1952,7 +1953,6 @@
                                     <th>Precio Detal</th>
                                     <th>Ganancia</th>
                                     <th>Proveedor</th>
-                                    <th>Fecha</th>
                                     <th class="admin-only">Acciones</th>
                                 </tr>
                             </thead>
@@ -2563,12 +2563,12 @@
                         <table class="data-table" id="pendingTable">
                             <thead>
                                 <tr>
+                                    <th>Fecha</th>
                                     <th>ID Venta</th>
                                     <th>Cliente</th>
                                     <th>Productos</th>
                                     <th>Total</th>
                                     <th>Método de Pago</th>
-                                    <th>Fecha</th>
                                     <th>Vendedor</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -4398,10 +4398,6 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
                                 <td>${actions}</td>
                             </tr>
                         `;
@@ -4415,10 +4411,6 @@
                                 <td>${item.quantity}</td>
                                 <td><strong>${formatCurrency(item.totalValue)}</strong></td>
                                 <td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
                                     <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                         ${getUserName(user)}
                                     </span>
@@ -4444,10 +4436,6 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
                                     <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                         ${getUserName(user)}
                                     </span>
@@ -7833,6 +7821,7 @@
                     const dateDisplay = product.productDate ? formatDateSimple(product.productDate) : (product.created_at ? formatDateSimple(product.created_at) : 'N/A');
 
                     row.innerHTML = `
+                        <td>${dateDisplay}</td>
                         <td><strong>${product.id}</strong></td>
                         <td>${product.name}</td>
                         <td>
@@ -7848,7 +7837,6 @@
                             <small>(${profitPercentage}%)</small>
                         </td>
                         <td>${product.supplier}</td>
-                        <td>${dateDisplay}</td>
                         <td class="admin-only" style="white-space: nowrap;">
                             ${actions}
                         </td>
@@ -7857,17 +7845,14 @@
                     tableBody.appendChild(row);
                 });
 
-                // Ocultar columnas según rol
-                 const actionCells = tableBody.querySelectorAll('td:nth-child(9)');
-                // ... logic for hiding columns ...
+                // Ocultar columnas según rol usando clases
                  if (currentUser && currentUser.role === 'worker') {
-                    actionCells.forEach(cell => cell.style.display = 'none');
-                    const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
-                    if (actionHeader) actionHeader.style.display = 'none';
+                    // Ocultar elementos con clase admin-only
+                    const adminOnlyElements = document.querySelectorAll('.admin-only');
+                    adminOnlyElements.forEach(el => el.style.display = 'none');
                 } else {
-                    actionCells.forEach(cell => cell.style.display = '');
-                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
-                    if (actionHeader) actionHeader.style.display = '';
+                    const adminOnlyElements = document.querySelectorAll('.admin-only');
+                    adminOnlyElements.forEach(el => el.style.display = '');
                 }
 
             } catch (error) {
@@ -7940,6 +7925,7 @@
                         (sale.productName || 'Producto');
 
                     row.innerHTML = `
+                        <td>${formatDate(sale.date || sale.sale_date)}</td>
                         <td><strong>${sale.id}</strong></td>
                         <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
                         <td>
@@ -7948,7 +7934,6 @@
                         </td>
                         <td><strong>${formatCurrency(sale.total)}</strong></td>
                         <td><span class="badge ${paymentMethods[sale.paymentMethod]?.class || 'badge-warning'}">${getPaymentMethodName(sale.paymentMethod)}</span></td>
-                        <td>${formatDate(sale.date || sale.sale_date)}</td>
                         <td>
                             <span class="badge ${sale.user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                 ${getUserName(sale.user || sale.username)}
