@@ -1907,6 +1907,11 @@
                                 <input type="text" id="supplier" class="form-control" required>
                             </div>
                             <div class="form-group">
+                                <label for="productDate">Fecha *</label>
+                                <input type="date" id="productDate" class="form-control" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Fecha de ingreso del producto</small>
+                            </div>
+                            <div class="form-group">
                                 <label>Ganancia Estimada</label>
                                 <input type="text" id="profitEstimate" class="form-control" readonly
                                     style="background-color: var(--light-gray); font-size: 0.9rem;">

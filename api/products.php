@@ -16,7 +16,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     // Listar productos
     try {
-        $stmt = $conn->query("SELECT *, reference as id, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice FROM products ORDER BY created_at DESC");
+        $stmt = $conn->query("SELECT *, reference as id, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice, product_date as productDate FROM products ORDER BY created_at DESC");
         $products = $stmt->fetchAll();
         echo json_encode($products);
     } catch (PDOException $e) {
@@ -44,10 +44,10 @@ if ($method === 'GET') {
     try {
         // Verificar si existe para UPDATE o INSERT
         // Para simplificar, asumimos INSERT o UPDATE ON DUPLICATE
-        $sql = "INSERT INTO products (reference, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
-                VALUES (:ref, :name, :qty, :pp, :wp, :rp, :sup, :user)
+        $sql = "INSERT INTO products (reference, name, quantity, purchase_price, wholesale_price, retail_price, supplier, product_date, added_by) 
+                VALUES (:ref, :name, :qty, :pp, :wp, :rp, :sup, :pdate, :user)
                 ON DUPLICATE KEY UPDATE 
-                name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup";
+                name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup, product_date = :pdate";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -58,6 +58,7 @@ if ($method === 'GET') {
             ':wp' => $data->wholesalePrice,
             ':rp' => $data->retailPrice,
             ':sup' => $data->supplier,
+            ':pdate' => $data->productDate ?? null,
             ':user' => $_SESSION['username']
         ]);
 
