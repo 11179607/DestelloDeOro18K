@@ -1952,6 +1952,7 @@
                                     <th>Precio Detal</th>
                                     <th>Ganancia</th>
                                     <th>Proveedor</th>
+                                    <th>Fecha</th>
                                     <th class="admin-only">Acciones</th>
                                 </tr>
                             </thead>
@@ -3174,6 +3175,9 @@
                     case 'warranties':
                         success = await updateWarranty(formData);
                         break;
+                    case 'products':
+                        success = await updateProduct(formData);
+                        break;
                     default:
                         await showDialog('Error', 'Tipo de movimiento no soportado para edición.', 'error');
                         return;
@@ -3225,6 +3229,31 @@
             });
 
             return data;
+        }
+
+        // Actualizar producto
+        async function updateProduct(formData) {
+            try {
+                const response = await fetch('api/products.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success || !result.error) {
+                    loadInventoryTable();
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar producto', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateProduct:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
+                return false;
+            }
         }
 
         // Actualizar venta
@@ -4313,6 +4342,23 @@
                 const itemDate = item.date || item.createdAt;
                 const user = item.user || item.createdBy || 'desconocido';
 
+                // Generar botones de acción (Solo Admin)
+                let actions = '';
+                if (currentUser && currentUser.role === 'admin') {
+                    // Botones estándar para todos los tipos
+                    actions = `
+                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', '${type}')" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', '${type}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', '${type}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                }
+
                 switch (type) {
                     case 'sales':
                         const productCount = item.products ? item.products.length : 1;
@@ -4336,17 +4382,7 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4362,17 +4398,11 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'expenses')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'expenses')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'expenses')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
                                 </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4389,14 +4419,11 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'restocks')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'restocks')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
                                 </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4421,17 +4448,11 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'warranties')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
                                 </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4453,14 +4474,7 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -6098,9 +6112,78 @@
                         </div>
                     `;
                     break;
+                case 'products':
+                    // Buscar producto (en cache local por simplicidad, aunque idealmente fetch)
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                    movement = products.find(p => p.id === movementId);
+                    
+                    if (!movement) {
+                        showDialog('Error', 'Producto no encontrado.', 'error');
+                        return;
+                    }
+
+                    // Calcular ganancias
+                    const profit = movement.retailPrice - movement.purchasePrice;
+                    const profitPercentage =  (profit / movement.purchasePrice * 100).toFixed(2);
+                    const prodDate = movement.productDate || movement.dateAdded || movement.created_at || new Date().toISOString(); 
+
+                    content = `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-gem"></i> Información del Producto
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Nombre:</strong> ${movement.name}</div>
+                                <div><strong>Referencia (ID):</strong> ${movement.id}</div>
+                                <div><strong>Proveedor:</strong> ${movement.supplier}</div>
+                                <div><strong>Fecha de Ingreso:</strong> ${formatDateSimple(prodDate)}</div>
+                                <div>
+                                    <strong>Cantidad Disponible:</strong> 
+                                    <span class="badge ${movement.quantity > 10 ? 'badge-success' : movement.quantity > 0 ? 'badge-warning' : 'badge-danger'}">
+                                        ${movement.quantity}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-coins"></i> Precios y Costos
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Precio Compra:</strong> ${formatCurrency(movement.purchasePrice)}</div>
+                                <div><strong>Precio Mayorista:</strong> ${formatCurrency(movement.wholesalePrice)}</div>
+                                <div><strong>Precio Detal:</strong> ${formatCurrency(movement.retailPrice)}</div>
+                                <div><strong>Ganancia (Detal):</strong> <span style="color: var(--success); font-weight: bold;">${formatCurrency(profit)} (${profitPercentage}%)</span></div>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-info-circle"></i> Información de Registro
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Registrado por:</strong> ${getUserName(movement.addedBy || 'admin')}</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
             }
 
             modalContent.innerHTML = content;
+            
+            // Configurar botón PDF (solo visible para ventas por ahora)
+            const pdfBtn = document.getElementById('downloadMovementPDFBtn');
+            if (pdfBtn) {
+                 if (type === 'sales') {
+                    pdfBtn.style.display = 'inline-block';
+                    currentSaleForView = movement;
+                } else {
+                    pdfBtn.style.display = 'none';
+                    currentSaleForView = null;
+                }
+            }
+
             modal.style.display = 'flex';
         };
 
@@ -6337,7 +6420,95 @@
                         </div>
                     `;
                     break;
+
+                case 'products':
+                    // Buscar producto
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                    movement = products.find(p => p.id === movementId);
+                    
+                    if (!movement) {
+                        showDialog('Error', 'Producto no encontrado.', 'error');
+                        return;
+                    }
+                    
+                    // Manejo seguro de fecha
+                    let pDateStr = '';
+                    if (movement.productDate) pDateStr = movement.productDate;
+                    else if (movement.dateAdded) pDateStr = movement.dateAdded;
+                    else if (movement.created_at) pDateStr = movement.created_at;
+                    else pDateStr = new Date().toISOString();
+                    
+                    const formattedPDate = pDateStr.split('T')[0];
+
+                    formContent = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-barcode"></i> Referencia
+                                </label>
+                                <input type="text" name="id" value="${movement.id}" readonly
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f0f0f0;">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-calendar"></i> Fecha Ingreso
+                                </label>
+                                <input type="date" name="productDate" value="${formattedPDate}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-tag"></i> Nombre
+                            </label>
+                            <input type="text" name="name" value="${movement.name}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-cubes"></i> Cantidad
+                                </label>
+                                <input type="number" name="quantity" value="${movement.quantity}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-truck"></i> Proveedor
+                                </label>
+                                <input type="text" name="supplier" value="${movement.supplier}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 15px; margin-bottom: 10px; color: var(--gold-dark); border-bottom: 1px solid #eee; padding-bottom: 5px;">Precios</h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Compra</label>
+                                <input type="number" name="purchasePrice" value="${movement.purchasePrice}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mayorista</label>
+                                <input type="number" name="wholesalePrice" value="${movement.wholesalePrice}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Detal</label>
+                                <input type="number" name="retailPrice" value="${movement.retailPrice}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                        </div>
+                    `;
+                    break;
             }
+
+            // Establecer variables globales para guardar
+            currentMovementForEdit = movement;
+            currentMovementTypeForEdit = type;
 
             modalContent.innerHTML = formContent;
             modal.style.display = 'flex';
@@ -7642,12 +7813,24 @@
                     const profitPercentage = (profit / product.purchasePrice * 100).toFixed(2);
                     const row = document.createElement('tr');
 
-                    // Determinar si mostrar botón de eliminar (solo para admin)
-                    const deleteButton = currentUser && currentUser.role === 'admin' ?
-                        `<button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>` :
-                        '';
+                    // Determinar acciones (solo para admin)
+                    let actions = '';
+                    if (currentUser && currentUser.role === 'admin') {
+                        actions = `
+                            <button class="btn btn-info btn-sm" onclick="viewProduct('${product.id}')" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="editProduct('${product.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                    }
+
+                    // Fecha a mostrar (preferencia fecha manual, fallback a fecha creación)
+                    const dateDisplay = product.productDate ? formatDateSimple(product.productDate) : (product.created_at ? formatDateSimple(product.created_at) : 'N/A');
 
                     row.innerHTML = `
                         <td><strong>${product.id}</strong></td>
@@ -7665,8 +7848,9 @@
                             <small>(${profitPercentage}%)</small>
                         </td>
                         <td>${product.supplier}</td>
-                        <td class="admin-only">
-                            ${deleteButton}
+                        <td>${dateDisplay}</td>
+                        <td class="admin-only" style="white-space: nowrap;">
+                            ${actions}
                         </td>
                     `;
 
@@ -7719,7 +7903,10 @@
                                 <i class="fas fa-eye"></i>
                             </button>
                              ${currentUser && currentUser.role === 'admin' ? 
-                            `<button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')" title="Eliminar">
+                            `<button class="btn btn-warning btn-sm" onclick="editMovement('${expense.id}', 'expenses')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>` : ''}
                         </td>
@@ -7768,6 +7955,13 @@
                             </span>
                         </td>
                         <td>
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${sale.id || sale.invoice_number}', 'pending')" title="Ver Detalles" style="margin-right: 5px;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                             ${currentUser && currentUser.role === 'admin' ? 
+                            `<button class="btn btn-warning btn-sm" onclick="editMovement('${sale.id || sale.invoice_number}', 'pending')" title="Editar" style="margin-right: 5px;">
+                                <i class="fas fa-edit"></i>
+                            </button>` : ''}
                             <button class="btn btn-success btn-sm" onclick="confirmPayment('${sale.id || sale.invoice_number}')" style="margin-right: 5px;">
                                 <i class="fas fa-check"></i>
                             </button>
@@ -7785,6 +7979,14 @@
         }
 
         // Funciones auxiliares globales
+        window.viewProduct = function (productId) {
+            viewMovementDetails(productId, 'products');
+        };
+
+        window.editProduct = function (productId) {
+            editMovement(productId, 'products');
+        };
+
         window.deleteProduct = async function (productId) {
             // Verificar si es administrador
             if (currentUser && currentUser.role !== 'admin') {
