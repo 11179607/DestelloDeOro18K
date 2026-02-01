@@ -16,10 +16,23 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     // Listar productos
     try {
-        $stmt = $conn->query("SELECT *, reference as id, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice FROM products ORDER BY created_at DESC");
+        $stmt = $conn->query("SELECT *, reference as id, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice, product_date as productDate FROM products ORDER BY created_at DESC");
         $products = $stmt->fetchAll();
         echo json_encode($products);
     } catch (PDOException $e) {
+        // Auto-fix para GET
+        if (strpos($e->getMessage(), "Unknown column 'product_date'") !== false) {
+             try {
+                $conn->exec("ALTER TABLE products ADD COLUMN product_date DATE");
+                // Reintentar consulta
+                $stmt = $conn->query("SELECT *, reference as id, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice, product_date as productDate FROM products ORDER BY created_at DESC");
+                $products = $stmt->fetchAll();
+                echo json_encode($products);
+                exit;
+             } catch (Exception $ex) {
+                 // Fallback
+             }
+        }
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
@@ -44,10 +57,10 @@ if ($method === 'GET') {
     try {
         // Verificar si existe para UPDATE o INSERT
         // Para simplificar, asumimos INSERT o UPDATE ON DUPLICATE
-        $sql = "INSERT INTO products (reference, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
-                VALUES (:ref, :name, :qty, :pp, :wp, :rp, :sup, :user)
+        $sql = "INSERT INTO products (reference, name, quantity, purchase_price, wholesale_price, retail_price, supplier, product_date, added_by) 
+                VALUES (:ref, :name, :qty, :pp, :wp, :rp, :sup, :pdate, :user)
                 ON DUPLICATE KEY UPDATE 
-                name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup";
+                name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup, product_date = :pdate";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -58,14 +71,37 @@ if ($method === 'GET') {
             ':wp' => $data->wholesalePrice,
             ':rp' => $data->retailPrice,
             ':sup' => $data->supplier,
+            ':pdate' => $data->productDate ?? null,
             ':user' => $_SESSION['username']
         ]);
 
         echo json_encode(['success' => true, 'message' => 'Producto guardado correctamente']);
 
     } catch (PDOException $e) {
+        // Auto-fix: Si falta la columna product_date, la creamos y reintentamos
+        if (strpos($e->getMessage(), "Unknown column 'product_date'") !== false) {
+            try {
+                $conn->exec("ALTER TABLE products ADD COLUMN product_date DATE");
+                $stmt->execute([
+                    ':ref' => $data->id,
+                    ':name' => $data->name,
+                    ':qty' => $data->quantity,
+                    ':pp' => $data->purchasePrice,
+                    ':wp' => $data->wholesalePrice,
+                    ':rp' => $data->retailPrice,
+                    ':sup' => $data->supplier,
+                    ':pdate' => $data->productDate ?? null,
+                    ':user' => $_SESSION['username']
+                ]);
+                echo json_encode(['success' => true, 'message' => 'Producto guardado y base de datos actualizada']);
+                exit;
+            } catch (Exception $ex) {
+                // Si falla el fix, mostramos el error original
+            }
+        }
+
         http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['error' => 'Error BD: ' . $e->getMessage()]);
     }
 
 } elseif ($method === 'DELETE') {
