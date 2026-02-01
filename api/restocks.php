@@ -86,5 +86,52 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
+} elseif ($method === 'DELETE') {
+    // Eliminar Surtido y Revertir Stock (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+    
+    $id = $_GET['id'] ?? null;
+    
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID necesario']);
+        exit;
+    }
+    
+    try {
+        $conn->beginTransaction();
+        
+        // 1. Obtener detalles del surtido
+        $stmt = $conn->prepare("SELECT product_ref, quantity FROM restocks WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        $restock = $stmt->fetch();
+        
+        if (!$restock) {
+            throw new Exception("Registro de surtido no encontrado");
+        }
+        
+        // 2. Revertir stock (Restar cantidad)
+        $stmtStock = $conn->prepare("UPDATE products SET quantity = GREATEST(0, quantity - :qty) WHERE reference = :ref");
+        $stmtStock->execute([
+            ':qty' => $restock['quantity'],
+            ':ref' => $restock['product_ref']
+        ]);
+        
+        // 3. Eliminar registro
+        $stmtDel = $conn->prepare("DELETE FROM restocks WHERE id = :id");
+        $stmtDel->execute([':id' => $id]);
+        
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => 'Surtido eliminado e inventario ajustado']);
+        
+    } catch (Exception $e) {
+        $conn->rollBack();
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 }
 ?>

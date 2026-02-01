@@ -1706,7 +1706,7 @@
                     </div>
                 </div>
 
-                <button id="nextToUserInfo" class="btn btn-primary"
+                <button id="nextToUserInfo" type="button" class="btn btn-primary"
                     style="width: 100%; margin-top: 1rem; padding: 10px;">
                     <i class="fas fa-arrow-right"></i> Continuar
                 </button>
@@ -1716,9 +1716,75 @@
                     <button id="showPasswordChange" class="btn btn-sm btn-info"
                         style="padding: 8px 15px; font-size: 0.85rem;">
                         <i class="fas fa-key"></i> Cambiar Contraseña
-                    </button>
+                </button>
                 </div>
             </div>
+
+            <!-- Script inline para asegurar que el botón funcione -->
+            <script>
+                (function() {
+                    console.log('=== Script inline de roleSelection cargado ===');
+                    
+                    // Función para configurar el botón
+                    function setupNextButton() {
+                        const btn = document.getElementById('nextToUserInfo');
+                        const adminRole = document.getElementById('adminRole');
+                        const workerRole = document.getElementById('workerRole');
+                        
+                        console.log('Configurando botón nextToUserInfo:', btn);
+                        
+                        if (!btn) {
+                            console.error('Botón nextToUserInfo no encontrado');
+                            return;
+                        }
+                        
+                        // Asignar evento click
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            console.log('=== BOTÓN CONTINUAR CLICKEADO (inline) ===');
+                            console.log('Rol seleccionado:', selectedRole);
+                            
+                            // Ocultar selección de rol
+                            document.getElementById('roleSelection').style.display = 'none';
+                            
+                            // Mostrar formulario de información
+                            document.getElementById('userInfoForm').style.display = 'block';
+                            
+                            console.log('Avance completado a userInfoForm');
+                        };
+                        
+                        // Configurar botones de rol
+                        if (adminRole) {
+                            adminRole.onclick = function() {
+                                console.log('Rol admin seleccionado');
+                                adminRole.classList.add('active');
+                                if (workerRole) workerRole.classList.remove('active');
+                                selectedRole = 'admin';
+                            };
+                        }
+                        
+                        if (workerRole) {
+                            workerRole.onclick = function() {
+                                console.log('Rol worker seleccionado');
+                                workerRole.classList.add('active');
+                                if (adminRole) adminRole.classList.remove('active');
+                                selectedRole = 'worker';
+                            };
+                        }
+                        
+                        console.log('Eventos configurados correctamente (inline)');
+                    }
+                    
+                    // Ejecutar inmediatamente si el DOM ya está listo
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', setupNextButton);
+                    } else {
+                        setupNextButton();
+                    }
+                })();
+            </script>
 
             <!-- Paso 2: Información del usuario (AHORA OBLIGATORIA) -->
             <div id="userInfoForm" class="user-info-form">
@@ -1760,6 +1826,110 @@
                 </form>
             </div>
 
+            <!-- Script inline para manejar el formulario de información personal -->
+            <script>
+                (function() {
+                    console.log('=== Script inline de userInfoForm cargado ===');
+                    
+                    function setupUserInfoForm() {
+                        const form = document.getElementById('userInfoFormData');
+                        const backBtn = document.getElementById('backToRoleSelection');
+                        
+                        console.log('Configurando formulario userInfoForm:', form);
+                        console.log('Botón atrás:', backBtn);
+                        
+                        if (!form) {
+                            console.error('Formulario userInfoFormData no encontrado');
+                            return;
+                        }
+                        
+                        // Manejar submit del formulario
+                        form.onsubmit = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            console.log('=== FORMULARIO DE INFORMACIÓN ENVIADO ===');
+                            
+                            // Obtener valores
+                            const userName = document.getElementById('userName').value.trim();
+                            const userLastName = document.getElementById('userLastName').value.trim();
+                            const userPhone = document.getElementById('userPhone').value.trim();
+                            
+                            console.log('Nombre:', userName);
+                            console.log('Apellido:', userLastName);
+                            console.log('Teléfono:', userPhone);
+                            
+                            // Validar campos
+                            if (!userName || !userLastName || !userPhone) {
+                                console.error('Campos vacíos detectados');
+                                alert('Por favor complete todos los campos obligatorios');
+                                return false;
+                            }
+                            
+                            // Validar teléfono (10 dígitos)
+                            const phoneRegex = /^[0-9]{10}$/;
+                            if (!phoneRegex.test(userPhone)) {
+                                console.error('Teléfono inválido:', userPhone);
+                                alert('El teléfono debe tener 10 dígitos numéricos');
+                                return false;
+                            }
+                            
+                            console.log('Validación exitosa, guardando información...');
+                            
+                            // Guardar en localStorage
+                            try {
+                                const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                                const userKey = `${selectedRole}_info`;
+                                
+                                sessionInfo[userKey] = {
+                                    name: userName,
+                                    lastName: userLastName,
+                                    phone: userPhone,
+                                    date: new Date().toISOString()
+                                };
+                                
+                                localStorage.setItem('destelloOroSessionInfo', JSON.stringify(sessionInfo));
+                                console.log('Información guardada en localStorage');
+                            } catch (error) {
+                                console.error('Error guardando en localStorage:', error);
+                            }
+                            
+                            // Ocultar formulario de información
+                            document.getElementById('userInfoForm').style.display = 'none';
+                            
+                            // Mostrar formulario de credenciales
+                            document.getElementById('loginCredentials').style.display = 'block';
+                            document.getElementById('loginInfo').style.display = 'block';
+                            
+                            console.log('Avance completado a loginCredentials');
+                            
+                            return false;
+                        };
+                        
+                        // Botón atrás
+                        if (backBtn) {
+                            backBtn.onclick = function(e) {
+                                e.preventDefault();
+                                console.log('Volviendo a selección de rol');
+                                
+                                document.getElementById('userInfoForm').style.display = 'none';
+                                document.getElementById('roleSelection').style.display = 'block';
+                            };
+                        }
+                        
+                        console.log('Eventos del formulario configurados correctamente (inline)');
+                    }
+                    
+                    // Ejecutar cuando el DOM esté listo
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', setupUserInfoForm);
+                    } else {
+                        setupUserInfoForm();
+                    }
+                })();
+            </script>
+
+
             <!-- Paso 3: Credenciales de login -->
             <div id="loginCredentials" class="user-info-form">
                 <h3 style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
@@ -1798,6 +1968,41 @@
                     al sistema
                 </p>
             </div>
+
+            <!-- Script inline para manejar el formulario de login -->
+            <script>
+                (function() {
+                    console.log('=== Script inline de loginForm cargado ===');
+                    
+                    function setupLoginForm() {
+                        const backBtn = document.getElementById('backToUserInfo');
+                        
+                        console.log('Configurando botón atrás de login:', backBtn);
+                        
+                        // Botón atrás
+                        if (backBtn) {
+                            backBtn.onclick = function(e) {
+                                e.preventDefault();
+                                console.log('Volviendo a información personal');
+                                
+                                document.getElementById('loginCredentials').style.display = 'none';
+                                document.getElementById('loginInfo').style.display = 'none';
+                                document.getElementById('userInfoForm').style.display = 'block';
+                            };
+                        }
+                        
+                        console.log('Botón atrás de login configurado (inline)');
+                    }
+                    
+                    // Ejecutar cuando el DOM esté listo
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', setupLoginForm);
+                    } else {
+                        setupLoginForm();
+                    }
+                })();
+            </script>
+
         </div>
     </div>
 
@@ -1907,6 +2112,11 @@
                                 <input type="text" id="supplier" class="form-control" required>
                             </div>
                             <div class="form-group">
+                                <label for="productDate">Fecha *</label>
+                                <input type="date" id="productDate" class="form-control" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Fecha de ingreso del producto</small>
+                            </div>
+                            <div class="form-group">
                                 <label>Ganancia Estimada</label>
                                 <input type="text" id="profitEstimate" class="form-control" readonly
                                     style="background-color: var(--light-gray); font-size: 0.9rem;">
@@ -1939,6 +2149,7 @@
                         <table class="data-table" id="inventoryTable">
                             <thead>
                                 <tr>
+                                    <th>Fecha</th>
                                     <th>Referencia</th>
                                     <th>Producto</th>
                                     <th>Cantidad</th>
@@ -2557,12 +2768,12 @@
                         <table class="data-table" id="pendingTable">
                             <thead>
                                 <tr>
+                                    <th>Fecha</th>
                                     <th>ID Venta</th>
                                     <th>Cliente</th>
                                     <th>Productos</th>
                                     <th>Total</th>
                                     <th>Método de Pago</th>
-                                    <th>Fecha</th>
                                     <th>Vendedor</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -2829,7 +3040,7 @@
 
                     <div class="contacto-linea">
                         <strong>📞 Contacto:</strong>
-                        <a href="tel:+573105950990" class="contacto-link">310 595 0990</a>
+                        <a href="tel:+573114125971" class="contacto-link">311 412 5971</a>
                     </div>
 
                     <div class="contacto-linea">
@@ -2840,7 +3051,7 @@
 
                 <!-- Ícono de WhatsApp (derecha absoluta) -->
                 <div class="whatsapp-container">
-                    <a href="https://wa.me/573105950990?text=Hola,%20me%20interesa%20saber%20más%20sobre%20Destello%20de%20Oro%2018K"
+                    <a href="https://wa.me/573114125971?text=Hola,%20me%20interesa%20saber%20más%20sobre%20Destello%20de%20Oro%2018K"
                         class="whatsapp-icon" target="_blank" title="Contáctanos por WhatsApp">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="32" height="32"
                             fill="white">
@@ -3169,6 +3380,9 @@
                     case 'warranties':
                         success = await updateWarranty(formData);
                         break;
+                    case 'products':
+                        success = await updateProduct(formData);
+                        break;
                     default:
                         await showDialog('Error', 'Tipo de movimiento no soportado para edición.', 'error');
                         return;
@@ -3222,173 +3436,131 @@
             return data;
         }
 
-        // Actualizar venta
-        async function updateSale(formData) {
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-            const saleIndex = sales.findIndex(s => s.id === currentMovementForEdit.id);
-
-            if (saleIndex === -1) {
-                await showDialog('Error', 'Venta no encontrada.', 'error');
+        // Actualizar producto
+        async function updateProduct(formData) {
+            try {
+                const response = await fetch('api/products.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success || !result.error) {
+                    loadInventoryTable();
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar producto', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateProduct:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
                 return false;
             }
-
-            // Actualizar datos básicos
-            const sale = sales[saleIndex];
-
-            // Actualizar cliente si viene en formData
-            if (formData.customerName && sale.customerInfo) {
-                sale.customerInfo.name = formData.customerName;
-                sale.customerInfo.id = formData.customerId || sale.customerInfo.id;
-                sale.customerInfo.phone = formData.customerPhone || sale.customerInfo.phone;
-                sale.customerInfo.email = formData.customerEmail || sale.customerInfo.email;
-                sale.customerInfo.address = formData.customerAddress || sale.customerInfo.address;
-                sale.customerInfo.city = formData.customerCity || sale.customerInfo.city;
-            }
-
-            // Actualizar método de pago
-            if (formData.paymentMethod) {
-                sale.paymentMethod = formData.paymentMethod;
-            }
-
-            // Actualizar estado
-            if (formData.status) {
-                sale.status = formData.status;
-                sale.confirmed = formData.status === 'completed';
-            }
-
-            // Actualizar total si hay cambios en garantía
-            if (formData.warrantyIncrement !== undefined) {
-                const oldIncrement = sale.warrantyIncrement || 0;
-                const newIncrement = parseFloat(formData.warrantyIncrement) || 0;
-                const difference = newIncrement - oldIncrement;
-
-                sale.warrantyIncrement = newIncrement;
-                sale.total += difference;
-
-                // IMPORTANTE: Si hay incremento por garantía, actualizar también en la factura original
-                // Esto asegura que el incremento se refleje en todos los lugares
-                updateWarrantyIncrementInOriginalSale(sale.id, newIncrement);
-            }
-
-            // Guardar cambios
-            sales[saleIndex] = sale;
-            localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-            return true;
         }
 
-        // IMPORTANTE: Actualizar incremento por garantía en la venta original
-        function updateWarrantyIncrementInOriginalSale(saleId, increment) {
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-            const saleIndex = sales.findIndex(s => s.id === saleId);
+        // Actualizar venta
+        async function updateSale(formData) {
+            try {
+                const payload = {
+                    id: currentMovementForEdit.id,
+                    customerName: formData.customerName,
+                    customerPhone: formData.customerPhone,
+                    customerEmail: formData.customerEmail,
+                    customerAddress: formData.customerAddress,
+                    customerCity: formData.customerCity,
+                    paymentMethod: formData.paymentMethod,
+                    status: formData.status
+                };
 
-            if (saleIndex !== -1) {
-                sales[saleIndex].warrantyIncrement = increment;
+                const response = await fetch('api/sales.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-                // Recalcular el total si es necesario
-                const originalTotal = sales[saleIndex].subtotal +
-                    (sales[saleIndex].deliveryCost || 0) -
-                    (sales[saleIndex].discount || 0);
+                const result = await response.json();
 
-                sales[saleIndex].total = originalTotal + increment;
-                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-                console.log(`✅ Incremento por garantía actualizado en venta ${saleId}: ${formatCurrency(increment)}`);
+                if (result.success) {
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar venta', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateSale:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
+                return false;
             }
         }
+
+        // Función auxiliar obsoleta removida (updateWarrantyIncrementInOriginalSale)
 
         // Actualizar gasto
         async function updateExpense(formData) {
-            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-            const expenseIndex = expenses.findIndex(e => e.id === currentMovementForEdit.id);
+            try {
+                const payload = {
+                    id: currentMovementForEdit.id,
+                    description: formData.description,
+                    date: formData.date,
+                    amount: formData.amount
+                };
 
-            if (expenseIndex === -1) {
-                await showDialog('Error', 'Gasto no encontrado.', 'error');
+                const response = await fetch('api/expenses.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadExpensesTable(); // Asegurar recarga visual inmediata
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar gasto', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateExpense:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
                 return false;
             }
-
-            // Actualizar datos
-            expenses[expenseIndex].description = formData.description || expenses[expenseIndex].description;
-            expenses[expenseIndex].date = formData.date || expenses[expenseIndex].date;
-            expenses[expenseIndex].amount = parseFloat(formData.amount) || expenses[expenseIndex].amount;
-            expenses[expenseIndex].updatedAt = new Date().toISOString();
-            expenses[expenseIndex].updatedBy = currentUser.username;
-
-            localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses));
-
-            // Actualizar tabla de gastos si está visible
-            if (document.getElementById('expenses').classList.contains('active')) {
-                loadExpensesTable();
-            }
-
-            return true;
         }
 
         // Actualizar garantía
         async function updateWarranty(formData) {
-            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-            const warrantyIndex = warranties.findIndex(w => w.id === currentMovementForEdit.id);
+            try {
+                const payload = {
+                    id: currentMovementForEdit.id,
+                    status: formData.status,
+                    notes: formData.notes
+                    // Nota: Backend actualmente solo soporta editar status y notas.
+                    // Valores financieros no se editan para proteger contabilidad.
+                };
 
-            if (warrantyIndex === -1) {
-                await showDialog('Error', 'Garantía no encontrada.', 'error');
+                const response = await fetch('api/warranties.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadWarrantiesTable(); // Asegurar recarga
+                    return true;
+                } else {
+                    await showDialog('Error', result.error || 'Error al actualizar garantía', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error updateWarranty:', error);
+                await showDialog('Error', 'Error de conexión', 'error');
                 return false;
             }
-
-            const warranty = warranties[warrantyIndex];
-            const oldAdditionalValue = warranty.additionalValue || 0;
-            const newAdditionalValue = parseFloat(formData.additionalValue) || 0;
-
-            // Actualizar datos
-            warranty.warrantyReason = formData.warrantyReason || warranty.warrantyReason;
-            warranty.warrantyReasonText = warrantyReasons[formData.warrantyReason] || warranty.warrantyReasonText;
-            warranty.productType = formData.productType || warranty.productType;
-            warranty.additionalValue = newAdditionalValue;
-            warranty.shippingValue = parseFloat(formData.shippingValue) || warranty.shippingValue;
-            warranty.status = formData.status || warranty.status;
-            warranty.notes = formData.notes || warranty.notes;
-            warranty.updatedAt = new Date().toISOString();
-            warranty.updatedBy = currentUser.username;
-            warranty.totalCost = newAdditionalValue + warranty.shippingValue;
-
-            // Si es producto diferente
-            if (warranty.productType === 'different') {
-                warranty.newProductRef = formData.newProductRef || warranty.newProductRef;
-                warranty.newProductName = formData.newProductName || warranty.newProductName;
-            }
-
-            // IMPORTANTE: Actualizar el incremento en la venta original si cambió el valor adicional
-            if (oldAdditionalValue !== newAdditionalValue && warranty.originalSaleId) {
-                const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
-
-                if (saleIndex !== -1) {
-                    // Calcular la diferencia
-                    const difference = newAdditionalValue - oldAdditionalValue;
-
-                    // Inicializar si no existe
-                    if (!sales[saleIndex].warrantyIncrement) {
-                        sales[saleIndex].warrantyIncrement = 0;
-                    }
-
-                    // Actualizar incremento y total
-                    sales[saleIndex].warrantyIncrement += difference;
-                    sales[saleIndex].total += difference;
-
-                    localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-                    console.log(`✅ Incremento por garantía actualizado en venta ${warranty.originalSaleId}: ${formatCurrency(difference)}`);
-                }
-            }
-
-            warranties[warrantyIndex] = warranty;
-            localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
-
-            // Actualizar tabla de garantías si está visible
-            if (document.getElementById('warranties').classList.contains('active')) {
-                loadWarrantiesTable();
-            }
-
-            return true;
         }
 
         // Configurar eventos del carrito
@@ -3619,32 +3791,41 @@
                 warrantyIncrement: 0 // Inicializar en 0
             };
 
-            // Si el pago no es en efectivo, guardar como pendiente
-            if (paymentMethod !== 'cash') {
-                const pendingSales = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
-                pendingSales.push(sale);
-                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+            // Siempre procesar en el backend (el backend descontará stock y asignará el status correcto)
+            const success = await processSale(sale);
 
-                // Actualizar tabla de pendientes
-                loadPendingSalesTable();
-
-                await showDialog(
-                    'Venta Pendiente',
-                    'Venta registrada como pendiente de pago. El administrador debe confirmar el pago.',
-                    'warning'
-                );
-            } else {
-                // Si es efectivo, procesar inmediatamente
-                const success = processSale(sale);
-
-                if (success) {
-                    await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
-
-                    // Mostrar factura
-                    showInvoice(sale);
+            if (success) {
+                if (paymentMethod !== 'cash') {
+                    await showDialog(
+                        'Venta Pendiente', 
+                        'Venta registrada exitosamente como pendiente de pago. El administrador debe confirmar el pago.', 
+                        'warning'
+                    );
                 } else {
-                    await showDialog('Error', 'Ocurrió un error al procesar la venta.', 'error');
+                    await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
+                    // Mostrar factura solo si se desea entrega inmediata (opcional, el usuario suele quererla siempre)
+                    showInvoice(sale);
                 }
+                
+                // Limpiar todo después de una venta exitosa
+                shoppingCart = [];
+                document.getElementById('customerForm').reset();
+                document.getElementById('addProductToSaleForm').reset();
+                document.getElementById('paymentMethod').selectedIndex = 0;
+                document.getElementById('deliveryType').selectedIndex = 0;
+                document.getElementById('deliveryCost').value = 0;
+                updateCartDisplay();
+                updateSaleSummary();
+
+                // Actualizar tablas relevantes
+                loadPendingSalesTable();
+                loadHistoryCards();
+                loadInventoryTable();
+
+                // Incrementar número de factura
+                localStorage.setItem('destelloOroNextInvoiceId', (nextInvoiceId + 1).toString());
+            } else {
+                // error mostrado dentro de processSale
             }
 
             // Limpiar todo después de la venta
@@ -4308,6 +4489,23 @@
                 const itemDate = item.date || item.createdAt;
                 const user = item.user || item.createdBy || 'desconocido';
 
+                // Generar botones de acción (Solo Admin)
+                let actions = '';
+                if (currentUser && currentUser.role === 'admin') {
+                    // Botones estándar para todos los tipos
+                    actions = `
+                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', '${type}')" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', '${type}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', '${type}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                }
+
                 switch (type) {
                     case 'sales':
                         const productCount = item.products ? item.products.length : 1;
@@ -4331,17 +4529,7 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4357,17 +4545,7 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'expenses')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'expenses')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'expenses')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4384,14 +4562,7 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'restocks')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'restocks')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4416,17 +4587,7 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'warranties')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -4448,14 +4609,7 @@
                                         ${getUserName(user)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </td>
+                                <td>${actions}</td>
                             </tr>
                         `;
                         break;
@@ -6093,9 +6247,78 @@
                         </div>
                     `;
                     break;
+                case 'products':
+                    // Buscar producto (en cache local por simplicidad, aunque idealmente fetch)
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                    movement = products.find(p => p.id === movementId);
+                    
+                    if (!movement) {
+                        showDialog('Error', 'Producto no encontrado.', 'error');
+                        return;
+                    }
+
+                    // Calcular ganancias
+                    const profit = movement.retailPrice - movement.purchasePrice;
+                    const profitPercentage =  (profit / movement.purchasePrice * 100).toFixed(2);
+                    const prodDate = movement.productDate || movement.dateAdded || movement.created_at || new Date().toISOString(); 
+
+                    content = `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-gem"></i> Información del Producto
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Nombre:</strong> ${movement.name}</div>
+                                <div><strong>Referencia (ID):</strong> ${movement.id}</div>
+                                <div><strong>Proveedor:</strong> ${movement.supplier}</div>
+                                <div><strong>Fecha de Ingreso:</strong> ${formatDateSimple(prodDate)}</div>
+                                <div>
+                                    <strong>Cantidad Disponible:</strong> 
+                                    <span class="badge ${movement.quantity > 10 ? 'badge-success' : movement.quantity > 0 ? 'badge-warning' : 'badge-danger'}">
+                                        ${movement.quantity}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-coins"></i> Precios y Costos
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Precio Compra:</strong> ${formatCurrency(movement.purchasePrice)}</div>
+                                <div><strong>Precio Mayorista:</strong> ${formatCurrency(movement.wholesalePrice)}</div>
+                                <div><strong>Precio Detal:</strong> ${formatCurrency(movement.retailPrice)}</div>
+                                <div><strong>Ganancia (Detal):</strong> <span style="color: var(--success); font-weight: bold;">${formatCurrency(profit)} (${profitPercentage}%)</span></div>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-info-circle"></i> Información de Registro
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Registrado por:</strong> ${getUserName(movement.addedBy || 'admin')}</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
             }
 
             modalContent.innerHTML = content;
+            
+            // Configurar botón PDF (solo visible para ventas por ahora)
+            const pdfBtn = document.getElementById('downloadMovementPDFBtn');
+            if (pdfBtn) {
+                 if (type === 'sales') {
+                    pdfBtn.style.display = 'inline-block';
+                    currentSaleForView = movement;
+                } else {
+                    pdfBtn.style.display = 'none';
+                    currentSaleForView = null;
+                }
+            }
+
             modal.style.display = 'flex';
         };
 
@@ -6332,7 +6555,95 @@
                         </div>
                     `;
                     break;
+
+                case 'products':
+                    // Buscar producto
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                    movement = products.find(p => p.id === movementId);
+                    
+                    if (!movement) {
+                        showDialog('Error', 'Producto no encontrado.', 'error');
+                        return;
+                    }
+                    
+                    // Manejo seguro de fecha
+                    let pDateStr = '';
+                    if (movement.productDate) pDateStr = movement.productDate;
+                    else if (movement.dateAdded) pDateStr = movement.dateAdded;
+                    else if (movement.created_at) pDateStr = movement.created_at;
+                    else pDateStr = new Date().toISOString();
+                    
+                    const formattedPDate = pDateStr.split('T')[0];
+
+                    formContent = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-barcode"></i> Referencia
+                                </label>
+                                <input type="text" name="id" value="${movement.id}" readonly
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f0f0f0;">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-calendar"></i> Fecha Ingreso
+                                </label>
+                                <input type="date" name="productDate" value="${formattedPDate}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-tag"></i> Nombre
+                            </label>
+                            <input type="text" name="name" value="${movement.name}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-cubes"></i> Cantidad
+                                </label>
+                                <input type="number" name="quantity" value="${movement.quantity}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-truck"></i> Proveedor
+                                </label>
+                                <input type="text" name="supplier" value="${movement.supplier}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 15px; margin-bottom: 10px; color: var(--gold-dark); border-bottom: 1px solid #eee; padding-bottom: 5px;">Precios</h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Compra</label>
+                                <input type="number" name="purchasePrice" value="${movement.purchasePrice}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Mayorista</label>
+                                <input type="number" name="wholesalePrice" value="${movement.wholesalePrice}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Detal</label>
+                                <input type="number" name="retailPrice" value="${movement.retailPrice}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                        </div>
+                    `;
+                    break;
             }
+
+            // Establecer variables globales para guardar
+            currentMovementForEdit = movement;
+            currentMovementTypeForEdit = type;
 
             modalContent.innerHTML = formContent;
             modal.style.display = 'flex';
@@ -6347,7 +6658,7 @@
 
             const confirmed = await showDialog(
                 'Eliminar Movimiento',
-                '¿Está seguro de que desea eliminar este movimiento? Esta acción no se puede deshacer.',
+                '¿Está seguro de que desea eliminar este movimiento? Esta acción no se puede deshacer y ajustará el inventario si corresponde.',
                 'warning',
                 true
             );
@@ -6355,84 +6666,61 @@
             if (!confirmed) return;
 
             try {
-                let success = false;
-                let message = '';
-
+                let url = '';
+                // Mapear tipo a endpoint de API
                 switch (type) {
                     case 'sales':
-                        const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                        const sale = sales.find(s => s.id === movementId);
-                        const updatedSales = sales.filter(s => s.id !== movementId);
-
-                        // Si hay incremento por garantía, también eliminar garantías asociadas
-                        if (sale && sale.warrantyIncrement > 0) {
-                            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                            const updatedWarranties = warranties.filter(w => w.originalSaleId !== movementId);
-                            localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
-                            loadWarrantiesTable();
-                        }
-
-                        localStorage.setItem('destelloOroSales', JSON.stringify(updatedSales));
-                        success = true;
-                        message = 'Venta eliminada correctamente.';
+                        url = 'api/sales.php';
                         break;
-
                     case 'expenses':
-                        const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                        const updatedExpenses = expenses.filter(e => e.id !== movementId);
-                        localStorage.setItem('destelloOroExpenses', JSON.stringify(updatedExpenses));
-                        success = true;
-                        message = 'Gasto eliminado correctamente.';
-
-                        // Actualizar tabla de gastos si está visible
-                        if (document.getElementById('expenses').classList.contains('active')) {
-                            loadExpensesTable();
-                        }
+                        url = 'api/expenses.php';
                         break;
-
                     case 'warranties':
-                        const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                        const warranty = warranties.find(w => w.id === movementId);
-                        const updatedWarranties = warranties.filter(w => w.id !== movementId);
-
-                        // IMPORTANTE: Si la garantía tenía valor adicional, restarlo de la venta original
-                        if (warranty && warranty.additionalValue > 0 && warranty.originalSaleId) {
-                            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                            const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
-                            if (saleIndex !== -1) {
-                                sales[saleIndex].warrantyIncrement -= warranty.additionalValue;
-                                sales[saleIndex].total -= warranty.additionalValue;
-                                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-                            }
-                        }
-
-                        localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
-                        success = true;
-                        message = 'Garantía eliminada correctamente.';
-
-                        // Actualizar tabla de garantías si está visible
-                        if (document.getElementById('warranties').classList.contains('active')) {
-                            loadWarrantiesTable();
-                        }
+                        url = 'api/warranties.php';
                         break;
-
+                    case 'restocks':
+                        url = 'api/restocks.php';
+                        break;
+                    case 'pending':
+                        // Las ventas pendientes son ventas con status='pending', se eliminan de sales
+                        url = 'api/sales.php'; 
+                        break;
                     default:
                         await showDialog('Error', 'Tipo de movimiento no válido.', 'error');
                         return;
                 }
 
-                if (success) {
-                    // Actualizar historial
-                    loadHistoryCards();
+                const response = await fetch(`${url}?id=${movementId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success || !result.error) {
+                    // Actualizar todas las vistas
+                    loadHistoryCards(); // Recarga desde API
+                    loadMonthlySummary();
+
+                    // Si estamos viendo detalles, refrescar
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
                         showHistoryDetails(type);
                     }
+                    
+                    // Actualizar tablas específicas si están visibles
+                    if (type === 'expenses' && document.getElementById('expenses').classList.contains('active')) loadExpensesTable();
+                    if (type === 'warranties' && document.getElementById('warranties').classList.contains('active')) loadWarrantiesTable();
+                    if (type === 'pending') loadPendingSalesTable();
 
-                    // Actualizar resumen mensual
-                    loadMonthlySummary();
-
-                    await showDialog('Éxito', message, 'success');
+                    await showDialog('Éxito', result.message || 'Movimiento eliminado correctamente.', 'success');
+                } else {
+                    await showDialog('Error', result.error || 'Error al eliminar el movimiento.', 'error');
                 }
+
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                await showDialog('Error', 'Error de conexión al eliminar.', 'error');
+            }
+        };
 
             } catch (error) {
                 console.error('Error al eliminar movimiento:', error);
@@ -6450,6 +6738,11 @@
             const backToUserInfoBtn = document.getElementById('backToUserInfo');
             const loginForm = document.getElementById('loginForm');
             const userInfoFormDataEle = document.getElementById('userInfoFormData');
+
+            console.log('=== Configurando eventos de login ===');
+            console.log('adminRoleBtn:', adminRoleBtn);
+            console.log('workerRoleBtn:', workerRoleBtn);
+            console.log('nextToUserInfoBtn:', nextToUserInfoBtn);
 
             if (!adminRoleBtn || !workerRoleBtn || !nextToUserInfoBtn) {
                 console.error('Error: Elementos del login no encontrados');
@@ -6472,8 +6765,12 @@
             });
 
             // Paso 1: Continuar a información personal
-            nextToUserInfoBtn.addEventListener('click', function () {
+            nextToUserInfoBtn.addEventListener('click', function (e) {
+                e.preventDefault(); // Prevenir comportamiento por defecto
+                console.log('=== Botón Continuar clickeado ===');
+                console.log('Rol seleccionado:', selectedRole);
                 console.log('Avanzando a userInfoForm');
+                
                 showLoginStep('userInfoForm');
 
                 // Pre-llenar formulario si ya hay información guardada
@@ -6832,6 +7129,7 @@
                     retailPrice: parseFloat(document.getElementById('retailPrice').value),
                     supplier: document.getElementById('supplier').value.trim(),
                     addedBy: currentUser.username,
+                    productDate: document.getElementById('productDate').value,
                     dateAdded: new Date().toISOString()
                 };
 
@@ -7637,14 +7935,27 @@
                     const profitPercentage = (profit / product.purchasePrice * 100).toFixed(2);
                     const row = document.createElement('tr');
 
-                    // Determinar si mostrar botón de eliminar (solo para admin)
-                    const deleteButton = currentUser && currentUser.role === 'admin' ?
-                        `<button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>` :
-                        '';
+                    // Determinar acciones (solo para admin)
+                    let actions = '';
+                    if (currentUser && currentUser.role === 'admin') {
+                        actions = `
+                            <button class="btn btn-info btn-sm" onclick="viewProduct('${product.id}')" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="editProduct('${product.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                    }
+
+                    // Fecha a mostrar (preferencia fecha manual, fallback a fecha creación)
+                    const dateDisplay = product.productDate ? formatDateSimple(product.productDate) : (product.created_at ? formatDateSimple(product.created_at) : 'N/A');
 
                     row.innerHTML = `
+                        <td>${dateDisplay}</td>
                         <td><strong>${product.id}</strong></td>
                         <td>${product.name}</td>
                         <td>
@@ -7660,25 +7971,22 @@
                             <small>(${profitPercentage}%)</small>
                         </td>
                         <td>${product.supplier}</td>
-                        <td class="admin-only">
-                            ${deleteButton}
+                        <td class="admin-only" style="white-space: nowrap;">
+                            ${actions}
                         </td>
                     `;
 
                     tableBody.appendChild(row);
                 });
 
-                // Ocultar columnas según rol
-                 const actionCells = tableBody.querySelectorAll('td:nth-child(9)');
-                // ... logic for hiding columns ...
+                // Ocultar columnas según rol usando clases
                  if (currentUser && currentUser.role === 'worker') {
-                    actionCells.forEach(cell => cell.style.display = 'none');
-                    const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
-                    if (actionHeader) actionHeader.style.display = 'none';
+                    // Ocultar elementos con clase admin-only
+                    const adminOnlyElements = document.querySelectorAll('.admin-only');
+                    adminOnlyElements.forEach(el => el.style.display = 'none');
                 } else {
-                    actionCells.forEach(cell => cell.style.display = '');
-                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
-                    if (actionHeader) actionHeader.style.display = '';
+                    const adminOnlyElements = document.querySelectorAll('.admin-only');
+                    adminOnlyElements.forEach(el => el.style.display = '');
                 }
 
             } catch (error) {
@@ -7714,7 +8022,10 @@
                                 <i class="fas fa-eye"></i>
                             </button>
                              ${currentUser && currentUser.role === 'admin' ? 
-                            `<button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')" title="Eliminar">
+                            `<button class="btn btn-warning btn-sm" onclick="editMovement('${expense.id}', 'expenses')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>` : ''}
                         </td>
@@ -7748,6 +8059,7 @@
                         (sale.productName || 'Producto');
 
                     row.innerHTML = `
+                        <td>${formatDate(sale.date || sale.sale_date)}</td>
                         <td><strong>${sale.id}</strong></td>
                         <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
                         <td>
@@ -7756,13 +8068,19 @@
                         </td>
                         <td><strong>${formatCurrency(sale.total)}</strong></td>
                         <td><span class="badge ${paymentMethods[sale.paymentMethod]?.class || 'badge-warning'}">${getPaymentMethodName(sale.paymentMethod)}</span></td>
-                        <td>${formatDate(sale.date || sale.sale_date)}</td>
                         <td>
                             <span class="badge ${sale.user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                 ${getUserName(sale.user || sale.username)}
                             </span>
                         </td>
                         <td>
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${sale.id || sale.invoice_number}', 'pending')" title="Ver Detalles" style="margin-right: 5px;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                             ${currentUser && currentUser.role === 'admin' ? 
+                            `<button class="btn btn-warning btn-sm" onclick="editMovement('${sale.id || sale.invoice_number}', 'pending')" title="Editar" style="margin-right: 5px;">
+                                <i class="fas fa-edit"></i>
+                            </button>` : ''}
                             <button class="btn btn-success btn-sm" onclick="confirmPayment('${sale.id || sale.invoice_number}')" style="margin-right: 5px;">
                                 <i class="fas fa-check"></i>
                             </button>
@@ -7780,6 +8098,14 @@
         }
 
         // Funciones auxiliares globales
+        window.viewProduct = function (productId) {
+            viewMovementDetails(productId, 'products');
+        };
+
+        window.editProduct = function (productId) {
+            editMovement(productId, 'products');
+        };
+
         window.deleteProduct = async function (productId) {
             // Verificar si es administrador
             if (currentUser && currentUser.role !== 'admin') {
