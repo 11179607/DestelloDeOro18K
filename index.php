@@ -1716,9 +1716,75 @@
                     <button id="showPasswordChange" class="btn btn-sm btn-info"
                         style="padding: 8px 15px; font-size: 0.85rem;">
                         <i class="fas fa-key"></i> Cambiar Contraseña
-                    </button>
+                </button>
                 </div>
             </div>
+
+            <!-- Script inline para asegurar que el botón funcione -->
+            <script>
+                (function() {
+                    console.log('=== Script inline de roleSelection cargado ===');
+                    
+                    // Función para configurar el botón
+                    function setupNextButton() {
+                        const btn = document.getElementById('nextToUserInfo');
+                        const adminRole = document.getElementById('adminRole');
+                        const workerRole = document.getElementById('workerRole');
+                        
+                        console.log('Configurando botón nextToUserInfo:', btn);
+                        
+                        if (!btn) {
+                            console.error('Botón nextToUserInfo no encontrado');
+                            return;
+                        }
+                        
+                        // Asignar evento click
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            console.log('=== BOTÓN CONTINUAR CLICKEADO (inline) ===');
+                            console.log('Rol seleccionado:', selectedRole);
+                            
+                            // Ocultar selección de rol
+                            document.getElementById('roleSelection').style.display = 'none';
+                            
+                            // Mostrar formulario de información
+                            document.getElementById('userInfoForm').style.display = 'block';
+                            
+                            console.log('Avance completado a userInfoForm');
+                        };
+                        
+                        // Configurar botones de rol
+                        if (adminRole) {
+                            adminRole.onclick = function() {
+                                console.log('Rol admin seleccionado');
+                                adminRole.classList.add('active');
+                                if (workerRole) workerRole.classList.remove('active');
+                                selectedRole = 'admin';
+                            };
+                        }
+                        
+                        if (workerRole) {
+                            workerRole.onclick = function() {
+                                console.log('Rol worker seleccionado');
+                                workerRole.classList.add('active');
+                                if (adminRole) adminRole.classList.remove('active');
+                                selectedRole = 'worker';
+                            };
+                        }
+                        
+                        console.log('Eventos configurados correctamente (inline)');
+                    }
+                    
+                    // Ejecutar inmediatamente si el DOM ya está listo
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', setupNextButton);
+                    } else {
+                        setupNextButton();
+                    }
+                })();
+            </script>
 
             <!-- Paso 2: Información del usuario (AHORA OBLIGATORIA) -->
             <div id="userInfoForm" class="user-info-form">
