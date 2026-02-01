@@ -1720,71 +1720,7 @@
                 </div>
             </div>
 
-            <!-- Script inline para asegurar que el botón funcione -->
-            <script>
-                (function() {
-                    console.log('=== Script inline de roleSelection cargado ===');
-                    
-                    // Función para configurar el botón
-                    function setupNextButton() {
-                        const btn = document.getElementById('nextToUserInfo');
-                        const adminRole = document.getElementById('adminRole');
-                        const workerRole = document.getElementById('workerRole');
-                        
-                        console.log('Configurando botón nextToUserInfo:', btn);
-                        
-                        if (!btn) {
-                            console.error('Botón nextToUserInfo no encontrado');
-                            return;
-                        }
-                        
-                        // Asignar evento click
-                        btn.onclick = function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            
-                            console.log('=== BOTÓN CONTINUAR CLICKEADO (inline) ===');
-                            console.log('Rol seleccionado:', selectedRole);
-                            
-                            // Ocultar selección de rol
-                            document.getElementById('roleSelection').style.display = 'none';
-                            
-                            // Mostrar formulario de información
-                            document.getElementById('userInfoForm').style.display = 'block';
-                            
-                            console.log('Avance completado a userInfoForm');
-                        };
-                        
-                        // Configurar botones de rol
-                        if (adminRole) {
-                            adminRole.onclick = function() {
-                                console.log('Rol admin seleccionado');
-                                adminRole.classList.add('active');
-                                if (workerRole) workerRole.classList.remove('active');
-                                selectedRole = 'admin';
-                            };
-                        }
-                        
-                        if (workerRole) {
-                            workerRole.onclick = function() {
-                                console.log('Rol worker seleccionado');
-                                workerRole.classList.add('active');
-                                if (adminRole) adminRole.classList.remove('active');
-                                selectedRole = 'worker';
-                            };
-                        }
-                        
-                        console.log('Eventos configurados correctamente (inline)');
-                    }
-                    
-                    // Ejecutar inmediatamente si el DOM ya está listo
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', setupNextButton);
-                    } else {
-                        setupNextButton();
-                    }
-                })();
-            </script>
+
 
             <!-- Paso 2: Información del usuario (AHORA OBLIGATORIA) -->
             <div id="userInfoForm" class="user-info-form">
@@ -1826,108 +1762,7 @@
                 </form>
             </div>
 
-            <!-- Script inline para manejar el formulario de información personal -->
-            <script>
-                (function() {
-                    console.log('=== Script inline de userInfoForm cargado ===');
-                    
-                    function setupUserInfoForm() {
-                        const form = document.getElementById('userInfoFormData');
-                        const backBtn = document.getElementById('backToRoleSelection');
-                        
-                        console.log('Configurando formulario userInfoForm:', form);
-                        console.log('Botón atrás:', backBtn);
-                        
-                        if (!form) {
-                            console.error('Formulario userInfoFormData no encontrado');
-                            return;
-                        }
-                        
-                        // Manejar submit del formulario
-                        form.onsubmit = function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            
-                            console.log('=== FORMULARIO DE INFORMACIÓN ENVIADO ===');
-                            
-                            // Obtener valores
-                            const userName = document.getElementById('userName').value.trim();
-                            const userLastName = document.getElementById('userLastName').value.trim();
-                            const userPhone = document.getElementById('userPhone').value.trim();
-                            
-                            console.log('Nombre:', userName);
-                            console.log('Apellido:', userLastName);
-                            console.log('Teléfono:', userPhone);
-                            
-                            // Validar campos
-                            if (!userName || !userLastName || !userPhone) {
-                                console.error('Campos vacíos detectados');
-                                alert('Por favor complete todos los campos obligatorios');
-                                return false;
-                            }
-                            
-                            // Validar teléfono (10 dígitos)
-                            const phoneRegex = /^[0-9]{10}$/;
-                            if (!phoneRegex.test(userPhone)) {
-                                console.error('Teléfono inválido:', userPhone);
-                                alert('El teléfono debe tener 10 dígitos numéricos');
-                                return false;
-                            }
-                            
-                            console.log('Validación exitosa, guardando información...');
-                            
-                            // Guardar en localStorage
-                            try {
-                                const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
-                                const userKey = `${selectedRole}_info`;
-                                
-                                sessionInfo[userKey] = {
-                                    name: userName,
-                                    lastName: userLastName,
-                                    phone: userPhone,
-                                    date: new Date().toISOString()
-                                };
-                                
-                                localStorage.setItem('destelloOroSessionInfo', JSON.stringify(sessionInfo));
-                                console.log('Información guardada en localStorage');
-                            } catch (error) {
-                                console.error('Error guardando en localStorage:', error);
-                            }
-                            
-                            // Ocultar formulario de información
-                            document.getElementById('userInfoForm').style.display = 'none';
-                            
-                            // Mostrar formulario de credenciales
-                            document.getElementById('loginCredentials').style.display = 'block';
-                            document.getElementById('loginInfo').style.display = 'block';
-                            
-                            console.log('Avance completado a loginCredentials');
-                            
-                            return false;
-                        };
-                        
-                        // Botón atrás
-                        if (backBtn) {
-                            backBtn.onclick = function(e) {
-                                e.preventDefault();
-                                console.log('Volviendo a selección de rol');
-                                
-                                document.getElementById('userInfoForm').style.display = 'none';
-                                document.getElementById('roleSelection').style.display = 'block';
-                            };
-                        }
-                        
-                        console.log('Eventos del formulario configurados correctamente (inline)');
-                    }
-                    
-                    // Ejecutar cuando el DOM esté listo
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', setupUserInfoForm);
-                    } else {
-                        setupUserInfoForm();
-                    }
-                })();
-            </script>
+
 
 
             <!-- Paso 3: Credenciales de login -->
@@ -1969,39 +1804,7 @@
                 </p>
             </div>
 
-            <!-- Script inline para manejar el formulario de login -->
-            <script>
-                (function() {
-                    console.log('=== Script inline de loginForm cargado ===');
-                    
-                    function setupLoginForm() {
-                        const backBtn = document.getElementById('backToUserInfo');
-                        
-                        console.log('Configurando botón atrás de login:', backBtn);
-                        
-                        // Botón atrás
-                        if (backBtn) {
-                            backBtn.onclick = function(e) {
-                                e.preventDefault();
-                                console.log('Volviendo a información personal');
-                                
-                                document.getElementById('loginCredentials').style.display = 'none';
-                                document.getElementById('loginInfo').style.display = 'none';
-                                document.getElementById('userInfoForm').style.display = 'block';
-                            };
-                        }
-                        
-                        console.log('Botón atrás de login configurado (inline)');
-                    }
-                    
-                    // Ejecutar cuando el DOM esté listo
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', setupLoginForm);
-                    } else {
-                        setupLoginForm();
-                    }
-                })();
-            </script>
+
 
         </div>
     </div>
