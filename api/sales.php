@@ -94,8 +94,9 @@ if ($method === 'GET') {
         $conn->beginTransaction();
         
         // 1. Crear cabecera de venta
+        $status = $data->status ?? 'completed';
         $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, user_id, username, status) 
-                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :uid, :uname, 'completed')";
+                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :uid, :uname, :status)";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -112,7 +113,8 @@ if ($method === 'GET') {
             ':pay' => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
             ':uid' => $_SESSION['user_id'],
-            ':uname' => $_SESSION['username']
+            ':uname' => $_SESSION['username'],
+            ':status' => $status
         ]);
         
         $saleId = $conn->lastInsertId();

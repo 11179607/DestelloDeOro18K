@@ -3586,32 +3586,41 @@
                 warrantyIncrement: 0 // Inicializar en 0
             };
 
-            // Si el pago no es en efectivo, guardar como pendiente
-            if (paymentMethod !== 'cash') {
-                const pendingSales = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
-                pendingSales.push(sale);
-                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+            // Siempre procesar en el backend (el backend descontará stock y asignará el status correcto)
+            const success = await processSale(sale);
 
-                // Actualizar tabla de pendientes
-                loadPendingSalesTable();
-
-                await showDialog(
-                    'Venta Pendiente',
-                    'Venta registrada como pendiente de pago. El administrador debe confirmar el pago.',
-                    'warning'
-                );
-            } else {
-                // Si es efectivo, procesar inmediatamente
-                const success = processSale(sale);
-
-                if (success) {
-                    await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
-
-                    // Mostrar factura
-                    showInvoice(sale);
+            if (success) {
+                if (paymentMethod !== 'cash') {
+                    await showDialog(
+                        'Venta Pendiente', 
+                        'Venta registrada exitosamente como pendiente de pago. El administrador debe confirmar el pago.', 
+                        'warning'
+                    );
                 } else {
-                    await showDialog('Error', 'Ocurrió un error al procesar la venta.', 'error');
+                    await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
+                    // Mostrar factura solo si se desea entrega inmediata (opcional, el usuario suele quererla siempre)
+                    showInvoice(sale);
                 }
+                
+                // Limpiar todo después de una venta exitosa
+                shoppingCart = [];
+                document.getElementById('customerForm').reset();
+                document.getElementById('addProductToSaleForm').reset();
+                document.getElementById('paymentMethod').selectedIndex = 0;
+                document.getElementById('deliveryType').selectedIndex = 0;
+                document.getElementById('deliveryCost').value = 0;
+                updateCartDisplay();
+                updateSaleSummary();
+
+                // Actualizar tablas relevantes
+                loadPendingSalesTable();
+                loadHistoryCards();
+                loadInventoryTable();
+
+                // Incrementar número de factura
+                localStorage.setItem('destelloOroNextInvoiceId', (nextInvoiceId + 1).toString());
+            } else {
+                // error mostrado dentro de processSale
             }
 
             // Limpiar todo después de la venta

@@ -54,6 +54,8 @@ if ($method === 'GET') {
     // JS envía: saleId, customerName, originalProduct (ref/name), warrantyReason, notes, productType, newProduct...
     
     try {
+        $conn->beginTransaction();
+
         $sql = "INSERT INTO warranties (
             sale_id, original_invoice_id, customer_name, product_ref, product_name, reason, notes,
             product_type, new_product_ref, new_product_name, additional_value, shipping_value, total_cost,
@@ -64,7 +66,7 @@ if ($method === 'GET') {
             :status, :uid
         )";
         
-        // Buscar ID de venta si es posible, aunque el JS envía el invoice ID usualmente
+        // Buscar ID de venta si es posible
         $saleIdInt = null;
         if (isset($data->saleId)) {
             $sStmt = $conn->prepare("SELECT id FROM sales WHERE invoice_number = :inv LIMIT 1");
@@ -91,10 +93,22 @@ if ($method === 'GET') {
             ':status' => $data->status,
             ':uid' => $_SESSION['user_id']
         ]);
+
+        // LOGICA DE STOCK: Si hay un producto nuevo de reemplazo, descontarlo del inventario
+        if ($data->productType === 'different' && !empty($data->newProduct->ref)) {
+            $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref");
+            $stockStmt->execute([':ref' => $data->newProduct->ref]);
+        } elseif ($data->productType === 'same' && !empty($data->originalProduct->id)) {
+            // Si es el mismo, también se suele dar uno nuevo del stock
+            $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref");
+            $stockStmt->execute([':ref' => $data->originalProduct->id]);
+        }
         
-        echo json_encode(['success' => true, 'message' => 'Garantía registrada']);
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => 'Garantía registrada e inventario actualizado']);
 
     } catch (PDOException $e) {
+        $conn->rollBack();
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
