@@ -1706,7 +1706,7 @@
                     </div>
                 </div>
 
-                <button id="nextToUserInfo" class="btn btn-primary"
+                <button id="nextToUserInfo" type="button" class="btn btn-primary"
                     style="width: 100%; margin-top: 1rem; padding: 10px;">
                     <i class="fas fa-arrow-right"></i> Continuar
                 </button>
@@ -6534,6 +6534,11 @@
             const loginForm = document.getElementById('loginForm');
             const userInfoFormDataEle = document.getElementById('userInfoFormData');
 
+            console.log('=== Configurando eventos de login ===');
+            console.log('adminRoleBtn:', adminRoleBtn);
+            console.log('workerRoleBtn:', workerRoleBtn);
+            console.log('nextToUserInfoBtn:', nextToUserInfoBtn);
+
             if (!adminRoleBtn || !workerRoleBtn || !nextToUserInfoBtn) {
                 console.error('Error: Elementos del login no encontrados');
                 return;
@@ -6555,8 +6560,12 @@
             });
 
             // Paso 1: Continuar a información personal
-            nextToUserInfoBtn.addEventListener('click', function () {
+            nextToUserInfoBtn.addEventListener('click', function (e) {
+                e.preventDefault(); // Prevenir comportamiento por defecto
+                console.log('=== Botón Continuar clickeado ===');
+                console.log('Rol seleccionado:', selectedRole);
                 console.log('Avanzando a userInfoForm');
+                
                 showLoginStep('userInfoForm');
 
                 // Pre-llenar formulario si ya hay información guardada
