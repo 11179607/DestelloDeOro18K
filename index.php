@@ -5940,7 +5940,7 @@
                                 <i class="fas fa-user"></i> Información del Cliente
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem;">
-                                <div><strong>Nombre:</strong> ${movement.customerInfo?.name || 'Cliente de mostrador'}</div>
+                                <div><strong>Nombre:</strong> ${movement.customerInfo?.name || movement.customer_name || 'Cliente de mostrador'}</div>
                                 <div><strong>Cédula:</strong> ${movement.customerInfo?.id || 'No proporcionada'}</div>
                                 <div><strong>Teléfono:</strong> ${movement.customerInfo?.phone || 'No proporcionado'}</div>
                                 <div><strong>Dirección:</strong> ${movement.customerInfo?.address || 'No proporcionada'}</div>
