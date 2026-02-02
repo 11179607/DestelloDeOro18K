@@ -1793,8 +1793,8 @@
             <div id="loginInfo"
                 style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--medium-gray); display: none;">
                 <p style="text-align: center; color: #666; font-size: 0.85rem;">
-                    <strong>Ingrese sus credenciales asignados</strong><br>
-                    para poder accederl<br>
+                    <strong>Ingrese sus credenciales asignadas</strong><br>
+                    para poder acceder<br>
                     al sistema
                 </p>
             </div>
@@ -1979,11 +1979,11 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <h3 style="color: var(--gold-dark); margin: 0; font-size: 1.1rem;">
-                            <i class="fas fa-calculator"></i> Registro Manual de Ventas Externas
+                            <i class="fas fa-calculator"></i> Registro Manual de Ventas 
                         </h3>
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
-                                <label for="manualSalesCounter" style="font-weight: 500;">Cant:</label>
+                                <label for="manualSalesCounter" style="font-weight: 500;">Cantidad</label>
                                 <input type="number" id="manualSalesCounter" class="form-control"
                                     style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
                             </div>
@@ -2308,11 +2308,11 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <h3 style="color: var(--gold-dark); margin: 0; font-size: 1.1rem;">
-                            <i class="fas fa-calculator"></i> Registro Manual de Garantías Externas
+                            <i class="fas fa-calculator"></i> Registro Manual de Garantías
                         </h3>
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
-                                <label for="manualWarrantyCounter" style="font-weight: 500;">Cant:</label>
+                                <label for="manualWarrantyCounter" style="font-weight: 500;">Cantidad</label>
                                 <input type="number" id="manualWarrantyCounter" class="form-control"
                                     style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
                             </div>
@@ -3617,32 +3617,27 @@
                 warrantyIncrement: 0 // Inicializar en 0
             };
 
-            // Si el pago no es en efectivo, guardar como pendiente
-            if (paymentMethod !== 'cash') {
-                const pendingSales = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
-                pendingSales.push(sale);
-                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+            // Procesar venta a nivel de API (ahora maneja status 'pending' o 'completed')
+            const success = await processSale(sale);
 
-                // Actualizar tabla de pendientes
-                loadPendingSalesTable();
-
-                await showDialog(
-                    'Venta Pendiente',
-                    'Venta registrada como pendiente de pago. El administrador debe confirmar el pago.',
-                    'warning'
-                );
-            } else {
-                // Si es efectivo, procesar inmediatamente
-                const success = processSale(sale);
-
-                if (success) {
-                    await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
-
-                    // Mostrar factura
-                    showInvoice(sale);
+            if (success) {
+                if (paymentMethod !== 'cash') {
+                    await showDialog(
+                        'Venta Pendiente',
+                        'Venta registrada como pendiente de pago. El administrador debe confirmar el pago en la sección correspondiente.',
+                        'warning'
+                    );
                 } else {
-                    await showDialog('Error', 'Ocurrió un error al procesar la venta.', 'error');
+                    await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
                 }
+
+                // Mostrar factura
+                showInvoice(sale);
+                
+                // Actualizar tabla de pendientes si es necesario
+                loadPendingSalesTable();
+            } else {
+                return; // Detener si hubo error en processSale
             }
 
             // Limpiar todo después de la venta

@@ -90,16 +90,18 @@ if ($method === 'GET') {
         exit;
     }
 
+    $status = $data->status ?? 'completed';
+
     try {
         $conn->beginTransaction();
         
         // 1. Crear cabecera de venta
         $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, user_id, username, status) 
-                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :uid, :uname, 'completed')";
+                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :uid, :uname, :status)";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            ':inv' => $data->id, // ID de factura generado en JS
+            ':inv' => $data->id,
             ':name' => $data->customerInfo->name,
             ':cid' => $data->customerInfo->id,
             ':phone' => $data->customerInfo->phone,
@@ -112,7 +114,8 @@ if ($method === 'GET') {
             ':pay' => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
             ':uid' => $_SESSION['user_id'],
-            ':uname' => $_SESSION['username']
+            ':uname' => $_SESSION['username'],
+            ':status' => $status
         ]);
         
         $saleId = $conn->lastInsertId();
@@ -125,21 +128,21 @@ if ($method === 'GET') {
         $stockStmt = $conn->prepare($stockSql);
         
         foreach ($data->products as $item) {
-            // Insertar item
+            // Insertar item (usando campos del frontend: productId, quantity, unitPrice, subtotal)
             $itemStmt->execute([
                 ':sid' => $saleId,
-                ':ref' => $item->id,
-                ':pname' => $item->name ?? $item->productName,
-                ':qty' => $item->count,
-                ':price' => $item->price,
-                ':sub' => $item->total,
+                ':ref' => $item->productId,
+                ':pname' => $item->productName,
+                ':qty' => $item->quantity,
+                ':price' => $item->unitPrice,
+                ':sub' => $item->subtotal,
                 ':type' => $item->saleType ?? 'retail'
             ]);
             
             // Descontar inventario
             $stockStmt->execute([
-                ':qty' => $item->count,
-                ':ref' => $item->id
+                ':qty' => $item->quantity,
+                ':ref' => $item->productId
             ]);
         }
         
