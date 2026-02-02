@@ -6546,6 +6546,7 @@
                 adminRoleBtn.classList.add('active');
                 workerRoleBtn.classList.remove('active');
                 selectedRole = 'admin';
+                window.selectedRole = 'admin'; // Forzar global
             });
 
             workerRoleBtn.addEventListener('click', function () {
@@ -6553,6 +6554,7 @@
                 workerRoleBtn.classList.add('active');
                 adminRoleBtn.classList.remove('active');
                 selectedRole = 'worker';
+                window.selectedRole = 'worker'; // Forzar global
             });
 
             // Paso 1: Continuar a información personal
@@ -6562,7 +6564,9 @@
 
                 // Pre-llenar formulario si ya hay información guardada
                 const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
-                const userKey = `${selectedRole}_info`;
+                // Asegurar que usemos la global
+                const currentRole = window.selectedRole || selectedRole;
+                const userKey = `${currentRole}_info`;
 
                 if (sessionInfo[userKey]) {
                     document.getElementById('userName').value = sessionInfo[userKey].name || '';
@@ -6603,7 +6607,8 @@
 
                     // Guardar información en localStorage
                     const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
-                    const userKey = `${selectedRole}_info`;
+                    const currentRole = window.selectedRole || selectedRole;
+                    const userKey = `${currentRole}_info`;
 
                     sessionInfo[userKey] = {
                         name: userName,
@@ -6652,7 +6657,9 @@
                         if (data.success) {
                             // Obtener el nombre ingresado en el paso anterior
                             const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
-                            const userKey = `${selectedRole}_info`;
+                            // Priorizar el rol que viene del servidor, pero usar el seleccionado para buscar la info local
+                            const verifiedRole = data.user.role; 
+                            const userKey = `${verifiedRole}_info`;
                             const personalInfo = sessionInfo[userKey];
                             
                             currentUser = {
