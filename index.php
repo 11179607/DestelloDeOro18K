@@ -3013,10 +3013,10 @@
                 <!-- Contenido dinámico del formulario de edición -->
             </div>
             <div class="dialog-buttons">
-                <button id="saveMovementBtn" class="btn btn-success">
+                <button id="saveMovementBtn" type="button" class="btn btn-success">
                     <i class="fas fa-save"></i> Guardar Cambios
                 </button>
-                <button id="cancelEditMovement" class="btn btn-danger">
+                <button id="cancelEditMovement" type="button" class="btn btn-danger">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
             </div>

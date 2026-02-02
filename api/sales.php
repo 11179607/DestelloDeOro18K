@@ -248,8 +248,9 @@ if ($method === 'GET') {
     }
 
     try {
-        // 1. Obtener la venta actual para tener los valores base (subtotal, etc.)
-        $stmt = $conn->prepare("SELECT subtotal, delivery_cost, discount, warranty_increment FROM sales WHERE id = :id");
+        // 1. Obtener la venta actual para tener los valores base (delivery_cost, etc.)
+        // No seleccionamos 'subtotal' porque no existe como columna en la tabla sales
+        $stmt = $conn->prepare("SELECT delivery_cost, discount, warranty_increment FROM sales WHERE id = :id");
         $stmt->execute([':id' => $data->id]);
         $sale = $stmt->fetch();
 
@@ -261,7 +262,7 @@ if ($method === 'GET') {
 
         // 2. Preparar valores (usar los nuevos si vienen, o los viejos)
         $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : (float)$sale['warranty_increment'];
-        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : (float)$sale['subtotal'];
+        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : 0; // Subtotal es un campo virtual o calculado
         $deliveryCost = isset($data->deliveryCost) ? (float)$data->deliveryCost : (float)$sale['delivery_cost'];
         $discount = isset($data->discount) ? (float)$data->discount : (float)$sale['discount'];
         
@@ -279,7 +280,6 @@ if ($method === 'GET') {
                 payment_method = :pay,
                 status = :status,
                 warranty_increment = :winc,
-                subtotal = :sub,
                 delivery_cost = :del,
                 discount = :disc,
                 total = :total,
@@ -288,17 +288,16 @@ if ($method === 'GET') {
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            ':inv' => $data->invoiceNumber ?? $data->invoice_number,
-            ':name' => $data->customerName ?? $data->customer_name,
-            ':cid' => $data->customerId ?? $data->customer_id,
-            ':phone' => $data->customerPhone ?? $data->customer_phone,
-            ':email' => $data->customerEmail ?? $data->customer_email,
-            ':addr' => $data->customerAddress ?? $data->customer_address,
-            ':city' => $data->customerCity ?? $data->customer_city,
-            ':pay' => $data->paymentMethod ?? $data->payment_method,
+            ':inv' => $data->invoiceNumber ?? $data->id,
+            ':name' => $data->customerName ?? '',
+            ':cid' => $data->customerId ?? '',
+            ':phone' => $data->customerPhone ?? '',
+            ':email' => $data->customerEmail ?? '',
+            ':addr' => $data->customerAddress ?? '',
+            ':city' => $data->customerCity ?? '',
+            ':pay' => $data->paymentMethod ?? 'cash',
             ':status' => $data->status ?? 'completed',
             ':winc' => $warrantyIncrement,
-            ':sub' => $subtotal,
             ':del' => $deliveryCost,
             ':disc' => $discount,
             ':total' => $newTotal,
