@@ -8084,11 +8084,6 @@
                 }
             }
         };
-                     console.error('Error:', error);
-                    await showDialog('Error', 'Error de conexión', 'error');
-                }
-            }
-        };
 
         // Función para obtener nombre de usuario
         function getUserName(username) {
