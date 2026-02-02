@@ -1987,11 +1987,6 @@
                                 <input type="number" id="manualSalesCounter" class="form-control"
                                     style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
                             </div>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <label for="manualSalesValue" style="font-weight: 500;">Valor Total:</label>
-                                <input type="number" id="manualSalesValue" class="form-control"
-                                    style="width: 120px; text-align: right; font-weight: bold;" min="0" value="0" placeholder="$0">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -2320,11 +2315,6 @@
                                 <label for="manualWarrantyCounter" style="font-weight: 500;">Cant:</label>
                                 <input type="number" id="manualWarrantyCounter" class="form-control"
                                     style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <label for="manualWarrantyValue" style="font-weight: 500;">Costo Total:</label>
-                                <input type="number" id="manualWarrantyValue" class="form-control"
-                                    style="width: 120px; text-align: right; font-weight: bold;" min="0" value="0" placeholder="$0">
                             </div>
                         </div>
                     </div>
@@ -8172,11 +8162,10 @@
             };
         };
 
-        // Configuración de contadores manuales y valores (Admin)
+        // Configuración de contadores manuales (Admin)
         function setupManualCounters() {
             // Ventas
             const saleCounter = document.getElementById('manualSalesCounter');
-            const saleValue = document.getElementById('manualSalesValue');
 
             if (saleCounter) {
                 // Cargar valor guardado
@@ -8189,20 +8178,8 @@
                 });
             }
 
-            if (saleValue) {
-                // Cargar valor guardado
-                const savedSalesValue = localStorage.getItem('destelloOroManualSalesValue') || '0';
-                saleValue.value = savedSalesValue;
-
-                // Guardar al cambiar
-                saleValue.addEventListener('input', function () {
-                    localStorage.setItem('destelloOroManualSalesValue', this.value);
-                });
-            }
-
             // Garantías
             const warrantyCounter = document.getElementById('manualWarrantyCounter');
-            const warrantyValue = document.getElementById('manualWarrantyValue');
 
             if (warrantyCounter) {
                 // Cargar valor guardado
@@ -8212,17 +8189,6 @@
                 // Guardar al cambiar
                 warrantyCounter.addEventListener('input', function () {
                     localStorage.setItem('destelloOroManualWarrantyCount', this.value);
-                });
-            }
-
-            if (warrantyValue) {
-                // Cargar valor guardado
-                const savedWarrantyValue = localStorage.getItem('destelloOroManualWarrantyValue') || '0';
-                warrantyValue.value = savedWarrantyValue;
-
-                // Guardar al cambiar
-                warrantyValue.addEventListener('input', function () {
-                    localStorage.setItem('destelloOroManualWarrantyValue', this.value);
                 });
             }
         }
