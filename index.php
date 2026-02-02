@@ -1953,7 +1953,7 @@
                                     <th>Precio Detal</th>
                                     <th>Ganancia</th>
                                     <th>Proveedor</th>
-                                    <th class="admin-only">Acciones</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="inventoryTableBody">
@@ -4312,7 +4312,7 @@
                             <tr>
                                 <td>${formatDate(itemDate)}</td>
                                 <td><strong>${item.id}</strong></td>
-                                <td>${item.customerInfo?.name || 'Cliente de mostrador'}</td>
+                                <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                 <td>
                                     <strong>${productCount} producto(s)</strong><br>
                                     <small>${productNames}</small>
@@ -4444,7 +4444,7 @@
                             <tr>
                                 <td>${formatDate(itemDate)}</td>
                                 <td><strong>${item.id}</strong></td>
-                                <td>${item.customerInfo?.name || 'Cliente de mostrador'}</td>
+                                <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                 <td><strong>${formatCurrency(item.total)}</strong></td>
                                 <td>
                                     <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
@@ -7729,17 +7729,18 @@
                             <small>(${profitPercentage}%)</small>
                         </td>
                         <td>${product.supplier}</td>
-                        <td class="admin-only">
+                        <td>
                             <div style="display: flex; gap: 5px;">
                                 <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${product.id}', 'product')" title="Ver">
                                     <i class="fas fa-eye"></i>
                                 </button>
+                                ${currentUser && currentUser.role === 'admin' ? `
                                 <button class="btn btn-warning btn-sm" onclick="editMovement('${product.id}', 'product')" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')" title="Eliminar">
                                     <i class="fas fa-trash"></i>
-                                </button>
+                                </button>` : ''}
                             </div>
                         </td>
                     `;
@@ -7748,8 +7749,7 @@
                 });
 
                 // Ocultar columnas según rol
-                 const actionCells = tableBody.querySelectorAll('td:nth-child(10)');
-                // ... logic for hiding columns ...
+                 /*
                  if (currentUser && currentUser.role === 'worker') {
                     actionCells.forEach(cell => cell.style.display = 'none');
                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(10)');
@@ -7759,6 +7759,7 @@
                      const actionHeader = document.querySelector('#inventoryTable th:nth-child(10)');
                     if (actionHeader) actionHeader.style.display = '';
                 }
+                */
 
             } catch (error) {
                 console.error('Error cargando inventario:', error);
@@ -8032,15 +8033,19 @@
                     const user = users.find(u => u.username === username);
                     if (user) {
                         if (user.name && user.lastName) {
-                            return `${user.name} ${user.lastName}`;
+                            return `${user.name} ${user.lastName} (${user.role === 'admin' ? 'Administrador' : 'Vendedor'})`;
                         } else if (user.name) {
-                            return user.name;
+                            return `${user.name} (${user.role === 'admin' ? 'Administrador' : 'Vendedor'})`;
                         }
                     }
                 }
             } catch (error) {
                 console.error('Error al obtener nombre de usuario:', error);
             }
+
+            // Fallback para admin/worker por defecto si no están en la lista (caso bordes)
+            if(username === 'admin') return 'Administrador (Administrador)';
+            if(username === 'worker' || username === 'trabajador') return 'Vendedor (Vendedor)';
 
             return username;
         }
