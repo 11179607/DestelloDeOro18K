@@ -261,11 +261,15 @@ if ($method === 'GET') {
 
         // 2. Preparar valores (usar los nuevos si vienen, o los viejos)
         $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : (float)$sale['warranty_increment'];
+        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : (float)$sale['subtotal'];
+        $deliveryCost = isset($data->deliveryCost) ? (float)$data->deliveryCost : (float)$sale['delivery_cost'];
+        $discount = isset($data->discount) ? (float)$data->discount : (float)$sale['discount'];
         
         // Recalcular total: total = subtotal + delivery - discount + warranty
-        $newTotal = (float)$sale['subtotal'] + (float)$sale['delivery_cost'] - (float)$sale['discount'] + $warrantyIncrement;
+        $newTotal = $subtotal + $deliveryCost - $discount + $warrantyIncrement;
 
         $sql = "UPDATE sales SET 
+                invoice_number = :inv,
                 customer_name = :name, 
                 customer_id = :cid, 
                 customer_phone = :phone, 
@@ -275,11 +279,16 @@ if ($method === 'GET') {
                 payment_method = :pay,
                 status = :status,
                 warranty_increment = :winc,
-                total = :total
+                subtotal = :sub,
+                delivery_cost = :del,
+                discount = :disc,
+                total = :total,
+                sale_date = :date
                 WHERE id = :id";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
+            ':inv' => $data->invoiceNumber ?? $data->invoice_number,
             ':name' => $data->customerName ?? $data->customer_name,
             ':cid' => $data->customerId ?? $data->customer_id,
             ':phone' => $data->customerPhone ?? $data->customer_phone,
@@ -289,7 +298,11 @@ if ($method === 'GET') {
             ':pay' => $data->paymentMethod ?? $data->payment_method,
             ':status' => $data->status ?? 'completed',
             ':winc' => $warrantyIncrement,
+            ':sub' => $subtotal,
+            ':del' => $deliveryCost,
+            ':disc' => $discount,
             ':total' => $newTotal,
+            ':date' => $data->date ?? date('Y-m-d H:i:s'),
             ':id' => $data->id
         ]);
 

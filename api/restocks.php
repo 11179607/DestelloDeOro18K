@@ -172,8 +172,12 @@ if ($method === 'GET') {
             ]);
 
             // 3. Actualizar el registro
-            $updateStmt = $conn->prepare("UPDATE restocks SET quantity = :qty WHERE id = :id");
-            $updateStmt->execute([':qty' => $data->quantity, ':id' => $data->id]);
+            $updateStmt = $conn->prepare("UPDATE restocks SET quantity = :qty, restock_date = :date WHERE id = :id");
+            $updateStmt->execute([
+                ':qty' => $data->quantity, 
+                ':date' => $data->date ?? date('Y-m-d H:i:s'),
+                ':id' => $data->id
+            ]);
         }
 
         $conn->commit();
