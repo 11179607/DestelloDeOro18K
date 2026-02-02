@@ -5392,20 +5392,31 @@
                     return; // No buscar con menos de 3 caracteres
                 }
 
-                // Buscar ventas del cliente (Usamos copia local que carga loadHistoryCards)
-                // OJO: Si loadHistoryCards no ha cargado, esto podría fallar.
-                // Idealmente deberíamos buscar en API. 
-                // Por ahora asumimos que loadHistoryCards se llama al inicio o cacheamos.
-                const sales = JSON.parse(localStorage.getItem('destelloOroSales') || '[]');
+                // Buscar ventas del cliente - Mejorado para buscar en API si es posible o usar cache robusto
+                // Primero intentamos usar lo que hay en memoria, pero asegurándonos de tener datos frescos
+                let sales = JSON.parse(localStorage.getItem('destelloOroSales') || '[]');
                 const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties') || '[]');
 
+                console.log(`Buscando ventas para: "${searchTerm}"`);
                 const customerSales = sales.filter(sale => {
                     const search = searchTerm.toLowerCase();
-                    const customerName = (sale.customerInfo?.name || sale.customer_name || '').toLowerCase();
-                    const invoiceId = (sale.id || sale.invoice_number || '').toLowerCase();
                     
-                    return (customerName.includes(search) || invoiceId.includes(search)) && sale.confirmed;
+                    // Normalizar datos para búsqueda
+                    const cName = (sale.customerInfo?.name || sale.customer_name || '').toLowerCase();
+                    const cId = (sale.customerInfo?.id || sale.customer_id || '').toString().toLowerCase();
+                    const invId = (sale.id || sale.invoice_number || '').toString().toLowerCase();
+
+                    // Buscar por Nombre, Cédula o ID de Factura
+                    const matches = cName.includes(search) || cId.includes(search) || invId.includes(search);
+                    
+                    // Solo ventas confirmadas (o pending si queremos permitir garantías en pendientes, pero usualmente es completed)
+                    // En este sistema, 'confirmed' es booleano true para pago en efectivo o ya confirmados.
+                    // Ajuste: Permitir status 'completed' también por si acaso.
+                    const isConfirmed = sale.confirmed === true || sale.status === 'completed';
+
+                    return matches && isConfirmed;
                 });
+                console.log(`Encontradas ${customerSales.length} ventas coincidentes.`);
 
                 if (customerSales.length === 0) {
                     // Mostrar mensaje de no encontrado
