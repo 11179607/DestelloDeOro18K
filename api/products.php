@@ -16,7 +16,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     // Listar productos
     try {
-        $stmt = $conn->query("SELECT *, reference as id, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice FROM products ORDER BY created_at DESC");
+        $stmt = $conn->query("SELECT *, reference as id, entry_date as date, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice FROM products ORDER BY created_at DESC");
         $products = $stmt->fetchAll();
         echo json_encode($products);
     } catch (PDOException $e) {
@@ -42,16 +42,20 @@ if ($method === 'GET') {
     }
 
     try {
+        // Asegurar que la columna existe (opcional, para mayor robustez en esta actualización)
+        $conn->exec("ALTER TABLE products ADD COLUMN IF NOT EXISTS entry_date DATE AFTER reference");
+        
         // Verificar si existe para UPDATE o INSERT
         // Para simplificar, asumimos INSERT o UPDATE ON DUPLICATE
-        $sql = "INSERT INTO products (reference, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
-                VALUES (:ref, :name, :qty, :pp, :wp, :rp, :sup, :user)
+        $sql = "INSERT INTO products (reference, entry_date, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
+                VALUES (:ref, :entry_date, :name, :qty, :pp, :wp, :rp, :sup, :user)
                 ON DUPLICATE KEY UPDATE 
-                name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup";
+                entry_date = :entry_date, name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':ref' => $data->id,
+            ':entry_date' => $data->date,
             ':name' => $data->name,
             ':qty' => $data->quantity,
             ':pp' => $data->purchasePrice,

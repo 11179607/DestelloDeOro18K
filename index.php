@@ -1875,6 +1875,11 @@
                     <form id="productForm">
                         <div class="form-grid">
                             <div class="form-group">
+                                <label for="productDate">Fecha *</label>
+                                <input type="date" id="productDate" class="form-control" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Fecha de ingreso del producto</small>
+                            </div>
+                            <div class="form-group">
                                 <label for="productRef">Referencia *</label>
                                 <input type="text" id="productRef" class="form-control" required>
                                 <small class="form-text" style="font-size: 0.8rem;">Identificador único del
@@ -1939,6 +1944,7 @@
                         <table class="data-table" id="inventoryTable">
                             <thead>
                                 <tr>
+                                    <th>Fecha</th>
                                     <th>Referencia</th>
                                     <th>Producto</th>
                                     <th>Cantidad</th>
@@ -1967,18 +1973,25 @@
                     </div>
                 </div>
 
-                <!-- Contador Manual de Ventas (Solo Admin) -->
+                <!-- Contador Manual de Ventas y Valores (Solo Admin) -->
                 <div class="card admin-only"
                     style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid var(--gold-primary);">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <h3 style="color: var(--gold-dark); margin: 0; font-size: 1.1rem;">
-                            <i class="fas fa-calculator"></i> Contador Manual de Ventas
+                            <i class="fas fa-calculator"></i> Registro Manual de Ventas Externas
                         </h3>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label for="manualSalesCounter" style="font-weight: 500;">Cantidad:</label>
-                            <input type="number" id="manualSalesCounter" class="form-control"
-                                style="width: 100px; text-align: center; font-weight: bold;" min="0" value="0">
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <label for="manualSalesCounter" style="font-weight: 500;">Cant:</label>
+                                <input type="number" id="manualSalesCounter" class="form-control"
+                                    style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <label for="manualSalesValue" style="font-weight: 500;">Valor Total:</label>
+                                <input type="number" id="manualSalesValue" class="form-control"
+                                    style="width: 120px; text-align: right; font-weight: bold;" min="0" value="0" placeholder="$0">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2294,18 +2307,25 @@
                     </button>
                 </div>
 
-                <!-- Contador Manual de Garantías (Solo Admin) -->
+                <!-- Contador Manual de Garantías y Costos (Solo Admin) -->
                 <div class="card admin-only"
                     style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid var(--gold-primary);">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <h3 style="color: var(--gold-dark); margin: 0; font-size: 1.1rem;">
-                            <i class="fas fa-calculator"></i> Contador Manual de Garantías
+                            <i class="fas fa-calculator"></i> Registro Manual de Garantías Externas
                         </h3>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label for="manualWarrantyCounter" style="font-weight: 500;">Cantidad:</label>
-                            <input type="number" id="manualWarrantyCounter" class="form-control"
-                                style="width: 100px; text-align: center; font-weight: bold;" min="0" value="0">
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <label for="manualWarrantyCounter" style="font-weight: 500;">Cant:</label>
+                                <input type="number" id="manualWarrantyCounter" class="form-control"
+                                    style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <label for="manualWarrantyValue" style="font-weight: 500;">Costo Total:</label>
+                                <input type="number" id="manualWarrantyValue" class="form-control"
+                                    style="width: 120px; text-align: right; font-weight: bold;" min="0" value="0" placeholder="$0">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -6772,6 +6792,7 @@
                 const form = document.getElementById('addProductForm');
                 form.style.display = form.style.display === 'none' ? 'block' : 'none';
                 if (form.style.display === 'block') {
+                    document.getElementById('productDate').valueAsDate = new Date();
                     form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             });
@@ -6824,6 +6845,7 @@
 
                 // Obtener datos del formulario
                 const product = {
+                    date: document.getElementById('productDate').value,
                     id: document.getElementById('productRef').value.trim().toUpperCase(),
                     name: document.getElementById('productName').value.trim(),
                     quantity: parseInt(document.getElementById('productQuantity').value),
@@ -6831,8 +6853,7 @@
                     wholesalePrice: parseFloat(document.getElementById('wholesalePrice').value),
                     retailPrice: parseFloat(document.getElementById('retailPrice').value),
                     supplier: document.getElementById('supplier').value.trim(),
-                    addedBy: currentUser.username,
-                    dateAdded: new Date().toISOString()
+                    addedBy: currentUser.username
                 };
 
                 try {
@@ -7627,7 +7648,7 @@
 
                 if (filteredProducts.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="9" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
+                    row.innerHTML = `<td colspan="10" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
                     tableBody.appendChild(row);
                     return;
                 }
@@ -7645,6 +7666,7 @@
                         '';
 
                     row.innerHTML = `
+                        <td>${product.date ? formatDateSimple(product.date) : '---'}</td>
                         <td><strong>${product.id}</strong></td>
                         <td>${product.name}</td>
                         <td>
@@ -7669,15 +7691,15 @@
                 });
 
                 // Ocultar columnas según rol
-                 const actionCells = tableBody.querySelectorAll('td:nth-child(9)');
+                 const actionCells = tableBody.querySelectorAll('td:nth-child(10)');
                 // ... logic for hiding columns ...
                  if (currentUser && currentUser.role === 'worker') {
                     actionCells.forEach(cell => cell.style.display = 'none');
-                    const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
+                    const actionHeader = document.querySelector('#inventoryTable th:nth-child(10)');
                     if (actionHeader) actionHeader.style.display = 'none';
                 } else {
                     actionCells.forEach(cell => cell.style.display = '');
-                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(9)');
+                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(10)');
                     if (actionHeader) actionHeader.style.display = '';
                 }
 
@@ -8064,10 +8086,11 @@
             };
         };
 
-        // Configuración de contadores manuales (Admin)
+        // Configuración de contadores manuales y valores (Admin)
         function setupManualCounters() {
+            // Ventas
             const saleCounter = document.getElementById('manualSalesCounter');
-            const warrantyCounter = document.getElementById('manualWarrantyCounter');
+            const saleValue = document.getElementById('manualSalesValue');
 
             if (saleCounter) {
                 // Cargar valor guardado
@@ -8080,6 +8103,21 @@
                 });
             }
 
+            if (saleValue) {
+                // Cargar valor guardado
+                const savedSalesValue = localStorage.getItem('destelloOroManualSalesValue') || '0';
+                saleValue.value = savedSalesValue;
+
+                // Guardar al cambiar
+                saleValue.addEventListener('input', function () {
+                    localStorage.setItem('destelloOroManualSalesValue', this.value);
+                });
+            }
+
+            // Garantías
+            const warrantyCounter = document.getElementById('manualWarrantyCounter');
+            const warrantyValue = document.getElementById('manualWarrantyValue');
+
             if (warrantyCounter) {
                 // Cargar valor guardado
                 const savedWarranties = localStorage.getItem('destelloOroManualWarrantyCount') || '0';
@@ -8088,6 +8126,17 @@
                 // Guardar al cambiar
                 warrantyCounter.addEventListener('input', function () {
                     localStorage.setItem('destelloOroManualWarrantyCount', this.value);
+                });
+            }
+
+            if (warrantyValue) {
+                // Cargar valor guardado
+                const savedWarrantyValue = localStorage.getItem('destelloOroManualWarrantyValue') || '0';
+                warrantyValue.value = savedWarrantyValue;
+
+                // Guardar al cambiar
+                warrantyValue.addEventListener('input', function () {
+                    localStorage.setItem('destelloOroManualWarrantyValue', this.value);
                 });
             }
         }
