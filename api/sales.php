@@ -248,21 +248,23 @@ if ($method === 'GET') {
     }
 
     try {
-        // 1. Obtener la venta actual para tener los valores base (delivery_cost, etc.)
-        // No seleccionamos 'subtotal' porque no existe como columna en la tabla sales
-        $stmt = $conn->prepare("SELECT delivery_cost, discount, warranty_increment FROM sales WHERE id = :id");
+        // 1. Obtener la venta actual para tener los valores base
+        // El frontend puede enviar el ID de la base de datos o el número de factura para identificar la venta
+        $stmt = $conn->prepare("SELECT id, delivery_cost, discount FROM sales WHERE id = :id OR invoice_number = :id");
         $stmt->execute([':id' => $data->id]);
         $sale = $stmt->fetch();
 
         if (!$sale) {
             http_response_code(404);
-            echo json_encode(['error' => 'Venta no encontrada']);
+            echo json_encode(['error' => 'Venta no encontrada (ID: ' . $data->id . ')']);
             exit;
         }
 
+        $dbId = $sale['id'];
+
         // 2. Preparar valores (usar los nuevos si vienen, o los viejos)
-        $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : (float)$sale['warranty_increment'];
-        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : 0; // Subtotal es un campo virtual o calculado
+        $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : 0;
+        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : 0; 
         $deliveryCost = isset($data->deliveryCost) ? (float)$data->deliveryCost : (float)$sale['delivery_cost'];
         $discount = isset($data->discount) ? (float)$data->discount : (float)$sale['discount'];
         
@@ -279,12 +281,11 @@ if ($method === 'GET') {
                 customer_city = :city,
                 payment_method = :pay,
                 status = :status,
-                warranty_increment = :winc,
                 delivery_cost = :del,
                 discount = :disc,
                 total = :total,
                 sale_date = :date
-                WHERE id = :id";
+                WHERE id = :dbId";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -297,12 +298,11 @@ if ($method === 'GET') {
             ':city' => $data->customerCity ?? '',
             ':pay' => $data->paymentMethod ?? 'cash',
             ':status' => $data->status ?? 'completed',
-            ':winc' => $warrantyIncrement,
             ':del' => $deliveryCost,
             ':disc' => $discount,
             ':total' => $newTotal,
             ':date' => $data->date ?? date('Y-m-d H:i:s'),
-            ':id' => $data->id
+            ':dbId' => $dbId
         ]);
 
         echo json_encode(['success' => true, 'message' => 'Venta actualizada']);

@@ -3147,7 +3147,13 @@
 
         // Guardar movimiento editado
         async function saveEditedMovement() {
+            console.log('Iniciando guardado de movimiento...', {
+                movement: currentMovementForEdit,
+                type: currentMovementTypeForEdit
+            });
+
             if (!currentMovementForEdit || !currentMovementTypeForEdit) {
+                console.warn('Faltan datos para el guardado:', { currentMovementForEdit, currentMovementTypeForEdit });
                 await showDialog('Error', 'No hay movimiento seleccionado para editar.', 'error');
                 return;
             }
@@ -3161,11 +3167,16 @@
             try {
                 // Obtener valores del formulario
                 const formData = getEditFormData();
+                console.log('Datos del formulario obtenidos:', formData);
 
                 if (!formData) {
+                    console.error('No se pudieron obtener datos del formulario');
                     await showDialog('Error', 'Error al obtener datos del formulario.', 'error');
                     return;
                 }
+
+                // Guardar tipo antes de cualquier cambio para refrescar la tabla luego
+                const typeToRefresh = currentMovementTypeForEdit;
 
                 // Actualizar el movimiento según su tipo
                 let success = false;
@@ -3186,26 +3197,28 @@
                         success = await updateRestock(formData);
                         break;
                     default:
+                        console.error('Tipo no soportado:', currentMovementTypeForEdit);
                         await showDialog('Error', 'Tipo de movimiento no soportado para edición.', 'error');
                         return;
                 }
+
+                console.log('Resultado de la actualización:', success);
 
                 if (success) {
                     // Cerrar modal
                     document.getElementById('editMovementModal').style.display = 'none';
                     
-                    // Guardar tipo antes de limpiar
-                    const typeToRefresh = currentMovementTypeForEdit;
-                    
+                    // Resetear variables globales
                     currentMovementForEdit = null;
                     currentMovementTypeForEdit = '';
 
                     // 1. Recargar los datos desde el servidor y ESPERAR a que terminen
+                    console.log('Recargando tarjetas de historial...');
                     await loadHistoryCards();
 
                     // 2. Actualizar la vista de detalles si está abierta
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
-                        // Usar el tipo del movimiento que acabamos de editar para que la tabla no se blanquee
+                        console.log('Actualizando vista de detalles para:', typeToRefresh);
                         showHistoryDetails(typeToRefresh);
                     }
 
@@ -3213,7 +3226,7 @@
                 }
 
             } catch (error) {
-                console.error('Error al guardar movimiento editado:', error);
+                console.error('Error crítico al guardar movimiento editado:', error);
                 await showDialog('Error', 'Ocurrió un error al guardar los cambios.', 'error');
             }
         }
@@ -3245,6 +3258,7 @@
 
         // Actualizar venta
         async function updateSale(formData) {
+            console.log('Enviando actualización de venta:', formData);
             try {
                 const response = await fetch('api/sales.php', {
                     method: 'PUT',
@@ -3254,7 +3268,12 @@
                         ...formData
                     })
                 });
+                
+                console.log('Respuesta de red recibida:', response.status, response.statusText);
+                
                 const data = await response.json();
+                console.log('Datos de respuesta parseados:', data);
+
                 if (data.success) {
                     return true;
                 } else {
@@ -3262,7 +3281,8 @@
                     return false;
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error en la petición de actualización:', error);
+                await showDialog('Error', 'Error de conexión o datos inválidos del servidor.', 'error');
                 return false;
             }
         }
