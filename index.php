@@ -4427,6 +4427,10 @@
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         ${currentUser && currentUser.role === 'admin' ? `
+                                        ${item.status !== 'completed' ? `
+                                        <button class="btn btn-success btn-sm" onclick="completeWarranty('${item.id}')" title="Finalizar Garantía">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>` : ''}
                                         <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -8026,6 +8030,53 @@
                         await showDialog('Error', data.message || 'Error al cancelar venta', 'error');
                     }
                 } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            }
+        };
+
+        window.completeWarranty = async function (warrantyId) {
+            // Verificar si es administrador
+            if (currentUser && currentUser.role !== 'admin') {
+                await showDialog('Acceso Restringido', 'Solo el administrador puede finalizar garantías.', 'error');
+                return;
+            }
+
+            const confirmed = await showDialog(
+                'Finalizar Garantía',
+                '¿Marcar esta garantía como completada? Esto indica que el proceso ha finalizado y el cliente ha recibido su solución.',
+                'question',
+                true
+            );
+
+            if (confirmed) {
+                try {
+                    const response = await fetch('api/warranties.php', {
+                        method: 'PUT',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            id: warrantyId,
+                            status: 'completed'
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadHistoryCards(); // Recarga todas las tarjetas, incluyendo garantías
+                        if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                             showHistoryDetails('warranties'); // Recarga detalles si está abierto
+                        }
+                        await showDialog('Éxito', 'Garantía marcada como completada.', 'success');
+                    } else {
+                        await showDialog('Error', data.error || 'Error al actualizar garantía', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
+                }
+            }
+        };
                      console.error('Error:', error);
                     await showDialog('Error', 'Error de conexión', 'error');
                 }
