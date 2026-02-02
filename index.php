@@ -5901,27 +5901,27 @@
             switch (type) {
                 case 'sales':
                     const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                    movement = sales.find(s => s.id === movementId);
+                    movement = sales.find(s => s.id == movementId);
                     title = `Detalles de Venta - ${movementId}`;
                     break;
                 case 'expenses':
                     const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                    movement = expenses.find(e => e.id === movementId);
+                    movement = expenses.find(e => e.id == movementId);
                     title = `Detalles de Gasto - ${movementId}`;
                     break;
                 case 'restocks':
                     const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
-                    movement = restocks.find(r => r.id === movementId);
+                    movement = restocks.find(r => r.id == movementId);
                     title = `Detalles de Surtido - ${movementId}`;
                     break;
                 case 'warranties':
                     const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                    movement = warranties.find(w => w.id === movementId);
+                    movement = warranties.find(w => w.id == movementId);
                     title = `Detalles de Garantía - ${movementId}`;
                     break;
                 case 'product':
                     const products = JSON.parse(localStorage.getItem('destelloOroProducts'));
-                    movement = products.find(p => p.id === movementId);
+                    movement = products.find(p => p.id == movementId);
                     title = `Detalles de Producto - ${movementId}`;
                     break;
                 default:
@@ -6187,23 +6187,23 @@
             switch (type) {
                 case 'sales':
                     const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                    movement = sales.find(s => s.id === movementId);
+                    movement = sales.find(s => s.id == movementId);
                     break;
                 case 'expenses':
                     const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                    movement = expenses.find(e => e.id === movementId);
+                    movement = expenses.find(e => e.id == movementId);
                     break;
                 case 'warranties':
                     const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                    movement = warranties.find(w => w.id === movementId);
+                    movement = warranties.find(w => w.id == movementId);
                     break;
                 case 'product':
                     const products = JSON.parse(localStorage.getItem('destelloOroProducts'));
-                    movement = products.find(p => p.id === movementId);
+                    movement = products.find(p => p.id == movementId);
                     break;
                 case 'restocks':
                     const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
-                    movement = restocks.find(r => r.id === movementId);
+                    movement = restocks.find(r => r.id == movementId);
                     break;
                 default:
                     showDialog('Error', 'Tipo de movimiento no válido para edición.', 'error');
@@ -7003,7 +7003,7 @@
                     // Pero ojo, loadInventoryTable debe haberse llamado antes.
                     // Fallback a localStorage (que actualizamos en loadInventoryTable)
                     const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
-                    const product = products.find(p => p.id === productRef);
+                    const product = products.find(p => p.id == productRef);
 
                     if (product) {
                         document.getElementById('restockProductInfo').innerHTML =
@@ -7087,7 +7087,7 @@
                 const productRef = this.value.trim().toUpperCase();
                 if (productRef) {
                      const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
-                    const product = products.find(p => p.id === productRef);
+                    const product = products.find(p => p.id == productRef);
 
                     if (product) {
                         const retailPrice = formatCurrency(product.retailPrice);
