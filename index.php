@@ -5399,11 +5399,13 @@
                 const sales = JSON.parse(localStorage.getItem('destelloOroSales') || '[]');
                 const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties') || '[]');
 
-                const customerSales = sales.filter(sale =>
-                    sale.customerInfo &&
-                    sale.customerInfo.name.toLowerCase().includes(searchTerm) &&
-                    sale.confirmed
-                );
+                const customerSales = sales.filter(sale => {
+                    const search = searchTerm.toLowerCase();
+                    const customerName = (sale.customerInfo?.name || sale.customer_name || '').toLowerCase();
+                    const invoiceId = (sale.id || sale.invoice_number || '').toLowerCase();
+                    
+                    return (customerName.includes(search) || invoiceId.includes(search)) && sale.confirmed;
+                });
 
                 if (customerSales.length === 0) {
                     // Mostrar mensaje de no encontrado
@@ -5622,9 +5624,9 @@
             const customerInfoDiv = document.getElementById('customerInfoDisplay');
             customerInfoDiv.innerHTML = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.85rem;">
-                    <div><strong>Nombre:</strong> ${sale.customerInfo.name}</div>
-                    <div><strong>Cédula:</strong> ${sale.customerInfo.id || 'No registrada'}</div>
-                    <div><strong>Teléfono:</strong> ${sale.customerInfo.phone}</div>
+                    <div><strong>Nombre:</strong> ${sale.customerInfo?.name || sale.customer_name || 'Cliente de mostrador'}</div>
+                    <div><strong>Cédula:</strong> ${(sale.customerInfo?.id) || (sale.customer_id) || 'No registrada'}</div>
+                    <div><strong>Teléfono:</strong> ${(sale.customerInfo?.phone) || (sale.customer_phone) || 'No registrado'}</div>
                     <div><strong>Fecha compra:</strong> ${formatDateSimple(sale.date)}</div>
                     <div><strong>Garantía hasta:</strong> ${formatDateSimple(endDate)}</div>
                 </div>
