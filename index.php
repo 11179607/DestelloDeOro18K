@@ -1718,6 +1718,13 @@
                         <i class="fas fa-key"></i> Cambiar Contraseña
                     </button>
                 </div>
+
+                <div style="text-align: center; margin-top: 0.5rem;">
+                    <button onclick="resetUserData()" class="btn btn-sm"
+                        style="padding: 8px 15px; font-size: 0.85rem; background: none; border: 1px solid #ddd; color: #888;">
+                        <i class="fas fa-undo"></i> Resetear Admin a "admin123"
+                    </button>
+                </div>
             </div>
 
             <!-- Paso 2: Información del usuario (AHORA OBLIGATORIA) -->
@@ -8262,44 +8269,63 @@
             return paymentMethods[method]?.name || method;
         }
 
-        // Función para limpiar datos corruptos (ejecutar en consola si es necesario)
-        window.resetUserData = function () {
-            console.log('Limpiando datos de usuario...');
+        // Función para limpiar datos corruptos y resetear contraseñas (RESTAURADO)
+        window.resetUserData = async function () {
+            const confirmed = await showDialog(
+                'Resetear Sistema', 
+                '¿Estás seguro? Esto reseteará las contraseñas de admin y trabajador a sus valores iniciales (admin123 y trabajador123) y cerrará todas las sesiones.',
+                'warning',
+                true
+            );
 
-            // Eliminar datos de sesión
-            localStorage.removeItem('destelloOroCurrentUser');
-            localStorage.removeItem('destelloOroSessionInfo');
+            if (!confirmed) return;
 
-            // Resetear usuarios a valores iniciales
-            const initialUsers = [
-                {
-                    username: 'admin',
-                    password: 'admin123',
-                    role: 'admin',
-                    name: 'Administrador',
-                    lastName: 'Principal',
-                    phone: '3001234567',
-                    personalInfoSaved: false
-                },
-                {
-                    username: 'trabajador',
-                    password: 'trabajador123',
-                    role: 'worker',
-                    name: 'Vendedor',
-                    lastName: 'Principal',
-                    phone: '3009876543',
-                    personalInfoSaved: false
+            console.log('Iniciando reseteo total...');
+
+            try {
+                // 1. Resetear Base de Datos vía API
+                const response = await fetch('api/reset_db.php');
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Error al resetear DB');
                 }
-            ];
 
-            localStorage.setItem('destelloOroUsers', JSON.stringify(initialUsers));
-            console.log('Datos reiniciados correctamente');
-            console.log('Usuarios disponibles:');
-            console.log('1. admin / admin123 (Administrador)');
-            console.log('2. trabajador / trabajador123 (Trabajador)');
+                // 2. Limpiar LocalStorage
+                localStorage.clear();
 
-            // Recargar la página
-            location.reload();
+                // 3. Inicializar usuarios en localStorage con valores de fábrica
+                const initialUsers = [
+                    {
+                        username: 'admin',
+                        password: 'admin123',
+                        role: 'admin',
+                        name: 'Administrador',
+                        lastName: 'Principal',
+                        phone: '3001234567',
+                        personalInfoSaved: false
+                    },
+                    {
+                        username: 'trabajador',
+                        password: 'trabajador123',
+                        role: 'worker',
+                        name: 'Vendedor',
+                        lastName: 'Principal',
+                        phone: '3009876543',
+                        personalInfoSaved: false
+                    }
+                ];
+                localStorage.setItem('destelloOroUsers', JSON.stringify(initialUsers));
+
+                await showDialog('Éxito', 'Sistema reseteado correctamente. Usa admin / admin123.', 'success');
+                
+                // Recargar para aplicar cambios
+                location.reload();
+
+            } catch (error) {
+                console.error('Error en reseteo:', error);
+                await showDialog('Error', 'No se pudo resetear completamente: ' + error.message, 'error');
+            }
         };
 
         // Función para verificar el estado del campo de ID de factura
