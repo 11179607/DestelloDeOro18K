@@ -71,6 +71,21 @@ if ($method === 'GET') {
                     $item['subtotal'] = (float)$item['subtotal'];
                     $item['purchasePrice'] = (float)($item['purchase_price'] ?? 0);
                 }
+                
+                // Map database fields to JS expected fields
+                $sale['date'] = $sale['sale_date'];
+                $sale['customerInfo'] = [
+                    'name' => $sale['customer_name'],
+                    'id' => $sale['customer_id'],
+                    'phone' => $sale['customer_phone'],
+                    'email' => $sale['customer_email'],
+                    'address' => $sale['customer_address'],
+                    'city' => $sale['customer_city']
+                ];
+                $sale['paymentMethod'] = $sale['payment_method'];
+                $sale['deliveryType'] = $sale['delivery_type'];
+                $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
+                $sale['user'] = $sale['username'];
             }
 
             echo json_encode($sales);
@@ -96,8 +111,8 @@ if ($method === 'GET') {
         $conn->beginTransaction();
         
         // 1. Crear cabecera de venta
-        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, user_id, username, status) 
-                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :uid, :uname, :status)";
+        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, sale_date, user_id, username, status) 
+                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :sale_date, :uid, :uname, :status)";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -113,6 +128,7 @@ if ($method === 'GET') {
             ':del' => $data->deliveryCost ?? 0,
             ':pay' => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
+            ':sale_date' => $data->date ?? date('Y-m-d H:i:s'),
             ':uid' => $_SESSION['user_id'],
             ':uname' => $_SESSION['username'],
             ':status' => $status

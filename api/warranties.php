@@ -33,8 +33,20 @@ if ($method === 'GET') {
         
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
-        $result = $stmt->fetchAll();
-        echo json_encode($result);
+        $warranties = $stmt->fetchAll();
+        
+        // Map database fields to JS expected fields
+        foreach ($warranties as &$warranty) {
+            $warranty['createdAt'] = $warranty['created_at'];
+            $warranty['customerName'] = $warranty['customer_name'];
+            $warranty['originalSaleId'] = $warranty['original_invoice_id'];
+            $warranty['warrantyReason'] = $warranty['reason'];
+            $warranty['warrantyReasonText'] = $warranty['reason'];
+            $warranty['totalCost'] = (float)($warranty['total_cost'] ?? 0);
+            $warranty['createdBy'] = $warranty['username'] ?? 'admin';
+        }
+        
+        echo json_encode($warranties);
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);

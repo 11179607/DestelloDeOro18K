@@ -32,8 +32,17 @@ if ($method === 'GET') {
         
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
-        $result = $stmt->fetchAll();
-        echo json_encode($result);
+        $restocks = $stmt->fetchAll();
+        
+        // Map database fields to JS expected fields
+        foreach ($restocks as &$restock) {
+            $restock['date'] = $restock['restock_date'];
+            $restock['productName'] = $restock['product_name'];
+            $restock['productId'] = $restock['product_ref'];
+            $restock['user'] = $restock['username'];
+        }
+        
+        echo json_encode($restocks);
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
@@ -69,11 +78,12 @@ if ($method === 'GET') {
         $product = $pStmt->fetch();
         $pName = $product ? $product['name'] : 'Producto desconocido';
         
-        $histStmt = $conn->prepare("INSERT INTO restocks (product_ref, product_name, quantity, user_id, username) VALUES (:ref, :name, :qty, :uid, :uname)");
+        $histStmt = $conn->prepare("INSERT INTO restocks (product_ref, product_name, quantity, restock_date, user_id, username) VALUES (:ref, :name, :qty, :date, :uid, :uname)");
         $histStmt->execute([
             ':ref' => $data->id,
             ':name' => $pName,
             ':qty' => $data->quantity,
+            ':date' => date('Y-m-d H:i:s'),
             ':uid' => $_SESSION['user_id'],
             ':uname' => $_SESSION['username']
         ]);
