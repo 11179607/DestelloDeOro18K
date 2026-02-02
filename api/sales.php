@@ -248,6 +248,23 @@ if ($method === 'GET') {
     }
 
     try {
+        // 1. Obtener la venta actual para tener los valores base (subtotal, etc.)
+        $stmt = $conn->prepare("SELECT subtotal, delivery_cost, discount, warranty_increment FROM sales WHERE id = :id");
+        $stmt->execute([':id' => $data->id]);
+        $sale = $stmt->fetch();
+
+        if (!$sale) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Venta no encontrada']);
+            exit;
+        }
+
+        // 2. Preparar valores (usar los nuevos si vienen, o los viejos)
+        $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : (float)$sale['warranty_increment'];
+        
+        // Recalcular total: total = subtotal + delivery - discount + warranty
+        $newTotal = (float)$sale['subtotal'] + (float)$sale['delivery_cost'] - (float)$sale['discount'] + $warrantyIncrement;
+
         $sql = "UPDATE sales SET 
                 customer_name = :name, 
                 customer_id = :cid, 
@@ -256,7 +273,9 @@ if ($method === 'GET') {
                 customer_address = :addr, 
                 customer_city = :city,
                 payment_method = :pay,
-                status = :status
+                status = :status,
+                warranty_increment = :winc,
+                total = :total
                 WHERE id = :id";
         
         $stmt = $conn->prepare($sql);
@@ -269,6 +288,8 @@ if ($method === 'GET') {
             ':city' => $data->customerCity ?? $data->customer_city,
             ':pay' => $data->paymentMethod ?? $data->payment_method,
             ':status' => $data->status ?? 'completed',
+            ':winc' => $warrantyIncrement,
+            ':total' => $newTotal,
             ':id' => $data->id
         ]);
 

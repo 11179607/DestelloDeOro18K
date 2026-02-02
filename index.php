@@ -3193,16 +3193,21 @@
                 if (success) {
                     // Cerrar modal
                     document.getElementById('editMovementModal').style.display = 'none';
+                    
+                    // Guardar tipo antes de limpiar
+                    const typeToRefresh = currentMovementTypeForEdit;
+                    
                     currentMovementForEdit = null;
                     currentMovementTypeForEdit = '';
 
-                    // Actualizar vista
-                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
-                        showHistoryDetails(currentHistoryType);
-                    }
+                    // 1. Recargar los datos desde el servidor y ESPERAR a que terminen
+                    await loadHistoryCards();
 
-                    // Actualizar tarjetas
-                    loadHistoryCards();
+                    // 2. Actualizar la vista de detalles si está abierta
+                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                        // Usar el tipo del movimiento que acabamos de editar para que la tabla no se blanquee
+                        showHistoryDetails(typeToRefresh);
+                    }
 
                     await showDialog('Éxito', 'Movimiento actualizado correctamente.', 'success');
                 }
@@ -3251,7 +3256,6 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    loadHistoryCards();
                     return true;
                 } else {
                     await showDialog('Error', data.error || 'No se pudo actualizar la venta.', 'error');
@@ -3296,8 +3300,6 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    loadExpensesTable();
-                    loadHistoryCards();
                     return true;
                 } else {
                     await showDialog('Error', data.error || 'No se pudo actualizar el gasto.', 'error');
@@ -3322,8 +3324,6 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    loadWarrantiesTable();
-                    loadHistoryCards();
                     return true;
                 } else {
                     await showDialog('Error', data.error || 'No se pudo actualizar la garantía.', 'error');
@@ -3421,8 +3421,6 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    loadInventoryTable();
-                    loadHistoryCards();
                     return true;
                 } else {
                     await showDialog('Error', data.error || 'No se pudo actualizar el surtido.', 'error');
@@ -4199,6 +4197,17 @@
         function loadHistoryDetailsTable(type) {
             const tableHead = document.getElementById('historyDetailsTableHead');
             const tableBody = document.getElementById('historyDetailsTableBody');
+
+            // Si el tipo es 'all' (por filtro global), intentar determinar cuál tabla mostrar o usar 'sales' por defecto
+            if (type === 'all') {
+                // Si la tabla ya tiene un título, mantenemos ese tipo. Si no, ventas.
+                const currentTitle = document.getElementById('detailsTableTitle').textContent.toLowerCase();
+                if (currentTitle.includes('gasto')) type = 'expenses';
+                else if (currentTitle.includes('surtido')) type = 'restocks';
+                else if (currentTitle.includes('garantía')) type = 'warranties';
+                else if (currentTitle.includes('pendiente')) type = 'pending';
+                else type = 'sales';
+            }
 
             // Obtener datos
             let data = [];
