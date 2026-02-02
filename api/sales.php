@@ -151,5 +151,92 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => 'Error al procesar la venta: ' . $e->getMessage()]);
     }
+} elseif ($method === 'DELETE') {
+    // Eliminar Venta (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $id = $_GET['id'] ?? null;
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID no proporcionado']);
+        exit;
+    }
+
+    try {
+        $conn->beginTransaction();
+
+        // 1. Obtener items de la venta para restablecer stock
+        $stmt = $conn->prepare("SELECT product_ref, quantity FROM sale_items WHERE sale_id = :id");
+        $stmt->execute([':id' => $id]);
+        $items = $stmt->fetchAll();
+
+        $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity + :qty WHERE reference = :ref");
+        foreach ($items as $item) {
+            $stockStmt->execute([
+                ':qty' => $item['quantity'],
+                ':ref' => $item['product_ref']
+            ]);
+        }
+
+        // 2. Eliminar la venta (la eliminación en cascada se encargará de sale_items)
+        $deleteStmt = $conn->prepare("DELETE FROM sales WHERE id = :id");
+        $deleteStmt->execute([':id' => $id]);
+
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => 'Venta eliminada y stock restablecido']);
+    } catch (PDOException $e) {
+        $conn->rollBack();
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+} elseif ($method === 'PUT') {
+    // Editar Venta (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $data = json_decode(file_get_contents("php://input"));
+    if (!$data || !isset($data->id)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos incompletos']);
+        exit;
+    }
+
+    try {
+        $sql = "UPDATE sales SET 
+                customer_name = :name, 
+                customer_id = :cid, 
+                customer_phone = :phone, 
+                customer_email = :email, 
+                customer_address = :addr, 
+                customer_city = :city,
+                payment_method = :pay,
+                status = :status
+                WHERE id = :id";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            ':name' => $data->customerName ?? $data->customer_name,
+            ':cid' => $data->customerId ?? $data->customer_id,
+            ':phone' => $data->customerPhone ?? $data->customer_phone,
+            ':email' => $data->customerEmail ?? $data->customer_email,
+            ':addr' => $data->customerAddress ?? $data->customer_address,
+            ':city' => $data->customerCity ?? $data->customer_city,
+            ':pay' => $data->paymentMethod ?? $data->payment_method,
+            ':status' => $data->status ?? 'completed',
+            ':id' => $data->id
+        ]);
+
+        echo json_encode(['success' => true, 'message' => 'Venta actualizada']);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 }
 ?>

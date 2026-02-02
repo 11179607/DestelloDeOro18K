@@ -95,5 +95,33 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
+} elseif ($method === 'PUT') {
+    // Editar Gasto (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $data = json_decode(file_get_contents("php://input"));
+    if (!$data || !isset($data->id)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos incompletos']);
+        exit;
+    }
+
+    try {
+        $stmt = $conn->prepare("UPDATE expenses SET description = :desc, amount = :amt, expense_date = :date WHERE id = :id");
+        $stmt->execute([
+            ':desc' => $data->description,
+            ':amt' => $data->amount,
+            ':date' => $data->date ?? date('Y-m-d H:i:s'),
+            ':id' => $data->id
+        ]);
+        echo json_encode(['success' => true, 'message' => 'Gasto actualizado']);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 }
 ?>

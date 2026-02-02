@@ -116,12 +116,52 @@ if ($method === 'GET') {
     }
     
     try {
-        $stmt = $conn->prepare("UPDATE warranties SET status = :status WHERE id = :id");
-        $stmt->execute([':status' => $data->status, ':id' => $data->id]);
-         echo json_encode(['success' => true]);
+        $sql = "UPDATE warranties SET 
+                reason = :reason, 
+                notes = :notes, 
+                product_type = :ptype, 
+                new_product_ref = :npref, 
+                new_product_name = :npname, 
+                additional_value = :addval, 
+                shipping_value = :shipval, 
+                total_cost = :total, 
+                status = :status 
+                WHERE id = :id";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            ':reason' => $data->warrantyReason ?? null,
+            ':notes' => $data->notes ?? null,
+            ':ptype' => $data->productType ?? 'same',
+            ':npref' => $data->newProductRef ?? null,
+            ':npname' => $data->newProductName ?? null,
+            ':addval' => $data->additionalValue ?? 0,
+            ':shipval' => $data->shippingValue ?? 0,
+            ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
+            ':status' => $data->status ?? 'pending',
+            ':id' => $data->id
+        ]);
+        echo json_encode(['success' => true]);
     } catch (PDOException $e) {
         http_response_code(500);
          echo json_encode(['error' => $e->getMessage()]);
+    }
+} elseif ($method === 'DELETE') {
+    // Eliminar Garantía (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $id = $_GET['id'] ?? null;
+    try {
+        $stmt = $conn->prepare("DELETE FROM warranties WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
     }
 }
 ?>

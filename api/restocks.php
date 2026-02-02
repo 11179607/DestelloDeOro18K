@@ -86,5 +86,92 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
+} elseif ($method === 'DELETE') {
+    // Eliminar Surtido (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $id = $_GET['id'] ?? null;
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID no proporcionado']);
+        exit;
+    }
+
+    try {
+        $conn->beginTransaction();
+
+        // 1. Obtener datos del surtido para descontar stock
+        $stmt = $conn->prepare("SELECT product_ref, quantity FROM restocks WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        $restock = $stmt->fetch();
+
+        if ($restock) {
+            $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - :qty WHERE reference = :ref");
+            $stockStmt->execute([
+                ':qty' => $restock['quantity'],
+                ':ref' => $restock['product_ref']
+            ]);
+        }
+
+        // 2. Eliminar el registro de surtido
+        $deleteStmt = $conn->prepare("DELETE FROM restocks WHERE id = :id");
+        $deleteStmt->execute([':id' => $id]);
+
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => 'Surtido eliminado y stock ajustado']);
+    } catch (PDOException $e) {
+        $conn->rollBack();
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+} elseif ($method === 'PUT') {
+    // Editar Surtido (Solo admin)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $data = json_decode(file_get_contents("php://input"));
+    if (!$data || !isset($data->id) || !isset($data->quantity)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos incompletos']);
+        exit;
+    }
+
+    try {
+        $conn->beginTransaction();
+
+        // 1. Obtener datos actuales
+        $stmt = $conn->prepare("SELECT product_ref, quantity FROM restocks WHERE id = :id");
+        $stmt->execute([':id' => $data->id]);
+        $oldRestock = $stmt->fetch();
+
+        if ($oldRestock) {
+            $diff = $data->quantity - $oldRestock['quantity'];
+            
+            // 2. Ajustar stock del producto
+            $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity + :qty WHERE reference = :ref");
+            $stockStmt->execute([
+                ':qty' => $diff,
+                ':ref' => $oldRestock['product_ref']
+            ]);
+
+            // 3. Actualizar el registro
+            $updateStmt = $conn->prepare("UPDATE restocks SET quantity = :qty WHERE id = :id");
+            $updateStmt->execute([':qty' => $data->quantity, ':id' => $data->id]);
+        }
+
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => 'Surtido actualizado y stock ajustado']);
+    } catch (PDOException $e) {
+        $conn->rollBack();
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 }
 ?>

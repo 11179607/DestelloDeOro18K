@@ -3189,6 +3189,12 @@
                     case 'warranties':
                         success = await updateWarranty(formData);
                         break;
+                    case 'product':
+                        success = await updateProduct(formData);
+                        break;
+                    case 'restocks':
+                        success = await updateRestock(formData);
+                        break;
                     default:
                         await showDialog('Error', 'Tipo de movimiento no soportado para edición.', 'error');
                         return;
@@ -3244,57 +3250,27 @@
 
         // Actualizar venta
         async function updateSale(formData) {
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-            const saleIndex = sales.findIndex(s => s.id === currentMovementForEdit.id);
-
-            if (saleIndex === -1) {
-                await showDialog('Error', 'Venta no encontrada.', 'error');
+            try {
+                const response = await fetch('api/sales.php', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id: currentMovementForEdit.id,
+                        ...formData
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    loadHistoryCards();
+                    return true;
+                } else {
+                    await showDialog('Error', data.error || 'No se pudo actualizar la venta.', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 return false;
             }
-
-            // Actualizar datos básicos
-            const sale = sales[saleIndex];
-
-            // Actualizar cliente si viene en formData
-            if (formData.customerName && sale.customerInfo) {
-                sale.customerInfo.name = formData.customerName;
-                sale.customerInfo.id = formData.customerId || sale.customerInfo.id;
-                sale.customerInfo.phone = formData.customerPhone || sale.customerInfo.phone;
-                sale.customerInfo.email = formData.customerEmail || sale.customerInfo.email;
-                sale.customerInfo.address = formData.customerAddress || sale.customerInfo.address;
-                sale.customerInfo.city = formData.customerCity || sale.customerInfo.city;
-            }
-
-            // Actualizar método de pago
-            if (formData.paymentMethod) {
-                sale.paymentMethod = formData.paymentMethod;
-            }
-
-            // Actualizar estado
-            if (formData.status) {
-                sale.status = formData.status;
-                sale.confirmed = formData.status === 'completed';
-            }
-
-            // Actualizar total si hay cambios en garantía
-            if (formData.warrantyIncrement !== undefined) {
-                const oldIncrement = sale.warrantyIncrement || 0;
-                const newIncrement = parseFloat(formData.warrantyIncrement) || 0;
-                const difference = newIncrement - oldIncrement;
-
-                sale.warrantyIncrement = newIncrement;
-                sale.total += difference;
-
-                // IMPORTANTE: Si hay incremento por garantía, actualizar también en la factura original
-                // Esto asegura que el incremento se refleje en todos los lugares
-                updateWarrantyIncrementInOriginalSale(sale.id, newIncrement);
-            }
-
-            // Guardar cambios
-            sales[saleIndex] = sale;
-            localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-            return true;
         }
 
         // IMPORTANTE: Actualizar incremento por garantía en la venta original
@@ -3319,96 +3295,83 @@
 
         // Actualizar gasto
         async function updateExpense(formData) {
-            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-            const expenseIndex = expenses.findIndex(e => e.id === currentMovementForEdit.id);
-
-            if (expenseIndex === -1) {
-                await showDialog('Error', 'Gasto no encontrado.', 'error');
+            try {
+                const response = await fetch('api/expenses.php', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id: currentMovementForEdit.id,
+                        ...formData
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    loadExpensesTable();
+                    loadHistoryCards();
+                    return true;
+                } else {
+                    await showDialog('Error', data.error || 'No se pudo actualizar el gasto.', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 return false;
             }
-
-            // Actualizar datos
-            expenses[expenseIndex].description = formData.description || expenses[expenseIndex].description;
-            expenses[expenseIndex].date = formData.date || expenses[expenseIndex].date;
-            expenses[expenseIndex].amount = parseFloat(formData.amount) || expenses[expenseIndex].amount;
-            expenses[expenseIndex].updatedAt = new Date().toISOString();
-            expenses[expenseIndex].updatedBy = currentUser.username;
-
-            localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses));
-
-            // Actualizar tabla de gastos si está visible
-            if (document.getElementById('expenses').classList.contains('active')) {
-                loadExpensesTable();
-            }
-
-            return true;
         }
 
         // Actualizar garantía
         async function updateWarranty(formData) {
-            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-            const warrantyIndex = warranties.findIndex(w => w.id === currentMovementForEdit.id);
-
-            if (warrantyIndex === -1) {
-                await showDialog('Error', 'Garantía no encontrada.', 'error');
+            try {
+                const response = await fetch('api/warranties.php', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id: currentMovementForEdit.id,
+                        ...formData
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    loadWarrantiesTable();
+                    loadHistoryCards();
+                    return true;
+                } else {
+                    await showDialog('Error', data.error || 'No se pudo actualizar la garantía.', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 return false;
             }
+        }
 
-            const warranty = warranties[warrantyIndex];
-            const oldAdditionalValue = warranty.additionalValue || 0;
-            const newAdditionalValue = parseFloat(formData.additionalValue) || 0;
-
-            // Actualizar datos
-            warranty.warrantyReason = formData.warrantyReason || warranty.warrantyReason;
-            warranty.warrantyReasonText = warrantyReasons[formData.warrantyReason] || warranty.warrantyReasonText;
-            warranty.productType = formData.productType || warranty.productType;
-            warranty.additionalValue = newAdditionalValue;
-            warranty.shippingValue = parseFloat(formData.shippingValue) || warranty.shippingValue;
-            warranty.status = formData.status || warranty.status;
-            warranty.notes = formData.notes || warranty.notes;
-            warranty.updatedAt = new Date().toISOString();
-            warranty.updatedBy = currentUser.username;
-            warranty.totalCost = newAdditionalValue + warranty.shippingValue;
-
-            // Si es producto diferente
-            if (warranty.productType === 'different') {
-                warranty.newProductRef = formData.newProductRef || warranty.newProductRef;
-                warranty.newProductName = formData.newProductName || warranty.newProductName;
-            }
-
-            // IMPORTANTE: Actualizar el incremento en la venta original si cambió el valor adicional
-            if (oldAdditionalValue !== newAdditionalValue && warranty.originalSaleId) {
-                const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
-
-                if (saleIndex !== -1) {
-                    // Calcular la diferencia
-                    const difference = newAdditionalValue - oldAdditionalValue;
-
-                    // Inicializar si no existe
-                    if (!sales[saleIndex].warrantyIncrement) {
-                        sales[saleIndex].warrantyIncrement = 0;
-                    }
-
-                    // Actualizar incremento y total
-                    sales[saleIndex].warrantyIncrement += difference;
-                    sales[saleIndex].total += difference;
-
-                    localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-
-                    console.log(`✅ Incremento por garantía actualizado en venta ${warranty.originalSaleId}: ${formatCurrency(difference)}`);
+        async function updateProduct(formData) {
+            try {
+                const response = await fetch('api/products.php', {
+                    method: 'POST', // api/products.php usa POST para insert/update
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id: formData.id,
+                        name: formData.name,
+                        quantity: formData.quantity,
+                        purchasePrice: formData.purchasePrice,
+                        wholesalePrice: formData.wholesalePrice,
+                        retailPrice: formData.retailPrice,
+                        supplier: formData.supplier
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    loadInventoryTable();
+                    return true;
+                } else {
+                    await showDialog('Error', data.error || 'No se pudo actualizar el producto.', 'error');
+                    return false;
                 }
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
             }
-
-            warranties[warrantyIndex] = warranty;
-            localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
-
-            // Actualizar tabla de garantías si está visible
-            if (document.getElementById('warranties').classList.contains('active')) {
-                loadWarrantiesTable();
-            }
-
-            return true;
         }
 
         // Configurar eventos del carrito
@@ -3454,6 +3417,31 @@
                     updateSaleSummary();
                 }
             });
+        }
+
+        async function updateRestock(formData) {
+            try {
+                const response = await fetch('api/restocks.php', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id: currentMovementForEdit.id,
+                        ...formData
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    loadInventoryTable();
+                    loadHistoryCards();
+                    return true;
+                } else {
+                    await showDialog('Error', data.error || 'No se pudo actualizar el surtido.', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
+            }
         }
 
         // Actualizar visualización del carrito
@@ -4352,15 +4340,18 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${currentUser && currentUser.role === 'admin' ? `
+                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>` : ''}
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -4378,15 +4369,18 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'expenses')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'expenses')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'expenses')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'expenses')" title="Ver">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${currentUser && currentUser.role === 'admin' ? `
+                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'expenses')" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'expenses')" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>` : ''}
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -4405,12 +4399,18 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'restocks')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'restocks')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'restocks')" title="Ver">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${currentUser && currentUser.role === 'admin' ? `
+                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'restocks')" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'restocks')" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>` : ''}
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -4437,15 +4437,18 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'warranties')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${currentUser && currentUser.role === 'admin' ? `
+                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'warranties')" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>` : ''}
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -4469,12 +4472,21 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${currentUser && currentUser.role === 'admin' ? `
+                                        <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')" title="Confirmar Pago">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')" title="Cancelar Venta">
+                                            <i class="fas fa-times"></i>
+                                        </button>` : ''}
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -5793,15 +5805,18 @@
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${warranty.id}', 'warranties')" style="margin-right: 5px;" title="Ver">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-warning btn-sm" onclick="editMovement('${warranty.id}', 'warranties')" style="margin-right: 5px;" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${warranty.id}', 'warranties')" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${warranty.id}', 'warranties')" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${currentUser && currentUser.role === 'admin' ? `
+                            <button class="btn btn-warning btn-sm" onclick="editMovement('${warranty.id}', 'warranties')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteMovement('${warranty.id}', 'warranties')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>` : ''}
+                        </div>
                     </td>
                 `;
 
@@ -5901,6 +5916,11 @@
                     const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
                     movement = warranties.find(w => w.id === movementId);
                     title = `Detalles de Garantía - ${movementId}`;
+                    break;
+                case 'product':
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts'));
+                    movement = products.find(p => p.id === movementId);
+                    title = `Detalles de Producto - ${movementId}`;
                     break;
                 default:
                     showDialog('Error', 'Tipo de movimiento no válido.', 'error');
@@ -6113,6 +6133,45 @@
                         </div>
                     `;
                     break;
+                case 'product':
+                    const profit = (movement.retailPrice - movement.purchasePrice);
+                    const profitPercent = ((profit / movement.purchasePrice) * 100).toFixed(2);
+                    content = `
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-gem"></i> Información del Producto
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Referencia:</strong> ${movement.id}</div>
+                                <div><strong>Nombre:</strong> ${movement.name}</div>
+                                <div><strong>Cantidad:</strong> ${movement.quantity} unidades</div>
+                                <div><strong>Proveedor:</strong> ${movement.supplier || 'N/A'}</div>
+                                <div><strong>Fecha Ingreso:</strong> ${movement.date ? formatDateSimple(movement.date) : 'N/A'}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-tags"></i> Lista de Precios
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Precio Compra:</strong> ${formatCurrency(movement.purchasePrice)}</div>
+                                <div><strong>Precio Mayorista:</strong> ${formatCurrency(movement.wholesalePrice)}</div>
+                                <div><strong>Precio Detal:</strong> ${formatCurrency(movement.retailPrice)}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
+                                <i class="fas fa-chart-line"></i> Rentabilidad (al detal)
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Ganancia:</strong> ${formatCurrency(profit)}</div>
+                                <div><strong>Margen:</strong> ${profitPercent}%</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
             }
 
             modalContent.innerHTML = content;
@@ -6135,6 +6194,14 @@
                 case 'warranties':
                     const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
                     movement = warranties.find(w => w.id === movementId);
+                    break;
+                case 'product':
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts'));
+                    movement = products.find(p => p.id === movementId);
+                    break;
+                case 'restocks':
+                    const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                    movement = restocks.find(r => r.id === movementId);
                     break;
                 default:
                     showDialog('Error', 'Tipo de movimiento no válido para edición.', 'error');
@@ -6352,6 +6419,45 @@
                         </div>
                     `;
                     break;
+                case 'product':
+                    formContent = `
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-weight: 500;">Nombre del Producto</label>
+                            <input type="text" name="name" value="${movement.name}" class="form-control" style="width: 100%; padding: 8px;" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-weight: 500;">Cantidad</label>
+                            <input type="number" name="quantity" value="${movement.quantity}" class="form-control" style="width: 100%; padding: 8px;" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-weight: 500;">Precio Compra</label>
+                            <input type="number" name="purchasePrice" value="${movement.purchasePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-weight: 500;">Precio Mayorista</label>
+                            <input type="number" name="wholesalePrice" value="${movement.wholesalePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-weight: 500;">Precio Detal</label>
+                            <input type="number" name="retailPrice" value="${movement.retailPrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-weight: 500;">Proveedor</label>
+                            <input type="text" name="supplier" value="${movement.supplier || ''}" class="form-control" style="width: 100%; padding: 8px;">
+                        </div>
+                        <input type="hidden" name="id" value="${movement.id}">
+                    `;
+                    break;
+                case 'restocks':
+                    formContent = `
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>Producto:</strong> ${movement.productName} (${movement.product_ref || movement.productId})</p>
+                            <label style="font-weight: 500;">Cantidad</label>
+                            <input type="number" name="quantity" value="${movement.quantity}" class="form-control" style="width: 100%; padding: 8px;" required>
+                        </div>
+                        <input type="hidden" name="id" value="${movement.id}">
+                    `;
+                    break;
             }
 
             modalContent.innerHTML = formContent;
@@ -6376,82 +6482,38 @@
 
             try {
                 let success = false;
-                let message = '';
-
+                let endpoint = '';
+                
                 switch (type) {
-                    case 'sales':
-                        const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                        const sale = sales.find(s => s.id === movementId);
-                        const updatedSales = sales.filter(s => s.id !== movementId);
-
-                        // Si hay incremento por garantía, también eliminar garantías asociadas
-                        if (sale && sale.warrantyIncrement > 0) {
-                            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                            const updatedWarranties = warranties.filter(w => w.originalSaleId !== movementId);
-                            localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
-                            loadWarrantiesTable();
-                        }
-
-                        localStorage.setItem('destelloOroSales', JSON.stringify(updatedSales));
-                        success = true;
-                        message = 'Venta eliminada correctamente.';
-                        break;
-
-                    case 'expenses':
-                        const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                        const updatedExpenses = expenses.filter(e => e.id !== movementId);
-                        localStorage.setItem('destelloOroExpenses', JSON.stringify(updatedExpenses));
-                        success = true;
-                        message = 'Gasto eliminado correctamente.';
-
-                        // Actualizar tabla de gastos si está visible
-                        if (document.getElementById('expenses').classList.contains('active')) {
-                            loadExpensesTable();
-                        }
-                        break;
-
-                    case 'warranties':
-                        const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                        const warranty = warranties.find(w => w.id === movementId);
-                        const updatedWarranties = warranties.filter(w => w.id !== movementId);
-
-                        // IMPORTANTE: Si la garantía tenía valor adicional, restarlo de la venta original
-                        if (warranty && warranty.additionalValue > 0 && warranty.originalSaleId) {
-                            const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                            const saleIndex = sales.findIndex(s => s.id === warranty.originalSaleId);
-                            if (saleIndex !== -1) {
-                                sales[saleIndex].warrantyIncrement -= warranty.additionalValue;
-                                sales[saleIndex].total -= warranty.additionalValue;
-                                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-                            }
-                        }
-
-                        localStorage.setItem('destelloOroWarranties', JSON.stringify(updatedWarranties));
-                        success = true;
-                        message = 'Garantía eliminada correctamente.';
-
-                        // Actualizar tabla de garantías si está visible
-                        if (document.getElementById('warranties').classList.contains('active')) {
-                            loadWarrantiesTable();
-                        }
-                        break;
-
+                    case 'sales': endpoint = 'api/sales.php'; break;
+                    case 'expenses': endpoint = 'api/expenses.php'; break;
+                    case 'warranties': endpoint = 'api/warranties.php'; break;
+                    case 'restocks': endpoint = 'api/restocks.php'; break;
+                    case 'pending': 
+                        await cancelPendingSale(movementId);
+                        return;
                     default:
-                        await showDialog('Error', 'Tipo de movimiento no válido.', 'error');
+                        showDialog('Error', 'Tipo de movimiento no válido para eliminación.', 'error');
                         return;
                 }
 
-                if (success) {
-                    // Actualizar historial
+                const response = await fetch(`${endpoint}?id=${movementId}`, { method: 'DELETE' });
+                const result = await response.json();
+
+                if (result.success) {
+                    // Actualizar tablas y tarjetas
+                    if (type === 'expenses') loadExpensesTable();
+                    if (type === 'warranties') loadWarrantiesTable();
+                    if (type === 'restocks') loadInventoryTable();
+                    
                     loadHistoryCards();
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
                         showHistoryDetails(type);
                     }
-
-                    // Actualizar resumen mensual
                     loadMonthlySummary();
-
-                    await showDialog('Éxito', message, 'success');
+                    await showDialog('Éxito', result.message || 'Movimiento eliminado correctamente.', 'success');
+                } else {
+                    await showDialog('Error', result.error || 'No se pudo eliminar el movimiento.', 'error');
                 }
 
             } catch (error) {
@@ -7683,7 +7745,17 @@
                         </td>
                         <td>${product.supplier}</td>
                         <td class="admin-only">
-                            ${deleteButton}
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${product.id}', 'product')" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="editMovement('${product.id}', 'product')" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     `;
 
@@ -7732,13 +7804,18 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${expense.id}', 'expenses')" title="Ver">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                             ${currentUser && currentUser.role === 'admin' ? 
-                            `<button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>` : ''}
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${expense.id}', 'expenses')" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${currentUser && currentUser.role === 'admin' ? `
+                                <button class="btn btn-warning btn-sm" onclick="editMovement('${expense.id}', 'expenses')" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>` : ''}
+                            </div>
                         </td>
                     `;
 
@@ -7785,12 +7862,21 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-success btn-sm" onclick="confirmPayment('${sale.id || sale.invoice_number}')" style="margin-right: 5px;">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${sale.id || sale.invoice_number}')">
-                                <i class="fas fa-times"></i>
-                            </button>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${sale.id || sale.invoice_number}', 'sales')" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${currentUser && currentUser.role === 'admin' ? `
+                                <button class="btn btn-success btn-sm" onclick="confirmPayment('${sale.id || sale.invoice_number}')" title="Confirmar Pago">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="editMovement('${sale.id || sale.invoice_number}', 'sales')" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteMovement('${sale.id || sale.invoice_number}', 'pending')" title="Cancelar Venta">
+                                    <i class="fas fa-times"></i>
+                                </button>` : ''}
+                            </div>
                         </td>
                     `;
 
