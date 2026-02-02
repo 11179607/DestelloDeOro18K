@@ -94,9 +94,8 @@ if ($method === 'GET') {
         $conn->beginTransaction();
         
         // 1. Crear cabecera de venta
-        $status = $data->status ?? 'completed';
         $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, user_id, username, status) 
-                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :uid, :uname, :status)";
+                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :uid, :uname, 'completed')";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -113,8 +112,7 @@ if ($method === 'GET') {
             ':pay' => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
             ':uid' => $_SESSION['user_id'],
-            ':uname' => $_SESSION['username'],
-            ':status' => $status
+            ':uname' => $_SESSION['username']
         ]);
         
         $saleId = $conn->lastInsertId();
@@ -152,124 +150,6 @@ if ($method === 'GET') {
         $conn->rollBack();
         http_response_code(500);
         echo json_encode(['error' => 'Error al procesar la venta: ' . $e->getMessage()]);
-    }
-}
-
-} elseif ($method === 'DELETE') {
-    // Eliminar venta (Solo admin)
-    if ($_SESSION['role'] !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['error' => 'Acceso denegado']);
-        exit;
-    }
-    
-    $id = $_GET['id'] ?? null;
-    
-    if (!$id) {
-        http_response_code(400);
-        echo json_encode(['error' => 'ID de venta necesario']);
-        exit;
-    }
-    
-    try {
-        $conn->beginTransaction();
-        
-        // 1. Obtener items para devolver stock
-        // Usamos id o invoice_number? JS usa ID de factura (ej 'Factura 105') o ID numérico?
-        // En sales table, id es PK INT, invoice_number es VARCHAR UNIQUE.
-        // Asumiremos que $id es el ID numérico (PK) porque en GET usamos si.sale_id = :id.
-        // Si el frontend envía 'Factura X', necesitamos hacer parsing.
-        // JS en deleteMovement usa `movementId`.
-        
-        // Primero buscamos la venta por ID o Invoice Number
-        $stmt = $conn->prepare("SELECT id FROM sales WHERE id = :id OR invoice_number = :inv");
-        $stmt->execute([':id' => $id, ':inv' => $id]);
-        $sale = $stmt->fetch();
-        
-        if (!$sale) {
-            throw new Exception("Venta no encontrada");
-        }
-        
-        $realSaleId = $sale['id'];
-        
-        // Obtener items
-        $stmtItems = $conn->prepare("SELECT product_ref, quantity, sale_type FROM sale_items WHERE sale_id = :sid");
-        $stmtItems->execute([':sid' => $realSaleId]);
-        $items = $stmtItems->fetchAll();
-        
-        // 2. Restaurar stock
-        $stmtStock = $conn->prepare("UPDATE products SET quantity = quantity + :qty WHERE reference = :ref");
-        
-        foreach ($items as $item) {
-            // Solo restaurar si es venta de producto (no servicio, aunque aquí asumimos todo tiene referencia)
-            if ($item['product_ref']) {
-                $stmtStock->execute([
-                    ':qty' => $item['quantity'],
-                    ':ref' => $item['product_ref']
-                ]);
-            }
-        }
-        
-        // 3. Eliminar venta (ON DELETE CASCADE borrará items)
-        $stmtDel = $conn->prepare("DELETE FROM sales WHERE id = :id");
-        $stmtDel->execute([':id' => $realSaleId]);
-        
-        $conn->commit();
-        echo json_encode(['success' => true, 'message' => 'Venta eliminada e inventario restaurado']);
-        
-    } catch (Exception $e) {
-        $conn->rollBack();
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-}
-} elseif ($method === 'PUT') {
-    // Actualizar Venta (Solo admin)
-    if ($_SESSION['role'] !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['error' => 'Acceso denegado']);
-        exit;
-    }
-
-    $data = json_decode(file_get_contents("php://input"));
-    
-    if (!isset($data->id)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'ID de venta necesario']);
-        exit;
-    }
-    
-    try {
-        // Campos actualizables: Info Cliente, Método Pago, Status
-        // No permitimos editar items ni total (complejidad de stock)
-        
-        $sql = "UPDATE sales SET 
-                customer_name = :name,
-                customer_phone = :phone,
-                customer_email = :email,
-                customer_address = :addr,
-                customer_city = :city,
-                payment_method = :pay,
-                status = :status
-                WHERE id = :id";
-                
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([
-            ':name' => $data->customerName,
-            ':phone' => $data->customerPhone,
-            ':email' => $data->customerEmail,
-            ':addr' => $data->customerAddress,
-            ':city' => $data->customerCity,
-            ':pay' => $data->paymentMethod,
-            ':status' => $data->status,
-            ':id' => $data->id
-        ]);
-        
-        echo json_encode(['success' => true, 'message' => 'Venta actualizada']);
-        
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
     }
 }
 ?>

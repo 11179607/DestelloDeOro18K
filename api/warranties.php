@@ -54,8 +54,6 @@ if ($method === 'GET') {
     // JS envía: saleId, customerName, originalProduct (ref/name), warrantyReason, notes, productType, newProduct...
     
     try {
-        $conn->beginTransaction();
-
         $sql = "INSERT INTO warranties (
             sale_id, original_invoice_id, customer_name, product_ref, product_name, reason, notes,
             product_type, new_product_ref, new_product_name, additional_value, shipping_value, total_cost,
@@ -66,7 +64,7 @@ if ($method === 'GET') {
             :status, :uid
         )";
         
-        // Buscar ID de venta si es posible
+        // Buscar ID de venta si es posible, aunque el JS envía el invoice ID usualmente
         $saleIdInt = null;
         if (isset($data->saleId)) {
             $sStmt = $conn->prepare("SELECT id FROM sales WHERE invoice_number = :inv LIMIT 1");
@@ -93,28 +91,16 @@ if ($method === 'GET') {
             ':status' => $data->status,
             ':uid' => $_SESSION['user_id']
         ]);
-
-        // LOGICA DE STOCK: Si hay un producto nuevo de reemplazo, descontarlo del inventario
-        if ($data->productType === 'different' && !empty($data->newProduct->ref)) {
-            $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref");
-            $stockStmt->execute([':ref' => $data->newProduct->ref]);
-        } elseif ($data->productType === 'same' && !empty($data->originalProduct->id)) {
-            // Si es el mismo, también se suele dar uno nuevo del stock
-            $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref");
-            $stockStmt->execute([':ref' => $data->originalProduct->id]);
-        }
         
-        $conn->commit();
-        echo json_encode(['success' => true, 'message' => 'Garantía registrada e inventario actualizado']);
+        echo json_encode(['success' => true, 'message' => 'Garantía registrada']);
 
     } catch (PDOException $e) {
-        $conn->rollBack();
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
 
 } elseif ($method === 'PUT') {
-    // Actualizar estado y notas (Solo admin)
+    // Actualizar estado (Solo admin)
     if ($_SESSION['role'] !== 'admin') {
         http_response_code(403);
         echo json_encode(['error' => 'Acceso denegado']);
@@ -123,52 +109,16 @@ if ($method === 'GET') {
 
     $data = json_decode(file_get_contents("php://input"));
     
-    if (!isset($data->id)) {
+    if (!isset($data->id) || !isset($data->status)) {
          http_response_code(400);
-         echo json_encode(['error' => 'ID de garantía necesario']);
+         echo json_encode(['error' => 'Datos incompletos']);
          exit;
     }
     
     try {
-        // Actualizar status y notas
-        $sql = "UPDATE warranties SET status = :status";
-        $params = [':status' => $data->status, ':id' => $data->id];
-        
-        if (isset($data->notes)) {
-            $sql .= ", notes = :notes";
-            $params[':notes'] = $data->notes;
-        }
-        
-        $sql .= " WHERE id = :id";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->execute($params);
-        echo json_encode(['success' => true]);
-    } catch (PDOException $e) {
-        http_response_code(500);
-         echo json_encode(['error' => $e->getMessage()]);
-    }
-}
-} elseif ($method === 'DELETE') {
-    // Eliminar Garantía (Solo admin)
-    if ($_SESSION['role'] !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['error' => 'Acceso denegado']);
-        exit;
-    }
-    
-    $id = $_GET['id'] ?? null;
-    
-    if (!$id) {
-         http_response_code(400);
-         echo json_encode(['error' => 'ID necesario']);
-         exit;
-    }
-    
-    try {
-        $stmt = $conn->prepare("DELETE FROM warranties WHERE id = :id");
-        $stmt->execute([':id' => $id]);
-        echo json_encode(['success' => true]);
+        $stmt = $conn->prepare("UPDATE warranties SET status = :status WHERE id = :id");
+        $stmt->execute([':status' => $data->status, ':id' => $data->id]);
+         echo json_encode(['success' => true]);
     } catch (PDOException $e) {
         http_response_code(500);
          echo json_encode(['error' => $e->getMessage()]);

@@ -14,25 +14,9 @@ if (!isset($_SESSION['user_id'])) {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    // Listar pendientes con filtro opcional de mes/año
+    // Listar pendientes
     try {
-        $month = $_GET['month'] ?? null;
-        $year = $_GET['year'] ?? null;
-        
-        $sql = "SELECT * FROM sales WHERE status = 'pending'";
-        $params = [];
-        
-        if ($month !== null && $year !== null) {
-            $month = intval($month) + 1;
-            $sql .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
-            $params[':month'] = $month;
-            $params[':year'] = $year;
-        }
-        
-        $sql .= " ORDER BY sale_date DESC";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->execute($params);
+        $stmt = $conn->query("SELECT * FROM sales WHERE status = 'pending' ORDER BY sale_date DESC");
         $pending = $stmt->fetchAll();
         
         // Para cada venta, obtener breve info de productos para mostrar en tabla
@@ -41,6 +25,7 @@ if ($method === 'GET') {
             $itemStmt->execute([':id' => $sale['id']]);
             $items = $itemStmt->fetchAll();
             $sale['products'] = $items; 
+            // Formato JS esperado: array de {productName: '...', ...}
         }
         
         echo json_encode($pending);
