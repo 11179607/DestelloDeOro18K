@@ -114,9 +114,29 @@ if ($method === 'GET') {
         $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, sale_date, user_id, username, status) 
                 VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :sale_date, :uid, :uname, :status)";
         
+        // Verificar si el ID de factura ya existe
+        $invoiceNumber = $data->id;
+        $checkStmt = $conn->prepare("SELECT COUNT(*) FROM sales WHERE invoice_number = :inv");
+        $checkStmt->execute([':inv' => $invoiceNumber]);
+        
+        if ($checkStmt->fetchColumn() > 0) {
+            // Generar nuevo ID basado en el último existente
+            $maxStmt = $conn->prepare("SELECT invoice_number FROM sales WHERE invoice_number LIKE 'FAC%' ORDER BY LENGTH(invoice_number) DESC, invoice_number DESC LIMIT 1");
+            $maxStmt->execute();
+            $maxInv = $maxStmt->fetchColumn();
+            
+            if ($maxInv) {
+                // Extraer número y sumar 1
+                $num = intval(substr($maxInv, 3)) + 1;
+                $invoiceNumber = 'FAC' . str_pad($num, 4, '0', STR_PAD_LEFT);
+            } else {
+                $invoiceNumber = 'FAC1001';
+            }
+        }
+
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            ':inv' => $data->id,
+            ':inv' => $invoiceNumber,
             ':name' => $data->customerInfo->name,
             ':cid' => $data->customerInfo->id,
             ':phone' => $data->customerInfo->phone,
@@ -163,7 +183,7 @@ if ($method === 'GET') {
         }
         
         $conn->commit();
-        echo json_encode(['success' => true, 'message' => 'Venta registrada con éxito']);
+        echo json_encode(['success' => true, 'message' => 'Venta registrada con éxito', 'id' => $invoiceNumber]);
 
     } catch (PDOException $e) {
         $conn->rollBack();
