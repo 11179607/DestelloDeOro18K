@@ -188,8 +188,9 @@ if ($method === 'GET') {
 
     } catch (PDOException $e) {
         $conn->rollBack();
-// Integrar logger - Mover al inicio
-// require_once 'logger.php'; // Eliminado de aquí
+        http_response_code(500);
+        echo json_encode(['error' => 'Error al procesar la venta: ' . $e->getMessage()]);
+    }
 
 } elseif ($method === 'DELETE') {
     // Eliminar Venta (Solo admin)
