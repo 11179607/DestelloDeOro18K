@@ -3,6 +3,7 @@
 session_start();
 header('Content-Type: application/json');
 require_once '../config/db.php';
+require_once 'logger.php';
 
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
@@ -187,9 +188,9 @@ if ($method === 'GET') {
 
     } catch (PDOException $e) {
         $conn->rollBack();
-        http_response_code(500);
-        echo json_encode(['error' => 'Error al procesar la venta: ' . $e->getMessage()]);
-    }
+// Integrar logger - Mover al inicio
+// require_once 'logger.php'; // Eliminado de aquí
+
 } elseif ($method === 'DELETE') {
     // Eliminar Venta (Solo admin)
     if ($_SESSION['role'] !== 'admin') {
@@ -208,6 +209,12 @@ if ($method === 'GET') {
     try {
         $conn->beginTransaction();
 
+        // Obtener datos de la venta antes de eliminar para el log
+        $stmt = $conn->prepare("SELECT invoice_number, total, customer_name FROM sales WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        $saleToDelete = $stmt->fetch();
+        $details = "Venta #" . ($saleToDelete['invoice_number'] ?? $id) . " eliminada. Cliente: " . ($saleToDelete['customer_name'] ?? 'N/A') . ". Total: " . ($saleToDelete['total'] ?? 0);
+
         // 1. Obtener items de la venta para restablecer stock
         $stmt = $conn->prepare("SELECT product_ref, quantity FROM sale_items WHERE sale_id = :id");
         $stmt->execute([':id' => $id]);
@@ -224,6 +231,9 @@ if ($method === 'GET') {
         // 2. Eliminar la venta (la eliminación en cascada se encargará de sale_items)
         $deleteStmt = $conn->prepare("DELETE FROM sales WHERE id = :id");
         $deleteStmt->execute([':id' => $id]);
+
+        // Registrar en LOG
+        logAction($conn, $_SESSION['username'], 'DELETE', 'SALE', $id, $details);
 
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Venta eliminada y stock restablecido']);
@@ -250,7 +260,7 @@ if ($method === 'GET') {
     try {
         // 1. Obtener la venta actual para tener los valores base
         // El frontend puede enviar el ID de la base de datos o el número de factura para identificar la venta
-        $stmt = $conn->prepare("SELECT id, delivery_cost, discount FROM sales WHERE id = :id OR invoice_number = :id");
+        $stmt = $conn->prepare("SELECT id, delivery_cost, discount, status, invoice_number FROM sales WHERE id = :id OR invoice_number = :id");
         $stmt->execute([':id' => $data->id]);
         $sale = $stmt->fetch();
 
@@ -261,6 +271,8 @@ if ($method === 'GET') {
         }
 
         $dbId = $sale['id'];
+        $oldStatus = $sale['status'];
+        $newStatus = $data->status ?? 'completed';
 
         // 2. Preparar valores (usar los nuevos si vienen, o los viejos)
         $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : 0;
@@ -297,13 +309,25 @@ if ($method === 'GET') {
             ':addr' => $data->customerAddress ?? '',
             ':city' => $data->customerCity ?? '',
             ':pay' => $data->paymentMethod ?? 'cash',
-            ':status' => $data->status ?? 'completed',
+            ':status' => $newStatus,
             ':del' => $deliveryCost,
             ':disc' => $discount,
             ':total' => $newTotal,
             ':date' => $data->date ?? date('Y-m-d H:i:s'),
             ':dbId' => $dbId
         ]);
+
+        // Registrar en LOG
+        $actionType = 'EDIT';
+        $details = "Venta #" . ($data->invoiceNumber ?? $data->id) . " actualizada.";
+
+        // Detectar si fue confirmación de pago
+        if ($oldStatus === 'pending' && $newStatus === 'completed') {
+            $actionType = 'CONFIRM_PAYMENT';
+            $details = "Pago confirmado para venta #" . ($data->invoiceNumber ?? $data->id);
+        }
+
+        logAction($conn, $_SESSION['username'], $actionType, 'SALE', $dbId, $details);
 
         echo json_encode(['success' => true, 'message' => 'Venta actualizada']);
     } catch (PDOException $e) {

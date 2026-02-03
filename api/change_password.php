@@ -3,11 +3,17 @@
 session_start();
 header('Content-Type: application/json');
 require_once '../config/db.php';
+require_once 'logger.php'; // Integrar logs
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"));
+    
+    // ... validaciones ...
+
+    // (Después de validar y antes de UPDATE)
+    // Pero mejor después de ejecutar todo con éxito
     
     // Validar datos requeridos
     if (!isset($data->admin_username) || !isset($data->admin_password) || 
@@ -38,6 +44,11 @@ if ($method === 'POST') {
         $updateStmt->execute([':password' => $newPassword, ':username' => $userToChange]);
 
         if ($updateStmt->rowCount() > 0) {
+            // Registrar acción
+            logAction($conn, $adminUsername, 'CHANGE_PASSWORD', 'USER', $userToChange, "Admin $adminUsername cambió contraseña de $userToChange");
+            
+            echo json_encode(['success' => true, 'message' => 'Contraseña actualizada correctamente']);
+        } else {
             echo json_encode(['success' => true, 'message' => 'Contraseña actualizada correctamente']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Usuario no encontrado o contraseña no cambiada']);

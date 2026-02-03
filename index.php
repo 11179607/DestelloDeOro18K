@@ -2670,6 +2670,7 @@
                             <option value="warranties">Garantías</option>
                             <option value="pending">Pendientes</option>
                             <option value="profit">Ganancias</option>
+                            <option value="admin_audit">Movimientos Admin</option>
                         </select>
                         <button id="refreshHistory" class="btn btn-info">
                             <i class="fas fa-sync-alt"></i> Actualizar
@@ -2725,6 +2726,40 @@
                                 </thead>
                                 <tbody id="historyDetailsTableBody">
                                     <!-- Los detalles se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+
+                <!-- Vista de Auditoría Admin (Oculta por defecto) -->
+                <div id="auditLogsView" class="history-details-container" style="display: none;">
+                    <div class="history-details-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <h2 class="history-details-title">
+                                <i class="fas fa-shield-alt" style="color: var(--gold-dark);"></i> Registro de Movimientos Administrativos
+                            </h2>
+                            <button class="btn btn-sm btn-info" onclick="loadAuditLogs()">
+                                <i class="fas fa-sync-alt"></i> Refrescar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <div style="overflow-x: auto;">
+                            <table class="data-table" id="auditLogsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Usuario</th>
+                                        <th>Acción</th>
+                                        <th>Entidad</th>
+                                        <th>Detalles</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditLogsTableBody">
+                                    <tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -8883,6 +8918,99 @@
                 }
             }
         }
+
+        // Función para cargar logs de auditoría
+        window.loadAuditLogs = async function() {
+            const tableBody = document.getElementById('auditLogsTableBody');
+            if(!tableBody) return;
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>';
+
+            try {
+                const response = await fetch('api/logs.php');
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.logs.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay registros de auditoría.</td></tr>';
+                        return;
+                    }
+
+                    tableBody.innerHTML = '';
+                    data.logs.forEach(log => {
+                        const row = document.createElement('tr');
+                        
+                        let actionBadgeClass = 'badge-info';
+                        let actionText = log.action_type;
+                        
+                        // Estilos y traducción básica
+                        if (log.action_type === 'DELETE') {
+                            actionBadgeClass = 'badge-danger';
+                            actionText = 'ELIMINACIÓN';
+                        }
+                        if (log.action_type === 'CONFIRM_PAYMENT') {
+                            actionBadgeClass = 'badge-success';
+                            actionText = 'PAGO CONFIRMADO';
+                        }
+                        if (log.action_type === 'EDIT') {
+                            actionBadgeClass = 'badge-warning';
+                            actionText = 'EDICIÓN';
+                        }
+                        if (log.action_type === 'CHANGE_PASSWORD') {
+                            actionBadgeClass = 'badge-warning';
+                            actionText = 'CAMBIO CONTRASEÑA';
+                        }
+
+                        // Formatear fecha
+                        const date = new Date(log.created_at);
+                        const dateStr = date.toLocaleDateString('es-CO') + ' ' + date.toLocaleTimeString('es-CO');
+
+                        row.innerHTML = `
+                            <td>${dateStr}</td>
+                            <td><strong>${log.user_username}</strong></td>
+                            <td><span class="badge ${actionBadgeClass}" style="padding: 5px 10px; border-radius: 4px; color: white;">${actionText}</span></td>
+                            <td>${log.entity_type} <small>#${log.entity_id}</small></td>
+                            <td>${log.details}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                     tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${data.message || 'Error al cargar logs'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error(error);
+                 tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Error de conexión</td></tr>';
+            }
+        };
+
+        // Hook para inicializar listener de filtro historyFilter
+        const originalInitApp = window.initApp;
+        window.initApp = async function() {
+            // Ejecutar initApp original
+            if (originalInitApp) await originalInitApp();
+            
+            // Agregar listener extra
+            const historyFilter = document.getElementById('historyFilter');
+            if (historyFilter) {
+                historyFilter.addEventListener('change', function() {
+                    const auditView = document.getElementById('auditLogsView');
+                    const cardsView = document.getElementById('historyCardsView');
+                    const detailsView = document.getElementById('historyDetailsView');
+                    const monthlySummaryContainer = document.querySelector('.admin-only');
+                    
+                    if (this.value === 'admin_audit') {
+                        if(auditView) auditView.style.display = 'block';
+                        if(cardsView) cardsView.style.display = 'none';
+                        if(detailsView) detailsView.style.display = 'none';
+                        if(monthlySummaryContainer) monthlySummaryContainer.style.display = 'none';
+                        loadAuditLogs();
+                    } else {
+                        if(auditView) auditView.style.display = 'none';
+                        if(cardsView) cardsView.style.display = 'grid'; 
+                        if(monthlySummaryContainer) monthlySummaryContainer.style.display = 'block';
+                    }
+                });
+            }
+        };
 
         // Iniciar cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', initApp);
