@@ -3845,6 +3845,16 @@
                 localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
                 localStorage.setItem('destelloOroProducts', JSON.stringify(products));
 
+                // Sincronizar el contador de facturas basado en el historial real
+                if (sales && sales.length > 0) {
+                    const facSales = sales.filter(s => s.invoice_number && s.invoice_number.startsWith('FAC'));
+                    if (facSales.length > 0) {
+                        const ids = facSales.map(s => parseInt(s.invoice_number.replace('FAC', '')) || 0);
+                        const maxId = Math.max(...ids);
+                        localStorage.setItem('destelloOroNextInvoiceId', (maxId + 1).toString());
+                    }
+                }
+
                 let fSales = sales;
                 let fExpenses = expenses;
                 let fRestocks = restocks;
@@ -7104,6 +7114,13 @@
                                 name: data.user.name
                             };
                             
+                            // Limpiar CUALQUIER dato previo para asegurar sincronización total
+                            Object.keys(localStorage).forEach(key => {
+                                if (key.startsWith('destelloOro')) {
+                                    localStorage.removeItem(key);
+                                }
+                            });
+
                             // Guardar en localStorage para persistencia rápida
                             localStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
 
@@ -7139,15 +7156,25 @@
             // Actualizar interfaz según rol
             updateUIForUserRole();
 
-            // Cargar datos iniciales
-            loadInventoryTable();
-            loadExpensesTable();
-            loadPendingSalesTable();
-            loadWarrantiesTable();
-            loadHistoryCards();
-
             // Configurar selectores de fecha para historial
             setupDateSelectors();
+
+            // Cargar datos iniciales e iniciar sincronización
+            const refreshData = () => {
+                console.log('Sincronizando datos...');
+                loadInventoryTable();
+                loadExpensesTable();
+                loadPendingSalesTable();
+                loadWarrantiesTable();
+                loadHistoryCards();
+            };
+
+            // Ejecutar inmediatamente al inicio
+            refreshData();
+
+            // Configurar refresco automático cada 60 segundos
+            if (window.syncInterval) clearInterval(window.syncInterval);
+            window.syncInterval = setInterval(refreshData, 60000);
         }
 
         // Actualizar interfaz según rol del usuario
@@ -8268,24 +8295,7 @@
             });
         }
 
-        // Cargar usuarios para cambio de contraseña
-        function loadUsersForPasswordChange() {
-            const userSelect = document.getElementById('userToChange');
-            const users = JSON.parse(localStorage.getItem('destelloOroUsers'));
-
-            // Limpiar select
-            userSelect.innerHTML = '<option value="">Seleccione un usuario</option>';
-
-            // Agregar opciones (sin el usuario "marlon")
-            users.forEach(user => {
-                if (user.username !== 'marlon') {
-                    const option = document.createElement('option');
-                    option.value = user.username;
-                    option.textContent = `${user.name} ${user.lastName || ''} (${user.username}) - ${user.role === 'admin' ? 'Administrador' : 'Trabajador'}`;
-                    userSelect.appendChild(option);
-                }
-            });
-        }
+        // Cargar usuarios para cambio de contraseña (se usa la versión asíncrona definida anteriormente)
 
         // Inicializar pasos del login
         function initLoginSteps() {
@@ -8395,42 +8405,7 @@
         function loadInitialData() {
             // Inicializar datos si no existen
             if (!localStorage.getItem('destelloOroProducts')) {
-                const initialProducts = [
-                    {
-                        id: 'REF001',
-                        name: 'Cadena de Oro Laminado 18K - Elegante',
-                        quantity: 10,
-                        purchasePrice: 150000,
-                        wholesalePrice: 180000,
-                        retailPrice: 200000,
-                        supplier: 'Proveedor Oro S.A.',
-                        addedBy: 'admin',
-                        dateAdded: new Date().toISOString()
-                    },
-                    {
-                        id: 'REF002',
-                        name: 'Anillo de Matrimonio 18K - Clásico',
-                        quantity: 5,
-                        purchasePrice: 80000,
-                        wholesalePrice: 100000,
-                        retailPrice: 120000,
-                        supplier: 'Joyas Preciosas Ltda.',
-                        addedBy: 'admin',
-                        dateAdded: new Date().toISOString()
-                    },
-                    {
-                        id: 'REF003',
-                        name: 'Aretes de Corazón 18K - Brillantes',
-                        quantity: 15,
-                        purchasePrice: 60000,
-                        wholesalePrice: 75000,
-                        retailPrice: 90000,
-                        supplier: 'Accesorios Dorados S.A.S.',
-                        addedBy: 'admin',
-                        dateAdded: new Date().toISOString()
-                    }
-                ];
-                localStorage.setItem('destelloOroProducts', JSON.stringify(initialProducts));
+                localStorage.setItem('destelloOroProducts', JSON.stringify([]));
             }
 
             if (!localStorage.getItem('destelloOroSales')) {
@@ -8457,29 +8432,9 @@
                 localStorage.setItem('destelloOroNextInvoiceId', '1001');
             }
 
-            // Inicializar usuarios con información personal (SIN "marlon carabali")
+            // Inicializar usuarios (se cargan desde el servidor, no se siembran locales)
             if (!localStorage.getItem('destelloOroUsers')) {
-                const users = [
-                    {
-                        username: 'admin',
-                        password: 'admin123',
-                        role: 'admin',
-                        name: 'Administrador',
-                        lastName: 'Principal',
-                        phone: '3001234567',
-                        personalInfoSaved: false
-                    },
-                    {
-                        username: 'trabajador',
-                        password: 'trabajador123',
-                        role: 'worker',
-                        name: 'Vendedor',
-                        lastName: 'Principal',
-                        phone: '3009876543',
-                        personalInfoSaved: false
-                    }
-                ];
-                localStorage.setItem('destelloOroUsers', JSON.stringify(users));
+                localStorage.setItem('destelloOroUsers', JSON.stringify([]));
             }
 
             // Inicializar información de sesión
@@ -9104,8 +9059,12 @@
         async function logout() {
             try {
                 await fetch('api/logout.php');
-                // Limpiar datos locales sensibles por si acaso, aunque ya no dependemos de ellos para auth
-                localStorage.removeItem('destelloOroCurrentUser');
+                // Limpiar ABSOLUTAMENTE TODO lo relacionado con la app
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('destelloOro')) {
+                        localStorage.removeItem(key);
+                    }
+                });
                 location.reload();
             } catch (error) {
                 console.error('Error al cerrar sesión:', error);
