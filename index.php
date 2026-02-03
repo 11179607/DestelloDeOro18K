@@ -1713,14 +1713,14 @@
 
                 <!-- NUEVO: Enlace para cambiar contraseña -->
                 <div style="text-align: center; margin-top: 1rem;">
-                    <button id="showPasswordChange" class="btn btn-sm btn-info"
+                    <button type="button" id="showPasswordChange" class="btn btn-sm btn-info"
                         style="padding: 8px 15px; font-size: 0.85rem;">
                         <i class="fas fa-key"></i> Cambiar Contraseña
                     </button>
                 </div>
 
                 <div style="text-align: center; margin-top: 0.5rem;">
-                    <button id="forgotPasswordBtn" class="btn btn-sm"
+                    <button type="button" id="forgotPasswordBtn" class="btn btn-sm"
                         style="padding: 8px 15px; font-size: 0.85rem; background: none; border: 1px solid var(--gold-primary); color: var(--gold-dark);">
                         <i class="fas fa-question-circle"></i> ¿Olvidó su contraseña?
                     </button>
@@ -7235,6 +7235,8 @@
 
         // Configurar eventos del modal de cambio de contraseña
         function setupPasswordChange() {
+            console.log('Configurando eventos de cambio de contraseña...');
+            
             const modal = document.getElementById('passwordChangeModal');
             const showBtn = document.getElementById('showPasswordChange');
             const forgotBtn = document.getElementById('forgotPasswordBtn');
@@ -7242,9 +7244,14 @@
             const cancelBtn = document.getElementById('cancelPasswordChange');
             const form = document.getElementById('passwordChangeForm');
 
+            console.log('Modal encontrado:', modal ? 'Sí' : 'No');
+            console.log('Botón showPasswordChange encontrado:', showBtn ? 'Sí' : 'No');
+            console.log('Botón forgotPasswordBtn encontrado:', forgotBtn ? 'Sí' : 'No');
+
             // Mostrar modal al hacer clic en "Cambiar Contraseña" o "Olvidé mi contraseña"
             if (showBtn) {
                 showBtn.addEventListener('click', function() {
+                    console.log('Clic en Cambiar Contraseña');
                     modal.style.display = 'flex';
                     loadUsersForPasswordChange();
                 });
@@ -7252,6 +7259,7 @@
 
             if (forgotBtn) {
                 forgotBtn.addEventListener('click', function() {
+                    console.log('Clic en Olvidé mi contraseña');
                     modal.style.display = 'flex';
                     loadUsersForPasswordChange();
                 });
