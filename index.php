@@ -1720,9 +1720,9 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 0.5rem;">
-                    <button onclick="resetUserData()" class="btn btn-sm"
-                        style="padding: 8px 15px; font-size: 0.85rem; background: none; border: 1px solid #ddd; color: #888;">
-                        <i class="fas fa-undo"></i> Resetear Admin a "admin123"
+                    <button id="forgotPasswordBtn" class="btn btn-sm"
+                        style="padding: 8px 15px; font-size: 0.85rem; background: none; border: 1px solid var(--gold-primary); color: var(--gold-dark);">
+                        <i class="fas fa-question-circle"></i> ¿Olvidó su contraseña?
                     </button>
                 </div>
             </div>
@@ -7232,6 +7232,120 @@
                 await generateCurrentInvoicePDF();
             });
         }
+
+        // Configurar eventos del modal de cambio de contraseña
+        function setupPasswordChange() {
+            const modal = document.getElementById('passwordChangeModal');
+            const showBtn = document.getElementById('showPasswordChange');
+            const forgotBtn = document.getElementById('forgotPasswordBtn');
+            const closeBtn = document.getElementById('closePasswordChange');
+            const cancelBtn = document.getElementById('cancelPasswordChange');
+            const form = document.getElementById('passwordChangeForm');
+
+            // Mostrar modal al hacer clic en "Cambiar Contraseña" o "Olvidé mi contraseña"
+            if (showBtn) {
+                showBtn.addEventListener('click', function() {
+                    modal.style.display = 'flex';
+                    loadUsersForPasswordChange();
+                });
+            }
+
+            if (forgotBtn) {
+                forgotBtn.addEventListener('click', function() {
+                    modal.style.display = 'flex';
+                    loadUsersForPasswordChange();
+                });
+            }
+
+            // Cerrar modal
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    form.reset();
+                });
+            }
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    form.reset();
+                });
+            }
+
+            // Manejar envío del formulario
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const adminUsername = document.getElementById('adminUsername').value;
+                    const adminPassword = document.getElementById('adminPassword').value;
+                    const userToChange = document.getElementById('userToChange').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    // Validar que las contraseñas coincidan
+                    if (newPassword !== confirmPassword) {
+                        await showDialog('Error', 'Las contraseñas no coinciden.', 'error');
+                        return;
+                    }
+
+                    // Validar longitud mínima
+                    if (newPassword.length < 6) {
+                        await showDialog('Error', 'La contraseña debe tener al menos 6 caracteres.', 'error');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('api/change_password.php', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                admin_username: adminUsername,
+                                admin_password: adminPassword,
+                                user_to_change: userToChange,
+                                new_password: newPassword
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            await showDialog('Éxito', 'Contraseña cambiada exitosamente.', 'success');
+                            modal.style.display = 'none';
+                            form.reset();
+                        } else {
+                            await showDialog('Error', data.message || 'Error al cambiar la contraseña.', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        await showDialog('Error', 'Error de conexión con el servidor.', 'error');
+                    }
+                });
+            }
+        }
+
+        // Cargar usuarios disponibles para cambio de contraseña
+        async function loadUsersForPasswordChange() {
+            try {
+                const response = await fetch('api/users.php');
+                const data = await response.json();
+
+                const select = document.getElementById('userToChange');
+                select.innerHTML = '<option value="">Seleccione un usuario</option>';
+
+                if (data.success && data.users) {
+                    data.users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.username;
+                        option.textContent = `${user.name} (${user.role === 'admin' ? 'Administrador' : 'Trabajador'})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+            }
+        }
+
 
         // Función para generar PDF de la factura actual (del modal)
         async function generateCurrentInvoicePDF() {

@@ -24,10 +24,10 @@ if ($method === 'GET') {
     try {
         $stmt = $conn->query("SELECT username, name, lastname, role FROM users WHERE username != 'marlon'");
         $users = $stmt->fetchAll();
-        echo json_encode($users);
+        echo json_encode(['success' => true, 'users' => $users]);
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 
 } elseif ($method === 'POST') {
