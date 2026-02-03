@@ -120,14 +120,13 @@
         }
 
         .login-box {
-            background: transparent;
-            backdrop-filter: none;
-            border-radius: 0;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
             padding: 2rem;
             width: 100%;
             max-width: 450px;
-            box-shadow: none;
-            border: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1px solid rgba(0,0,0,0.1);
             position: relative;
             z-index: 1;
             transition: var(--transition);
@@ -140,8 +139,8 @@
         }
 
         .login-box:hover {
-            transform: none;
-            box-shadow: none;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
         }
 
         .login-header {
@@ -154,35 +153,56 @@
             color: var(--gold-primary);
             margin-bottom: 0.75rem;
             display: block;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-shadow: none;
         }
 
         .login-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--gold-dark);
             margin-bottom: 0.5rem;
             letter-spacing: 1px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-shadow: none;
         }
 
         .login-header p {
-            color: #ffffff;
+            color: #666;
             font-size: 0.9rem;
             font-weight: 300;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            text-shadow: none;
         }
 
-        /* Ajustes para legibilidad en login transparente */
+        /* Ajustes textos login fondo blanco */
         .login-box h3 {
-            color: #ffffff !important;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            color: var(--gold-dark) !important;
+            text-shadow: none;
         }
         
         .login-box label {
-            color: #ffffff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            color: #333;
+            text-shadow: none;
+            font-weight: 600;
+        }
+
+        .login-box small, .login-box p {
+            color: #666 !important;
+            text-shadow: none;
+        }
+
+        /* Inputs transparentes estilo material */
+        .login-box .form-control {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--medium-gray);
+            border-radius: 0;
+            padding: 10px 0;
+        }
+        
+        .login-box .form-control:focus {
+            box-shadow: none;
+            border-color: var(--gold-primary);
+            background: transparent;
         }
 
         /* NUEVO: Estilos para formularios de usuario */
@@ -377,14 +397,15 @@
 
         /* Header */
         .main-header {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            background: rgba(26, 26, 26, 0.85); /* Fondo oscuro semitransparente para legibilidad */
+            backdrop-filter: blur(5px);
             color: var(--white);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-medium);
-            border-bottom: 2px solid var(--gold-primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.5);
         }
 
         .header-content {
@@ -506,13 +527,14 @@
 
         /* Navegación */
         .main-nav {
-            background: var(--white);
+            background: rgba(255, 255, 255, 0.9); /* Blanco semitransparente */
+            backdrop-filter: blur(5px);
             padding: 0.75rem 0;
             position: sticky;
             top: 65px;
             z-index: 999;
             box-shadow: var(--shadow-light);
-            border-bottom: 1px solid var(--medium-gray);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
 
         .nav-container {
@@ -527,7 +549,7 @@
         }
 
         .nav-btn {
-            background: var(--white);
+            background: transparent; /* Botones transparentes */
             border: 2px solid var(--medium-gray);
             padding: 10px 20px;
             border-radius: var(--radius-md);
