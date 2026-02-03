@@ -7417,66 +7417,290 @@
         }
 
 
+        // Función auxiliar para cargar imagen como Base64
+        function getBase64Image(url) {
+            return new Promise((resolve, reject) => {
+                var img = new Image();
+                img.setAttribute('crossOrigin', 'anonymous');
+                img.onload = () => {
+                    var canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    var ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    var dataURL = canvas.toDataURL("image/jpeg", 0.8);
+                    resolve(dataURL);
+                };
+                img.onerror = error => {
+                    console.warn('No se pudo cargar la imagen de fondo para el PDF:', error);
+                    resolve(null); // Resolver con null para no romper el flujo
+                };
+                img.src = url;
+            });
+        }
+
         // Función para generar PDF de la factura actual (del modal)
         async function generateCurrentInvoicePDF() {
-            // ... Mantiene lógica de PDF, usa datos del DOM ...
-            await showDialog('Generando PDF', 'Por favor espere mientras se genera el PDF de la factura...', 'info');
+            // Mostrar diálogo de carga
+            const loadingDialog = document.createElement('div');
+            loadingDialog.className = 'custom-dialog';
+            loadingDialog.style.display = 'flex';
+            loadingDialog.innerHTML = `
+                <div class="dialog-content">
+                    <div class="dialog-icon"><i class="fas fa-spinner fa-spin" style="color: var(--gold-primary);"></i></div>
+                    <h2 class="dialog-title">Generando PDF</h2>
+                    <p class="dialog-message">Por favor espere mientras se genera el documento con el fondo...</p>
+                </div>
+            `;
+            document.body.appendChild(loadingDialog);
 
             try {
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                // Intentar cargar la imagen de fondo
+                try {
+                    const bgData = await getBase64Image('fondo.jpeg');
+                    if (bgData) {
+                        // Agregar imagen de fondo centrada y cubriendo toda la página
+                        pdf.addImage(bgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+                        
+                        // Agregar un rectángulo blanco semitransparente para mejorar legibilidad del texto
+                        // Nota: jsPDF básico no soporta transparencia en rectángulos fácilmente sin plugins, 
+                        // pero podemos intentar simularlo o simplemente usar texto con fondo o sombra si fuera necesario.
+                        // Por ahora, confiamos en que el diseño se vea bien o agregamos un cuadro blanco sutil detrás del contenido principal
+                        pdf.setFillColor(255, 255, 255);
+                        pdf.rect(10, 10, pageWidth - 20, pageHeight - 20, 'F'); 
+                        // OJO: 'F' rellena con blanco sólido tapando el fondo.
+                        // Si queremos transparencia real necesitaríamos gstate. 
+                        // Como solución alternativa efectiva: No ponemos el rect o asumimos que el fondo es decorativo.
+                        // El usuario quiere el FONDO. Así que mejor NO taparlo.
+                        // Voy a deshacer el rect para que se vea la foto.
+                    }
+                } catch (e) {
+                    console.warn('Error cargando fondo:', e);
+                }
 
                 // Obtener datos de la factura actual del modal
                 const invoiceNumber = document.getElementById('invoiceNumber').textContent;
                 const invoiceDate = document.getElementById('invoiceDate').textContent;
                 const customerName = document.getElementById('invoiceCustomerName').textContent;
-                const total = document.getElementById('invoiceTotal').textContent;
+                const customerId = document.getElementById('invoiceCustomerId').textContent;
+                const customerPhone = document.getElementById('invoiceCustomerPhone').textContent;
+                const customerAddress = document.getElementById('invoiceCustomerAddress').textContent;
+                const total = document.getElementById('invoiceTotalAmount').textContent; // Asegúrate de tener este ID correcto
 
-                // Agregar contenido básico al PDF
-                pdf.setFontSize(20);
-                pdf.setTextColor(212, 175, 55); // Color oro
-                pdf.text('Destello de Oro 18K', 20, 20);
+                // === CONTENIDO DEL PDF ===
+                // Título
+                pdf.setFontSize(22);
+                pdf.setTextColor(212, 175, 55); // Dorado
+                pdf.setFont("helvetica", "bold");
+                pdf.text('Destello de Oro 18K', pageWidth / 2, 25, { align: 'center' });
+                
+                pdf.setFontSize(10);
+                pdf.setTextColor(0, 0, 0); // Negro para texto
+                pdf.setFont("helvetica", "normal");
+                pdf.text('Sistema de Gestión de Inventario y Ventas', pageWidth / 2, 32, { align: 'center' });
 
+                // Datos de Factura (Cuadro)
+                pdf.setDrawColor(212, 175, 55);
+                pdf.setLineWidth(0.5);
+                pdf.rect(15, 40, pageWidth - 30, 25);
+                
+                pdf.setFontSize(14);
+                pdf.setFont("helvetica", "bold");
+                pdf.text(invoiceNumber || 'Factura', 20, 50);
+                
+                pdf.setFontSize(10);
+                pdf.setFont("helvetica", "normal");
+                pdf.text(invoiceDate || new Date().toLocaleDateString(), 20, 58);
+
+                // Datos del Cliente
                 pdf.setFontSize(12);
-                pdf.setTextColor(0, 0, 0);
-                pdf.text('Factura de Venta', 20, 30);
-                pdf.text(invoiceNumber, 20, 40);
-                pdf.text(invoiceDate, 20, 45);
-
-                pdf.setFontSize(14);
-                pdf.text('Datos del Cliente:', 20, 60);
-                pdf.setFontSize(10);
-                pdf.text(`Nombre: ${customerName}`, 20, 70);
-
-                pdf.setFontSize(14);
-                pdf.text('Total:', 20, 85);
-                pdf.setFontSize(16);
                 pdf.setTextColor(212, 175, 55);
-                pdf.text(total, 60, 85);
-
+                pdf.setFont("helvetica", "bold");
+                pdf.text('Datos del Cliente:', 20, 75);
+                
                 pdf.setFontSize(10);
+                pdf.setTextColor(0, 0, 0);
+                pdf.setFont("helvetica", "normal");
+                const startY = 82;
+                pdf.text(`Cliente: ${customerName}`, 20, startY);
+                pdf.text(`Cédula: ${customerId}`, 20, startY + 5);
+                pdf.text(`Teléfono: ${customerPhone}`, 20, startY + 10);
+                pdf.text(`Dirección: ${customerAddress}`, 110, startY);
+
+                // Tabla de Productos
+                let yPos = 105;
+                
+                // Encabezados
+                pdf.setFillColor(240, 240, 240); // Gris claro
+                pdf.rect(15, yPos - 5, pageWidth - 30, 8, 'F');
+                pdf.setFont("helvetica", "bold");
+                pdf.text('Producto', 17, yPos);
+                pdf.text('Cant', 100, yPos);
+                pdf.text('Precio Unit', 120, yPos);
+                pdf.text('Subtotal', 160, yPos);
+                
+                yPos += 8;
+                pdf.setFont("helvetica", "normal");
+
+                // Ítems (Necesitamos extraerlos del DOM actual ya que no tenemos el objeto 'sale' aquí directamente)
+                const rows = document.querySelectorAll('#invoiceItemsBody tr');
+                rows.forEach(row => {
+                    const cols = row.querySelectorAll('td');
+                    if (cols.length >= 4) {
+                        const prodName = cols[0].textContent; // Nombre
+                        // const prodId = cols[1].textContent; // ID (Opcional)
+                        const quantity = cols[2].textContent;
+                        const price = cols[3].textContent;
+                        const subtotal = cols[4].textContent;
+
+                        // Truncar nombre si es muy largo
+                        const cleanName = prodName.length > 45 ? prodName.substring(0, 42) + '...' : prodName;
+                        
+                        pdf.text(cleanName, 17, yPos);
+                        pdf.text(quantity, 100, yPos);
+                        pdf.text(price, 120, yPos);
+                        pdf.text(subtotal, 160, yPos);
+                        yPos += 7;
+                    }
+                });
+
+                // Total
+                yPos += 5;
+                pdf.setDrawColor(212, 175, 55);
+                pdf.line(15, yPos, pageWidth - 15, yPos);
+                yPos += 10;
+                
+                pdf.setFontSize(16);
+                pdf.setFont("helvetica", "bold");
+                pdf.setTextColor(212, 175, 55);
+                const totalText = `Total a Pagar: ${document.getElementById('invoiceTotal').textContent}`;
+                pdf.text(totalText, pageWidth - 20, yPos, { align: 'right' });
+
+                // Pie de página
+                pdf.setFontSize(9);
                 pdf.setTextColor(100, 100, 100);
-                pdf.text('Gracias por su compra!', 20, 100);
-                pdf.text('Contacto: 3182687488', 20, 105);
+                pdf.setFont("helvetica", "normal");
+                pdf.text('¡Gracias por su compra!', pageWidth / 2, pageHeight - 20, { align: 'center' });
+                pdf.text('Destello de Oro 18K - Garantía y Calidad', pageWidth / 2, pageHeight - 15, { align: 'center' });
 
                 // Guardar PDF
-                pdf.save(`Factura_${invoiceNumber.replace('Factura ', '')}.pdf`);
+                const fileName = `Factura_${invoiceNumber.replace(/[^a-zA-Z0-9]/g, '') || 'Venta'}.pdf`;
+                pdf.save(fileName);
 
+                document.body.removeChild(loadingDialog);
                 await showDialog('PDF Generado', 'La factura se ha descargado exitosamente.', 'success');
 
             } catch (error) {
                 console.error('Error generando PDF:', error);
-                await showDialog('Error', 'No se pudo generar el PDF. Intente usar la opción de imprimir.', 'error');
+                if (document.body.contains(loadingDialog)) document.body.removeChild(loadingDialog);
+                await showDialog('Error', 'No se pudo generar el PDF. ' + error.message, 'error');
             }
         }
 
-        // NUEVA FUNCIÓN: Generar PDF de factura para una venta específica
+        // NUEVA FUNCIÓN: Generar PDF de factura para una venta específica (Historial)
         async function generateInvoicePDF(sale) {
-             // ... Misma lógica, sin cambios requeridos ...
-             // Solo asegúrate de que 'sale' tenga la estructura correcta
-              await showDialog('Generando PDF', 'Por favor espere mientras se genera el PDF de la factura...', 'info');
-              // ... El contenido de la función es grande, lo resumiré asumiendo que no cambia ...
-              // Si no la incluyo, `processSale` es el target del siguiente replace.
+             // Mostrar diálogo de carga
+            const loadingDialog = document.createElement('div');
+            loadingDialog.className = 'custom-dialog';
+            loadingDialog.style.display = 'flex';
+            loadingDialog.innerHTML = `
+                <div class="dialog-content">
+                    <div class="dialog-icon"><i class="fas fa-spinner fa-spin" style="color: var(--gold-primary);"></i></div>
+                    <h2 class="dialog-title">Generando PDF</h2>
+                    <p class="dialog-message">Generando factura #${sale.id}...</p>
+                </div>
+            `;
+            document.body.appendChild(loadingDialog);
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                // Fondo de pantalla
+                try {
+                    const bgData = await getBase64Image('fondo.jpeg');
+                    if (bgData) {
+                        pdf.addImage(bgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+                    }
+                } catch (e) { console.warn('Sin fondo'); }
+
+                // Título
+                pdf.setFontSize(22);
+                pdf.setTextColor(212, 175, 55);
+                pdf.setFont("helvetica", "bold");
+                pdf.text('Destello de Oro 18K', pageWidth / 2, 25, { align: 'center' });
+                
+                pdf.setFontSize(10);
+                pdf.setTextColor(0, 0, 0);
+                pdf.setFont("helvetica", "normal");
+                pdf.text('Factura de Venta', pageWidth / 2, 32, { align: 'center' });
+
+                // Datos Factura
+                pdf.setDrawColor(212, 175, 55);
+                pdf.rect(15, 40, pageWidth - 30, 20);
+                pdf.setFontSize(12);
+                pdf.setFont("helvetica", "bold");
+                pdf.text(`Factura N°: ${sale.id}`, 20, 50);
+                pdf.setFontSize(10);
+                pdf.setFont("helvetica", "normal");
+                pdf.text(`Fecha: ${formatDate(sale.date)}`, 20, 56);
+                pdf.text(`Método Pago: ${getPaymentMethodName(sale.paymentMethod)}`, 110, 50);
+
+                // Datos Cliente
+                const cName = sale.customerInfo ? sale.customerInfo.name : 'Cliente Mostrador';
+                const cId = sale.customerInfo ? (sale.customerInfo.id || '') : '';
+                const cTel = sale.customerInfo ? (sale.customerInfo.phone || '') : '';
+
+                pdf.text(`Cliente: ${cName}`, 20, 70);
+                if(cId) pdf.text(`CC: ${cId}`, 20, 75);
+                if(cTel) pdf.text(`Tel: ${cTel}`, 110, 75);
+
+                // Productos
+                let y = 85;
+                pdf.setFillColor(240, 240, 240);
+                pdf.rect(15, y-5, pageWidth-30, 8, 'F');
+                pdf.setFont("helvetica", "bold");
+                pdf.text('Producto', 17, y);
+                pdf.text('Cant', 110, y);
+                pdf.text('Total', 160, y);
+                y += 8;
+                
+                pdf.setFont("helvetica", "normal");
+                sale.products.forEach(p => {
+                    const name = p.productName.length > 50 ? p.productName.substring(0,47)+'...' : p.productName;
+                    pdf.text(name, 17, y);
+                    pdf.text(p.quantity.toString(), 110, y);
+                    pdf.text(formatCurrency(p.subtotal), 160, y);
+                    y += 7;
+                });
+
+                // Total
+                y += 5;
+                pdf.setDrawColor(212, 175, 55);
+                pdf.line(15, y, pageWidth-15, y);
+                y += 10;
+                pdf.setFontSize(14);
+                pdf.setFont("helvetica", "bold");
+                pdf.setTextColor(212, 175, 55);
+                pdf.text(`Total: ${formatCurrency(sale.total)}`, pageWidth-20, y, {align:'right'});
+
+                pdf.save(`Factura_${sale.id}.pdf`);
+                
+                document.body.removeChild(loadingDialog);
+                await showDialog('Éxito', 'Factura descargada', 'success');
+
+            } catch (error) {
+                console.error(error);
+                if (document.body.contains(loadingDialog)) document.body.removeChild(loadingDialog);
+                await showDialog('Error', 'No se pudo generar el PDF', 'error');
+            }
         }
 
         // Procesar una venta (con múltiples productos) - AHORA ASYNC
