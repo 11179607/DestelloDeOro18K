@@ -4410,19 +4410,19 @@
                         break;
                 }
 
-                if (data) {
+                if (data && Array.isArray(data)) {
                     data.forEach(item => {
-                        // Calcular valor total
+                        // Calcular valor total asegurando conversión a número para evitar concatenación o NaN
                         if (type === 'sales') {
-                            totalValue += item.total || 0;
+                            totalValue += parseFloat(item.total) || 0;
                         } else if (type === 'expenses') {
-                            totalValue += item.amount || 0;
+                            totalValue += parseFloat(item.amount) || 0;
                         } else if (type === 'restocks') {
-                            totalValue += item.totalValue || 0;
+                            totalValue += parseFloat(item.totalValue) || 0;
                         } else if (type === 'warranties') {
-                            totalValue += item.totalCost || 0;
+                            totalValue += parseFloat(item.totalCost) || 0;
                         } else if (type === 'pending') {
-                            totalValue += item.total || 0;
+                            totalValue += parseFloat(item.total) || 0;
                         }
                     });
                 } else {
@@ -5020,8 +5020,8 @@
                 return sum + saleCost;
             }, 0);
 
-            const totalWarrantyCosts = monthlyWarranties.reduce((sum, warranty) => sum + (warranty.totalCost || 0), 0);
-            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (sale.warrantyIncrement || 0), 0);
+            const totalWarrantyCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
+            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement) || 0), 0);
             const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
 
             let title = '';
@@ -5563,7 +5563,7 @@
         function generateSalesPDFContent(sales) {
             let content = `REPORTE DETALLADO DE VENTAS\n\n`;
             content += `Total de ventas: ${sales.length}\n`;
-            content += `Valor total: ${formatCurrency(sales.reduce((sum, sale) => sum + sale.total, 0))}\n\n`;
+            content += `Valor total: ${formatCurrency(sales.reduce((sum, sale) => sum + (parseFloat(sale.total) || 0), 0))}\n\n`;
 
             content += `DETALLE DE VENTAS:\n`;
             content += `Fecha\t\tFactura\t\tCliente\t\tTotal\t\tPago\n`;
@@ -5579,7 +5579,7 @@
         function generateExpensesPDFContent(expenses) {
             let content = `REPORTE DETALLADO DE GASTOS\n\n`;
             content += `Total de gastos: ${expenses.length}\n`;
-            content += `Valor total: ${formatCurrency(expenses.reduce((sum, expense) => sum + expense.amount, 0))}\n\n`;
+            content += `Valor total: ${formatCurrency(expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0))}\n\n`;
 
             content += `DETALLE DE GASTOS:\n`;
             content += `Fecha\t\tDescripción\t\tCategoría\t\tMonto\t\tUsuario\n`;
@@ -5595,7 +5595,7 @@
         function generateRestocksPDFContent(restocks) {
             let content = `REPORTE DETALLADO DE SURTIDOS\n\n`;
             content += `Total de surtidos: ${restocks.length}\n`;
-            content += `Valor total: ${formatCurrency(restocks.reduce((sum, restock) => sum + restock.totalValue, 0))}\n\n`;
+            content += `Valor total: ${formatCurrency(restocks.reduce((sum, restock) => sum + (parseFloat(restock.totalValue) || 0), 0))}\n\n`;
 
             content += `DETALLE DE SURTIDOS:\n`;
             content += `Fecha\t\tProducto\t\tReferencia\t\tCantidad\t\tValor\t\tUsuario\n`;
@@ -5611,7 +5611,7 @@
         function generateWarrantiesPDFContent(warranties) {
             let content = `REPORTE DETALLADO DE GARANTÍAS\n\n`;
             content += `Total de garantías: ${warranties.length}\n`;
-            content += `Costo total: ${formatCurrency(warranties.reduce((sum, warranty) => sum + (warranty.totalCost || 0), 0))}\n\n`;
+            content += `Costo total: ${formatCurrency(warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0))}\n\n`;
 
             content += `DETALLE DE GARANTÍAS:\n`;
             content += `Fecha\t\tVenta ID\t\tCliente\t\tMotivo\t\tCosto\t\tEstado\n`;
@@ -5625,8 +5625,8 @@
         }
 
         function generateProfitPDFContent(sales, expenses, restocks, warranties) {
-            const salesTotal = sales.reduce((sum, sale) => sum + sale.total, 0);
-            const expensesTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const salesTotal = sales.reduce((sum, sale) => sum + (parseFloat(sale.total) || 0), 0);
+            const expensesTotal = expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
             // CORRECCIÓN: Calcular el COSTO REAL de lo vendido basándose en el purchasePrice de los productos
             const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
@@ -5641,7 +5641,7 @@
                 return sum + saleCost;
             }, 0);
 
-            const warrantiesTotal = warranties.reduce((sum, warranty) => sum + (warranty.totalCost || 0), 0);
+            const warrantiesTotal = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
             const netProfit = salesTotal - expensesTotal - costOfGoodsSold - warrantiesTotal;
 
             let content = `ANÁLISIS DE GANANCIAS DEL MES\n\n`;
