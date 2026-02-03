@@ -23,12 +23,15 @@ if ($method === 'GET') {
         
         if ($month !== null && $year !== null) {
             $month = intval($month) + 1;
-            $sql .= " WHERE MONTH(restock_date) = :month AND YEAR(restock_date) = :year";
+            // Usar alias r para restocks
+            $sql = "SELECT r.*, p.purchase_price FROM restocks r LEFT JOIN products p ON r.product_ref = p.reference WHERE MONTH(r.restock_date) = :month AND YEAR(r.restock_date) = :year";
             $params[':month'] = $month;
             $params[':year'] = $year;
+        } else {
+             $sql = "SELECT r.*, p.purchase_price FROM restocks r LEFT JOIN products p ON r.product_ref = p.reference";
         }
         
-        $sql .= " ORDER BY restock_date DESC";
+        $sql .= " ORDER BY r.restock_date DESC";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
@@ -40,6 +43,11 @@ if ($method === 'GET') {
             $restock['productName'] = $restock['product_name'];
             $restock['productId'] = $restock['product_ref'];
             $restock['user'] = $restock['username'];
+            
+            // Calcular valor total basado en precio de compra actual
+            $purchasePrice = (float)($restock['purchase_price'] ?? 0);
+            $restock['purchasePrice'] = $purchasePrice;
+            $restock['totalValue'] = $restock['quantity'] * $purchasePrice;
         }
         
         echo json_encode($restocks);
