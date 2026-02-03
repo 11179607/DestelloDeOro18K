@@ -275,13 +275,19 @@ if ($method === 'GET') {
         $oldStatus = $sale['status'];
         $newStatus = $data->status ?? 'completed';
 
-        // 2. Preparar valores (usar los nuevos si vienen, o los viejos)
         // Calcular susbtotal actual: Total - Delivery + Discount
         $currentSubtotal = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'];
         
         $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : 0;
-        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : $currentSubtotal; 
         
+        // Validación estricta: Si subtotal es 0 o no viene, usar actual.
+        // El subtotal de una venta nunca debería ser 0.
+        $incomingSubtotal = isset($data->subtotal) ? (float)$data->subtotal : 0;
+        $subtotal = ($incomingSubtotal > 0) ? $incomingSubtotal : $currentSubtotal;
+        
+        // Para delivery y descuento permitimos 0 si el usuario lo pone explícitamente, 
+        // pero tendríamos que distinguir entre 0 intencional y 0 por omisión si fuera posible.
+        // Asumimos que la lógica isset funciona, pero mejor usamos el valor actual si no viene definido.
         $deliveryCost = isset($data->deliveryCost) ? (float)$data->deliveryCost : (float)$sale['delivery_cost'];
         $discount = isset($data->discount) ? (float)$data->discount : (float)$sale['discount'];
         
