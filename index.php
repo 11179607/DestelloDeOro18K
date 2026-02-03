@@ -430,16 +430,15 @@
 
         /* Header */
         .main-header {
-            background: transparent; /* Totalmente transparente */
-            backdrop-filter: none;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
             color: var(--white);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: none;
-            border-bottom: none;
-            text-shadow: 2px 2px 4px #000000; /* Sombra para que el texto se lea */
+            box-shadow: var(--shadow-medium);
+            border-bottom: 2px solid var(--gold-primary);
+            text-shadow: none;
         }
 
         .header-content {
@@ -561,14 +560,13 @@
 
         /* Navegación */
         .main-nav {
-            background: transparent; /* Totalmente transparente */
-            backdrop-filter: none;
+            background: var(--white);
             padding: 0.75rem 0;
             position: sticky;
             top: 65px;
             z-index: 999;
-            box-shadow: none;
-            border-bottom: none;
+            box-shadow: var(--shadow-light);
+            border-bottom: 1px solid var(--medium-gray);
         }
 
         .nav-container {
@@ -583,14 +581,13 @@
         }
 
         .nav-btn {
-            background: rgba(255, 255, 255, 0.1); /* Ligeramente visible al interactuar */
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: var(--white);
+            border: 2px solid var(--medium-gray);
             padding: 10px 20px;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-weight: 600;
-            color: #ffffff; /* Texto blanco */
-            text-shadow: 1px 1px 3px #000000; /* Sombra para legibilidad */
+            font-weight: 500;
+            color: var(--text-dark);
             transition: var(--transition);
             display: flex;
             align-items: center;
@@ -599,6 +596,7 @@
             justify-content: center;
             font-size: 0.85rem;
             white-space: nowrap;
+            text-shadow: none;
         }
 
         @media (max-width: 768px) {
