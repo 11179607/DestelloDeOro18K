@@ -120,14 +120,14 @@
         }
 
         .login-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: var(--radius-lg);
+            background: transparent;
+            backdrop-filter: none;
+            border-radius: 0;
             padding: 2rem;
             width: 100%;
             max-width: 450px;
-            box-shadow: var(--shadow-heavy);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: none;
+            border: none;
             position: relative;
             z-index: 1;
             transition: var(--transition);
@@ -140,8 +140,8 @@
         }
 
         .login-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: none;
+            box-shadow: none;
         }
 
         .login-header {
@@ -154,21 +154,35 @@
             color: var(--gold-primary);
             margin-bottom: 0.75rem;
             display: block;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .login-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 600;
-            color: var(--gold-dark);
+            color: #ffffff;
             margin-bottom: 0.5rem;
             letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .login-header p {
-            color: #666;
+            color: #ffffff;
             font-size: 0.9rem;
             font-weight: 300;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Ajustes para legibilidad en login transparente */
+        .login-box h3 {
+            color: #ffffff !important;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+        
+        .login-box label {
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
 
         /* NUEVO: Estilos para formularios de usuario */
@@ -1716,13 +1730,6 @@
                     <button type="button" id="showPasswordChange" class="btn btn-sm btn-info"
                         style="padding: 8px 15px; font-size: 0.85rem;">
                         <i class="fas fa-key"></i> Cambiar Contraseña
-                    </button>
-                </div>
-
-                <div style="text-align: center; margin-top: 0.5rem;">
-                    <button type="button" id="forgotPasswordBtn" class="btn btn-sm"
-                        style="padding: 8px 15px; font-size: 0.85rem; background: none; border: 1px solid var(--gold-primary); color: var(--gold-dark);">
-                        <i class="fas fa-question-circle"></i> ¿Olvidó su contraseña?
                     </button>
                 </div>
             </div>
