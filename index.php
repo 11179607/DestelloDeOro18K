@@ -8303,6 +8303,13 @@
 
         // Inicializar pasos del login
         function initLoginSteps() {
+            // Asegurar que la app esté oculta y login visible
+            const appScreen = document.getElementById('appScreen');
+            if (appScreen) appScreen.style.display = 'none';
+            
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) loginScreen.style.display = 'flex';
+
             // Mostrar solo el primer paso (selección de rol)
             showLoginStep('roleSelection');
         }
@@ -9143,22 +9150,19 @@
                         displayName: data.user.name,
                         name: data.user.name
                     };
+                    // Actualizamos localStorage solo para referencia
                     localStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
                     showApp();
                 } else {
-                    // Solo si no hay sesión, mostramos el login
+                    // Si no hay sesión válida en servidor, aseguro limpieza y muestro login
+                    localStorage.removeItem('destelloOroCurrentUser');
                     initLoginSteps();
                 }
             } catch (error) {
                 console.error('Error verificando sesión:', error);
-                // Si falla el servidor, intentamos ver si hay algo local o mostramos login
-                const savedUser = localStorage.getItem('destelloOroCurrentUser');
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    showApp();
-                } else {
-                    initLoginSteps();
-                }
+                // Si falla la verificación, ir al login. NO usar localStorage para auth.
+                localStorage.removeItem('destelloOroCurrentUser');
+                initLoginSteps();
             }
         }
 
