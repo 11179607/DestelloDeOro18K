@@ -120,13 +120,14 @@
         }
 
         .login-box {
-            background: #ffffff;
-            border-radius: var(--radius-lg);
+            background: transparent;
+            backdrop-filter: none;
+            border-radius: 0;
             padding: 2rem;
             width: 100%;
             max-width: 450px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: none;
+            border: none;
             position: relative;
             z-index: 1;
             transition: var(--transition);
@@ -139,8 +140,8 @@
         }
 
         .login-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            transform: none;
+            box-shadow: none;
         }
 
         .login-header {
@@ -153,56 +154,65 @@
             color: var(--gold-primary);
             margin-bottom: 0.75rem;
             display: block;
-            text-shadow: none;
+            text-shadow: 2px 2px 4px #000000;
         }
 
         .login-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 600;
-            color: var(--gold-dark);
+            color: #ffffff;
             margin-bottom: 0.5rem;
             letter-spacing: 1px;
-            text-shadow: none;
+            text-shadow: 2px 2px 4px #000000;
         }
 
         .login-header p {
-            color: #666;
+            color: #ffffff;
             font-size: 0.9rem;
             font-weight: 300;
-            text-shadow: none;
+            text-shadow: 1px 1px 3px #000000;
         }
 
-        /* Ajustes textos login fondo blanco */
+        /* Ajustes textos login fondo transparente - LEGIBILIDAD TOTAL */
         .login-box h3 {
-            color: var(--gold-dark) !important;
-            text-shadow: none;
+            color: #ffffff !important;
+            text-shadow: 2px 2px 4px #000000 !important;
         }
         
         .login-box label {
-            color: #333;
-            text-shadow: none;
+            color: #ffffff !important;
+            text-shadow: 1px 1px 3px #000000 !important;
             font-weight: 600;
+            font-size: 1rem; /* Un poco más grande para leer mejor */
         }
 
-        .login-box small, .login-box p {
-            color: #666 !important;
-            text-shadow: none;
+        .login-box small, .login-box p, .login-box .form-text {
+            color: #f0f0f0 !important;
+            text-shadow: 1px 1px 2px #000000 !important;
+            font-weight: 400;
         }
 
-        /* Inputs transparentes estilo material */
+        /* Inputs transparentes estilo material - Texto blanco */
         .login-box .form-control {
             background: transparent;
             border: none;
-            border-bottom: 2px solid var(--medium-gray);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.7);
             border-radius: 0;
             padding: 10px 0;
+            color: #ffffff !important; /* Texto que escribe el usuario en blanco */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .login-box .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
         
         .login-box .form-control:focus {
             box-shadow: none;
             border-color: var(--gold-primary);
             background: transparent;
+            outline: none;
         }
 
         /* NUEVO: Estilos para formularios de usuario */
