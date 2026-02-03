@@ -63,6 +63,29 @@
             overflow-x: hidden;
         }
 
+        /* Scrollbar transparente y estilizada */
+        ::-webkit-scrollbar {
+            width: 10px;
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.5); 
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.8); 
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
         /* Elementos decorativos de joyería */
         .jewelry-decoration {
             position: fixed;
@@ -407,15 +430,16 @@
 
         /* Header */
         .main-header {
-            background: rgba(26, 26, 26, 0.85); /* Fondo oscuro semitransparente para legibilidad */
-            backdrop-filter: blur(5px);
+            background: transparent; /* Totalmente transparente */
+            backdrop-filter: none;
             color: var(--white);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+            box-shadow: none;
+            border-bottom: none;
+            text-shadow: 2px 2px 4px #000000; /* Sombra para que el texto se lea */
         }
 
         .header-content {
@@ -537,14 +561,14 @@
 
         /* Navegación */
         .main-nav {
-            background: rgba(255, 255, 255, 0.9); /* Blanco semitransparente */
-            backdrop-filter: blur(5px);
+            background: transparent; /* Totalmente transparente */
+            backdrop-filter: none;
             padding: 0.75rem 0;
             position: sticky;
             top: 65px;
             z-index: 999;
-            box-shadow: var(--shadow-light);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            box-shadow: none;
+            border-bottom: none;
         }
 
         .nav-container {
@@ -559,13 +583,14 @@
         }
 
         .nav-btn {
-            background: transparent; /* Botones transparentes */
-            border: 2px solid var(--medium-gray);
+            background: rgba(255, 255, 255, 0.1); /* Ligeramente visible al interactuar */
+            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 10px 20px;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-weight: 500;
-            color: var(--text-dark);
+            font-weight: 600;
+            color: #ffffff; /* Texto blanco */
+            text-shadow: 1px 1px 3px #000000; /* Sombra para legibilidad */
             transition: var(--transition);
             display: flex;
             align-items: center;
