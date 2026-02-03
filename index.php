@@ -2733,7 +2733,6 @@
                     </div>
                 </div>
 
-                </div>
 
                 <!-- Vista de Auditoría Admin (Oculta por defecto) -->
                 <div id="auditLogsView" class="history-details-container" style="display: none;">
@@ -8308,7 +8307,16 @@
             if (appScreen) appScreen.style.display = 'none';
             
             const loginScreen = document.getElementById('loginScreen');
-            if (loginScreen) loginScreen.style.display = 'flex';
+            if (loginScreen) {
+                loginScreen.style.display = 'flex';
+                // Asegurar que cubra toda la pantalla si hay scroll
+                loginScreen.style.minHeight = '100vh';
+            }
+
+            // Ocultar cualquier elemento admin-only por precaución adicional
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = 'none';
+            });
 
             // Mostrar solo el primer paso (selección de rol)
             showLoginStep('roleSelection');
