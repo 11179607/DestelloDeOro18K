@@ -6200,20 +6200,7 @@
                 tableBody.appendChild(row);
             });
 
-            // Actualizar estadísticas
-            statsContainer.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-clock" style="color: var(--warning);"></i>
-                    </div>
-                    <div class="stat-value">${pendingCount}</div>
-                    <div class="stat-label">Pendientes</div>
-                    <small>Por procesar</small>
-                </div>
-                <!-- ... other cards ... -->
-            `;
-            
-            // Re-renderizar las estadísticas completas (resumido en la implementación real)
+            // Actualizar estadísticas 
             renderWarrantyStats(pendingCount, inProcessCount, completedCount, totalCost, totalIncrement);
 
             } catch (error) {
