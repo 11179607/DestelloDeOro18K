@@ -260,8 +260,8 @@ if ($method === 'GET') {
 
     try {
         // 1. Obtener la venta actual para tener los valores base
-        // El frontend puede enviar el ID de la base de datos o el número de factura para identificar la venta
-        $stmt = $conn->prepare("SELECT id, delivery_cost, discount, status, invoice_number FROM sales WHERE id = :id OR invoice_number = :id");
+        // Incluimos 'total' para poder calcular el subtotal inverso si es necesario
+        $stmt = $conn->prepare("SELECT id, delivery_cost, discount, status, invoice_number, total FROM sales WHERE id = :id OR invoice_number = :id");
         $stmt->execute([':id' => $data->id]);
         $sale = $stmt->fetch();
 
@@ -276,8 +276,12 @@ if ($method === 'GET') {
         $newStatus = $data->status ?? 'completed';
 
         // 2. Preparar valores (usar los nuevos si vienen, o los viejos)
+        // Calcular susbtotal actual: Total - Delivery + Discount
+        $currentSubtotal = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'];
+        
         $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : 0;
-        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : 0; 
+        $subtotal = isset($data->subtotal) ? (float)$data->subtotal : $currentSubtotal; 
+        
         $deliveryCost = isset($data->deliveryCost) ? (float)$data->deliveryCost : (float)$sale['delivery_cost'];
         $discount = isset($data->discount) ? (float)$data->discount : (float)$sale['discount'];
         
