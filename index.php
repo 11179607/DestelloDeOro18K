@@ -2671,6 +2671,7 @@
                             <option value="pending">Pendientes</option>
                             <option value="profit">Ganancias</option>
                             <option value="admin_audit">Movimientos Admin</option>
+                            <option value="investment">Inversión (Gastos + Costos)</option>
                         </select>
                         <button id="refreshHistory" class="btn btn-info">
                             <i class="fas fa-sync-alt"></i> Actualizar
@@ -3827,12 +3828,14 @@
 
             try {
                 // Obtener datos filtrados por mes/año desde el servidor
-                const [sales, expenses, restocks, warranties, pendingSales] = await Promise.all([
+                // Agregamos products para el cálculo de inversión inicial
+                const [sales, expenses, restocks, warranties, pendingSales, products] = await Promise.all([
                     fetch(`api/sales.php${queryParams}`).then(r => r.json()),
                     fetch(`api/expenses.php${queryParams}`).then(r => r.json()),
                     fetch(`api/restocks.php${queryParams}`).then(r => r.json()),
                     fetch(`api/warranties.php${queryParams}`).then(r => r.json()),
-                    fetch(`api/pending_sales.php${queryParams}`).then(r => r.json())
+                    fetch(`api/pending_sales.php${queryParams}`).then(r => r.json()),
+                    fetch(`api/products.php`).then(r => r.json()) // Products no tiene filtro de fecha en backend usualmente, manejaremos en JS
                 ]);
 
                 // Actualizar caché para compatibilidad
@@ -3841,6 +3844,7 @@
                 localStorage.setItem('destelloOroRestocks', JSON.stringify(restocks));
                 localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
                 localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+                localStorage.setItem('destelloOroProducts', JSON.stringify(products));
 
                 let fSales = sales;
                 let fExpenses = expenses;
@@ -3848,45 +3852,162 @@
                 let fWarranties = warranties;
                 let fPending = pendingSales;
 
-                if (currentHistoryType !== 'all') {
-                    if (currentHistoryType === 'sales') {
-                        fExpenses = []; fRestocks = []; fWarranties = []; fPending = [];
-                    } else if (currentHistoryType === 'expenses') {
-                        fSales = []; fRestocks = []; fWarranties = []; fPending = [];
-                    } else if (currentHistoryType === 'restocks') {
-                        fSales = []; fExpenses = []; fWarranties = []; fPending = [];
-                    } else if (currentHistoryType === 'warranties') {
-                        fSales = []; fExpenses = []; fRestocks = []; fPending = [];
-                    } else if (currentHistoryType === 'pending') {
-                        fSales = []; fExpenses = []; fRestocks = []; fWarranties = [];
-                    }
-                }
-
                 cardsContainer.innerHTML = '';
 
-                if (fSales.length > 0) createHistoryCard('sales', fSales);
-                if (fExpenses.length > 0) createHistoryCard('expenses', fExpenses);
-                if (fRestocks.length > 0) createHistoryCard('restocks', fRestocks);
-                if (fWarranties.length > 0) createHistoryCard('warranties', fWarranties);
-                if (fPending.length > 0) createHistoryCard('pending', fPending);
+                if (currentHistoryType === 'investment') {
+                    // Vista consolidada de Inversión
+                    createInvestmentCard(expenses, restocks, warranties, products);
+                } else {
+                    // Vista normal
+                    if (currentHistoryType !== 'all') {
+                        if (currentHistoryType === 'sales') {
+                            fExpenses = []; fRestocks = []; fWarranties = []; fPending = [];
+                        } else if (currentHistoryType === 'expenses') {
+                            fSales = []; fRestocks = []; fWarranties = []; fPending = [];
+                        } else if (currentHistoryType === 'restocks') {
+                            fSales = []; fExpenses = []; fWarranties = []; fPending = [];
+                        } else if (currentHistoryType === 'warranties') {
+                            fSales = []; fExpenses = []; fRestocks = []; fPending = [];
+                        } else if (currentHistoryType === 'pending') {
+                            fSales = []; fExpenses = []; fRestocks = []; fWarranties = [];
+                        } else if (currentHistoryType === 'profit') {
+                             // Solo ganancias, ocultar resto? O mostrar profit card. Profit card se muestra abajo.
+                             fSales = []; fExpenses = []; fRestocks = []; fWarranties = []; fPending = [];
+                        }
+                    }
 
-                if (fSales.length > 0) createProfitHistoryCard(fSales);
+                    if (fSales.length > 0) createHistoryCard('sales', fSales);
+                    if (fExpenses.length > 0) createHistoryCard('expenses', fExpenses);
+                    if (fRestocks.length > 0) createHistoryCard('restocks', fRestocks);
+                    if (fWarranties.length > 0) createHistoryCard('warranties', fWarranties);
+                    if (fPending.length > 0) createHistoryCard('pending', fPending);
+
+                    // Tarjeta de ganancias solo si estamos en 'all' o explícitamente 'profit' o 'sales'
+                    if (currentHistoryType === 'all' || currentHistoryType === 'profit' || currentHistoryType === 'sales') {
+                        if (sales.length > 0) createProfitHistoryCard(sales);
+                    }
+                }
 
                 if (cardsContainer.innerHTML === '') {
                     cardsContainer.innerHTML = `
                         <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666;">
                             <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; color: var(--medium-gray);"></i>
                             <h3>No hay movimientos registrados</h3>
-                            <p>Cuando realices operaciones en el sistema, aparecerán aquí.</p>
+                            <p>Cuando realices operaciones, aparecerán aquí.</p>
                         </div>
                     `;
                 }
 
-                loadMonthlySummary();
+                if (currentHistoryType !== 'investment') {
+                     loadMonthlySummary();
+                }
 
             } catch (error) {
                 console.error('Error cargando historial:', error);
             }
+        }
+
+        // Crear tarjeta de Inversión Consolidada
+        function createInvestmentCard(expenses, restocks, warranties, products) {
+            const cardsContainer = document.getElementById('historyCardsView');
+            
+            // 1. Procesar Gastos
+            let totalInvestment = 0;
+            let itemsCount = 0;
+
+            // Gastos
+            const expenseTotal = expenses.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+            totalInvestment += expenseTotal;
+            itemsCount += expenses.length;
+
+            // Surtidos
+            const restockTotal = restocks.reduce((sum, item) => sum + (parseFloat(item.totalValue) || 0), 0);
+            totalInvestment += restockTotal;
+            itemsCount += restocks.length;
+
+            // Garantías (Solo envíos asumidos por admin)
+            // Asumimos shippingValue es lo que paga el admin.
+            const warrantyTotal = warranties.reduce((sum, item) => sum + (parseFloat(item.shipping_value || item.shippingValue) || 0), 0);
+            totalInvestment += warrantyTotal;
+            // Solo contamos garantías que tuvieron costo
+            const warrantiesWithCost = warranties.filter(w => (parseFloat(w.shipping_value || w.shippingValue) || 0) > 0).length;
+            itemsCount += warrantiesWithCost;
+
+            // Productos Nuevos (Inventario Inicial)
+            // Filtramos productos creados en el mes actual (si filtro aplicado) o todos.
+            // Problema: products API devuelve TODOS. Debemos filtrar por fecha si el usuario está filtrando por mes.
+            // currentMonth, currentYear.
+            
+            // Si products tienen 'date' (entry_date).
+            const filteredProducts = products.filter(p => {
+                const pDate = new Date(p.date || p.created_at);
+                 // Si p.date es null, asumimos hoy? No, ignoremos o asumimos viejo.
+                 if (!p.date) return false;
+                 return pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear;
+            });
+
+            // Calculamos inversión inicial: quantity * purchasePrice
+            // Nota: Quantity es la actual. Es una limitación.
+            const productsTotal = filteredProducts.reduce((sum, p) => sum + ((parseFloat(p.quantity) || 0) * (parseFloat(p.purchasePrice) || 0)), 0);
+            totalInvestment += productsTotal;
+            itemsCount += filteredProducts.length;
+
+            const card = document.createElement('div');
+            card.className = 'history-card';
+            card.dataset.type = 'investment';
+            // Estilo personalizado para inversión (púrpura o similar)
+            
+            card.innerHTML = `
+                <div class="history-card-header">
+                    <div class="history-card-icon" style="background: #e1bee7; color: #8e24aa;">
+                        <i class="fas fa-search-dollar"></i>
+                    </div>
+                    <div class="history-card-title">Inversión Total</div>
+                </div>
+                
+                <div class="history-card-count">${itemsCount} movimientos</div>
+                
+                <div class="history-card-details">
+                    <div class="history-card-detail">
+                        <span>Gastos:</span>
+                        <span class="history-card-detail-value">${formatCurrency(expenseTotal)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Surtidos:</span>
+                        <span class="history-card-detail-value">${formatCurrency(restockTotal)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Productos Nuevos:</span>
+                        <span class="history-card-detail-value">${formatCurrency(productsTotal)}</span>
+                    </div>
+                     <div class="history-card-detail">
+                        <span>Envíos Garantía:</span>
+                        <span class="history-card-detail-value">${formatCurrency(warrantyTotal)}</span>
+                    </div>
+                    <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
+                        <span style="font-weight: bold;">TOTAL:</span>
+                        <span class="history-card-detail-value" style="color: #8e24aa; font-weight: bold;">${formatCurrency(totalInvestment)}</span>
+                    </div>
+                </div>
+                
+                <div class="history-card-footer">
+                    <div class="history-card-user">
+                        <i class="fas fa-chart-pie history-card-user-icon"></i>
+                        <span>Análisis de Costos</span>
+                    </div>
+                     <div class="history-card-date">
+                        <i class="fas fa-calendar history-card-date-icon"></i>
+                        <span>Mes Actual</span>
+                    </div>
+                </div>
+            `;
+
+            // Click para ver detalles
+            card.addEventListener('click', function () {
+                showHistoryDetails('investment');
+            });
+
+            cardsContainer.appendChild(card);
         }
 
         // Crear tarjeta de ganancias con opciones (detal, mayorista, total)
@@ -4212,9 +4333,14 @@
             detailsView.classList.add('active');
 
             // Configurar título
-            const iconInfo = historyIcons[type];
-            document.getElementById('detailsTitle').textContent = `Detalles de ${iconInfo.title}`;
-            document.getElementById('detailsTableTitle').textContent = iconInfo.title;
+            if (type === 'investment') {
+                 document.getElementById('detailsTitle').textContent = 'Detalles de Inversión';
+                 document.getElementById('detailsTableTitle').textContent = 'Inversión';
+            } else {
+                const iconInfo = historyIcons[type];
+                document.getElementById('detailsTitle').textContent = `Detalles de ${iconInfo.title}`;
+                document.getElementById('detailsTableTitle').textContent = iconInfo.title;
+            }
 
             // Cargar estadísticas
             loadHistoryDetailsStats(type);
@@ -4232,30 +4358,73 @@
 
             // Obtener datos
             let data = [];
-            switch (type) {
-                case 'sales':
-                    data = JSON.parse(localStorage.getItem('destelloOroSales'));
-                    break;
-                case 'expenses':
-                    data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                    break;
-                case 'restocks':
-                    data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
-                    break;
-                case 'warranties':
-                    data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                    break;
-                case 'pending':
-                    data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
-                    break;
+            let totalValue = 0;
+
+            if (type === 'investment') {
+                const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
+                const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
+                const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+                const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                
+                // Filtrar productos por fecha actual (mes/año seleccionado globalmente)
+                const fProducts = products.filter(p => {
+                    const d = new Date(p.date || p.created_at);
+                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                });
+
+                // Combinar
+                data = [
+                    ...expenses.map(d => ({...d, val: parseFloat(d.amount)||0})),
+                    ...restocks.map(d => ({...d, val: parseFloat(d.totalValue)||0})),
+                    ...warranties.map(d => ({...d, val: parseFloat(d.shipping_value||d.shippingValue)||0})).filter(d => d.val > 0),
+                    ...fProducts.map(d => ({...d, val: (parseFloat(d.quantity)||0)*(parseFloat(d.purchasePrice)||0)}))
+                ];
+
+                totalValue = data.reduce((sum, item) => sum + item.val, 0);
+
+            } else {
+                switch (type) {
+                    case 'sales':
+                        data = JSON.parse(localStorage.getItem('destelloOroSales'));
+                        break;
+                    case 'expenses':
+                        data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                        break;
+                    case 'restocks':
+                        data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                        break;
+                    case 'warranties':
+                        data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                        break;
+                    case 'pending':
+                        data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+                        break;
+                }
+
+                if (data) {
+                    data.forEach(item => {
+                        // Calcular valor total
+                        if (type === 'sales') {
+                            totalValue += item.total || 0;
+                        } else if (type === 'expenses') {
+                            totalValue += item.amount || 0;
+                        } else if (type === 'restocks') {
+                            totalValue += item.totalValue || 0;
+                        } else if (type === 'warranties') {
+                            totalValue += item.totalCost || 0;
+                        } else if (type === 'pending') {
+                            totalValue += item.total || 0;
+                        }
+                    });
+                } else {
+                    data = [];
+                }
             }
 
             // Calcular estadísticas
-            let totalValue = 0;
             let todayCount = 0;
             let thisWeekCount = 0;
-            let userCount = {};
-
+            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -4265,20 +4434,6 @@
 
             data.forEach(item => {
                 const itemDate = new Date(item.date || item.createdAt);
-
-                // Calcular valor total
-                if (type === 'sales') {
-                    totalValue += item.total || 0;
-                } else if (type === 'expenses') {
-                    totalValue += item.amount || 0;
-                } else if (type === 'restocks') {
-                    totalValue += item.totalValue || 0;
-                } else if (type === 'warranties') {
-                    totalValue += item.totalCost || 0;
-                } else if (type === 'pending') {
-                    totalValue += item.total || 0;
-                }
-
                 // Contar por fecha
                 if (itemDate >= today) {
                     todayCount++;
@@ -4286,16 +4441,12 @@
                 if (itemDate >= oneWeekAgo) {
                     thisWeekCount++;
                 }
-
-                // Contar usuarios
-                const user = item.user || item.createdBy || 'desconocido';
-                userCount[user] = (userCount[user] || 0) + 1;
             });
 
             // Crear estadísticas
             statsContainer.innerHTML = `
                 <div class="history-details-stat">
-                    <div style="font-size: 0.9rem; color: #666;">Total</div>
+                    <div style="font-size: 0.9rem; color: #666;">Total Movimientos</div>
                     <div class="history-details-stat-value">${data.length}</div>
                     <div style="font-size: 0.8rem; color: var(--gold-dark);">registros</div>
                 </div>
@@ -4324,9 +4475,9 @@
 
             // Si el tipo es 'all' (por filtro global), intentar determinar cuál tabla mostrar o usar 'sales' por defecto
             if (type === 'all') {
-                // Si la tabla ya tiene un título, mantenemos ese tipo. Si no, ventas.
                 const currentTitle = document.getElementById('detailsTableTitle').textContent.toLowerCase();
-                if (currentTitle.includes('gasto')) type = 'expenses';
+                 if (currentTitle.includes('inversión')) type = 'investment'; // Nuevo
+                 else if (currentTitle.includes('gasto')) type = 'expenses';
                 else if (currentTitle.includes('surtido')) type = 'restocks';
                 else if (currentTitle.includes('garantía')) type = 'warranties';
                 else if (currentTitle.includes('pendiente')) type = 'pending';
@@ -4335,284 +4486,376 @@
 
             // Obtener datos
             let data = [];
-            switch (type) {
-                case 'sales':
-                    data = JSON.parse(localStorage.getItem('destelloOroSales'));
-                    break;
-                case 'expenses':
-                    data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                    break;
-                case 'restocks':
-                    data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
-                    break;
-                case 'warranties':
-                    data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                    break;
-                case 'pending':
-                    data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
-                    break;
+            if (type === 'investment') {
+                 const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
+                 const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
+                 const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+                 const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                 
+                 // Filtro de productos
+                 const fProducts = products.filter(p => {
+                    const d = new Date(p.date || p.created_at);
+                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                 });
+ 
+                 // Combinación normalizada
+                 data = [
+                     ...expenses.map(e => ({
+                         date: e.date, 
+                         type: 'Gasto', 
+                         concept: e.description, 
+                         val: parseFloat(e.amount)||0, 
+                         user: e.user,
+                         original: e,
+                         originType: 'expenses'
+                     })),
+                     ...restocks.map(r => ({
+                         date: r.date, 
+                         type: 'Surtido', 
+                         concept: `${r.productName} (x${r.quantity})`, 
+                         val: parseFloat(r.totalValue)||0, 
+                         user: r.user,
+                         original: r,
+                         originType: 'restocks'
+                     })),
+                     ...warranties.filter(w=> (parseFloat(w.shipping_value||w.shippingValue)||0) > 0).map(w => ({
+                         date: w.created_at || w.createdAt, 
+                         type: 'Envío Garantía', 
+                         concept: `Garantía #${w.id} - ${w.customerName}`, 
+                         val: parseFloat(w.shipping_value||w.shippingValue)||0, 
+                         user: w.user || w.createdBy,
+                         original: w,
+                         originType: 'warranties'
+                     })),
+                     ...fProducts.map(p => ({
+                         date: p.date || p.created_at, 
+                         type: 'Producto Nuevo', 
+                         concept: `${p.name} (Inicial: ${p.quantity})`, 
+                         val: (parseFloat(p.quantity)||0)*(parseFloat(p.purchasePrice)||0), 
+                         user: p.addedBy || 'admin',
+                         original: p,
+                         originType: 'product'
+                     }))
+                 ];
+            } else {
+                switch (type) {
+                    case 'sales':
+                        data = JSON.parse(localStorage.getItem('destelloOroSales'));
+                        break;
+                    case 'expenses':
+                        data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                        break;
+                    case 'restocks':
+                        data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                        break;
+                    case 'warranties':
+                        data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                        break;
+                    case 'pending':
+                        data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+                        break;
+                }
             }
+
+            if (!data) data = [];
 
             // Ordenar por fecha (más reciente primero)
             data.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || b.createdAt));
 
             // Configurar encabezados según el tipo
             let headers = '';
-            switch (type) {
-                case 'sales':
-                    headers = `
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Factura</th>
-                            <th>Cliente</th>
-                            <th>Productos</th>
-                            <th>Total</th>
-                            <th>Incremento Garantía</th>
-                            <th>Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    `;
-                    break;
-                case 'expenses':
-                    headers = `
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Descripción</th>
-                            <th>Valor</th>
-                            <th>Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    `;
-                    break;
-                case 'restocks':
-                    headers = `
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Valor Total</th>
-                            <th>Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    `;
-                    break;
-                case 'warranties':
-                    headers = `
-                        <tr>
-                            <th>Fecha</th>
-                            <th>ID Venta</th>
-                            <th>Cliente</th>
-                            <th>Motivo</th>
-                            <th>Costo</th>
-                            <th>Estado</th>
-                            <th>Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    `;
-                    break;
-                case 'pending':
-                    headers = `
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Factura</th>
-                            <th>Cliente</th>
-                            <th>Total</th>
-                            <th>Método Pago</th>
-                            <th>Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    `;
-                    break;
+            if (type === 'investment') {
+                headers = `
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Concepto / Descripción</th>
+                        <th>Valor</th>
+                        <th>Usuario</th>
+                        <th>Acciones</th>
+                    </tr>
+                `;
+            } else {
+                switch (type) {
+                    case 'sales':
+                        headers = `
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Factura</th>
+                                <th>Cliente</th>
+                                <th>Productos</th>
+                                <th>Total</th>
+                                <th>Incremento Garantía</th>
+                                <th>Usuario</th>
+                                <th>Acciones</th>
+                            </tr>
+                        `;
+                        break;
+                    case 'expenses':
+                        headers = `
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Valor</th>
+                                <th>Usuario</th>
+                                <th>Acciones</th>
+                            </tr>
+                        `;
+                        break;
+                    case 'restocks':
+                        headers = `
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Valor Total</th>
+                                <th>Usuario</th>
+                                <th>Acciones</th>
+                            </tr>
+                        `;
+                        break;
+                    case 'warranties':
+                        headers = `
+                            <tr>
+                                <th>Fecha</th>
+                                <th>ID Venta</th>
+                                <th>Cliente</th>
+                                <th>Motivo</th>
+                                <th>Costo</th>
+                                <th>Estado</th>
+                                <th>Usuario</th>
+                                <th>Acciones</th>
+                            </tr>
+                        `;
+                        break;
+                    case 'pending':
+                        headers = `
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Factura</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>Método Pago</th>
+                                <th>Usuario</th>
+                                <th>Acciones</th>
+                            </tr>
+                        `;
+                        break;
+                }
             }
 
             tableHead.innerHTML = headers;
             tableBody.innerHTML = '';
 
-            // Agregar filas según el tipo
+            // Agregar filas
             data.forEach(item => {
                 let row = '';
                 const itemDate = item.date || item.createdAt;
                 const user = item.user || item.createdBy || 'desconocido';
 
-                switch (type) {
-                    case 'sales':
-                        const productCount = item.products ? item.products.length : 1;
-                        const productNames = item.products ?
-                            item.products.map(p => p.productName).join(', ') :
-                            (item.productName || 'Producto');
+                if (type === 'investment') {
+                     row = `
+                        <tr>
+                            <td>${formatDate(itemDate)}</td>
+                            <td><span class="badge badge-info">${item.type}</span></td>
+                            <td>${item.concept}</td>
+                            <td><strong>${formatCurrency(item.val)}</strong></td>
+                            <td>
+                                <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                    ${getUserName(user)}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 5px;">
+                                    ${item.originType !== 'product' ? `
+                                    <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.original.id}', '${item.originType}')" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    switch (type) {
+                        case 'sales':
+                            const productCount = item.products ? item.products.length : 1;
+                            const productNames = item.products ?
+                                item.products.map(p => p.productName).join(', ') :
+                                (item.productName || 'Producto');
 
-                        row = `
-                            <tr>
-                                <td>${formatDate(itemDate)}</td>
-                                <td><strong>${item.id}</strong></td>
-                                <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
-                                <td>
-                                    <strong>${productCount} producto(s)</strong><br>
-                                    <small>${productNames}</small>
-                                </td>
-                                <td><strong>${formatCurrency(item.total)}</strong></td>
-                                <td><strong>${formatCurrency(item.warrantyIncrement || 0)}</strong></td>
-                                <td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 5px;">
-                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        ${currentUser && currentUser.role === 'admin' ? `
-                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>` : ''}
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        break;
+                            row = `
+                                <tr>
+                                    <td>${formatDate(itemDate)}</td>
+                                    <td><strong>${item.id}</strong></td>
+                                    <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
+                                    <td>
+                                        <strong>${productCount} producto(s)</strong><br>
+                                        <small>${productNames}</small>
+                                    </td>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
+                                    <td><strong>${formatCurrency(item.warrantyIncrement || 0)}</strong></td>
+                                    <td>
+                                        <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                            ${getUserName(user)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            ${currentUser && currentUser.role === 'admin' ? `
+                                            <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>` : ''}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            break;
 
-                    case 'expenses':
-                        row = `
-                            <tr>
-                                <td>${formatDate(itemDate)}</td>
-                                <td>${item.description}</td>
-                                <td><strong>${formatCurrency(item.amount)}</strong></td>
-                                <td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 5px;">
-                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'expenses')" title="Ver">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        ${currentUser && currentUser.role === 'admin' ? `
-                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'expenses')" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'expenses')" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>` : ''}
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        break;
+                        case 'expenses':
+                            row = `
+                                <tr>
+                                    <td>${formatDate(itemDate)}</td>
+                                    <td>${item.description}</td>
+                                    <td><strong>${formatCurrency(item.amount)}</strong></td>
+                                    <td>
+                                        <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                            ${getUserName(user)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'expenses')" title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            ${currentUser && currentUser.role === 'admin' ? `
+                                            <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'expenses')" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'expenses')" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>` : ''}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            break;
 
-                    case 'restocks':
-                        row = `
-                            <tr>
-                                <td>${formatDate(itemDate)}</td>
-                                <td>${item.productName}</td>
-                                <td>${item.quantity}</td>
-                                <td><strong>${formatCurrency(item.totalValue)}</strong></td>
-                                <td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 5px;">
-                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'restocks')" title="Ver">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        ${currentUser && currentUser.role === 'admin' ? `
-                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'restocks')" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'restocks')" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>` : ''}
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        break;
+                        case 'restocks':
+                            row = `
+                                <tr>
+                                    <td>${formatDate(itemDate)}</td>
+                                    <td>${item.productName}</td>
+                                    <td>${item.quantity}</td>
+                                    <td><strong>${formatCurrency(item.totalValue)}</strong></td>
+                                    <td>
+                                        <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                            ${getUserName(user)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'restocks')" title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            ${currentUser && currentUser.role === 'admin' ? `
+                                            <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'restocks')" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'restocks')" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>` : ''}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            break;
 
-                    case 'warranties':
-                        row = `
-                            <tr>
-                                <td>${formatDate(itemDate)}</td>
-                                <td><strong>${item.originalSaleId}</strong></td>
-                                <td>${item.customerName}</td>
-                                <td>${item.warrantyReasonText || item.warrantyReason}</td>
-                                <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
-                                <td>
-                                    <span class="badge ${item.status === 'completed' ? 'badge-success' :
-                                item.status === 'pending' ? 'badge-warning' :
-                                    item.status === 'in_process' ? 'badge-info' : 'badge-danger'}">
-                                        ${getWarrantyStatusText(item.status)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 5px;">
-                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        ${currentUser && currentUser.role === 'admin' ? `
-                                        ${item.status !== 'completed' ? `
-                                        <button class="btn btn-success btn-sm" onclick="completeWarranty('${item.id}')" title="Finalizar Garantía">
-                                            <i class="fas fa-check-circle"></i>
-                                        </button>` : ''}
-                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'warranties')" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>` : ''}
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        break;
+                        case 'warranties':
+                            row = `
+                                <tr>
+                                    <td>${formatDate(itemDate)}</td>
+                                    <td><strong>${item.originalSaleId}</strong></td>
+                                    <td>${item.customerName}</td>
+                                    <td>${item.warrantyReasonText || item.warrantyReason}</td>
+                                    <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
+                                    <td>
+                                        <span class="badge ${item.status === 'completed' ? 'badge-success' :
+                                    item.status === 'pending' ? 'badge-warning' :
+                                        item.status === 'in_process' ? 'badge-info' : 'badge-danger'}">
+                                            ${getWarrantyStatusText(item.status)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                            ${getUserName(user)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            ${currentUser && currentUser.role === 'admin' ? `
+                                            ${item.status !== 'completed' ? `
+                                            <button class="btn btn-success btn-sm" onclick="completeWarranty('${item.id}')" title="Finalizar Garantía">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>` : ''}
+                                            <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'warranties')" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'warranties')" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>` : ''}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            break;
 
-                    case 'pending':
-                        row = `
-                            <tr>
-                                <td>${formatDate(itemDate)}</td>
-                                <td><strong>${item.id}</strong></td>
-                                <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
-                                <td><strong>${formatCurrency(item.total)}</strong></td>
-                                <td>
-                                    <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
-                                        ${getPaymentMethodName(item.paymentMethod)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                        ${getUserName(user)}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 5px;">
-                                        <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        ${currentUser && currentUser.role === 'admin' ? `
-                                        <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')" title="Confirmar Pago">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')" title="Cancelar Venta">
-                                            <i class="fas fa-times"></i>
-                                        </button>` : ''}
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        break;
+                        case 'pending':
+                            row = `
+                                <tr>
+                                    <td>${formatDate(itemDate)}</td>
+                                    <td><strong>${item.id}</strong></td>
+                                    <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
+                                    <td>
+                                        <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
+                                            ${getPaymentMethodName(item.paymentMethod)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                            ${getUserName(user)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            ${currentUser && currentUser.role === 'admin' ? `
+                                            <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')" title="Confirmar Pago">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')" title="Cancelar Venta">
+                                                <i class="fas fa-times"></i>
+                                            </button>` : ''}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            break;
+                    }
                 }
 
                 tableBody.innerHTML += row;
