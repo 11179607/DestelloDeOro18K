@@ -3,6 +3,7 @@
 session_start();
 header('Content-Type: application/json');
 require_once '../config/db.php';
+require_once 'logger.php';
 
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
@@ -90,6 +91,8 @@ if ($method === 'GET') {
         try {
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS end_date DATE AFTER reason");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS username VARCHAR(50) AFTER user_id");
+             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_by VARCHAR(50)");
         } catch(Exception $e) {}
 
         $sql = "INSERT INTO warranties (
@@ -134,7 +137,25 @@ if ($method === 'GET') {
             ':uname' => $_SESSION['username']
         ]);
         
-        echo json_encode(['success' => true, 'message' => 'Garantía registrada']);
+        $warrantyId = $conn->lastInsertId();
+
+        // 2. Lógica de deducción de stock si se crea como completada
+        if (($data->status ?? 'pending') === 'completed') {
+            $productRef = $data->newProductRef ?? ($data->originalProductId ?? '');
+            if ($productRef) {
+                // Descontar inventario (usando la columna correcta: reference)
+                $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref AND quantity > 0");
+                $stockStmt->execute([':ref' => $productRef]);
+                
+                if ($stockStmt->rowCount() > 0) {
+                    logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED_COMPLETED', 'WARRANTY', $warrantyId, "Garantía creada como completada. Stock descontado para REF: $productRef");
+                }
+            }
+        } else {
+            logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED', 'WARRANTY', $warrantyId, "Garantía registrada para Factura: " . ($data->originalSaleId ?? 'N/A'));
+        }
+        
+        echo json_encode(['success' => true, 'message' => 'Garantía registrada', 'id' => $warrantyId]);
 
     } catch (PDOException $e) {
         http_response_code(500);
@@ -158,6 +179,27 @@ if ($method === 'GET') {
     }
     
     try {
+        // 1. Obtener estado actual y datos de la garantía
+        $checkStmt = $conn->prepare("SELECT status, new_product_ref, product_type, product_ref FROM warranties WHERE id = :id");
+        $checkStmt->execute([':id' => $data->id]);
+        $currentWarranty = $checkStmt->fetch();
+
+        if (!$currentWarranty) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Garantía no encontrada']);
+            exit;
+        }
+
+        $oldStatus = $currentWarranty['status'];
+        $newStatus = $data->status ?? 'pending';
+        // El productRef a descontar es el nuevo si existe, sino el original
+        $productRef = $data->newProductRef ?? $currentWarranty['new_product_ref'];
+        if (!$productRef) {
+            $productRef = $currentWarranty['product_ref'];
+        }
+
+        $conn->beginTransaction();
+
         $sql = "UPDATE warranties SET 
                 reason = :reason, 
                 notes = :notes, 
@@ -168,7 +210,8 @@ if ($method === 'GET') {
                 shipping_value = :shipval, 
                 total_cost = :total, 
                 status = :status,
-                created_at = :date
+                updated_at = NOW(),
+                updated_by = :uby
                 WHERE id = :id";
         
         $stmt = $conn->prepare($sql);
@@ -176,19 +219,44 @@ if ($method === 'GET') {
             ':reason' => $data->warrantyReason ?? null,
             ':notes' => $data->notes ?? null,
             ':ptype' => $data->productType ?? 'same',
-            ':npref' => $data->newProductRef ?? null,
+            ':npref' => $data->newProductRef ?? $productRef,
             ':npname' => $data->newProductName ?? null,
             ':addval' => $data->additionalValue ?? 0,
             ':shipval' => $data->shippingValue ?? 0,
             ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
-            ':status' => $data->status ?? 'pending',
-            ':date' => date('Y-m-d H:i:s'),
+            ':status' => $newStatus,
+            ':uby' => $_SESSION['username'],
             ':id' => $data->id
         ]);
+
+        // 2. Lógica de deducción de stock
+        // Solo si pasa de cualquier estado a 'completed' y no estaba ya 'completed'
+        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
+            // Verificar si el producto existe y tiene stock
+            $pStmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
+            $pStmt->execute([':ref' => $productRef]);
+            $product = $pStmt->fetch();
+
+            if ($product) {
+                if ($product['quantity'] > 0) {
+                    $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref");
+                    $stockStmt->execute([':ref' => $productRef]);
+                    
+                    // Registrar en LOG
+                    logAction($conn, $_SESSION['username'], 'WARRANTY_COMPLETED', 'WARRANTY', $data->id, "Garantía completada. Stock descontado para REF: $productRef");
+                } else {
+                    // Si no hay stock, registrar advertencia
+                    logAction($conn, $_SESSION['username'], 'WARRANTY_WARNING', 'WARRANTY', $data->id, "Garantía completada PERO NO HABÍA STOCK para REF: $productRef");
+                }
+            }
+        }
+
+        $conn->commit();
         echo json_encode(['success' => true]);
     } catch (PDOException $e) {
+        if ($conn->inTransaction()) $conn->rollBack();
         http_response_code(500);
-         echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['error' => $e->getMessage()]);
     }
 } elseif ($method === 'DELETE') {
     // Eliminar Garantía (Solo admin)

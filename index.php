@@ -3493,6 +3493,25 @@
         // Actualizar garantía
         async function updateWarranty(formData) {
             try {
+                // Normalizar referencia si existe
+                if (formData.newProductRef) {
+                    formData.newProductRef = formData.newProductRef.toUpperCase();
+                }
+
+                // Validar si es producto diferente
+                if (formData.productType === 'different') {
+                    if (!formData.newProductRef) {
+                        await showDialog('Error', 'Debe ingresar la referencia del producto de reemplazo.', 'error');
+                        return false;
+                    }
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                    const product = products.find(p => p.id === formData.newProductRef);
+                    if (!product) {
+                        await showDialog('Error', 'La referencia del producto no existe en el inventario.', 'error');
+                        return false;
+                    }
+                }
+
                 const response = await fetch('api/warranties.php', {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
@@ -6022,26 +6041,28 @@
             const newProductStatus = document.getElementById('newProductStatus');
             
             if (newProductRefInput && newProductNameInput && newProductStatus) {
-                newProductRefInput.addEventListener('input', function() {
+                newProductRefInput.addEventListener('input', function () {
                     const ref = this.value.trim().toUpperCase();
                     if (ref) {
                         const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
                         const product = products.find(p => p.id === ref);
-                        
+
                         if (product) {
                             newProductNameInput.value = product.name;
                             this.style.borderColor = 'var(--success)';
-                            newProductStatus.textContent = '✅ Producto encontrado: ' + product.name;
-                            newProductStatus.style.color = 'var(--success)';
+                            newProductStatus.innerHTML = `
+                                <span style="color: var(--success);">
+                                    <i class="fas fa-check-circle"></i> Producto encontrado: <strong>${product.name}</strong>
+                                    <br><small>(Stock actual: ${product.quantity} unidades)</small>
+                                </span>`;
                         } else {
                             newProductNameInput.value = '';
                             this.style.borderColor = 'var(--danger)';
-                            newProductStatus.textContent = '❌ Referencia no encontrada';
-                            newProductStatus.style.color = 'var(--danger)';
+                            newProductStatus.innerHTML = '<span style="color: var(--danger);"><i class="fas fa-times-circle"></i> Referencia no encontrada en inventario</span>';
                         }
                     } else {
                         this.style.borderColor = '';
-                        newProductStatus.textContent = '';
+                        newProductStatus.innerHTML = '';
                         newProductNameInput.value = '';
                     }
                 });
@@ -6088,14 +6109,24 @@
                     // createdBy will be set by session in PHP
                 };
 
-                // Si es producto diferente, agregar información del nuevo producto
+                // Si es producto diferente, agregar información del nuevo producto y normalizar a Mayúsculas
                 if (warranty.productType === 'different') {
-                    warranty.newProductRef = document.getElementById('newProductRef').value.trim();
+                    warranty.newProductRef = document.getElementById('newProductRef').value.trim().toUpperCase();
                     warranty.newProductName = document.getElementById('newProductName').value.trim();
                 } else {
                      // Keep same ref
                     warranty.newProductRef = warranty.originalProductId;
                     warranty.newProductName = warranty.originalProductName;
+                }
+
+                // Validar existencia del nuevo producto si es diferente
+                if (warranty.productType === 'different' && warranty.newProductRef) {
+                    const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                    const product = products.find(p => p.id === warranty.newProductRef);
+                    if (!product) {
+                        await showDialog('Error', `La referencia "${warranty.newProductRef}" no existe en el inventario.`, 'error');
+                        return;
+                    }
                 }
 
                 // Validar datos
@@ -7087,7 +7118,7 @@
                 const editStatus = modalContent.querySelector('.edit-product-status');
                 
                 if (editRefInput && editNameInput) {
-                    editRefInput.addEventListener('input', function() {
+                    editRefInput.addEventListener('input', function () {
                         const ref = this.value.trim().toUpperCase();
                         if (ref) {
                             const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
@@ -7096,20 +7127,22 @@
                                 editNameInput.value = product.name;
                                 this.style.borderColor = 'var(--success)';
                                 if (editStatus) {
-                                    editStatus.textContent = '✅ Producto encontrado: ' + product.name;
-                                    editStatus.style.color = 'var(--success)';
+                                    editStatus.innerHTML = `
+                                        <span style="color: var(--success);">
+                                            <i class="fas fa-check-circle"></i> Producto: <strong>${product.name}</strong>
+                                            <br><small>(Stock: ${product.quantity})</small>
+                                        </span>`;
                                 }
                             } else {
                                 editNameInput.value = '';
                                 this.style.borderColor = 'var(--danger)';
                                 if (editStatus) {
-                                    editStatus.textContent = '❌ Referencia no encontrada';
-                                    editStatus.style.color = 'var(--danger)';
+                                    editStatus.innerHTML = '<span style="color: var(--danger);"><i class="fas fa-times-circle"></i> Referencia no encontrada</span>';
                                 }
                             }
                         } else {
                             this.style.borderColor = '';
-                            if (editStatus) editStatus.textContent = '';
+                            if (editStatus) editStatus.innerHTML = '';
                             editNameInput.value = '';
                         }
                     });
