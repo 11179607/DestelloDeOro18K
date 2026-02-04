@@ -40,25 +40,23 @@ try {
         // Desactivar chequeo de llaves foráneas
         $conn->exec("SET FOREIGN_KEY_CHECKS = 0");
 
-        // Truncar tablas de movimientos
+        // Truncar todas las tablas de datos (incluyendo productos)
         $conn->exec("TRUNCATE TABLE sale_items");
         $conn->exec("TRUNCATE TABLE sales");
         $conn->exec("TRUNCATE TABLE expenses");
         $conn->exec("TRUNCATE TABLE restocks");
         $conn->exec("TRUNCATE TABLE warranties");
+        $conn->exec("TRUNCATE TABLE products");
         
         // Si existe la tabla de logs
         $conn->exec("TRUNCATE TABLE audit_logs");
-
-        // Resetear stock de productos a 0
-        $conn->exec("UPDATE products SET quantity = 0");
 
         // Reactivar chequeo de llaves foráneas
         $conn->exec("SET FOREIGN_KEY_CHECKS = 1");
 
         echo json_encode([
             'success' => true, 
-            'message' => 'SISTEMA RESTAURADO: Todos los movimientos han sido eliminados y el stock puesto en 0.'
+            'message' => 'SISTEMA LIMPIO: Se han eliminado todos los productos, ventas, gastos y movimientos. El sistema está listo para ser configurado desde cero.'
         ]);
 
     } else {
