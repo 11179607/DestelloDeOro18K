@@ -1754,7 +1754,7 @@
         <div class="login-box">
             <div class="login-header">
                 <i class="fas fa-gem"></i>
-                <h1>Destello de Oro 18K <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.8em; margin-left: 5px;"></i></h1>
+                <h1>Destello de Oro 18K</h1>
                 <p>Sistema de Gestión de Inventario y Ventas</p>
             </div>
 
@@ -1878,7 +1878,7 @@
                 <div class="brand">
                     <i class="fas fa-gem brand-icon"></i>
                     <div class="brand-text">
-                        <h1>Destello de Oro 18K <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.8em; margin-left: 5px;"></i></h1>
+                        <h1>Destello de Oro 18K</h1>
                         <span>Sistema de Gestión Profesional</span>
                     </div>
                 </div>
@@ -1929,7 +1929,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <i class="fas fa-warehouse"></i>
-                        <h2>Gestión de Inventario <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.7em; margin-left: 5px;"></i></h2>
+                        <h2>Gestión de Inventario</h2>
                     </div>
                     <button class="btn btn-primary admin-only" id="addProductBtn" style="padding: 10px 20px;">
                         <i class="fas fa-plus-circle"></i> Nuevo Producto
@@ -2038,7 +2038,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <i class="fas fa-shopping-cart"></i>
-                        <h2>Realizar Venta <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.7em; margin-left: 5px;"></i></h2>
+                        <h2>Realizar Venta</h2>
                     </div>
                 </div>
 
@@ -2262,7 +2262,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <i class="fas fa-truck-loading"></i>
-                        <h2>Surtir Inventario <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.7em; margin-left: 5px;"></i></h2>
+                        <h2>Surtir Inventario</h2>
                     </div>
                 </div>
 
@@ -2294,7 +2294,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <i class="fas fa-file-invoice-dollar"></i>
-                        <h2>Registro de Gastos <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.7em; margin-left: 5px;"></i></h2>
+                        <h2>Registro de Gastos</h2>
                     </div>
                     <button class="btn btn-primary" id="addExpenseBtn" style="padding: 10px 20px;">
                         <i class="fas fa-plus-circle"></i> Nuevo Gasto
@@ -2364,7 +2364,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <i class="fas fa-shield-alt"></i>
-                        <h2>Gestión de Garantías <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.7em; margin-left: 5px;"></i></h2>
+                        <h2>Gestión de Garantías</h2>
                     </div>
                     <button class="btn btn-primary admin-only" id="addWarrantyBtn" style="padding: 10px 20px;">
                         <i class="fas fa-plus-circle"></i> Nueva Garantía
@@ -2623,7 +2623,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <i class="fas fa-clock"></i>
-                        <h2>Pagos Pendientes <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.7em; margin-left: 5px;"></i></h2>
+                        <h2>Pagos Pendientes</h2>
                     </div>
                 </div>
 
@@ -2659,7 +2659,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <i class="fas fa-chart-line"></i>
-                        <h2>Historial Completo <i class="fas fa-gem" style="color: var(--gold-secondary); font-size: 0.7em; margin-left: 5px;"></i></h2>
+                        <h2>Historial Completo</h2>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <select id="historyFilter" class="form-control" style="width: auto;">
