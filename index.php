@@ -2038,10 +2038,15 @@
                     <div class="table-header"
                         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <h3><i class="fas fa-list"></i> Productos en Inventario</h3>
-                        <div class="search-box">
-                            <input type="text" id="inventorySearch" class="form-control"
-                                placeholder="Buscar por referencia o nombre..." style="min-width: 250px;"
-                                oninput="loadInventoryTable()">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div class="search-box">
+                                <input type="text" id="inventorySearch" class="form-control"
+                                    placeholder="Buscar por referencia o nombre..." style="min-width: 250px;"
+                                    oninput="loadInventoryTable()">
+                            </div>
+                            <button class="btn btn-sm btn-info" onclick="loadInventoryTable()">
+                                <i class="fas fa-sync-alt"></i> Refrescar
+                            </button>
                         </div>
                     </div>
                     <div style="overflow-x: auto;">
@@ -2372,8 +2377,11 @@
 
                 <!-- Tabla de gastos -->
                 <div class="table-wrapper">
-                    <div class="table-header">
+                    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <h3><i class="fas fa-history"></i> Historial de Gastos</h3>
+                        <button class="btn btn-sm btn-info" onclick="loadExpensesTable()">
+                            <i class="fas fa-sync-alt"></i> Refrescar
+                        </button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="data-table" id="expensesTable">
@@ -2622,8 +2630,11 @@
 
                 <!-- Tabla de garantías -->
                 <div class="table-wrapper">
-                    <div class="table-header">
+                    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <h3><i class="fas fa-list"></i> Garantías Registradas</h3>
+                        <button class="btn btn-sm btn-info" onclick="loadWarrantiesTable()">
+                            <i class="fas fa-sync-alt"></i> Refrescar
+                        </button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="data-table" id="warrantiesTable">
@@ -2664,8 +2675,11 @@
 
                 <!-- Tabla de ventas pendientes -->
                 <div class="table-wrapper">
-                    <div class="table-header">
+                    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <h3><i class="fas fa-hourglass-half"></i> Ventas Pendientes de Confirmación</h3>
+                        <button class="btn btn-sm btn-info" onclick="loadPendingSalesTable()">
+                            <i class="fas fa-sync-alt"></i> Refrescar
+                        </button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="data-table" id="pendingTable">
@@ -2752,8 +2766,11 @@
 
                     <!-- Tabla de detalles -->
                     <div class="table-wrapper">
-                        <div class="table-header">
+                        <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
                             <h3><i class="fas fa-list"></i> <span id="detailsTableTitle">Movimientos</span></h3>
+                            <button class="btn btn-sm btn-info" onclick="showHistoryDetails(currentHistoryDetailType)">
+                                <i class="fas fa-sync-alt"></i> Refrescar
+                            </button>
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="data-table" id="historyDetailsTable">
