@@ -17,8 +17,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- Icono para la ventana del navegador -->
-    <link rel="icon" type="image/jpeg" href="fondo.jpeg">
+    <!-- Icono para la ventana del navegador (Fondo Transparente) -->
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         :root {
             --gold-primary: #D4AF37;
