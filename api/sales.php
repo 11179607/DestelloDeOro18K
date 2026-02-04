@@ -357,5 +357,62 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
+
+} elseif ($method === 'PUT') {
+    // Actualizar estado de venta (principalmente para confirmar pagos pendientes)
+    if ($_SESSION['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $data = json_decode(file_get_contents("php://input"));
+    
+    if (!isset($data->id) || !isset($data->status)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'ID y status son requeridos']);
+        exit;
+    }
+
+    try {
+        // Buscar la venta por ID o número de factura
+        $stmt = $conn->prepare("SELECT id, status FROM sales WHERE id = :id OR invoice_number = :id");
+        $stmt->execute([':id' => $data->id]);
+        $sale = $stmt->fetch();
+
+        if (!$sale) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Venta no encontrada']);
+            exit;
+        }
+
+        $dbId = $sale['id'];
+        $oldStatus = $sale['status'];
+        $newStatus = $data->status;
+
+        // Actualizar solo el estado
+        $updateStmt = $conn->prepare("UPDATE sales SET status = :status WHERE id = :id");
+        $updateStmt->execute([
+            ':status' => $newStatus,
+            ':id' => $dbId
+        ]);
+
+        // Registrar en LOG
+        $actionType = 'UPDATE_STATUS';
+        $details = "Estado de venta #{$data->id} cambiado de '{$oldStatus}' a '{$newStatus}'";
+
+        if ($oldStatus === 'pending' && $newStatus === 'completed') {
+            $actionType = 'CONFIRM_PAYMENT';
+            $details = "Pago confirmado para venta #{$data->id}";
+        }
+
+        logAction($conn, $_SESSION['username'], $actionType, 'SALE', $dbId, $details);
+
+        echo json_encode(['success' => true, 'message' => 'Estado actualizado correctamente']);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 }
+
 ?>

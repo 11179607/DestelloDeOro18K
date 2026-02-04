@@ -14,9 +14,10 @@ if (!isset($_SESSION['user_id'])) {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    // Listar pendientes
+    // Listar pendientes - MODIFICADO: Mostrar todas las ventas con métodos de pago diferentes a efectivo
+    // sin importar su estado (pending, completed, cancelled) para mantener el historial completo
     try {
-        $stmt = $conn->query("SELECT * FROM sales WHERE status = 'pending' ORDER BY sale_date DESC");
+        $stmt = $conn->query("SELECT * FROM sales WHERE payment_method != 'cash' ORDER BY sale_date DESC");
         $pending = $stmt->fetchAll();
         
         // Para cada venta, obtener breve info de productos para mostrar en tabla
@@ -49,6 +50,7 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
+
 
 } elseif ($method === 'POST') {
     // Confirmar pago (POST con action='confirm') O registrar pendiente (si es normal)
