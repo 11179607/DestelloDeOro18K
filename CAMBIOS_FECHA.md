@@ -7,6 +7,19 @@ Reorganizar todas las tablas de la base de datos para que:
 
 ## ✅ Cambios Realizados
 
+### 0. Configuración de Zona Horaria (NUEVO)
+
+Se agregó la configuración de zona horaria de Colombia en **`config/db.php`**:
+
+```php
+// Configurar zona horaria de Colombia (UTC-5)
+date_default_timezone_set('America/Bogota');
+// Configurar zona horaria en MySQL
+$conn->exec("SET time_zone = '-05:00'");
+```
+
+**Efecto**: Ahora PHP y MySQL usan la hora de Colombia (UTC-5), asegurando que todos los registros tengan la hora correcta.
+
 ### 1. Archivos API Modificados
 
 #### **api/sales.php**
@@ -105,6 +118,26 @@ Después de ejecutar la migración, puedes verificar que todo funcionó correcta
 - ✓ `api/migrate_database.php` (script de migración con interfaz web)
 - ✓ `migration_fecha_primero.sql` (script SQL de migración)
 - ✓ `migrate_dates.php` (script PHP de migración para línea de comandos)
+- ✓ `test_timezone.php` (script de verificación de zona horaria)
+- ✓ `config/db.php` (actualizado con configuración de zona horaria)
+
+## 🕐 Verificar Zona Horaria
+
+Antes de usar el sistema, verifica que la zona horaria esté configurada correctamente:
+
+1. **Abre tu navegador** y ve a: `http://localhost/DestellodeOro18K/test_timezone.php`
+2. El script mostrará:
+   - ✓ Zona horaria de PHP
+   - ✓ Zona horaria de MySQL
+   - ✓ Últimos registros de cada tabla con sus fechas
+   - ✓ Análisis de sincronización
+   - ✓ Posición de las columnas de fecha
+
+3. Si todo está correcto, verás:
+   - ✅ PHP y MySQL sincronizados
+   - ✅ Zona horaria de Colombia configurada
+   - ✅ Columnas de fecha en posición 2 (después del ID)
+
 
 ## ✨ Resultado Final
 
