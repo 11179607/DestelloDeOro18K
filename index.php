@@ -1749,6 +1749,38 @@
         </div>
     </div>
 
+    <!-- NUEVO: Modal para resetear registros -->
+    <div id="resetRecordsModal" class="password-change-container">
+        <div class="password-change-box" style="border-color: var(--danger);">
+            <button class="close-password-change" id="closeResetRecords">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="password-change-header">
+                <i class="fas fa-trash-alt" style="color: var(--danger);"></i>
+                <h2 style="color: var(--danger);">Resetear Registro Total</h2>
+                <p>Esta acción eliminará todos los movimientos y pondrá el stock en 0.</p>
+                <p style="font-weight: bold; color: var(--danger);">¡ESTA ACCIÓN ES IRREVERSIBLE!</p>
+            </div>
+
+            <form id="resetRecordsForm">
+                <div class="form-group">
+                    <label for="adminResetPassword">Contraseña de Administrador *</label>
+                    <input type="password" id="adminResetPassword" class="form-control" placeholder="Ingrese su contraseña para confirmar" required>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> ELIMINAR TODO
+                    </button>
+                    <button type="button" class="btn btn-warning" id="cancelResetRecords">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
@@ -1918,6 +1950,9 @@
                 </button>
                 <button class="nav-btn admin-only" data-section="history" id="historyNavBtn">
                     <i class="fas fa-chart-line"></i> Historial
+                </button>
+                <button class="nav-btn admin-only" id="resetRecordsBtn" style="color: var(--danger);">
+                    <i class="fas fa-trash-alt"></i> Resetear Registros
                 </button>
             </div>
         </nav>
@@ -7841,6 +7876,80 @@
             }
         }
 
+        // NUEVO: Eventos para resetear registros
+        function setupResetRecordsEvents() {
+            const modal = document.getElementById('resetRecordsModal');
+            const showBtn = document.getElementById('resetRecordsBtn');
+            const closeBtn = document.getElementById('closeResetRecords');
+            const cancelBtn = document.getElementById('cancelResetRecords');
+            const form = document.getElementById('resetRecordsForm');
+
+            if (showBtn) {
+                showBtn.addEventListener('click', function() {
+                    // Solo permitir si el usuario actual es admin
+                    if (currentUser && currentUser.role === 'admin') {
+                        modal.style.display = 'flex';
+                    } else {
+                        showDialog('Acceso Denegado', 'Solo el administrador puede acceder a esta función.', 'error');
+                    }
+                });
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    form.reset();
+                });
+            }
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    form.reset();
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const password = document.getElementById('adminResetPassword').value;
+                    
+                    const confirmed = await showDialog(
+                        'Confirmación Final',
+                        '¿ESTÁ TOTALMENTE SEGURO? Esta acción borrará todos los datos de ventas, gastos, surtidos y garantías, y pondrá el stock en 0.',
+                        'warning',
+                        true
+                    );
+
+                    if (!confirmed) return;
+
+                    try {
+                        const response = await fetch('api/reset_db.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                mode: 'full_wipe',
+                                password: password
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            await showDialog('Éxito', result.message, 'success');
+                            location.reload();
+                        } else {
+                            await showDialog('Error', result.message || 'Error al resetear registros', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error al resetear registros:', error);
+                        await showDialog('Error', 'Ocurrió un error al conectar con el servidor.', 'error');
+                    }
+                });
+            }
+        }
+
         // Cargar usuarios disponibles para cambio de contraseña
         async function loadUsersForPasswordChange() {
             try {
@@ -9305,6 +9414,7 @@
             setupInvoiceEvents();
             setupCustomDialog();
             setupPasswordChange();
+            setupResetRecordsEvents();
             setupWarrantyEvents();
             setupHistoryEvents();
             setupViewMovementModalEvents();
