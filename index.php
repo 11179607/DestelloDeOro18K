@@ -7065,10 +7065,13 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Recargar datos para reflejar el cambio de estado
+                    // Recargar tabla de pagos pendientes (se quitará de la lista)
+                    await loadPendingSalesTable();
+                    
+                    // Recargar datos del historial para reflejar el cambio de estado
                     await loadHistoryCards();
                     
-                    // Si estamos viendo la vista de pendientes, refrescarla
+                    // Si estamos viendo la vista de pendientes en el historial, refrescarla
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
                         if (currentHistoryDetailType === 'pending') {
                             showHistoryDetails('pending');
@@ -8741,18 +8744,36 @@
         async function loadPendingSalesTable() {
             try {
                 const response = await fetch('api/pending_sales.php');
-                const pendingSales = await response.json();
+                const allPendingSales = await response.json();
                 
-                if (!Array.isArray(pendingSales)) {
-                    console.error('Error: La respuesta de ventas pendientes no es un array', pendingSales);
+                if (!Array.isArray(allPendingSales)) {
+                    console.error('Error: La respuesta de ventas pendientes no es un array', allPendingSales);
                     return;
                 }
                 
-                localStorage.setItem('destelloOroHistoryPendingSales', JSON.stringify(pendingSales)); 
-                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+                // FILTRAR: Solo mostrar ventas con status 'pending' en la tabla de gestión
+                // Las confirmadas (status='completed') permanecen en el historial pero se quitan de aquí
+                const pendingSales = allPendingSales.filter(sale => sale.status === 'pending');
+                
+                localStorage.setItem('destelloOroHistoryPendingSales', JSON.stringify(allPendingSales)); // Guardar TODAS para el historial
+                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales)); // Solo pendientes para esta tabla
 
                 const tableBody = document.getElementById('pendingTableBody');
                 tableBody.innerHTML = '';
+
+                // Si no hay ventas pendientes, mostrar mensaje
+                if (pendingSales.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem; color: #666;">
+                                <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;"></i>
+                                <p style="font-size: 1.1rem; font-weight: 500;">No hay pagos pendientes de confirmación</p>
+                                <p style="font-size: 0.9rem;">Todas las ventas han sido confirmadas o canceladas</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
 
                 pendingSales.forEach(sale => {
                     const row = document.createElement('tr');
@@ -8798,6 +8819,7 @@
                     `;
 
                     tableBody.appendChild(row);
+
                 });
             } catch (error) {
                 console.error('Error cargando pendientes:', error);
