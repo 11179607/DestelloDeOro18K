@@ -6155,10 +6155,15 @@
 
             warranties.forEach(warranty => {
                 // Calcular días restantes
-                const endDate = new Date(warranty.endDate);
-                const today = new Date();
-                const timeDiff = endDate.getTime() - today.getTime();
-                const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                let daysRemaining = -1;
+                if (warranty.endDate) {
+                    const endDate = new Date(warranty.endDate);
+                    if (!isNaN(endDate.getTime())) {
+                        const today = new Date();
+                        const timeDiff = endDate.getTime() - today.getTime();
+                        daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    }
+                }
 
                 // Determinar color según estado
                 let statusBadge = '';
@@ -6448,10 +6453,15 @@
                     break;
 
                 case 'warranties':
-                    const endDate = new Date(movement.endDate);
-                    const today = new Date();
-                    const timeDiff = endDate.getTime() - today.getTime();
-                    const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    let daysRemaining = -1;
+                    if (movement.endDate) {
+                        const endDate = new Date(movement.endDate);
+                        if (!isNaN(endDate.getTime())) {
+                            const today = new Date();
+                            const timeDiff = endDate.getTime() - today.getTime();
+                            daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                        }
+                    }
 
                     let warrantyProductInfo = '';
                     if (movement.productType === 'different') {
@@ -6528,9 +6538,9 @@
                                 <i class="fas fa-info-circle"></i> Información Adicional
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                <div><strong>Fecha registro:</strong> ${formatDateSimple(movement.createdAt)}</div>
-                                <div><strong>Registrado por:</strong> ${getUserName(movement.createdBy)}</div>
-                                ${movement.updatedAt ? `<div><strong>Última actualización:</strong> ${formatDateSimple(movement.updatedAt)}</div>` : ''}
+                                <div><strong>Fecha registro:</strong> ${formatDate(movement.createdAt || movement.date)}</div>
+                                <div><strong>Registrado por:</strong> ${getUserName(movement.createdBy || movement.user)}</div>
+                                ${movement.updatedAt ? `<div><strong>Última actualización:</strong> ${formatDate(movement.updatedAt)}</div>` : ''}
                                 ${movement.updatedBy ? `<div><strong>Actualizado por:</strong> ${getUserName(movement.updatedBy)}</div>` : ''}
                             </div>
                         </div>
@@ -8956,7 +8966,9 @@
 
         // Nueva función para formato de fecha simple
         function formatDateSimple(dateString) {
+            if (!dateString) return '---';
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
                 day: '2-digit',
                 month: '2-digit',
@@ -8975,7 +8987,9 @@
         }
 
         function formatDate(dateString) {
+            if (!dateString) return '---';
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
                 day: '2-digit',
                 month: '2-digit',

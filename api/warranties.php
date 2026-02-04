@@ -38,11 +38,16 @@ if ($method === 'GET') {
         // Map database fields to JS expected fields
         foreach ($warranties as &$warranty) {
             $warranty['createdAt'] = $warranty['created_at'];
+            $warranty['endDate'] = $warranty['end_date'] ?? null;
             $warranty['customerName'] = $warranty['customer_name'];
             $warranty['originalSaleId'] = $warranty['original_invoice_id'];
+            $warranty['originalProductId'] = $warranty['product_ref'];
+            $warranty['originalProductName'] = $warranty['product_name'];
             $warranty['warrantyReason'] = $warranty['reason'];
             $warranty['warrantyReasonText'] = $warranty['reason'];
             $warranty['totalCost'] = (float)($warranty['total_cost'] ?? 0);
+            $warranty['additionalValue'] = (float)($warranty['additional_value'] ?? 0);
+            $warranty['shippingValue'] = (float)($warranty['shipping_value'] ?? 0);
             $warranty['createdBy'] = $warranty['username'] ?? 'admin';
         }
         
@@ -63,52 +68,62 @@ if ($method === 'GET') {
     $data = json_decode(file_get_contents("php://input"));
     
     // Mapeo de datos JS a DB
-    // JS envía: saleId, customerName, originalProduct (ref/name), warrantyReason, notes, productType, newProduct...
+    // JS envía: originalSaleId, customerName, originalProductId, originalProductName, warrantyReason, notes, productType, newProductRef...
     
     try {
+        // Asegurar columnas (end_date y username)
+        try {
+             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS end_date DATE AFTER reason");
+             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS username VARCHAR(50) AFTER user_id");
+        } catch(Exception $e) {}
+
         $sql = "INSERT INTO warranties (
-            sale_id, original_invoice_id, customer_name, product_ref, product_name, reason, notes,
+            sale_id, original_invoice_id, customer_name, product_ref, product_name, reason, end_date, notes,
             product_type, new_product_ref, new_product_name, additional_value, shipping_value, total_cost,
-            status, user_id
+            status, user_id, username
         ) VALUES (
-            :sid, :inv, :cust, :pref, :pname, :reason, :notes,
+            :sid, :inv, :cust, :pref, :pname, :reason, :edate, :notes,
             :ptype, :npref, :npname, :addval, :shipval, :total,
-            :status, :uid
+            :status, :uid, :uname
         )";
         
-        // Buscar ID de venta si es posible, aunque el JS envía el invoice ID usualmente
+        // Buscar ID de venta si es posible
         $saleIdInt = null;
-        if (isset($data->saleId)) {
-            $sStmt = $conn->prepare("SELECT id FROM sales WHERE invoice_number = :inv LIMIT 1");
-            $sStmt->execute([':inv' => $data->saleId]);
+        if (isset($data->originalSaleId)) {
+            $sStmt = $conn->prepare("SELECT id FROM sales WHERE id = :inv OR invoice_number = :inv LIMIT 1");
+            $sStmt->execute([':inv' => $data->originalSaleId]);
             $sRow = $sStmt->fetch();
             if ($sRow) $saleIdInt = $sRow['id'];
         }
         
+        $totalCost = ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0);
+
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':sid' => $saleIdInt,
-            ':inv' => $data->saleId ?? '',
-            ':cust' => $data->customerName,
-            ':pref' => $data->originalProduct->id ?? '',
-            ':pname' => $data->originalProduct->name ?? '',
-            ':reason' => $data->warrantyReason,
-            ':notes' => $data->notes,
-            ':ptype' => $data->productType,
-            ':npref' => $data->newProduct->ref ?? null,
-            ':npname' => $data->newProduct->name ?? null,
-            ':addval' => $data->additionalValue,
-            ':shipval' => $data->shippingValue,
-            ':total' => $data->totalCost,
-            ':status' => $data->status,
-            ':uid' => $_SESSION['user_id']
+            ':inv' => $data->originalSaleId ?? '',
+            ':cust' => $data->customerName ?? '',
+            ':pref' => $data->originalProductId ?? '',
+            ':pname' => $data->originalProductName ?? '',
+            ':reason' => $data->warrantyReason ?? '',
+            ':edate' => $data->endDate ?? null,
+            ':notes' => $data->notes ?? '',
+            ':ptype' => $data->productType ?? 'same',
+            ':npref' => $data->newProductRef ?? null,
+            ':npname' => $data->newProductName ?? null,
+            ':addval' => $data->additionalValue ?? 0,
+            ':shipval' => $data->shippingValue ?? 0,
+            ':total' => $totalCost,
+            ':status' => $data->status ?? 'pending',
+            ':uid' => $_SESSION['user_id'],
+            ':uname' => $_SESSION['username']
         ]);
         
         echo json_encode(['success' => true, 'message' => 'Garantía registrada']);
 
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['error' => 'Error de DB: ' . $e->getMessage()]);
     }
 
 } elseif ($method === 'PUT') {
