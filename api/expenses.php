@@ -66,7 +66,7 @@ if ($method === 'GET') {
         $stmt->execute([
             ':desc' => $data->description,
             ':amt' => $data->amount,
-            ':date' => $data->date ?? date('Y-m-d H:i:s'),
+            ':date' => date('Y-m-d H:i:s'),
             ':uid' => $_SESSION['user_id'],
             ':uname' => $_SESSION['username']
         ]);
@@ -115,7 +115,7 @@ if ($method === 'GET') {
         $stmt->execute([
             ':desc' => $data->description,
             ':amt' => $data->amount,
-            ':date' => $data->date ?? date('Y-m-d H:i:s'),
+            ':date' => date('Y-m-d H:i:s'),
             ':id' => $data->id
         ]);
         echo json_encode(['success' => true, 'message' => 'Gasto actualizado']);

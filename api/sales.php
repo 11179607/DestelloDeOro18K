@@ -151,7 +151,7 @@ if ($method === 'GET') {
             ':war' => $data->warrantyIncrement ?? 0,
             ':pay' => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
-            ':sale_date' => $data->date ?? date('Y-m-d H:i:s'),
+            ':sale_date' => date('Y-m-d H:i:s'),
             ':uid' => $_SESSION['user_id'],
             ':uname' => $_SESSION['username'],
             ':status' => $status
@@ -336,7 +336,7 @@ if ($method === 'GET') {
             ':war' => $warrantyIncrement,
             ':disc' => $discount,
             ':total' => $newTotal,
-            ':date' => $data->date ?? date('Y-m-d H:i:s'),
+            ':date' => date('Y-m-d H:i:s'),
             ':dbId' => $dbId
         ]);
 

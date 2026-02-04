@@ -2594,12 +2594,12 @@
                         <table class="data-table" id="warrantiesTable">
                             <thead>
                                 <tr>
+                                    <th>Fecha</th>
                                     <th>ID Venta</th>
                                     <th>Cliente</th>
                                     <th>Producto Original</th>
                                     <th>Producto Garantía</th>
                                     <th>Motivo</th>
-                                    <th>Fecha Fin</th>
                                     <th>Costo Total</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
@@ -2636,12 +2636,12 @@
                         <table class="data-table" id="pendingTable">
                             <thead>
                                 <tr>
+                                    <th>Fecha</th>
                                     <th>ID Venta</th>
                                     <th>Cliente</th>
                                     <th>Productos</th>
                                     <th>Total</th>
                                     <th>Método de Pago</th>
-                                    <th>Fecha</th>
                                     <th>Vendedor</th>
                                     <th>Acciones</th>
                                 </tr>

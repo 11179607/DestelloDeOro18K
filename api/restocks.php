@@ -183,7 +183,7 @@ if ($method === 'GET') {
             $updateStmt = $conn->prepare("UPDATE restocks SET quantity = :qty, restock_date = :date WHERE id = :id");
             $updateStmt->execute([
                 ':qty' => $data->quantity, 
-                ':date' => $data->date ?? date('Y-m-d H:i:s'),
+                ':date' => date('Y-m-d H:i:s'),
                 ':id' => $data->id
             ]);
         }

@@ -167,7 +167,7 @@ if ($method === 'GET') {
             ':shipval' => $data->shippingValue ?? 0,
             ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
             ':status' => $data->status ?? 'pending',
-            ':date' => $data->date ?? date('Y-m-d H:i:s'),
+            ':date' => date('Y-m-d H:i:s'),
             ':id' => $data->id
         ]);
         echo json_encode(['success' => true]);
