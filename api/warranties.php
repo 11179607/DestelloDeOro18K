@@ -37,17 +37,32 @@ if ($method === 'GET') {
         
         // Map database fields to JS expected fields
         foreach ($warranties as &$warranty) {
+            // Fecha: mapear created_at a 'date' para consistencia con otras tablas
+            $warranty['date'] = $warranty['created_at'];
             $warranty['createdAt'] = $warranty['created_at'];
             $warranty['endDate'] = $warranty['end_date'] ?? null;
+            
+            // Cliente
             $warranty['customerName'] = $warranty['customer_name'];
+            
+            // Venta original
             $warranty['originalSaleId'] = $warranty['original_invoice_id'];
+            
+            // Producto original
             $warranty['originalProductId'] = $warranty['product_ref'];
             $warranty['originalProductName'] = $warranty['product_name'];
+            
+            // Motivo de garantía
             $warranty['warrantyReason'] = $warranty['reason'];
             $warranty['warrantyReasonText'] = $warranty['reason'];
+            
+            // Costos
             $warranty['totalCost'] = (float)($warranty['total_cost'] ?? 0);
             $warranty['additionalValue'] = (float)($warranty['additional_value'] ?? 0);
             $warranty['shippingValue'] = (float)($warranty['shipping_value'] ?? 0);
+            
+            // Usuario
+            $warranty['user'] = $warranty['username'] ?? 'admin';
             $warranty['createdBy'] = $warranty['username'] ?? 'admin';
         }
         
