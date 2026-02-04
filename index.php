@@ -6307,22 +6307,21 @@
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td>${formatDate(warranty.date)}</td>
                     <td><strong>${warranty.originalSaleId}</strong></td>
                     <td>${warranty.customerName}</td>
                     <td>${warranty.originalProductName} (${warranty.originalProductId})</td>
                     <td>${warrantyProduct}</td>
                     <td>${warranty.warrantyReasonText || warranty.warrantyReason}</td>
-                    <td>
-                        ${formatDateSimple(warranty.endDate)}<br>
-                        <small style="font-size: 0.75rem; color: #666;">
-                            ${daysRemaining >= 0 ? `${daysRemaining} días restantes` : 'Vencida'}
-                        </small>
-                    </td>
                     <td><strong>${formatCurrency(warranty.totalCost || 0)}</strong></td>
                     <td>
                         <span class="badge ${statusBadge}">
                             ${statusText}
                         </span>
+                        <br>
+                        <small style="font-size: 0.7rem; color: #666;">
+                            Vence: ${formatDateSimple(warranty.endDate)} (${daysRemaining >= 0 ? `${daysRemaining}d` : 'Vencida'})
+                        </small>
                     </td>
                     <td>
                         <div style="display: flex; gap: 5px;">
@@ -6339,12 +6338,11 @@
                         </div>
                     </td>
                 `;
-
                 tableBody.appendChild(row);
             });
 
             // Actualizar estadísticas 
-            renderWarrantyStats(pendingCount, inProcessCount, completedCount, cost, increment);
+            renderWarrantyStats(pendingCount, inProcessCount, completedCount, totalCost, totalIncrement);
 
             } catch (error) {
                 console.error('Error cargando garantías:', error);
@@ -8944,15 +8942,15 @@
                         (sale.productName || 'Producto');
 
                     row.innerHTML = `
+                        <td>${formatDate(sale.date || sale.sale_date)}</td>
                         <td><strong>${sale.id}</strong></td>
                         <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
                         <td>
                             <strong>${productCount} producto(s)</strong><br>
-                            <small>${productNames}</small>
+                            <small style="font-size: 0.8rem;">${productNames}</small>
                         </td>
                         <td><strong>${formatCurrency(sale.total)}</strong></td>
                         <td><span class="badge ${paymentMethods[sale.paymentMethod]?.class || 'badge-warning'}">${getPaymentMethodName(sale.paymentMethod)}</span></td>
-                        <td>${formatDate(sale.date || sale.sale_date)}</td>
                         <td>
                             <span class="badge ${sale.user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                 ${getUserName(sale.user || sale.username)}
