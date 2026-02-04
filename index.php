@@ -9250,11 +9250,17 @@
                 const data = await response.json();
                 
                 if (data.authenticated) {
+                    // Recuperar información personal guardada localmente
+                    const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                    const userRole = data.user.role;
+                    const userKey = `${userRole}_info`;
+                    const personalInfo = sessionInfo[userKey];
+
                     currentUser = {
                         id: data.user.id,
                         username: data.user.username,
                         role: data.user.role,
-                        displayName: data.user.name,
+                        displayName: personalInfo ? `${personalInfo.name} ${personalInfo.lastName}` : data.user.name,
                         name: data.user.name
                     };
                     
@@ -9312,12 +9318,19 @@
                 const data = await response.json();
                 
                 if (data.authenticated) {
+                    // Recuperar información personal guardada localmente para mantener el nombre visual
+                    const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                    const userRole = data.user.role;
+                    const userKey = `${userRole}_info`;
+                    const personalInfo = sessionInfo[userKey];
+
                     currentUser = {
                         id: data.user.id,
                         username: data.user.username,
                         role: data.user.role,
-                        displayName: data.user.name,
-                        name: data.user.name
+                        // Priorizar el nombre local si coincide el rol, sino usar el de la DB
+                        displayName: personalInfo ? `${personalInfo.name} ${personalInfo.lastName}` : data.user.name,
+                        name: data.user.name // Nombre real DB
                     };
                     // Actualizamos localStorage solo para referencia
                     localStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
