@@ -4396,12 +4396,44 @@
                     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
                 });
 
-                // Combinar
+                // Combinar con campos normalizados
                 data = [
-                    ...expenses.map(d => ({...d, val: parseFloat(d.amount)||0})),
-                    ...restocks.map(d => ({...d, val: parseFloat(d.totalValue)||0})),
-                    ...warranties.map(d => ({...d, val: parseFloat(d.shipping_value||d.shippingValue)||0})).filter(d => d.val > 0),
-                    ...fProducts.map(d => ({...d, val: (parseFloat(d.quantity)||0)*(parseFloat(d.purchasePrice)||0)}))
+                    ...expenses.map(e => ({
+                        date: e.date,
+                        type: 'Gasto',
+                        concept: e.description,
+                        val: parseFloat(e.amount) || 0,
+                        user: e.user,
+                        original: e,
+                        originType: 'expenses'
+                    })),
+                    ...restocks.map(r => ({
+                        date: r.date,
+                        type: 'Surtido',
+                        concept: `${r.productName} (x${r.quantity})`,
+                        val: parseFloat(r.totalValue) || 0,
+                        user: r.user,
+                        original: r,
+                        originType: 'restocks'
+                    })),
+                    ...warranties.filter(w => (parseFloat(w.shipping_value || w.shippingValue) || 0) > 0).map(w => ({
+                        date: w.created_at || w.createdAt,
+                        type: 'Envío Garantía',
+                        concept: `Garantía #${w.id} - ${w.customerName}`,
+                        val: parseFloat(w.shipping_value || w.shippingValue) || 0,
+                        user: w.user || w.createdBy,
+                        original: w,
+                        originType: 'warranties'
+                    })),
+                    ...fProducts.map(p => ({
+                        date: p.date || p.created_at,
+                        type: 'Producto Nuevo',
+                        concept: `${p.name} (Inicial: ${p.quantity})`,
+                        val: (parseFloat(p.quantity) || 0) * (parseFloat(p.purchasePrice) || 0),
+                        user: p.addedBy || 'admin',
+                        original: p,
+                        originType: 'product'
+                    }))
                 ];
 
                 totalValue = data.reduce((sum, item) => sum + item.val, 0);
