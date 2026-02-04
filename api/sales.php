@@ -85,6 +85,7 @@ if ($method === 'GET') {
                 ];
                 $sale['paymentMethod'] = $sale['payment_method'];
                 $sale['deliveryType'] = $sale['delivery_type'];
+                $sale['deliveryCost'] = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user'] = $sale['username'];
             }
@@ -112,8 +113,8 @@ if ($method === 'GET') {
         $conn->beginTransaction();
         
         // 1. Crear cabecera de venta
-        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, sale_date, user_id, username, status) 
-                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :sale_date, :uid, :uname, :status)";
+        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, warranty_increment, payment_method, delivery_type, sale_date, user_id, username, status) 
+                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :war, :pay, :del_type, :sale_date, :uid, :uname, :status)";
         
         // Verificar si el ID de factura ya existe
         $invoiceNumber = $data->id;
@@ -147,6 +148,7 @@ if ($method === 'GET') {
             ':total' => $data->total,
             ':disc' => $data->discount ?? 0,
             ':del' => $data->deliveryCost ?? 0,
+            ':war' => $data->warrantyIncrement ?? 0,
             ':pay' => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
             ':sale_date' => $data->date ?? date('Y-m-d H:i:s'),
@@ -208,17 +210,25 @@ if ($method === 'GET') {
     }
 
     try {
-        $conn->beginTransaction();
-
-        // Obtener datos de la venta antes de eliminar para el log
-        $stmt = $conn->prepare("SELECT invoice_number, total, customer_name FROM sales WHERE id = :id");
+        // Buscar la venta por ID o número de factura para obtener el ID real de la base de datos
+        $stmt = $conn->prepare("SELECT id, invoice_number, total, customer_name FROM sales WHERE id = :id OR invoice_number = :id");
         $stmt->execute([':id' => $id]);
         $saleToDelete = $stmt->fetch();
-        $details = "Venta #" . ($saleToDelete['invoice_number'] ?? $id) . " eliminada. Cliente: " . ($saleToDelete['customer_name'] ?? 'N/A') . ". Total: " . ($saleToDelete['total'] ?? 0);
+
+        if (!$saleToDelete) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Venta no encontrada']);
+            exit;
+        }
+
+        $dbId = $saleToDelete['id'];
+        $details = "Venta #" . ($saleToDelete['invoice_number'] ?? $dbId) . " eliminada. Cliente: " . ($saleToDelete['customer_name'] ?? 'N/A') . ". Total: " . ($saleToDelete['total'] ?? 0);
+
+        $conn->beginTransaction();
 
         // 1. Obtener items de la venta para restablecer stock
         $stmt = $conn->prepare("SELECT product_ref, quantity FROM sale_items WHERE sale_id = :id");
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([':id' => $dbId]);
         $items = $stmt->fetchAll();
 
         $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity + :qty WHERE reference = :ref");
@@ -231,10 +241,10 @@ if ($method === 'GET') {
 
         // 2. Eliminar la venta (la eliminación en cascada se encargará de sale_items)
         $deleteStmt = $conn->prepare("DELETE FROM sales WHERE id = :id");
-        $deleteStmt->execute([':id' => $id]);
+        $deleteStmt->execute([':id' => $dbId]);
 
         // Registrar en LOG
-        logAction($conn, $_SESSION['username'], 'DELETE', 'SALE', $id, $details);
+        logAction($conn, $_SESSION['username'], 'DELETE', 'SALE', $dbId, $details);
 
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Venta eliminada y stock restablecido']);
@@ -261,7 +271,7 @@ if ($method === 'GET') {
     try {
         // 1. Obtener la venta actual para tener los valores base
         // Incluimos 'total' para poder calcular el subtotal inverso si es necesario
-        $stmt = $conn->prepare("SELECT id, delivery_cost, discount, status, invoice_number, total FROM sales WHERE id = :id OR invoice_number = :id");
+        $stmt = $conn->prepare("SELECT id, delivery_cost, discount, warranty_increment, status, invoice_number, total FROM sales WHERE id = :id OR invoice_number = :id");
         $stmt->execute([':id' => $data->id]);
         $sale = $stmt->fetch();
 
@@ -275,8 +285,8 @@ if ($method === 'GET') {
         $oldStatus = $sale['status'];
         $newStatus = $data->status ?? 'completed';
 
-        // Calcular susbtotal actual: Total - Delivery + Discount
-        $currentSubtotal = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'];
+        // Calcular susbtotal actual: Total - Delivery + Discount - Warranty
+        $currentSubtotal = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'] - (float)($sale['warranty_increment'] ?? 0);
         
         $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : 0;
         
@@ -305,6 +315,7 @@ if ($method === 'GET') {
                 payment_method = :pay,
                 status = :status,
                 delivery_cost = :del,
+                warranty_increment = :war,
                 discount = :disc,
                 total = :total,
                 sale_date = :date
@@ -322,6 +333,7 @@ if ($method === 'GET') {
             ':pay' => $data->paymentMethod ?? 'cash',
             ':status' => $newStatus,
             ':del' => $deliveryCost,
+            ':war' => $warrantyIncrement,
             ':disc' => $discount,
             ':total' => $newTotal,
             ':date' => $data->date ?? date('Y-m-d H:i:s'),

@@ -39,6 +39,8 @@ if ($method === 'GET') {
             ];
             $sale['paymentMethod'] = $sale['payment_method'];
             $sale['deliveryType'] = $sale['delivery_type'];
+            $sale['deliveryCost'] = (float)($sale['delivery_cost'] ?? 0);
+            $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
             $sale['user'] = $sale['username'];
         }
         
@@ -68,8 +70,8 @@ if ($method === 'GET') {
             $conn->beginTransaction();
             
              // 1. Crear cabecera
-            $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, payment_method, delivery_type, sale_date, user_id, username, status) 
-            VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :pay, :del_type, :sale_date, :uid, :uname, 'pending')";
+            $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, warranty_increment, payment_method, delivery_type, sale_date, user_id, username, status) 
+            VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :war, :pay, :del_type, :sale_date, :uid, :uname, 'pending')";
     
             $stmt = $conn->prepare($sql);
             $stmt->execute([
@@ -83,6 +85,7 @@ if ($method === 'GET') {
                 ':total' => $data->total,
                 ':disc' => $data->discount ?? 0,
                 ':del' => $data->deliveryCost ?? 0,
+                ':war' => $data->warrantyIncrement ?? 0,
                 ':pay' => $data->paymentMethod,
                 ':del_type' => $data->deliveryType,
                 ':sale_date' => $data->date ?? date('Y-m-d H:i:s'),

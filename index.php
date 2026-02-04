@@ -4594,6 +4594,7 @@
                                 <th>Cliente</th>
                                 <th>Productos</th>
                                 <th>Total</th>
+                                <th>Envío</th>
                                 <th>Incremento Garantía</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
@@ -4702,7 +4703,8 @@
                                         <small>${productNames}</small>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
-                                    <td><strong>${formatCurrency(item.warrantyIncrement || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
@@ -6352,8 +6354,8 @@
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
                                 <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal)}</div>
-                                <div><strong>Descuento:</strong> ${formatCurrency(movement.discount)}</div>
-                                <div><strong>Costo envío:</strong> ${formatCurrency(movement.deliveryCost)}</div>
+                                <div><strong>Descuento:</strong> ${formatCurrency(movement.discount || 0)}</div>
+                                <div><strong>Costo envío:</strong> ${formatCurrency(movement.deliveryCost || 0)}</div>
                                 <div><strong>Incremento garantía:</strong> ${formatCurrency(movement.warrantyIncrement || 0)}</div>
                                 <div><strong>Total:</strong> ${formatCurrency(movement.total)}</div>
                                 <div><strong>Método de pago:</strong> ${getPaymentMethodName(movement.paymentMethod)}</div>
@@ -6951,7 +6953,7 @@
                     if (type === 'warranties') loadWarrantiesTable();
                     if (type === 'restocks') loadInventoryTable();
                     
-                    loadHistoryCards();
+                    await loadHistoryCards();
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
                         showHistoryDetails(type);
                     }
@@ -8670,7 +8672,7 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        loadInventoryTable();
+                        await loadInventoryTable();
                         await showDialog('Éxito', 'Producto eliminado correctamente.', 'success');
                     } else {
                         await showDialog('Error', data.message || 'Error al eliminar producto', 'error');
@@ -8704,8 +8706,8 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        loadExpensesTable();
-                        loadHistoryCards();
+                        await loadExpensesTable();
+                        await loadHistoryCards();
                         await showDialog('Éxito', 'Gasto eliminado correctamente.', 'success');
                     } else {
                         await showDialog('Error', data.message || 'Error al eliminar gasto', 'error');
@@ -8738,9 +8740,9 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        loadPendingSalesTable();
-                        loadInventoryTable();
-                        loadHistoryCards();
+                        await loadPendingSalesTable();
+                        await loadInventoryTable();
+                        await loadHistoryCards();
                         await showDialog('Éxito', 'Pago confirmado y venta procesada exitosamente.', 'success');
                     } else {
                         await showDialog('Error', data.message || 'Error al procesar la venta.', 'error');
@@ -8779,9 +8781,9 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        loadPendingSalesTable();
-                        loadInventoryTable();
-                        loadHistoryCards();
+                        await loadPendingSalesTable();
+                        await loadInventoryTable();
+                        await loadHistoryCards();
                         await showDialog('Éxito', 'Venta pendiente cancelada correctamente.', 'success');
                     } else {
                         await showDialog('Error', data.message || 'Error al cancelar venta', 'error');
