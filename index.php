@@ -3148,6 +3148,7 @@
         let currentSaleForView = null;
         let currentMovementForEdit = null;
         let currentMovementTypeForEdit = '';
+        let currentHistoryDetailType = ''; // Nueva variable para rastrear vista activa
 
         // Métodos de pago
         const paymentMethods = {
@@ -4339,7 +4340,13 @@
 
             // Mostrar detalles
             const detailsView = document.getElementById('historyDetailsView');
-            detailsView.classList.add('active');
+            const wasActive = detailsView.classList.contains('active');
+            
+            if (!wasActive) {
+                detailsView.classList.add('active');
+            }
+            
+            currentHistoryDetailType = type; // Guardar tipo actual
 
             // Configurar título
             if (type === 'investment') {
@@ -4357,8 +4364,10 @@
             // Cargar tabla de detalles
             loadHistoryDetailsTable(type);
 
-            // Scroll al inicio
-            detailsView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Solo scroll al inicio si no estaba ya activo
+            if (!wasActive) {
+                detailsView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         // Cargar estadísticas de los detalles
@@ -6948,16 +6957,24 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Actualizar tablas y tarjetas
+                    // 1. Actualizar tablas de secciones específicas
                     if (type === 'expenses') loadExpensesTable();
                     if (type === 'warranties') loadWarrantiesTable();
-                    if (type === 'restocks') loadInventoryTable();
+                    if (type === 'restocks' || type === 'sales') await loadInventoryTable();
                     
+                    // 2. Actualizar caché de historial (crucial)
                     await loadHistoryCards();
+
+                    // 3. Actualizar vista de detalles si está abierta
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
-                        showHistoryDetails(type);
+                        // Si estábamos en inversión, refrescar inversión. Si no, refrescar el tipo del movimiento.
+                        const refreshType = currentHistoryDetailType || type;
+                        showHistoryDetails(refreshType);
                     }
+
+                    // 4. Actualizar resumen mensual
                     loadMonthlySummary();
+
                     await showDialog('Éxito', result.message || 'Movimiento eliminado correctamente.', 'success');
                 } else {
                     await showDialog('Error', result.error || 'No se pudo eliminar el movimiento.', 'error');
