@@ -7036,6 +7036,58 @@
             }
         };
 
+        // Función para confirmar pago de venta pendiente
+        async function confirmPayment(saleId) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                await showDialog('Acceso Denegado', 'Solo el administrador puede confirmar pagos.', 'error');
+                return;
+            }
+
+            const confirmed = await showConfirmDialog(
+                'Confirmar Pago',
+                `¿Está seguro de confirmar el pago de la venta ${saleId}?`,
+                'Confirmar',
+                'Cancelar'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch('api/sales.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: saleId,
+                        status: 'completed'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Recargar datos para reflejar el cambio de estado
+                    await loadHistoryCards();
+                    
+                    // Si estamos viendo la vista de pendientes, refrescarla
+                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                        if (currentHistoryDetailType === 'pending') {
+                            showHistoryDetails('pending');
+                        }
+                    }
+
+                    // Actualizar resumen mensual
+                    loadMonthlySummary();
+
+                    await showDialog('Éxito', 'Pago confirmado exitosamente.', 'success');
+                } else {
+                    await showDialog('Error', result.error || 'No se pudo confirmar el pago.', 'error');
+                }
+            } catch (error) {
+                console.error('Error al confirmar pago:', error);
+                await showDialog('Error', 'Ocurrió un error al confirmar el pago.', 'error');
+            }
+        }
+
         // Configurar eventos de login
         function setupLoginEvents() {
             const adminRoleBtn = document.getElementById('adminRole');
