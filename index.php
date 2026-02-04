@@ -4993,10 +4993,10 @@
             // const currentYear = currentDate.getFullYear();
 
             const monthlySales = sales.filter(sale => {
-                const saleDate = new Date(sale.date);
-                return saleDate.getMonth() === currentMonth &&
+                const saleDate = new Date(sale.date || sale.sale_date);
+                return (saleDate.getMonth() === currentMonth &&
                     saleDate.getFullYear() === currentYear &&
-                    sale.confirmed;
+                    (sale.status === 'completed' || sale.status === 'pending'));
             });
 
             const monthlyExpenses = expenses.filter(expense => {
@@ -5012,7 +5012,7 @@
             });
 
             const monthlyWarranties = warranties.filter(warranty => {
-                const warrantyDate = new Date(warranty.createdAt);
+                const warrantyDate = new Date(warranty.createdAt || warranty.created_at);
                 return warrantyDate.getMonth() === currentMonth &&
                     warrantyDate.getFullYear() === currentYear;
             });
@@ -5025,11 +5025,9 @@
             const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
             const costOfGoodsSold = monthlySales.reduce((sum, sale) => {
                 const saleCost = (sale.products || []).reduce((saleSum, product) => {
-                    const prod = products.find(p => p.id === product.productId);
-                    if (prod) {
-                        return saleSum + (prod.purchasePrice * product.quantity);
-                    }
-                    return saleSum;
+                    // Usar purchasePrice ya incluido por la API o buscar en productos
+                    const pPrice = parseFloat(product.purchasePrice || product.purchase_price || 0);
+                    return saleSum + (pPrice * (parseInt(product.quantity) || 0));
                 }, 0);
                 return sum + saleCost;
             }, 0);
@@ -5127,11 +5125,16 @@
             `;
 
             sales.forEach(sale => {
+                const customerName = sale.customerInfo?.name || sale.customer_name || 'Cliente de Mostrador';
+                const invoiceDisplay = sale.invoice_number || sale.id || 'N/A';
+                const statusBadge = sale.status === 'pending' ? 
+                    `<br><span class="badge badge-warning" style="font-size: 0.7em;">Pendiente</span>` : '';
+
                 html += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px;">${formatDate(sale.date)}</td>
-                        <td style="padding: 10px;">${sale.id || 'N/A'}</td>
-                        <td style="padding: 10px;">${sale.customerName || 'Cliente General'}</td>
+                        <td style="padding: 10px;"><strong>${invoiceDisplay}</strong>${statusBadge}</td>
+                        <td style="padding: 10px;">${customerName}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(sale.total)}</td>
                         <td style="padding: 10px; text-align: center;">
                             <span class="payment-badge ${getPaymentMethodClass(sale.paymentMethod)}">${getPaymentMethodName(sale.paymentMethod)}</span>
@@ -5179,7 +5182,6 @@
                                 <tr>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Descripción</th>
-                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Categoría</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Monto</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Usuario</th>
                                 </tr>
@@ -5192,7 +5194,6 @@
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px;">${formatDate(expense.date)}</td>
                         <td style="padding: 10px;">${expense.description}</td>
-                        <td style="padding: 10px;">${expense.category || 'General'}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(expense.amount)}</td>
                         <td style="padding: 10px;">${getUserName(expense.user)}</td>
                     </tr>
@@ -5311,10 +5312,10 @@
             warranties.forEach(warranty => {
                 html += `
                     <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 10px;">${formatDate(warranty.createdAt)}</td>
-                        <td style="padding: 10px;">${warranty.saleId || 'N/A'}</td>
+                        <td style="padding: 10px;">${formatDate(warranty.createdAt || warranty.created_at)}</td>
+                        <td style="padding: 10px;">${warranty.originalSaleId || warranty.sale_id || 'N/A'}</td>
                         <td style="padding: 10px;">${warranty.customerName || 'N/A'}</td>
-                        <td style="padding: 10px;">${getWarrantyReasonText(warranty.reason)}</td>
+                        <td style="padding: 10px;">${getWarrantyReasonText(warranty.reason || warranty.warrantyReason)}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(warranty.totalCost || 0)}</td>
                         <td style="padding: 10px;">${getWarrantyStatusText(warranty.status || 'pending')}</td>
                     </tr>
@@ -5371,14 +5372,13 @@
             sales.forEach(sale => {
                 if (sale.products && sale.products.length > 0) {
                     sale.products.forEach((product, idx) => {
-                        const productData = products.find(p => p.id === product.productId);
-                        const unitCost = productData ? productData.purchasePrice : product.purchasePrice || 0;
-                        const totalCost = unitCost * product.quantity;
+                        const unitCost = parseFloat(product.purchasePrice || product.purchase_price || 0);
+                        const totalCost = unitCost * (parseInt(product.quantity) || 0);
 
                         html += `
                             <tr style="border-bottom: 1px solid #eee;">
                                 <td style="padding: 10px;">${idx === 0 ? formatDate(sale.date) : ''}</td>
-                                <td style="padding: 10px;">${product.productName || productData?.name || 'Producto'}</td>
+                                <td style="padding: 10px;">${product.productName || product.product_name || 'Producto'}</td>
                                 <td style="padding: 10px; text-align: center;">${product.quantity}</td>
                                 <td style="padding: 10px; text-align: right;">${formatCurrency(unitCost)}</td>
                                 <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(totalCost)}</td>
