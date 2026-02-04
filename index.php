@@ -2541,6 +2541,7 @@
                                     <div class="form-group">
                                         <label for="newProductRef">Referencia del Nuevo Producto</label>
                                         <input type="text" id="newProductRef" class="form-control" placeholder="REFXXX">
+                                        <div id="newProductStatus" style="font-size: 0.8rem; margin-top: 4px; font-weight: 500;"></div>
                                         <small class="form-text" style="font-size: 0.8rem;">Referencia del producto de
                                             reemplazo</small>
                                     </div>
@@ -6011,10 +6012,40 @@
                 updateWarrantyCostSummary();
             });
 
-            // Actualizar resumen de costos al cambiar valores
             ['additionalValue', 'shippingValue'].forEach(id => {
                 document.getElementById(id).addEventListener('input', updateWarrantyCostSummary);
             });
+
+            // Lógica: Autocompletar nombre del producto al ingresar referencia en Garantías
+            const newProductRefInput = document.getElementById('newProductRef');
+            const newProductNameInput = document.getElementById('newProductName');
+            const newProductStatus = document.getElementById('newProductStatus');
+            
+            if (newProductRefInput && newProductNameInput && newProductStatus) {
+                newProductRefInput.addEventListener('input', function() {
+                    const ref = this.value.trim().toUpperCase();
+                    if (ref) {
+                        const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                        const product = products.find(p => p.id === ref);
+                        
+                        if (product) {
+                            newProductNameInput.value = product.name;
+                            this.style.borderColor = 'var(--success)';
+                            newProductStatus.textContent = '✅ Producto encontrado: ' + product.name;
+                            newProductStatus.style.color = 'var(--success)';
+                        } else {
+                            newProductNameInput.value = '';
+                            this.style.borderColor = 'var(--danger)';
+                            newProductStatus.textContent = '❌ Referencia no encontrada';
+                            newProductStatus.style.color = 'var(--danger)';
+                        }
+                    } else {
+                        this.style.borderColor = '';
+                        newProductStatus.textContent = '';
+                        newProductNameInput.value = '';
+                    }
+                });
+            }
 
             // Enviar formulario
             form.addEventListener('submit', async function (e) {
@@ -6923,13 +6954,14 @@
                         </div>
                         
                         <div id="editWarrantyDifferentFields" style="display: ${movement.productType === 'different' ? 'block' : 'none'};">
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-barcode"></i> Ref. Nuevo Producto
-                                </label>
-                                <input type="text" name="newProductRef" value="${movement.newProductRef || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                        <i class="fas fa-barcode"></i> Ref. Nuevo Producto
+                                    </label>
+                                    <input type="text" name="newProductRef" value="${movement.newProductRef || ''}" 
+                                           class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <div class="edit-product-status" style="font-size: 0.8rem; margin-top: 4px; font-weight: 500;"></div>
+                                </div>
                             
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -7046,6 +7078,40 @@
                 if (ptSelect && diffFields) {
                     ptSelect.addEventListener('change', function() {
                         diffFields.style.display = this.value === 'different' ? 'block' : 'none';
+                    });
+                }
+
+                // Listener para autocompletar en edición de garantía
+                const editRefInput = modalContent.querySelector('[name="newProductRef"]');
+                const editNameInput = modalContent.querySelector('[name="newProductName"]');
+                const editStatus = modalContent.querySelector('.edit-product-status');
+                
+                if (editRefInput && editNameInput) {
+                    editRefInput.addEventListener('input', function() {
+                        const ref = this.value.trim().toUpperCase();
+                        if (ref) {
+                            const products = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                            const product = products.find(p => p.id === ref);
+                            if (product) {
+                                editNameInput.value = product.name;
+                                this.style.borderColor = 'var(--success)';
+                                if (editStatus) {
+                                    editStatus.textContent = '✅ Producto encontrado: ' + product.name;
+                                    editStatus.style.color = 'var(--success)';
+                                }
+                            } else {
+                                editNameInput.value = '';
+                                this.style.borderColor = 'var(--danger)';
+                                if (editStatus) {
+                                    editStatus.textContent = '❌ Referencia no encontrada';
+                                    editStatus.style.color = 'var(--danger)';
+                                }
+                            }
+                        } else {
+                            this.style.borderColor = '';
+                            if (editStatus) editStatus.textContent = '';
+                            editNameInput.value = '';
+                        }
                     });
                 }
             }
@@ -7744,7 +7810,6 @@
                     showDialog('Error', 'Por favor ingrese datos válidos.', 'error');
                     return;
                 }
-
                 // Agregar al carrito
                 addToCart(productRef, quantity, saleType, discount);
             });
