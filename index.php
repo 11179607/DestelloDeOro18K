@@ -4902,74 +4902,77 @@
 
             try {
                 // Obtener datos ya filtrados por el servidor
-                const [sales, expenses, restocks, warranties] = await Promise.all([
-                    fetch(`api/sales.php${queryParams}`).then(r => r.json()),
-                    fetch(`api/expenses.php${queryParams}`).then(r => r.json()),
-                    fetch(`api/restocks.php${queryParams}`).then(r => r.json()),
-                    fetch(`api/warranties.php${queryParams}`).then(r => r.json())
+                const responses = await Promise.all([
+                    fetch(`api/sales.php${queryParams}`),
+                    fetch(`api/expenses.php${queryParams}`),
+                    fetch(`api/restocks.php${queryParams}`),
+                    fetch(`api/warranties.php${queryParams}`)
                 ]);
 
-                // Calcular totales
-                const totalSales = sales.reduce((sum, sale) => sum + (parseFloat(sale.total) || 0), 0);
-                const totalExpenses = expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
+                // Validar que todas las respuestas sean exitosas
+                for (const res of responses) {
+                    if (!res.ok) throw new Error(`Error en API: ${res.url} (${res.status})`);
+                }
+
+                const [sales, expenses, restocks, warranties] = await Promise.all(responses.map(r => r.json()));
+
+                // Calcular totales de forma segura
+                const totalSales = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.total) || 0), 0);
+                const totalExpenses = (expenses || []).reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
                 
-                // Calcular costo real usando purchasePrice incluido en cada venta (gracias a mi cambio anterior en API)
-                const costOfGoodsSold = sales.reduce((sum, sale) => {
-                    return sum + (sale.products || []).reduce((pSum, p) => pSum + (p.purchasePrice * p.quantity), 0);
+                // Calcular costo real recorriendo los productos vendidos
+                const costOfGoodsSold = (sales || []).reduce((sum, sale) => {
+                    const itemsCost = (sale.products || []).reduce((pSum, p) => pSum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
+                    return sum + itemsCost;
                 }, 0);
 
-                const totalWarrantyCosts = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.total_cost || warranty.totalCost) || 0), 0);
-                const totalWarrantyIncrement = sales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement) || 0), 0);
+                const totalWarrantyCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost || warranty.total_cost) || 0), 0);
+                const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
                 
                 const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
+
+                // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
+                if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
+                    console.log(`Debug: No se encontraron datos para el mes ${currentMonth + 1}/${currentYear}`);
+                }
 
                 // Actualizar resumen mensual
                 monthlySummary.innerHTML = `
                     <div class="stat-card clickable" onclick="showMonthlyDetails('sales')">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
                         <div class="stat-value">${formatCurrency(totalSales)}</div>
                         <div class="stat-label">Ventas del Mes</div>
-                        <small>${sales.length} ventas confirmadas</small>
-                        <small style="color: var(--warning);">Incl. garantías: ${formatCurrency(totalWarrantyIncrement)}</small>
+                        <small>${(sales || []).length} ventas (entregadas/pendientes)</small>
+                        <small style="color: var(--warning);">Incremento Garantías: ${formatCurrency(totalWarrantyIncrement)}</small>
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('expenses')">
-                        <div class="stat-icon">
-                            <i class="fas fa-receipt"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
                         <div class="stat-value">${formatCurrency(totalExpenses)}</div>
                         <div class="stat-label">Gastos del Mes</div>
-                        <small>${expenses.length} gastos registrados</small>
+                        <small>${(expenses || []).length} gastos registrados</small>
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('restocks')">
-                        <div class="stat-icon">
-                            <i class="fas fa-boxes"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
                         <div class="stat-value">${formatCurrency(costOfGoodsSold)}</div>
                         <div class="stat-label">Costo de lo Vendido</div>
-                        <small>Costo real del inventario vendido</small>
+                        <small>Inversión en productos vendidos</small>
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('warranties')">
-                        <div class="stat-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
                         <div class="stat-value">${formatCurrency(totalWarrantyCosts)}</div>
                         <div class="stat-label">Costos Garantías</div>
-                        <small>${warranties.length} garantías gestionadas</small>
+                        <small>${(warranties || []).length} garantías con costo</small>
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
-                        <div class="stat-icon">
-                            <i class="fas fa-coins"></i>
-                        </div>
-                        <div class="stat-value">${formatCurrency(netProfit)}</div>
-                        <div class="stat-label">Ganancia Neta</div>
-                        <small>Ventas - Gastos - Costo de lo Vendido - Garantías</small>
+                        <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                        <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
+                        <div class="stat-label">Ganancia Real</div>
+                        <small>Ventas - Gastos - Costo Inv - Garantías</small>
                     </div>
                 `;
             } catch (error) {
                 console.error('Error al cargar resumen mensual:', error);
-                monthlySummary.innerHTML = '<p style="color: grey; padding: 20px;">Error al cargar datos financieros.</p>';
+                monthlySummary.innerHTML = '<p style="color: grey; padding: 20px;">No se pudieron cargar los datos financieros. Verifica la conexión.</p>';
             }
         }
 

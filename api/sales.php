@@ -36,7 +36,7 @@ if ($method === 'GET') {
             $month = $_GET['month'] ?? null;
             $year = $_GET['year'] ?? null;
             
-            $sql = "SELECT * FROM sales WHERE status = 'completed'";
+            $sql = "SELECT * FROM sales WHERE status IN ('completed', 'pending')";
             $params = [];
             
             if ($month !== null && $year !== null) {
