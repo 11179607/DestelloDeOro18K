@@ -6673,12 +6673,14 @@
                     let warrantyProductInfo = '';
                     if (movement.productType === 'different') {
                         warrantyProductInfo = `
-                            <div><strong>Producto de garantía:</strong> ${movement.newProductName || 'No especificado'} (${movement.newProductRef || 'Sin referencia'})</div>
+                            <div><strong>Producto de reemplazo:</strong> ${movement.newProductName || 'No especificado'} (${movement.newProductRef || 'Sin referencia'})</div>
                             <div><strong>Valor adicional:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
                         `;
                     } else {
-                        warrantyProductInfo = `<div><strong>Producto de garantía:</strong> Mismo producto (${movement.originalProductId})</div>`;
+                        warrantyProductInfo = `<div><strong>Producto de reemplazo:</strong> Mismo producto (${movement.originalProductId})</div>`;
                     }
+
+                    const reasonLabel = warrantyReasons[movement.warrantyReason] || movement.warrantyReason || 'No especificado';
 
                     let statusMessage = '';
                     if (movement.status === 'pending' || movement.status === 'in_process') {
@@ -6712,9 +6714,9 @@
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem;">
                                 <div><strong>Producto original:</strong> ${movement.originalProductName} (${movement.originalProductId})</div>
-                                <div><strong>Cantidad:</strong> ${movement.quantity || 1}</div>
+                                <div><strong>Cantidad:</strong> ${movement.quantity || 1} unidades</div>
                                 ${warrantyProductInfo}
-                                <div><strong>Motivo:</strong> ${movement.warrantyReasonText || movement.warrantyReason}</div>
+                                <div><strong>Motivo:</strong> ${reasonLabel}</div>
                                 <div><strong>Garantía hasta:</strong> ${formatDateSimple(movement.endDate)}</div>
                             </div>
                         </div>

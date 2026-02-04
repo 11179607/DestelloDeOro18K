@@ -53,6 +53,12 @@ if ($method === 'GET') {
             $warranty['originalProductId'] = $warranty['product_ref'];
             $warranty['originalProductName'] = $warranty['product_name'];
             
+            // Producto de reemplazo (si aplica)
+            $warranty['productType'] = $warranty['product_type'];
+            $warranty['newProductRef'] = $warranty['new_product_ref'];
+            $warranty['newProductName'] = $warranty['new_product_name'];
+            $warranty['quantity'] = intval($warranty['quantity'] ?? 1);
+            
             // Motivo de garantía
             $warranty['warrantyReason'] = $warranty['reason'];
             $warranty['warrantyReasonText'] = $warranty['reason'];
