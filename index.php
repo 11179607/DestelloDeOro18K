@@ -3835,15 +3835,21 @@
                     fetch(`api/restocks.php${queryParams}`).then(r => r.json()),
                     fetch(`api/warranties.php${queryParams}`).then(r => r.json()),
                     fetch(`api/pending_sales.php${queryParams}`).then(r => r.json()),
-                    fetch(`api/products.php`).then(r => r.json()) // Products no tiene filtro de fecha en backend usualmente, manejaremos en JS
+                    fetch(`api/products.php`).then(r => r.json()) 
                 ]);
 
-                // Actualizar caché para compatibilidad
-                localStorage.setItem('destelloOroSales', JSON.stringify(sales));
-                localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses));
-                localStorage.setItem('destelloOroRestocks', JSON.stringify(restocks));
-                localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
-                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
+                // Validar respuestas
+                if (!Array.isArray(sales) || !Array.isArray(expenses) || !Array.isArray(restocks) || !Array.isArray(warranties)) {
+                    console.error('Una o más respuestas de la API de historial no son arrays');
+                    return;
+                }
+
+                // Guardar en localStorage para acceso rápido (Caché del mes actual)
+                localStorage.setItem('destelloOroHistorySales', JSON.stringify(sales));
+                localStorage.setItem('destelloOroHistoryExpenses', JSON.stringify(expenses));
+                localStorage.setItem('destelloOroHistoryRestocks', JSON.stringify(restocks));
+                localStorage.setItem('destelloOroHistoryWarranties', JSON.stringify(warranties));
+                localStorage.setItem('destelloOroHistoryPendingSales', JSON.stringify(pendingSales));
                 localStorage.setItem('destelloOroProducts', JSON.stringify(products));
 
                 // Sincronizar el contador de facturas basado en el historial real
@@ -4379,9 +4385,9 @@
             let totalValue = 0;
 
             if (type === 'investment') {
-                const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
-                const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
-                const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+                const expenses = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses')) || [];
+                const restocks = JSON.parse(localStorage.getItem('destelloOroHistoryRestocks')) || [];
+                const warranties = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties')) || [];
                 const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                 
                 // Filtrar productos por fecha actual (mes/año seleccionado globalmente)
@@ -4403,19 +4409,19 @@
             } else {
                 switch (type) {
                     case 'sales':
-                        data = JSON.parse(localStorage.getItem('destelloOroSales'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistorySales'));
                         break;
                     case 'expenses':
-                        data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses'));
                         break;
                     case 'restocks':
-                        data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryRestocks'));
                         break;
                     case 'warranties':
-                        data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties'));
                         break;
                     case 'pending':
-                        data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryPendingSales'));
                         break;
                 }
 
@@ -4505,9 +4511,9 @@
             // Obtener datos
             let data = [];
             if (type === 'investment') {
-                 const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
-                 const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
-                 const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+                 const expenses = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses')) || [];
+                 const restocks = JSON.parse(localStorage.getItem('destelloOroHistoryRestocks')) || [];
+                 const warranties = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties')) || [];
                  const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                  
                  // Filtro de productos
@@ -4558,19 +4564,19 @@
             } else {
                 switch (type) {
                     case 'sales':
-                        data = JSON.parse(localStorage.getItem('destelloOroSales'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistorySales'));
                         break;
                     case 'expenses':
-                        data = JSON.parse(localStorage.getItem('destelloOroExpenses'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses'));
                         break;
                     case 'restocks':
-                        data = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryRestocks'));
                         break;
                     case 'warranties':
-                        data = JSON.parse(localStorage.getItem('destelloOroWarranties'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties'));
                         break;
                     case 'pending':
-                        data = JSON.parse(localStorage.getItem('destelloOroPendingSales'));
+                        data = JSON.parse(localStorage.getItem('destelloOroHistoryPendingSales'));
                         break;
                 }
             }
@@ -4982,10 +4988,10 @@
             const content = document.getElementById('monthlyDetailsContent');
 
             // Obtener datos del mes actual
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales')) || [];
-            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
-            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
-            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+            const sales = JSON.parse(localStorage.getItem('destelloOroHistorySales')) || [];
+            const expenses = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses')) || [];
+            const restocks = JSON.parse(localStorage.getItem('destelloOroHistoryRestocks')) || [];
+            const warranties = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties')) || [];
 
             // Usar las variables globales currentMonth y currentYear
             // const currentDate = new Date();
@@ -5470,10 +5476,10 @@
             let content = '';
 
             // Obtener datos según el tipo
-            const sales = JSON.parse(localStorage.getItem('destelloOroSales')) || [];
-            const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses')) || [];
-            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks')) || [];
-            const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties')) || [];
+            const sales = JSON.parse(localStorage.getItem('destelloOroHistorySales')) || [];
+            const expenses = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses')) || [];
+            const restocks = JSON.parse(localStorage.getItem('destelloOroHistoryRestocks')) || [];
+            const warranties = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties')) || [];
 
             const monthlySales = sales.filter(sale => {
                 const saleDate = new Date(sale.date);
@@ -5704,7 +5710,7 @@
 
         // Función auxiliar para ver detalles de surtido
         window.viewRestockDetails = async function (productId, date) {
-            const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
+            const restocks = JSON.parse(localStorage.getItem('destelloOroHistoryRestocks'));
             const restock = restocks.find(r => r.productId === productId && r.date === date);
 
             if (restock) {
@@ -5797,8 +5803,8 @@
 
                 // Buscar ventas del cliente - Mejorado para buscar en API si es posible o usar cache robusto
                 // Primero intentamos usar lo que hay en memoria, pero asegurándonos de tener datos frescos
-                let sales = JSON.parse(localStorage.getItem('destelloOroSales') || '[]');
-                const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties') || '[]');
+                let sales = JSON.parse(localStorage.getItem('destelloOroHistorySales') || '[]');
+                const warranties = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties') || '[]');
 
                 console.log(`Buscando ventas para: "${searchTerm}"`);
                 const customerSales = sales.filter(sale => {
@@ -6124,8 +6130,13 @@
                 const response = await fetch('api/warranties.php');
                 const warranties = await response.json();
                 
+                if (!Array.isArray(warranties)) {
+                    console.error('Error: La respuesta de garantías no es un array', warranties);
+                    return;
+                }
+                
                 // Actualizar caché local para compatibilidad
-                localStorage.setItem('destelloOroWarranties', JSON.stringify(warranties));
+                localStorage.setItem('destelloOroAllWarranties', JSON.stringify(warranties));
             const tableBody = document.getElementById('warrantiesTableBody');
             const statsContainer = document.getElementById('warrantyStats');
 
@@ -6225,7 +6236,7 @@
             });
 
             // Actualizar estadísticas 
-            renderWarrantyStats(pendingCount, inProcessCount, completedCount, totalCost, totalIncrement);
+            renderWarrantyStats(pendingCount, inProcessCount, completedCount, cost, increment);
 
             } catch (error) {
                 console.error('Error cargando garantías:', error);
@@ -6283,31 +6294,35 @@
             let movement = null;
             let title = '';
 
-            // Buscar el movimiento según el tipo
+            // Buscar el movimiento en todos los posibles caches
+            const searchInCaches = (keys, id) => {
+                for (const key of keys) {
+                    const data = JSON.parse(localStorage.getItem(key)) || [];
+                    const found = data.find(item => (item.id == id || item.invoice_number == id));
+                    if (found) return found;
+                }
+                return null;
+            };
+
             switch (type) {
                 case 'sales':
-                    const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                    movement = sales.find(s => s.id == movementId);
+                    movement = searchInCaches(['destelloOroHistorySales', 'destelloOroAllSales', 'destelloOroHistoryPendingSales', 'destelloOroPendingSales'], movementId);
                     title = `Detalles de Venta - ${movementId}`;
                     break;
                 case 'expenses':
-                    const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                    movement = expenses.find(e => e.id == movementId);
+                    movement = searchInCaches(['destelloOroHistoryExpenses', 'destelloOroAllExpenses'], movementId);
                     title = `Detalles de Gasto - ${movementId}`;
                     break;
                 case 'restocks':
-                    const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
-                    movement = restocks.find(r => r.id == movementId);
+                    movement = searchInCaches(['destelloOroHistoryRestocks', 'destelloOroAllRestocks'], movementId);
                     title = `Detalles de Surtido - ${movementId}`;
                     break;
                 case 'warranties':
-                    const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                    movement = warranties.find(w => w.id == movementId);
+                    movement = searchInCaches(['destelloOroHistoryWarranties', 'destelloOroAllWarranties'], movementId);
                     title = `Detalles de Garantía - ${movementId}`;
                     break;
                 case 'product':
-                    const products = JSON.parse(localStorage.getItem('destelloOroProducts'));
-                    movement = products.find(p => p.id == movementId);
+                    movement = searchInCaches(['destelloOroProducts'], movementId);
                     title = `Detalles de Producto - ${movementId}`;
                     break;
                 default:
@@ -6570,26 +6585,30 @@
             let movement = null;
 
             // Buscar el movimiento según el tipo
+            const searchInCaches = (keys, id) => {
+                for (const key of keys) {
+                    const data = JSON.parse(localStorage.getItem(key)) || [];
+                    const found = data.find(item => (item.id == id || item.invoice_number == id));
+                    if (found) return found;
+                }
+                return null;
+            };
+
             switch (type) {
                 case 'sales':
-                    const sales = JSON.parse(localStorage.getItem('destelloOroSales'));
-                    movement = sales.find(s => s.id == movementId);
+                    movement = searchInCaches(['destelloOroHistorySales', 'destelloOroAllSales', 'destelloOroHistoryPendingSales', 'destelloOroPendingSales'], movementId);
                     break;
                 case 'expenses':
-                    const expenses = JSON.parse(localStorage.getItem('destelloOroExpenses'));
-                    movement = expenses.find(e => e.id == movementId);
+                    movement = searchInCaches(['destelloOroHistoryExpenses', 'destelloOroAllExpenses'], movementId);
                     break;
                 case 'warranties':
-                    const warranties = JSON.parse(localStorage.getItem('destelloOroWarranties'));
-                    movement = warranties.find(w => w.id == movementId);
+                    movement = searchInCaches(['destelloOroHistoryWarranties', 'destelloOroAllWarranties'], movementId);
                     break;
                 case 'product':
-                    const products = JSON.parse(localStorage.getItem('destelloOroProducts'));
-                    movement = products.find(p => p.id == movementId);
+                    movement = searchInCaches(['destelloOroProducts'], movementId);
                     break;
                 case 'restocks':
-                    const restocks = JSON.parse(localStorage.getItem('destelloOroRestocks'));
-                    movement = restocks.find(r => r.id == movementId);
+                    movement = searchInCaches(['destelloOroHistoryRestocks', 'destelloOroAllRestocks'], movementId);
                     break;
                 default:
                     showDialog('Error', 'Tipo de movimiento no válido para edición.', 'error');
@@ -8430,24 +8449,44 @@
                 localStorage.setItem('destelloOroProducts', JSON.stringify([]));
             }
 
-            if (!localStorage.getItem('destelloOroSales')) {
-                localStorage.setItem('destelloOroSales', JSON.stringify([]));
+            if (!localStorage.getItem('destelloOroAllSales')) {
+                localStorage.setItem('destelloOroAllSales', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroHistorySales')) {
+                localStorage.setItem('destelloOroHistorySales', JSON.stringify([]));
             }
 
             if (!localStorage.getItem('destelloOroPendingSales')) {
                 localStorage.setItem('destelloOroPendingSales', JSON.stringify([]));
             }
 
-            if (!localStorage.getItem('destelloOroExpenses')) {
-                localStorage.setItem('destelloOroExpenses', JSON.stringify([]));
+            if (!localStorage.getItem('destelloOroHistoryPendingSales')) {
+                localStorage.setItem('destelloOroHistoryPendingSales', JSON.stringify([]));
             }
 
-            if (!localStorage.getItem('destelloOroRestocks')) {
-                localStorage.setItem('destelloOroRestocks', JSON.stringify([]));
+            if (!localStorage.getItem('destelloOroAllExpenses')) {
+                localStorage.setItem('destelloOroAllExpenses', JSON.stringify([]));
             }
 
-            if (!localStorage.getItem('destelloOroWarranties')) {
-                localStorage.setItem('destelloOroWarranties', JSON.stringify([]));
+            if (!localStorage.getItem('destelloOroHistoryExpenses')) {
+                localStorage.setItem('destelloOroHistoryExpenses', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroAllRestocks')) {
+                localStorage.setItem('destelloOroAllRestocks', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroHistoryRestocks')) {
+                localStorage.setItem('destelloOroHistoryRestocks', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroAllWarranties')) {
+                localStorage.setItem('destelloOroAllWarranties', JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem('destelloOroHistoryWarranties')) {
+                localStorage.setItem('destelloOroHistoryWarranties', JSON.stringify([]));
             }
 
             if (!localStorage.getItem('destelloOroNextInvoiceId')) {
@@ -8470,6 +8509,11 @@
             try {
                 const response = await fetch('api/products.php');
                 const products = await response.json();
+                
+                if (!Array.isArray(products)) {
+                    console.error('Error: La respuesta de productos no es un array', products);
+                    return;
+                }
                 
                 // Actualizar caché local para otras funciones síncronas (paso intermedio vital)
                 localStorage.setItem('destelloOroProducts', JSON.stringify(products));
@@ -8497,8 +8541,8 @@
                 }
 
                 filteredProducts.forEach(product => {
-                    const profit = product.retailPrice - product.purchasePrice;
-                    const profitPercentage = (profit / product.purchasePrice * 100).toFixed(2);
+                    const profit = (parseFloat(product.retailPrice) || 0) - (parseFloat(product.purchasePrice) || 0);
+                    const profitPercentage = (parseFloat(product.purchasePrice) > 0) ? (profit / parseFloat(product.purchasePrice) * 100).toFixed(2) : '0';
                     const row = document.createElement('tr');
 
                     // Determinar si mostrar botón de eliminar (solo para admin)
@@ -8568,7 +8612,12 @@
                 const response = await fetch('api/expenses.php');
                 const expenses = await response.json();
                 
-                 localStorage.setItem('destelloOroExpenses', JSON.stringify(expenses)); // Cache for history if needed
+                if (!Array.isArray(expenses)) {
+                    console.error('Error: La respuesta de gastos no es un array', expenses);
+                    return;
+                }
+
+                localStorage.setItem('destelloOroAllExpenses', JSON.stringify(expenses)); // Cache específico para la tabla general
 
                 const tableBody = document.getElementById('expensesTableBody');
                 tableBody.innerHTML = '';
@@ -8614,7 +8663,13 @@
                 const response = await fetch('api/pending_sales.php');
                 const pendingSales = await response.json();
                 
-                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales)); // Cache
+                if (!Array.isArray(pendingSales)) {
+                    console.error('Error: La respuesta de ventas pendientes no es un array', pendingSales);
+                    return;
+                }
+                
+                localStorage.setItem('destelloOroHistoryPendingSales', JSON.stringify(pendingSales)); 
+                localStorage.setItem('destelloOroPendingSales', JSON.stringify(pendingSales));
 
                 const tableBody = document.getElementById('pendingTableBody');
                 tableBody.innerHTML = '';
