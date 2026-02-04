@@ -2372,7 +2372,7 @@
                 </div>
 
                 <!-- Contador Manual de Garantías y Costos (Solo Admin) -->
-                <div class="card admin-only"
+                <div class="card admin-only" id="warrantyManualCard"
                     style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid var(--gold-primary);">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
@@ -2390,7 +2390,7 @@
                 </div>
 
                 <!-- Formulario para buscar cliente -->
-                <div class="card">
+                <div class="card" id="warrantySearchCard">
                     <h3
                         style="margin-bottom: 1rem; color: var(--gold-dark); display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
                         <i class="fas fa-search"></i> Buscar Cliente para Garantía
@@ -5741,10 +5741,10 @@
             // Mostrar formulario
             addBtn.addEventListener('click', function () {
                 const formElement = document.getElementById('addWarrantyForm');
-                const customerSearchCard = document.querySelector('#warranties .card:first-child');
-
                 // Mostrar búsqueda de cliente, ocultar formulario
-                customerSearchCard.style.display = 'block';
+                document.getElementById('warrantySearchCard').style.display = 'block';
+                const manualCard = document.getElementById('warrantyManualCard');
+                if (manualCard) manualCard.style.display = 'block';
                 formElement.style.display = 'none';
 
                 // Limpiar campos
@@ -5761,9 +5761,9 @@
             // Volver a búsqueda de cliente
             backBtn.addEventListener('click', function () {
                 const formElement = document.getElementById('addWarrantyForm');
-                const customerSearchCard = document.querySelector('#warranties .card:first-child');
-
-                customerSearchCard.style.display = 'block';
+                document.getElementById('warrantySearchCard').style.display = 'block';
+                const manualCard = document.getElementById('warrantyManualCard');
+                if (manualCard) manualCard.style.display = 'block';
                 formElement.style.display = 'none';
 
                 // Limpiar campos
@@ -5783,7 +5783,9 @@
                 form.reset();
 
                 // Mostrar búsqueda de cliente
-                document.querySelector('#warranties .card:first-child').style.display = 'block';
+                document.getElementById('warrantySearchCard').style.display = 'block';
+                const manualCard = document.getElementById('warrantyManualCard');
+                if (manualCard) manualCard.style.display = 'block';
             });
 
             // Buscar cliente al escribir
@@ -5995,8 +5997,16 @@
                          // Reset cache manually if needed or trust reload
                         
                         form.reset();
+                        // Limpiar búsqueda
+                        const searchInput = document.getElementById('searchCustomerWarranty');
+                        if (searchInput) searchInput.value = '';
+                        const searchResults = document.getElementById('customerSearchResults');
+                        if (searchResults) searchResults.style.display = 'none';
+                        
                         document.getElementById('addWarrantyForm').style.display = 'none';
-                        document.querySelector('#warranties .card:first-child').style.display = 'block';
+                        document.getElementById('warrantySearchCard').style.display = 'block';
+                        const manualCard = document.getElementById('warrantyManualCard');
+                        if (manualCard) manualCard.style.display = 'block';
                         selectedSaleForWarranty = null;
 
                         await showDialog('Éxito', 'Garantía registrada exitosamente.', 'success');
@@ -6016,7 +6026,9 @@
             selectedSaleForWarranty = sale;
 
             // Ocultar búsqueda, mostrar formulario
-            document.querySelector('#warranties .card:first-child').style.display = 'none';
+            document.getElementById('warrantySearchCard').style.display = 'none';
+            const manualCard = document.getElementById('warrantyManualCard');
+            if (manualCard) manualCard.style.display = 'none';
             document.getElementById('addWarrantyForm').style.display = 'block';
 
             // CORREGIDO: LLENAR ID DE FACTURA AUTOMÁTICAMENTE Y HACERLO VISIBLE
