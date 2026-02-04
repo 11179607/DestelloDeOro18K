@@ -18,7 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Icono para la ventana del navegador -->
-    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <link rel="icon" type="image/jpeg" href="fondo.jpeg">
     <style>
         :root {
             --gold-primary: #D4AF37;
