@@ -2710,8 +2710,8 @@
                         <i class="fas fa-chart-line"></i>
                         <h2>Historial Completo</h2>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="historyFilter" class="form-control" style="width: auto;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="historyFilter" class="form-control" style="width: auto; padding: 8px 12px; height: auto;">
                             <option value="all">Todos los movimientos</option>
                             <option value="sales">Ventas</option>
                             <option value="expenses">Gastos</option>
@@ -2722,9 +2722,10 @@
                             <option value="admin_audit">Movimientos Admin</option>
                             <option value="investment">Inversión (Gastos + Costos)</option>
                         </select>
-                        <button id="refreshHistory" class="btn btn-info">
+                        <button id="refreshHistory" class="btn btn-info" style="padding: 8px 16px; height: auto;">
                             <i class="fas fa-sync-alt"></i> Actualizar
                         </button>
+                    </div>
                         <!-- Selector de mes y año -->
                         <div id="monthYearSelectors" style="display: flex; gap: 10px; align-items: center;">
                             <div class="form-group" style="margin: 0;">
