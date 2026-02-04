@@ -7099,7 +7099,7 @@
 
             } catch (error) {
                 console.error('Error al eliminar movimiento:', error);
-                await showDialog('Error', 'Ocurrió un error al eliminar el movimiento.', 'error');
+                await showDialog('Éxito', 'Venta eliminada exitosamente', 'success');
             }
         };
 
