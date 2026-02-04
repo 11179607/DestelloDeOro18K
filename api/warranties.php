@@ -93,14 +93,15 @@ if ($method === 'GET') {
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS username VARCHAR(50) AFTER user_id");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_by VARCHAR(50)");
+             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1 AFTER product_name");
         } catch(Exception $e) {}
 
         $sql = "INSERT INTO warranties (
-            sale_id, original_invoice_id, customer_name, product_ref, product_name, reason, end_date, notes,
+            sale_id, original_invoice_id, customer_name, product_ref, product_name, quantity, reason, end_date, notes,
             product_type, new_product_ref, new_product_name, additional_value, shipping_value, total_cost,
             status, user_id, username
         ) VALUES (
-            :sid, :inv, :cust, :pref, :pname, :reason, :edate, :notes,
+            :sid, :inv, :cust, :pref, :pname, :qty_val, :reason, :edate, :notes,
             :ptype, :npref, :npname, :addval, :shipval, :total,
             :status, :uid, :uname
         )";
@@ -123,6 +124,7 @@ if ($method === 'GET') {
             ':cust' => $data->customerName ?? '',
             ':pref' => $data->originalProductId ?? '',
             ':pname' => $data->originalProductName ?? '',
+            ':qty_val' => $data->quantity ?? 1,
             ':reason' => $data->warrantyReason ?? '',
             ':edate' => $data->endDate ?? null,
             ':notes' => $data->notes ?? '',
@@ -142,13 +144,14 @@ if ($method === 'GET') {
         // 2. Lógica de deducción de stock si se crea como completada
         if (($data->status ?? 'pending') === 'completed') {
             $productRef = $data->newProductRef ?? ($data->originalProductId ?? '');
+            $qtyToDeduct = $data->quantity ?? 1;
             if ($productRef) {
                 // Descontar inventario (usando la columna correcta: reference)
-                $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref AND quantity > 0");
-                $stockStmt->execute([':ref' => $productRef]);
+                $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - :qty WHERE reference = :ref AND quantity >= :qty");
+                $stockStmt->execute([':ref' => $productRef, ':qty' => $qtyToDeduct]);
                 
                 if ($stockStmt->rowCount() > 0) {
-                    logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED_COMPLETED', 'WARRANTY', $warrantyId, "Garantía creada como completada. Stock descontado para REF: $productRef");
+                    logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED_COMPLETED', 'WARRANTY', $warrantyId, "Garantía creada como completada. Stock descontado ($qtyToDeduct unidades) para REF: $productRef");
                 }
             }
         } else {
@@ -197,6 +200,7 @@ if ($method === 'GET') {
         if (!$productRef) {
             $productRef = $currentWarranty['product_ref'];
         }
+        $qtyToDeduct = $data->quantity ?? $currentWarranty['quantity'] ?? 1;
 
         $conn->beginTransaction();
 
@@ -206,6 +210,7 @@ if ($method === 'GET') {
                 product_type = :ptype, 
                 new_product_ref = :npref, 
                 new_product_name = :npname, 
+                quantity = :qty_val,
                 additional_value = :addval, 
                 shipping_value = :shipval, 
                 total_cost = :total, 
@@ -221,6 +226,7 @@ if ($method === 'GET') {
             ':ptype' => $data->productType ?? 'same',
             ':npref' => $data->newProductRef ?? $productRef,
             ':npname' => $data->newProductName ?? null,
+            ':qty_val' => $data->quantity ?? 1,
             ':addval' => $data->additionalValue ?? 0,
             ':shipval' => $data->shippingValue ?? 0,
             ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
@@ -238,15 +244,15 @@ if ($method === 'GET') {
             $product = $pStmt->fetch();
 
             if ($product) {
-                if ($product['quantity'] > 0) {
-                    $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE reference = :ref");
-                    $stockStmt->execute([':ref' => $productRef]);
+                if ($product['quantity'] >= $qtyToDeduct) {
+                    $stockStmt = $conn->prepare("UPDATE products SET quantity = quantity - :qty WHERE reference = :ref");
+                    $stockStmt->execute([':qty' => $qtyToDeduct, ':ref' => $productRef]);
                     
                     // Registrar en LOG
-                    logAction($conn, $_SESSION['username'], 'WARRANTY_COMPLETED', 'WARRANTY', $data->id, "Garantía completada. Stock descontado para REF: $productRef");
+                    logAction($conn, $_SESSION['username'], 'WARRANTY_COMPLETED', 'WARRANTY', $data->id, "Garantía completada. Stock descontado ($qtyToDeduct unidades) para REF: $productRef");
                 } else {
                     // Si no hay stock, registrar advertencia
-                    logAction($conn, $_SESSION['username'], 'WARRANTY_WARNING', 'WARRANTY', $data->id, "Garantía completada PERO NO HABÍA STOCK para REF: $productRef");
+                    logAction($conn, $_SESSION['username'], 'WARRANTY_WARNING', 'WARRANTY', $data->id, "Garantía completada PERO NO HABÍA STOCK SUFICIENTE ($qtyToDeduct requeridas) para REF: $productRef");
                 }
             }
         }

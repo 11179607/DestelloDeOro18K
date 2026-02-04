@@ -2482,9 +2482,14 @@
                     <!-- Producto original de la compra -->
                     <div id="originalProductInfo"
                         style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(65, 105, 225, 0.05) 0%, rgba(30, 144, 255, 0.02) 100%); border-radius: var(--radius-md); border: 1px solid var(--medium-gray);">
-                        <h4 style="color: var(--info); margin-bottom: 0.5rem; font-size: 1rem;">
-                            <i class="fas fa-box-open"></i> Producto original
-                        </h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="color: var(--info); margin: 0; font-size: 1rem;">
+                                <i class="fas fa-box-open"></i> Producto de la venta
+                            </h4>
+                            <div id="productSelectContainer" style="display:none;">
+                                <select id="warrantySelectedProduct" class="form-control" style="padding: 4px 8px; font-size: 0.85rem; height: auto; width: auto;"></select>
+                            </div>
+                        </div>
                         <div id="productInfoDisplay"></div>
                     </div>
 
@@ -2507,7 +2512,7 @@
                                 </button>
                             </div>
 
-                            <div class="form-group">
+                             <div class="form-group">
                                 <label for="warrantyReason">Motivo de la Garantía *</label>
                                 <select id="warrantyReason" class="form-control" required>
                                     <option value="">Seleccione un motivo</option>
@@ -2519,6 +2524,12 @@
                                 </select>
                                 <small class="form-text" style="font-size: 0.8rem;">Garantía por rayón, pelo, oxidación,
                                     cambio de color u otro</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="warrantyQuantity">Cantidad para Garantía *</label>
+                                <input type="number" id="warrantyQuantity" class="form-control" min="1" value="1" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Cantidad de unidades que entran en garantía</small>
                             </div>
 
                             <!-- Tipo de producto para garantía -->
@@ -6089,24 +6100,34 @@
                     return;
                 }
 
+                const productSelect = document.getElementById('warrantySelectedProduct');
+                let targetProduct = null;
+                if (selectedSaleForWarranty.products && selectedSaleForWarranty.products.length > 0) {
+                    if (selectedSaleForWarranty.products.length > 1 && productSelect) {
+                        targetProduct = selectedSaleForWarranty.products.find(p => p.productId === productSelect.value);
+                    } else {
+                        targetProduct = selectedSaleForWarranty.products[0];
+                    }
+                } else {
+                    targetProduct = selectedSaleForWarranty; // Fallback for old data structure
+                }
+
                 const warranty = {
                     originalSaleId: warrantySaleId,
-                    customerName: selectedSaleForWarranty.customerInfo.name,
-                    customerId: selectedSaleForWarranty.customerInfo.id,
-                    customerPhone: selectedSaleForWarranty.customerInfo.phone,
-                     // Si data viene de DB, puede que products sea diferente, ajustamos:
-                    originalProductId: selectedSaleForWarranty.products && selectedSaleForWarranty.products.length > 0 ? selectedSaleForWarranty.products[0].productId : 'N/A',
-                    originalProductName: selectedSaleForWarranty.products && selectedSaleForWarranty.products.length > 0 ? selectedSaleForWarranty.products[0].productName : 'N/A',
+                    customerName: selectedSaleForWarranty.customerInfo?.name || selectedSaleForWarranty.customer_name || 'N/A',
+                    customerId: selectedSaleForWarranty.customerInfo?.id || selectedSaleForWarranty.customer_id || 'N/A',
+                    customerPhone: selectedSaleForWarranty.customerInfo?.phone || selectedSaleForWarranty.customer_phone || 'N/A',
+                    originalProductId: targetProduct.productId || targetProduct.reference || targetProduct.id || 'N/A',
+                    originalProductName: targetProduct.productName || targetProduct.name || 'N/A',
+                    quantity: parseInt(document.getElementById('warrantyQuantity').value) || 1,
                     warrantyReason: document.getElementById('warrantyReason').value,
-                    warrantyReasonText: warrantyReasons[document.getElementById('warrantyReason').value] || document.getElementById('warrantyReason').value, // Fallback
-                     // date calc logic in PHP if needed, but passing JS Date is fine
+                    warrantyReasonText: warrantyReasons[document.getElementById('warrantyReason').value] || document.getElementById('warrantyReason').value,
                     endDate: new Date(new Date(selectedSaleForWarranty.date).setMonth(new Date(selectedSaleForWarranty.date).getMonth() + 12)).toISOString().split('T')[0],
                     productType: document.getElementById('warrantyProductType').value,
                     additionalValue: parseFloat(document.getElementById('additionalValue').value) || 0,
                     shippingValue: parseFloat(document.getElementById('shippingValue').value) || 0,
                     status: document.getElementById('warrantyStatus').value,
                     notes: document.getElementById('warrantyNotes').value.trim(),
-                    // createdBy will be set by session in PHP
                 };
 
                 // Si es producto diferente, agregar información del nuevo producto y normalizar a Mayúsculas
@@ -6175,7 +6196,6 @@
 
         // CORREGIDO: Seleccionar venta para garantía - Ahora llena el campo ID de factura
         function selectSaleForWarranty(sale) {
-             // ... Logic remains same ...
             selectedSaleForWarranty = sale;
 
             // Ocultar búsqueda, mostrar formulario
@@ -6197,13 +6217,9 @@
                 statusDiv.style.display = 'block';
             }
 
-            // Calcular fecha de fin de garantía (12 meses desde la compra)
             const saleDate = new Date(sale.date);
             const endDate = new Date(saleDate);
             endDate.setMonth(endDate.getMonth() + 12);
-
-            // Obtener el primer producto (para garantía individual)
-            const firstProduct = sale.products ? sale.products[0] : sale;
 
             // Mostrar información del cliente
             const customerInfoDiv = document.getElementById('customerInfoDisplay');
@@ -6217,25 +6233,53 @@
                 </div>
             `;
 
-            // Mostrar información del producto
+            // Manejar selección de producto
+            const productSelectContainer = document.getElementById('productSelectContainer');
+            const productSelect = document.getElementById('warrantySelectedProduct');
             const productInfoDiv = document.getElementById('productInfoDisplay');
-            // Check properties existence safely
-             const pName = firstProduct.productName || '';
-             const pId = firstProduct.productId || '';
-             const pQty = firstProduct.quantity || 1;
-             
-            productInfoDiv.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.85rem;">
-                    <div><strong>Producto:</strong> ${pName}</div>
-                    <div><strong>Referencia:</strong> ${pId}</div>
-                    <div><strong>Cantidad:</strong> ${pQty}</td>
-                    <div><strong>Valor compra:</strong> ${formatCurrency(sale.total)}</div>
-                    <div><strong>Incremento garantía:</strong> ${formatCurrency(sale.warrantyIncrement || 0)}</div>
-                </div>
-            `;
+            
+            if (sale.products && sale.products.length > 1) {
+                productSelectContainer.style.display = 'block';
+                productSelect.innerHTML = sale.products.map(p => `<option value="${p.productId}">${p.productName} (${p.productId})</option>`).join('');
+                productSelect.onchange = () => {
+                    const p = sale.products.find(prod => prod.productId === productSelect.value);
+                    renderSelectedProductInfo(p, sale);
+                };
+                renderSelectedProductInfo(sale.products[0], sale);
+            } else if (sale.products && sale.products.length === 1) {
+                productSelectContainer.style.display = 'none';
+                renderSelectedProductInfo(sale.products[0], sale);
+            } else {
+                productSelectContainer.style.display = 'none';
+                renderSelectedProductInfo(sale, sale);
+            }
+
+            function renderSelectedProductInfo(product, sale) {
+                const pName = product.productName || product.name || 'N/A';
+                const pId = product.productId || product.reference || product.id || 'N/A';
+                const pQty = product.quantity || 1;
+                
+                productInfoDiv.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.85rem;">
+                        <div><strong>Producto:</strong> ${pName}</div>
+                        <div><strong>Referencia:</strong> ${pId}</div>
+                        <div><strong>Cant. Vendida:</strong> ${pQty}</div>
+                        <div><strong>Valor compra:</strong> ${formatCurrency(sale.total)}</div>
+                        <div><strong>Incremento garantía:</strong> ${formatCurrency(sale.warrantyIncrement || 0)}</div>
+                    </div>
+                `;
+                
+                // Set max quantity in input
+                const qtyInput = document.getElementById('warrantyQuantity');
+                if (qtyInput) {
+                    qtyInput.max = pQty;
+                    qtyInput.value = 1;
+                }
+            }
 
             // Resetear otros campos del formulario
             document.getElementById('warrantyReason').selectedIndex = 0;
+            document.getElementById('warrantyQuantity').value = 1;
             document.getElementById('warrantyProductType').selectedIndex = 0;
             document.getElementById('additionalValue').value = 0;
             document.getElementById('shippingValue').value = 0;
@@ -6668,6 +6712,7 @@
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem;">
                                 <div><strong>Producto original:</strong> ${movement.originalProductName} (${movement.originalProductId})</div>
+                                <div><strong>Cantidad:</strong> ${movement.quantity || 1}</div>
                                 ${warrantyProductInfo}
                                 <div><strong>Motivo:</strong> ${movement.warrantyReasonText || movement.warrantyReason}</div>
                                 <div><strong>Garantía hasta:</strong> ${formatDateSimple(movement.endDate)}</div>
@@ -6972,6 +7017,14 @@
                                     <option value="${key}" ${movement.warrantyReason === key ? 'selected' : ''}>${reason}</option>
                                 `).join('')}
                             </select>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-layer-group"></i> Cantidad
+                            </label>
+                            <input type="number" name="quantity" value="${movement.quantity || 1}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" min="1" required>
                         </div>
                         
                         <div style="margin-bottom: 1rem;">
