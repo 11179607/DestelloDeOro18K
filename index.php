@@ -2727,18 +2727,18 @@
                         </button>
                     </div>
                         <!-- Selector de mes y año -->
-                        <div id="monthYearSelectors" style="display: flex; gap: 10px; align-items: center;">
-                            <div class="form-group" style="margin: 0;">
-                                <label for="monthSelect" style="font-size: 0.9rem; margin-bottom: 5px;"><i
+                        <div id="monthYearSelectors" style="display: flex; gap: 15px; align-items: center;">
+                            <div class="form-group" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <label for="monthSelect" style="font-size: 0.9rem; margin-bottom: 0; white-space: nowrap;"><i
                                         class="fas fa-calendar-day"></i> Mes</label>
-                                <select id="monthSelect" class="form-control" style="width: 120px; padding: 8px;">
+                                <select id="monthSelect" class="form-control" style="width: auto; padding: 8px 12px; height: auto;">
                                     <!-- Se llenará dinámicamente -->
                                 </select>
                             </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label for="yearSelect" style="font-size: 0.9rem; margin-bottom: 5px;"><i
+                            <div class="form-group" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <label for="yearSelect" style="font-size: 0.9rem; margin-bottom: 0; white-space: nowrap;"><i
                                         class="fas fa-calendar"></i> Año</label>
-                                <select id="yearSelect" class="form-control" style="width: 100px; padding: 8px;">
+                                <select id="yearSelect" class="form-control" style="width: auto; padding: 8px 12px; height: auto;">
                                     <!-- Se llenará dinámicamente -->
                                 </select>
                             </div>
