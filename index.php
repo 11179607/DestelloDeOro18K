@@ -2768,7 +2768,7 @@
                     <div class="table-wrapper">
                         <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
                             <h3><i class="fas fa-list"></i> <span id="detailsTableTitle">Movimientos</span></h3>
-                            <button class="btn btn-sm btn-info" onclick="showHistoryDetails(currentHistoryDetailType)">
+                            <button class="btn btn-sm btn-info" onclick="loadHistoryCards().then(() => showHistoryDetails(currentHistoryDetailType))">
                                 <i class="fas fa-sync-alt"></i> Refrescar
                             </button>
                         </div>
@@ -3858,10 +3858,10 @@
             });
 
             // Actualizar historial
-            refreshBtn.addEventListener('click', function () {
-                loadHistoryCards();
+            refreshBtn.addEventListener('click', async function () {
+                await loadHistoryCards();
                 if (document.getElementById('historyDetailsView').classList.contains('active')) {
-                    showHistoryDetails(currentHistoryType);
+                    showHistoryDetails(currentHistoryDetailType || currentHistoryType);
                 }
             });
 
