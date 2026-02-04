@@ -4845,6 +4845,21 @@
                             break;
 
                         case 'pending':
+                            let statusBadge = '';
+                            // Lógica de estado solicitada:
+                            // Confirmado (completed) -> Verde
+                            // Por confirmar (pending) -> Naranja
+                            // Eliminada (cancelled/deleted) -> Verde (Solicitado por usuario)
+                            
+                            if (item.status === 'completed') {
+                                statusBadge = '<span class="badge badge-success">Confirmado</span>';
+                            } else if (item.status === 'cancelled' || item.status === 'deleted') {
+                                statusBadge = '<span class="badge badge-success">Eliminada</span>';
+                            } else {
+                                // Default a 'pending'
+                                statusBadge = '<span class="badge badge-warning">Por confirmar</span>';
+                            }
+
                             row = `
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
@@ -4862,20 +4877,11 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div style="display: flex; gap: 5px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
                                             <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            ${currentUser && currentUser.role === 'admin' ? `
-                                            <button class="btn btn-success btn-sm" onclick="confirmPayment('${item.id}')" title="Confirmar Pago">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                            <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-danger btn-sm" onclick="cancelPendingSale('${item.id}')" title="Cancelar Venta">
-                                                <i class="fas fa-times"></i>
-                                            </button>` : ''}
+                                            ${statusBadge}
                                         </div>
                                     </td>
                                 </tr>
