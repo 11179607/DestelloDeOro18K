@@ -3632,6 +3632,7 @@
                 status: paymentMethod === 'cash' ? 'completed' : 'pending',
                 confirmed: paymentMethod === 'cash',
                 user: currentUser.username,
+                saleType: shoppingCart[0]?.saleType || 'retail', // Guardar tipo de venta (detal/mayorista)
                 warrantyIncrement: 0 // Inicializar en 0
             };
 
@@ -3922,7 +3923,7 @@
             cardsContainer.appendChild(card);
         }
 
-        // Crear tarjeta de ganancias con opciones (detal, mayorista, total)
+        // Crear tarjetas de ganancias desglosadas (detal, mayorista, total)
         function createProfitHistoryCard(sales) {
             const cardsContainer = document.getElementById('historyCardsView');
 
@@ -3931,20 +3932,22 @@
             let wholesaleSales = 0;
             let retailCOGS = 0;
             let wholesaleCOGS = 0;
+            let retailCount = 0;
+            let wholesaleCount = 0;
 
             sales.forEach(sale => {
-                const isRetail = sale.saleType === 'retail' || sale.delivery_type === 'store'; // Ajuste leve
+                const isRetail = sale.saleType === 'retail' || sale.delivery_type === 'store';
                 const saleTotal = parseFloat(sale.total) || 0;
-
-                // Calcular COGS usando purchasePrice del item (ahora viene en el objeto sale)
-                const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + (p.purchasePrice * p.quantity), 0);
+                const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
 
                 if (isRetail) {
                     retailSales += saleTotal;
                     retailCOGS += saleCOGS;
+                    retailCount++;
                 } else {
                     wholesaleSales += saleTotal;
                     wholesaleCOGS += saleCOGS;
+                    wholesaleCount++;
                 }
             });
 
@@ -3952,57 +3955,104 @@
             const wholesaleProfit = wholesaleSales - wholesaleCOGS;
             const totalProfit = retailProfit + wholesaleProfit;
 
-            const card = document.createElement('div');
-            card.className = 'history-card';
-            card.dataset.type = 'profit';
+            // 1. TARJETA GANANCIAS AL DETAL
+            const retailCard = document.createElement('div');
+            retailCard.className = 'history-card';
+            retailCard.innerHTML = `
+                <div class="history-card-header">
+                    <div class="history-card-icon" style="background: #e8f5e9; color: #4CAF50;">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="history-card-title">Ganancias al Detal</div>
+                </div>
+                <div class="history-card-count">${retailCount} ventas</div>
+                <div class="history-card-details">
+                    <div class="history-card-detail">
+                        <span>Total Ventas:</span>
+                        <span class="history-card-detail-value">${formatCurrency(retailSales)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Costo Inv:</span>
+                        <span class="history-card-detail-value">${formatCurrency(retailCOGS)}</span>
+                    </div>
+                    <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
+                        <span style="font-weight: bold;">GANANCIA:</span>
+                        <span class="history-card-detail-value" style="color: #4CAF50; font-weight: bold;">${formatCurrency(retailProfit)}</span>
+                    </div>
+                </div>
+                <div class="history-card-footer">
+                    <div class="history-card-user"><i class="fas fa-tag"></i> <span>Canal Minorista</span></div>
+                    <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
+                </div>
+            `;
+            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
+            cardsContainer.appendChild(retailCard);
 
-            card.innerHTML = `
+            // 2. TARJETA GANANCIAS MAYORISTA
+            const wholesaleCard = document.createElement('div');
+            wholesaleCard.className = 'history-card';
+            wholesaleCard.innerHTML = `
+                <div class="history-card-header">
+                    <div class="history-card-icon" style="background: #e3f2fd; color: #2196F3;">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="history-card-title">Ganancias Mayorista</div>
+                </div>
+                <div class="history-card-count">${wholesaleCount} ventas</div>
+                <div class="history-card-details">
+                    <div class="history-card-detail">
+                        <span>Total Ventas:</span>
+                        <span class="history-card-detail-value">${formatCurrency(wholesaleSales)}</span>
+                    </div>
+                    <div class="history-card-detail">
+                        <span>Costo Inv:</span>
+                        <span class="history-card-detail-value">${formatCurrency(wholesaleCOGS)}</span>
+                    </div>
+                    <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
+                        <span style="font-weight: bold;">GANANCIA:</span>
+                        <span class="history-card-detail-value" style="color: #2196F3; font-weight: bold;">${formatCurrency(wholesaleProfit)}</span>
+                    </div>
+                </div>
+                <div class="history-card-footer">
+                    <div class="history-card-user"><i class="fas fa-truck"></i> <span>Canal Mayorista</span></div>
+                    <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
+                </div>
+            `;
+            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
+            cardsContainer.appendChild(wholesaleCard);
+
+            // 3. TARJETA GANANCIA TOTAL
+            const totalCard = document.createElement('div');
+            totalCard.className = 'history-card';
+            totalCard.innerHTML = `
                 <div class="history-card-header">
                     <div class="history-card-icon profit">
                         <i class="fas fa-coins"></i>
                     </div>
-                    <div class="history-card-title">Ganancias</div>
+                    <div class="history-card-title">Ganancia Total</div>
                 </div>
-                
-                <div class="history-card-count">${sales.length} ventas</div>
-                
+                <div class="history-card-count">${sales.length} ventas totales</div>
                 <div class="history-card-details">
                     <div class="history-card-detail">
-                        <span>Al Detal:</span>
-                        <span class="history-card-detail-value" style="color: #4CAF50;">${formatCurrency(retailProfit)}</span>
-                    </div>
-                    <div class="history-card-detail">
-                        <span>Mayorista:</span>
-                        <span class="history-card-detail-value" style="color: #2196F3;">${formatCurrency(wholesaleProfit)}</span>
-                    </div>
-                    <div class="history-card-detail">
-                        <span>Total:</span>
-                        <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(totalProfit)}</span>
-                    </div>
-                    <div class="history-card-detail">
-                        <span>Ventas:</span>
+                        <span>Ventas Totales:</span>
                         <span class="history-card-detail-value">${formatCurrency(retailSales + wholesaleSales)}</span>
                     </div>
+                    <div class="history-card-detail">
+                        <span>Costo Total:</span>
+                        <span class="history-card-detail-value">${formatCurrency(retailCOGS + wholesaleCOGS)}</span>
+                    </div>
+                    <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
+                        <span style="font-weight: bold;">GANANCIA NETA:</span>
+                        <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(totalProfit)}</span>
+                    </div>
                 </div>
-                
                 <div class="history-card-footer">
-                    <div class="history-card-user">
-                        <i class="fas fa-chart-line history-card-user-icon"></i>
-                        <span>Análisis de ganancias</span>
-                    </div>
-                    <div class="history-card-date">
-                        <i class="fas fa-calendar history-card-date-icon"></i>
-                        <span>Hoy ${new Date().toLocaleDateString('es-CO')}</span>
-                    </div>
+                    <div class="history-card-user"><i class="fas fa-chart-line"></i> <span>Consolidado</span></div>
+                    <div class="history-card-date"><span>Mes ${new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-
-            // Agregar evento para mostrar detalles
-            card.addEventListener('click', function () {
-                showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales);
-            });
-
-            cardsContainer.appendChild(card);
+            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
+            cardsContainer.appendChild(totalCard);
         }
 
         // Crear tarjeta del historial
@@ -5955,6 +6005,10 @@
                         await showDialog('Error', `La referencia "${warranty.newProductRef}" no existe en el inventario.`, 'error');
                         return;
                     }
+                    if (product.quantity <= 0) {
+                        await showDialog('Producto Agotado', 'El producto seleccionado no tiene existencias en el inventario. Por favor seleccione otro producto diferente.', 'warning');
+                        return;
+                    }
                 }
 
                 // Validar datos
@@ -7588,7 +7642,7 @@
                 const form = document.getElementById('addProductForm');
                 form.style.display = form.style.display === 'none' ? 'block' : 'none';
                 if (form.style.display === 'block') {
-                    document.getElementById('productDate').valueAsDate = new Date();
+                    document.getElementById('productDate').value = new Date().toISOString().split('T')[0];
                     form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             });
