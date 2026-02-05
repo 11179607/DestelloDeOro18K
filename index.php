@@ -6379,19 +6379,19 @@
 
             switch (type) {
                 case 'sales':
-                    movement = searchInCaches(['destelloOroHistorySales', 'destelloOroAllSales', 'destelloOroHistoryPendingSales', 'destelloOroPendingSales'], movementId);
+                    movement = searchInCaches(['destelloOroHistorySales', 'destelloOroAllSales', 'destelloOroSales', 'destelloOroHistoryPendingSales', 'destelloOroPendingSales'], movementId);
                     title = `Detalles de Venta - ${movementId}`;
                     break;
                 case 'expenses':
-                    movement = searchInCaches(['destelloOroHistoryExpenses', 'destelloOroAllExpenses'], movementId);
+                    movement = searchInCaches(['destelloOroHistoryExpenses', 'destelloOroAllExpenses', 'destelloOroExpenses'], movementId);
                     title = `Detalles de Gasto - ${movementId}`;
                     break;
                 case 'restocks':
-                    movement = searchInCaches(['destelloOroHistoryRestocks', 'destelloOroAllRestocks'], movementId);
+                    movement = searchInCaches(['destelloOroHistoryRestocks', 'destelloOroAllRestocks', 'destelloOroRestocks'], movementId);
                     title = `Detalles de Surtido - ${movementId}`;
                     break;
                 case 'warranties':
-                    movement = searchInCaches(['destelloOroHistoryWarranties', 'destelloOroAllWarranties'], movementId);
+                    movement = searchInCaches(['destelloOroHistoryWarranties', 'destelloOroAllWarranties', 'destelloOroWarranties'], movementId);
                     title = `Detalles de Garantía - ${movementId}`;
                     break;
                 case 'product':
@@ -6424,6 +6424,9 @@
                     const productNames = movement.products ?
                         movement.products.map(p => p.productName).join(', ') :
                         (movement.productName || 'Producto');
+                    
+                    const saleTypeLabel = movement.saleType === 'wholesale' ? 'Mayorista' : 'Detal';
+                    const saleTypeColor = movement.saleType === 'wholesale' ? '#2196F3' : '#4CAF50';
 
                     content = `
                         <div style="margin-bottom: 1.5rem;">
@@ -6471,6 +6474,7 @@
                                 <div><strong>Estado:</strong> ${movement.confirmed ? 'Confirmada' : 'Pendiente'}</div>
                                 <div><strong>Registrado por:</strong> ${getUserName(movement.user)}</div>
                                 <div><strong>Tipo entrega:</strong> ${movement.deliveryType === 'store' ? 'Recoge en tienda' : movement.deliveryType === 'delivery' ? 'Domicilio' : 'Envío nacional'}</div>
+                                <div><strong>Tipo de Venta:</strong> <span style="color: ${saleTypeColor}; font-weight: bold;">${saleTypeLabel}</span></div>
                             </div>
                         </div>
                     `;
