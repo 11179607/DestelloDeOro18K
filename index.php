@@ -7430,7 +7430,77 @@
             }
         }
 
+        // Función para reiniciar todas las sub-vistas y estados internos (Independencia de Sesiones)
+        function resetAllSubViews() {
+            // 1. Inventario: Ocultar formulario de agregar
+            const addProductForm = document.getElementById('addProductForm');
+            if (addProductForm) addProductForm.style.display = 'none';
+            const productForm = document.getElementById('productForm');
+            if (productForm) productForm.reset();
+            const inventorySearch = document.getElementById('inventorySearch');
+            if (inventorySearch) inventorySearch.value = '';
+
+            // 2. Ventas: Limpiar carrito y formulario para asegurar independencia total
+            shoppingCart = [];
+            if (typeof updateCartDisplay === 'function') updateCartDisplay();
+            if (typeof updateSaleSummary === 'function') updateSaleSummary();
+            
+            const customerName = document.getElementById('customerName');
+            if (customerName) {
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerId').value = '';
+                document.getElementById('customerPhone').value = '';
+                document.getElementById('customerEmail').value = '';
+                document.getElementById('customerAddress').value = '';
+                document.getElementById('customerCity').value = '';
+            }
+            const saleForm = document.getElementById('addProductToSaleForm');
+            if (saleForm) saleForm.reset();
+            const productInfo = document.getElementById('productInfo');
+            if (productInfo) productInfo.innerHTML = '';
+
+            // 3. Gastos: Ocultar formulario de agregar
+            const addExpenseForm = document.getElementById('addExpenseForm');
+            if (addExpenseForm) addExpenseForm.style.display = 'none';
+            const expenseForm = document.getElementById('expenseForm');
+            if (expenseForm) expenseForm.reset();
+
+            // 4. Garantías: Volver a la búsqueda inicial
+            const addWarrantyForm = document.getElementById('addWarrantyForm');
+            const searchCard = document.getElementById('warrantySearchCard');
+            const searchInput = document.getElementById('searchCustomerWarranty');
+            const results = document.getElementById('customerSearchResults');
+            if (addWarrantyForm) addWarrantyForm.style.display = 'none';
+            if (searchCard) searchCard.style.display = 'block';
+            if (searchInput) searchInput.value = '';
+            if (results) results.style.display = 'none';
+
+            // 5. Historial: Mostrar tarjetas, ocultar detalles y auditoría, resetear filtro
+            const historyCardsView = document.getElementById('historyCardsView');
+            const historyDetailsView = document.getElementById('historyDetailsView');
+            const auditLogsView = document.getElementById('auditLogsView');
+            const historyFilter = document.getElementById('historyFilter');
+            
+            if (historyCardsView) historyCardsView.style.display = 'grid';
+            if (historyDetailsView) historyDetailsView.classList.remove('active');
+            if (auditLogsView) auditLogsView.style.display = 'none';
+            
+            if (historyFilter) {
+                historyFilter.value = 'all';
+                currentHistoryType = 'all';
+            }
+
+            // 6. Resetear Registros: Asegurar que el modal esté cerrado
+            const resetModal = document.getElementById('resetRecordsModal');
+            if (resetModal) resetModal.style.display = 'none';
+            
+            // 7. Auditoría
+            const auditLogsTableBody = document.getElementById('auditLogsTableBody');
+            if (auditLogsTableBody) auditLogsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>';
+        }
+
         // Configurar eventos de navegación
+
         function setupNavigationEvents() {
             const navButtons = document.querySelectorAll('.nav-btn');
             const sections = document.querySelectorAll('.section-container');
@@ -7439,6 +7509,9 @@
             navButtons.forEach(button => {
                 button.addEventListener('click', function () {
                     const targetSection = this.dataset.section;
+
+                    // NUEVO: Reiniciar todas las sub-vistas antes de mostrar la nueva sección
+                    resetAllSubViews();
 
                     // Verificar si el usuario tiene acceso a esta sección
                     if (currentUser && currentUser.role === 'worker' &&
@@ -7500,6 +7573,10 @@
                 if (confirmed) {
                     localStorage.removeItem('destelloOroCurrentUser');
                     currentUser = null;
+                    
+                    // NUEVO: Limpiar todas las vistas antes de salir
+                    resetAllSubViews();
+
                     document.getElementById('appScreen').style.display = 'none';
                     document.getElementById('loginScreen').style.display = 'flex';
 
