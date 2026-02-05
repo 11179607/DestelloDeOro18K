@@ -1,8 +1,5 @@
 <?php
 // api/check_auth.php
-$lifetime = 60 * 60 * 24 * 30; // 30 días
-ini_set('session.gc_maxlifetime', $lifetime);
-session_set_cookie_params($lifetime);
 session_start();
 header('Content-Type: application/json');
 

@@ -7179,7 +7179,7 @@
                 showLoginStep('userInfoForm');
 
                 // Pre-llenar formulario si ya hay información guardada
-                const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                const sessionInfo = JSON.parse(sessionStorage.getItem('destelloOroSessionInfo') || '{}');
                 // Asegurar que usemos la global
                 const currentRole = window.selectedRole || selectedRole;
                 const userKey = `${currentRole}_info`;
@@ -7222,7 +7222,7 @@
                     }
 
                     // Guardar información en localStorage
-                    const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                    const sessionInfo = JSON.parse(sessionStorage.getItem('destelloOroSessionInfo') || '{}');
                     const currentRole = window.selectedRole || selectedRole;
                     const userKey = `${currentRole}_info`;
 
@@ -7233,7 +7233,7 @@
                         date: new Date().toISOString()
                     };
 
-                    localStorage.setItem('destelloOroSessionInfo', JSON.stringify(sessionInfo));
+                    sessionStorage.setItem('destelloOroSessionInfo', JSON.stringify(sessionInfo));
 
                     // Continuar al siguiente paso
                     showLoginStep('loginCredentials');
@@ -7272,7 +7272,7 @@
 
                         if (data.success) {
                             // Obtener el nombre ingresado en el paso anterior
-                            const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                            const sessionInfo = JSON.parse(sessionStorage.getItem('destelloOroSessionInfo') || '{}');
                             // Priorizar el rol que viene del servidor, pero usar el seleccionado para buscar la info local
                             const verifiedRole = data.user.role; 
                             const userKey = `${verifiedRole}_info`;
@@ -7294,8 +7294,8 @@
                                 }
                             });
 
-                            // Guardar en localStorage para persistencia rápida
-                            localStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
+                            // Guardar en sessionStorage para persistencia de pestaña
+                            sessionStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
 
                             await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
                             showApp();
@@ -7316,7 +7316,7 @@
             document.getElementById('appScreen').style.display = 'block';
 
             // Asegurarse de que currentUser esté cargado
-            const savedUser = localStorage.getItem('destelloOroCurrentUser');
+            const savedUser = sessionStorage.getItem('destelloOroCurrentUser');
             if (savedUser) {
                 try {
                     currentUser = JSON.parse(savedUser);
@@ -8801,8 +8801,8 @@
             }
 
             // Inicializar información de sesión
-            if (!localStorage.getItem('destelloOroSessionInfo')) {
-                localStorage.setItem('destelloOroSessionInfo', JSON.stringify({}));
+            if (!sessionStorage.getItem('destelloOroSessionInfo')) {
+                sessionStorage.setItem('destelloOroSessionInfo', JSON.stringify({}));
             }
         }
 
@@ -9438,7 +9438,7 @@
                 
                 if (data.authenticated) {
                     // Recuperar información personal guardada localmente
-                    const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
+                    const sessionInfo = JSON.parse(sessionStorage.getItem('destelloOroSessionInfo') || '{}');
                     const userRole = data.user.role;
                     const userKey = `${userRole}_info`;
                     const personalInfo = sessionInfo[userKey];
@@ -9473,6 +9473,9 @@
                         localStorage.removeItem(key);
                     }
                 });
+                sessionStorage.clear();
+
+
                 location.reload();
             } catch (error) {
                 console.error('Error al cerrar sesión:', error);
