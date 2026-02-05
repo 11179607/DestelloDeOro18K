@@ -53,12 +53,15 @@
         }
 
         body {
+            background-color: #1a1a1a; /* Fondo base oscuro para evitar destellos blancos */
             background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95)),
                 url('fondo.jpeg') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-dark);
             line-height: 1.6;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
             position: relative;
             overflow-x: hidden;
         }
@@ -133,13 +136,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            position: fixed; /* Ocupa toda la pantalla sin importar el contenido del body */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5000; /* Asegura estar por encima del fondo del body */
             padding: 15px;
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
                 url('fondo.jpeg') no-repeat center center fixed;
             background-size: cover;
-            position: relative;
-            overflow: hidden;
+            overflow-y: auto; /* Permite scroll interno si el contenido es grande */
         }
 
         .login-box {
