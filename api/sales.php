@@ -71,6 +71,7 @@ if ($method === 'GET') {
                     $item['quantity'] = (int)$item['quantity'];
                     $item['subtotal'] = (float)$item['subtotal'];
                     $item['purchasePrice'] = (float)($item['purchase_price'] ?? 0);
+                    $item['saleType'] = $item['sale_type'] ?? 'retail';
                 }
                 
                 // Map database fields to JS expected fields
@@ -88,6 +89,8 @@ if ($method === 'GET') {
                 $sale['deliveryCost'] = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user'] = $sale['username'];
+                // Determinar el tipo de venta basado en el primer producto
+                $sale['saleType'] = (!empty($sale['products'])) ? $sale['products'][0]['saleType'] : 'retail';
             }
 
             echo json_encode($sales);

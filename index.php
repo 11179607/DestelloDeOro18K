@@ -3936,7 +3936,7 @@
             let wholesaleCount = 0;
 
             sales.forEach(sale => {
-                const isRetail = sale.saleType === 'retail' || sale.delivery_type === 'store';
+                const isRetail = sale.saleType !== 'wholesale'; // Por defecto es detal a menos que sea explícitamente mayorista
                 const saleTotal = parseFloat(sale.total) || 0;
                 const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
 
@@ -4236,7 +4236,7 @@
                             </thead>
                             <tbody>
                                 ${sales.map(sale => {
-                const isRetail = sale.saleType === 'retail';
+                const isRetail = sale.saleType !== 'wholesale';
                 const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                 const saleCOGS = (sale.products || []).reduce((sum, product) => {
                     const prod = products.find(p => p.id === product.productId);
