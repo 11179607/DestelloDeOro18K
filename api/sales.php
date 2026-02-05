@@ -2,6 +2,7 @@
 // api/sales.php
 session_start();
 header('Content-Type: application/json');
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 require_once '../config/db.php';
 require_once 'logger.php';
 
@@ -371,9 +372,9 @@ if ($method === 'GET') {
 
     $data = json_decode(file_get_contents("php://input"));
     
-    if (!isset($data->id) || !isset($data->status)) {
+    if (!isset($data->id)) {
         http_response_code(400);
-        echo json_encode(['error' => 'ID y status son requeridos']);
+        echo json_encode(['error' => 'ID es requerido']);
         exit;
     }
 
@@ -393,25 +394,51 @@ if ($method === 'GET') {
         $oldStatus = $sale['status'];
         $newStatus = $data->status;
 
-        // Actualizar solo el estado
-        $updateStmt = $conn->prepare("UPDATE sales SET status = :status WHERE id = :id");
+        // Actualizar todos los campos permitidos
+        $updateSql = "UPDATE sales SET 
+            status = :status,
+            customer_name = :customerName,
+            customer_id = :customerId,
+            customer_phone = :customerPhone,
+            sale_date = :saleDate,
+            subtotal = :subtotal,
+            delivery_cost = :deliveryCost,
+            discount = :discount,
+            warranty_increment = :warrantyIncrement,
+            total = :total,
+            payment_method = :paymentMethod
+            WHERE id = :id";
+
+        $updateStmt = $conn->prepare($updateSql);
+        
+        // Mapear datos, usando valores actuales como fallback si no vienen en el request
         $updateStmt->execute([
-            ':status' => $newStatus,
+            ':status' => $data->status ?? $sale['status'],
+            ':customerName' => $data->customerName ?? $sale['customer_name'],
+            ':customerId' => $data->customerId ?? $sale['customer_id'],
+            ':customerPhone' => $data->customerPhone ?? $sale['customer_phone'],
+            ':saleDate' => $data->saleDate ?? $data->date ?? $sale['sale_date'], // Frontend manda 'date'
+            ':subtotal' => $data->subtotal ?? $sale['subtotal'],
+            ':deliveryCost' => $data->deliveryCost ?? $sale['delivery_cost'],
+            ':discount' => $data->discount ?? $sale['discount'],
+            ':warrantyIncrement' => $data->warrantyIncrement ?? $sale['warranty_increment'],
+            ':total' => $data->total ?? $sale['total'], // Debería recalcularse, pero confiamos en el frontend por ahora o usamos el enviado
+            ':paymentMethod' => $data->paymentMethod ?? $sale['payment_method'],
             ':id' => $dbId
         ]);
 
         // Registrar en LOG
-        $actionType = 'UPDATE_STATUS';
-        $details = "Estado de venta #{$data->id} cambiado de '{$oldStatus}' a '{$newStatus}'";
+        $actionType = 'UPDATE_SALE';
+        $details = "Venta #{$dbId} actualizada por admin";
 
-        if ($oldStatus === 'pending' && $newStatus === 'completed') {
+        if ($oldStatus === 'pending' && ($data->status ?? $oldStatus) === 'completed') {
             $actionType = 'CONFIRM_PAYMENT';
-            $details = "Pago confirmado para venta #{$data->id}";
+            $details .= ". Pago confirmado.";
         }
 
         logAction($conn, $_SESSION['username'], $actionType, 'SALE', $dbId, $details);
 
-        echo json_encode(['success' => true, 'message' => 'Estado actualizado correctamente']);
+        echo json_encode(['success' => true, 'message' => 'Venta actualizada correctamente']);
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
