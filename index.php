@@ -9520,9 +9520,11 @@
         async function logout() {
             try {
                 await fetch('api/logout.php');
-                // Limpiar ABSOLUTAMENTE TODO lo relacionado con la app
+                // Limpiar ABSOLUTAMENTE TODO lo relacionado con la app, EXCEPTO los contadores manuales
                 Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith('destelloOro')) {
+                    if (key.startsWith('destelloOro') && 
+                        key !== 'destelloOroManualSalesCount' && 
+                        key !== 'destelloOroManualWarrantyCount') {
                         localStorage.removeItem(key);
                     }
                 });
