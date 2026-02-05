@@ -4395,7 +4395,7 @@
             });
 
             // Crear estadísticas
-            statsContainer.innerHTML = `
+            const statsHTML = `
                 <div class="history-details-stat">
                     <div style="font-size: 0.9rem; color: #666;">Total Movimientos</div>
                     <div class="history-details-stat-value">${data.length}</div>
@@ -4417,6 +4417,7 @@
                     <div style="font-size: 0.8rem; color: var(--gold-dark);">registros</div>
                 </div>
             `;
+            statsContainer.innerHTML = statsHTML;
         }
 
         // Cargar tabla de detalles del historial
@@ -4597,9 +4598,8 @@
             }
 
             tableHead.innerHTML = headers;
-            tableBody.innerHTML = '';
-
             // Agregar filas
+            let rowsHTML = '';
             data.forEach(item => {
                 let row = '';
                 const itemDate = item.date || item.createdAt;
@@ -4773,17 +4773,11 @@
 
                         case 'pending':
                             let statusBadge = '';
-                            // Lógica de estado solicitada:
-                            // Confirmado (completed) -> Verde
-                            // Por confirmar (pending) -> Naranja
-                            // Eliminada (cancelled/deleted) -> Verde (Solicitado por usuario)
-                            
                             if (item.status === 'completed') {
                                 statusBadge = '<span class="badge badge-success">Confirmado</span>';
                             } else if (item.status === 'cancelled' || item.status === 'deleted') {
                                 statusBadge = '<span class="badge badge-success">Eliminada</span>';
                             } else {
-                                // Default a 'pending'
                                 statusBadge = '<span class="badge badge-warning">Por confirmar</span>';
                             }
 
@@ -4816,9 +4810,9 @@
                             break;
                     }
                 }
-
-                tableBody.innerHTML += row;
+                rowsHTML += row;
             });
+            tableBody.innerHTML = rowsHTML;
 
             // Si no hay datos
             if (tableBody.innerHTML === '') {
@@ -9591,6 +9585,10 @@
                     } else {
                         if(auditView) auditView.style.display = 'none';
                         if(cardsView) cardsView.style.display = 'grid'; 
+                        if(detailsView) {
+                            detailsView.style.display = 'none';
+                            detailsView.classList.remove('active');
+                        }
                     }
                 });
             }
