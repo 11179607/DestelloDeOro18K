@@ -2,6 +2,7 @@
 // api/warranties.php
 session_start();
 header('Content-Type: application/json');
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 require_once '../config/db.php';
 require_once 'logger.php';
 

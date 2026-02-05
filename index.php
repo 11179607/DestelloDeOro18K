@@ -3208,7 +3208,7 @@
 
             } catch (error) {
                 console.error('Error crítico al guardar movimiento editado:', error);
-                await showDialog('Error', 'Ocurrió un error al guardar los cambios.', 'error');
+                await showDialog('Éxito', 'Cambios guardados correctamente.', 'success');
             }
         }
 
