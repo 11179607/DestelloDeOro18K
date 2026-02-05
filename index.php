@@ -4292,9 +4292,9 @@
 
             // Mostrar detalles
             const detailsView = document.getElementById('historyDetailsView');
-            const wasActive = detailsView.classList.contains('active');
+            detailsView.style.display = 'block'; // Forzar display block para sobrescribir el none de backToHistoryCards
             
-            if (!wasActive) {
+            if (!detailsView.classList.contains('active')) {
                 detailsView.classList.add('active');
             }
             
