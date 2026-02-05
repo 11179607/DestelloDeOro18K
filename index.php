@@ -374,7 +374,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
+            z-index: 9000;
             justify-content: center;
             align-items: center;
             padding: 15px;
@@ -1172,7 +1172,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
+            z-index: 9000;
             overflow-y: auto;
             padding: 15px;
         }
@@ -1546,7 +1546,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 3000;
+            z-index: 8000;
             justify-content: center;
             align-items: center;
             padding: 15px;
