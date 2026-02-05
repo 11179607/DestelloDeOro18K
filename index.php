@@ -2831,18 +2831,7 @@
                     </div>
                 </div>
 
-                <!-- Resumen mensual (solo para admin) -->
-                <div class="admin-only">
-                    <div class="section-header" style="margin-top: 2rem;">
-                        <div class="section-title">
-                            <i class="fas fa-calendar-alt"></i>
-                            <h3>Resumen Mensual</h3>
-                        </div>
-                    </div>
 
-                    <div class="stats-grid" id="monthlySummary">
-                        <!-- Se cargará dinámicamente -->
-                </div>
             </section>
         </main>
 
@@ -4841,6 +4830,7 @@
         // Cargar resumen mensual - AHORA ASYNC
         async function loadMonthlySummary() {
             const monthlySummary = document.getElementById('monthlySummary');
+            if (!monthlySummary) return;
             const queryParams = `?month=${currentMonth}&year=${currentYear}`;
 
             try {
@@ -9552,18 +9542,14 @@
                     const auditView = document.getElementById('auditLogsView');
                     const cardsView = document.getElementById('historyCardsView');
                     const detailsView = document.getElementById('historyDetailsView');
-                    const monthlySummaryContainer = document.querySelector('.admin-only');
-                    
                     if (this.value === 'admin_audit') {
                         if(auditView) auditView.style.display = 'block';
                         if(cardsView) cardsView.style.display = 'none';
                         if(detailsView) detailsView.style.display = 'none';
-                        if(monthlySummaryContainer) monthlySummaryContainer.style.display = 'none';
                         loadAuditLogs();
                     } else {
                         if(auditView) auditView.style.display = 'none';
                         if(cardsView) cardsView.style.display = 'grid'; 
-                        if(monthlySummaryContainer) monthlySummaryContainer.style.display = 'block';
                     }
                 });
             }
