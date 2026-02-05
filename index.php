@@ -2763,7 +2763,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+
 
                 <!-- Vista de tarjetas -->
                 <div id="historyCardsView" class="history-cards-container">
@@ -3809,9 +3809,10 @@
                     `;
                 }
 
-                if (currentHistoryType !== 'investment') {
+                /* if (currentHistoryType !== 'investment') {
                      loadMonthlySummary();
-                }
+                } */
+
 
             } catch (error) {
                 console.error('Error cargando historial:', error);
