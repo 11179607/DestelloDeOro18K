@@ -4076,15 +4076,15 @@
             data.forEach(item => {
                 // Calcular valor total
                 if (type === 'sales') {
-                    totalValue += item.total || 0;
+                    totalValue += parseFloat(item.total) || 0;
                 } else if (type === 'expenses') {
-                    totalValue += item.amount || 0;
+                    totalValue += parseFloat(item.amount) || 0;
                 } else if (type === 'restocks') {
-                    totalValue += item.totalValue || 0;
+                    totalValue += parseFloat(item.totalValue) || 0;
                 } else if (type === 'warranties') {
-                    totalValue += item.totalCost || 0;
+                    totalValue += parseFloat(item.totalCost) || 0;
                 } else if (type === 'pending') {
-                    totalValue += item.total || 0;
+                    totalValue += parseFloat(item.total) || 0;
                 }
 
                 // Contar usuarios
