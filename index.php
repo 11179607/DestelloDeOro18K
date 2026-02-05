@@ -8714,13 +8714,13 @@
             monthSelect.addEventListener('change', function () {
                 currentMonth = parseInt(this.value);
                 loadHistoryCards();
-                loadMonthlySummary(); // Recargar resumen mensual
+                // loadMonthlySummary(); // Recargar resumen mensual
             });
 
             yearSelect.addEventListener('change', function () {
                 currentYear = parseInt(this.value);
                 loadHistoryCards();
-                loadMonthlySummary(); // Recargar resumen mensual
+                // loadMonthlySummary(); // Recargar resumen mensual
             });
         }
 
