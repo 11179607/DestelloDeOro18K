@@ -7520,22 +7520,39 @@
             // Configurar selectores de fecha para historial
             setupDateSelectors();
 
-            // Cargar datos iniciales e iniciar sincronización
-            const refreshData = () => {
-                console.log('Sincronizando datos...');
-                loadInventoryTable();
-                loadExpensesTable();
-                loadPendingSalesTable();
-                loadWarrantiesTable();
-                loadHistoryCards();
-            };
+            // MODIFICADO: Solo cargar datos de la sección activa (inventario por defecto)
+            // Las demás secciones cargarán sus datos cuando el usuario navegue a ellas
+            console.log('Cargando datos de la sección activa (inventario)...');
+            loadInventoryTable();
 
-            // Ejecutar inmediatamente al inicio
-            refreshData();
-
-            // Configurar refresco automático cada 60 segundos
+            // Configurar refresco automático solo para la sección activa
             if (window.syncInterval) clearInterval(window.syncInterval);
-            window.syncInterval = setInterval(refreshData, 60000);
+            window.syncInterval = setInterval(() => {
+                // Solo refrescar la sección activa
+                const activeSection = document.querySelector('.section-container.active');
+                if (activeSection) {
+                    const sectionId = activeSection.id;
+                    console.log('Sincronizando sección activa:', sectionId);
+                    
+                    switch(sectionId) {
+                        case 'inventory':
+                            loadInventoryTable();
+                            break;
+                        case 'expenses':
+                            loadExpensesTable();
+                            break;
+                        case 'pending':
+                            loadPendingSalesTable();
+                            break;
+                        case 'warranties':
+                            loadWarrantiesTable();
+                            break;
+                        case 'history':
+                            loadHistoryCards();
+                            break;
+                    }
+                }
+            }, 60000);
         }
 
         // Actualizar interfaz según rol del usuario
@@ -7635,14 +7652,31 @@
                         if (section.id === targetSection) {
                             section.classList.add('active');
 
-                            // Si es la sección de garantías, cargar datos
-                            if (targetSection === 'warranties') {
-                                loadWarrantiesTable();
-                            }
-
-                            // Si es la sección de historial, cargar tarjetas
-                            if (targetSection === 'history') {
-                                loadHistoryCards();
+                            // MODIFICADO: Cargar datos solo de la sección que se está activando
+                            console.log('Activando sección:', targetSection);
+                            
+                            switch(targetSection) {
+                                case 'inventory':
+                                    loadInventoryTable();
+                                    break;
+                                case 'sales':
+                                    // La sección de ventas no necesita cargar datos al inicio
+                                    break;
+                                case 'restock':
+                                    // La sección de surtir no necesita cargar datos al inicio
+                                    break;
+                                case 'expenses':
+                                    loadExpensesTable();
+                                    break;
+                                case 'warranties':
+                                    loadWarrantiesTable();
+                                    break;
+                                case 'pending':
+                                    loadPendingSalesTable();
+                                    break;
+                                case 'history':
+                                    loadHistoryCards();
+                                    break;
                             }
                         }
                     });
