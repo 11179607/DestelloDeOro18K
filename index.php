@@ -7571,21 +7571,7 @@
                 );
 
                 if (confirmed) {
-                    localStorage.removeItem('destelloOroCurrentUser');
-                    currentUser = null;
-                    
-                    // NUEVO: Limpiar todas las vistas antes de salir
-                    resetAllSubViews();
-
-                    document.getElementById('appScreen').style.display = 'none';
-                    document.getElementById('loginScreen').style.display = 'flex';
-
-                    // Restablecer login
-                    initLoginSteps();
-                    document.getElementById('adminRole').classList.add('active');
-                    document.getElementById('workerRole').classList.remove('active');
-                    document.getElementById('loginForm').reset();
-                    selectedRole = 'admin';
+                    await logout();
                 }
             });
 
@@ -9440,7 +9426,7 @@
         // Verificar sesión con el servidor
         async function checkSession() {
             try {
-                const response = await fetch('api/check_auth.php');
+                const response = await fetch('api/check_auth.php', { cache: 'no-cache' });
                 const data = await response.json();
                 
                 if (data.authenticated) {
@@ -9508,39 +9494,7 @@
             setupManualCounters();
 
             // 2. Verificar sesión
-            try {
-                const response = await fetch('api/check_auth.php');
-                const data = await response.json();
-                
-                if (data.authenticated) {
-                    // Recuperar información personal guardada localmente para mantener el nombre visual
-                    const sessionInfo = JSON.parse(localStorage.getItem('destelloOroSessionInfo') || '{}');
-                    const userRole = data.user.role;
-                    const userKey = `${userRole}_info`;
-                    const personalInfo = sessionInfo[userKey];
-
-                    currentUser = {
-                        id: data.user.id,
-                        username: data.user.username,
-                        role: data.user.role,
-                        // Priorizar el nombre local si coincide el rol, sino usar el de la DB
-                        displayName: personalInfo ? `${personalInfo.name} ${personalInfo.lastName}` : data.user.name,
-                        name: data.user.name // Nombre real DB
-                    };
-                    // Actualizamos localStorage solo para referencia
-                    localStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
-                    showApp();
-                } else {
-                    // Si no hay sesión válida en servidor, aseguro limpieza y muestro login
-                    localStorage.removeItem('destelloOroCurrentUser');
-                    initLoginSteps();
-                }
-            } catch (error) {
-                console.error('Error verificando sesión:', error);
-                // Si falla la verificación, ir al login. NO usar localStorage para auth.
-                localStorage.removeItem('destelloOroCurrentUser');
-                initLoginSteps();
-            }
+            await checkSession();
         }
 
         // Función para cargar logs de auditoría
