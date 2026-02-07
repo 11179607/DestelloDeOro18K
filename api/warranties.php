@@ -106,11 +106,11 @@ if ($method === 'GET') {
         $sql = "INSERT INTO warranties (
             sale_id, original_invoice_id, customer_name, product_ref, product_name, quantity, reason, end_date, notes,
             product_type, new_product_ref, new_product_name, additional_value, shipping_value, total_cost,
-            status, user_id, username
+            status, user_id, username, created_at
         ) VALUES (
             :sid, :inv, :cust, :pref, :pname, :qty_val, :reason, :edate, :notes,
             :ptype, :npref, :npname, :addval, :shipval, :total,
-            :status, :uid, :uname
+            :status, :uid, :uname, :created_at
         )";
         
         // Buscar ID de venta si es posible
@@ -123,6 +123,9 @@ if ($method === 'GET') {
         }
         
         $totalCost = ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0);
+
+        $incomingCreated = $data->date ?? $data->createdAt ?? null;
+        $createdAt = $incomingCreated ? ((strlen($incomingCreated) === 10) ? ($incomingCreated . ' ' . date('H:i:s')) : $incomingCreated) : date('Y-m-d H:i:s');
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -143,7 +146,8 @@ if ($method === 'GET') {
             ':total' => $totalCost,
             ':status' => $data->status ?? 'pending',
             ':uid' => $_SESSION['user_id'],
-            ':uname' => $_SESSION['username']
+            ':uname' => $_SESSION['username'],
+            ':created_at' => $createdAt
         ]);
         
         $warrantyId = $conn->lastInsertId();
@@ -211,6 +215,9 @@ if ($method === 'GET') {
 
         $conn->beginTransaction();
 
+        $incomingCreated = $data->date ?? $data->createdAt ?? null;
+        $createdAt = $incomingCreated ? ((strlen($incomingCreated) === 10) ? ($incomingCreated . ' ' . date('H:i:s')) : $incomingCreated) : $currentWarranty['created_at'];
+
         $sql = "UPDATE warranties SET 
                 reason = :reason, 
                 notes = :notes, 
@@ -222,6 +229,7 @@ if ($method === 'GET') {
                 shipping_value = :shipval, 
                 total_cost = :total, 
                 status = :status,
+                created_at = :created_at,
                 updated_at = NOW(),
                 updated_by = :uby
                 WHERE id = :id";
@@ -238,6 +246,7 @@ if ($method === 'GET') {
             ':shipval' => $data->shippingValue ?? 0,
             ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
             ':status' => $newStatus,
+            ':created_at' => $createdAt,
             ':uby' => $_SESSION['username'],
             ':id' => $data->id
         ]);

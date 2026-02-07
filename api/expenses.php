@@ -62,12 +62,15 @@ if ($method === 'GET') {
     }
 
     try {
+        $incomingDate = $data->date ?? $data->expenseDate ?? null;
+        $expenseDate = $incomingDate ? ((strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate) : date('Y-m-d H:i:s');
+
         $stmt = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username) VALUES (:desc, :amt, :date, :uid, :uname)");
         
         $stmt->execute([
             ':desc' => $data->description,
             ':amt' => $data->amount,
-            ':date' => date('Y-m-d H:i:s'),
+            ':date' => $expenseDate,
             ':uid' => $_SESSION['user_id'],
             ':uname' => $_SESSION['username']
         ]);
@@ -112,11 +115,14 @@ if ($method === 'GET') {
     }
 
     try {
+        $incomingDate = $data->date ?? $data->expenseDate ?? null;
+        $expenseDate = $incomingDate ? ((strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate) : date('Y-m-d H:i:s');
+
         $stmt = $conn->prepare("UPDATE expenses SET description = :desc, amount = :amt, expense_date = :date WHERE id = :id");
         $stmt->execute([
             ':desc' => $data->description,
             ':amt' => $data->amount,
-            ':date' => date('Y-m-d H:i:s'),
+            ':date' => $expenseDate,
             ':id' => $data->id
         ]);
         echo json_encode(['success' => true, 'message' => 'Gasto actualizado']);

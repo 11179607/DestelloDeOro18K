@@ -124,16 +124,19 @@ if ($method === 'GET') {
         $checkStmt->execute([':inv' => $invoiceNumber]);
 
         if ($checkStmt->fetchColumn() > 0) {
-            $maxStmt = $conn->prepare("SELECT invoice_number FROM sales WHERE invoice_number LIKE 'FAC%' ORDER BY LENGTH(invoice_number) DESC, invoice_number DESC LIMIT 1");
-            $maxStmt->execute();
-            $maxInv = $maxStmt->fetchColumn();
+            http_response_code(409);
+            echo json_encode(['error' => 'El número de factura ya existe. Usa un ID único.']);
+            $conn->rollBack();
+            exit;
+        }
 
-            if ($maxInv) {
-                $num = intval(substr($maxInv, 3)) + 1;
-                $invoiceNumber = 'FAC' . str_pad($num, 4, '0', STR_PAD_LEFT);
-            } else {
-                $invoiceNumber = 'FAC1001';
-            }
+        // Fecha manual (solo fecha) + hora automática
+        $incomingDate = $data->date ?? $data->saleDate ?? null;
+        if ($incomingDate) {
+            // Si viene sólo la fecha, se concatena la hora actual del servidor
+            $saleDate = (strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate;
+        } else {
+            $saleDate = date('Y-m-d H:i:s');
         }
 
         $stmt = $conn->prepare($sql);
@@ -151,7 +154,7 @@ if ($method === 'GET') {
             ':war'      => $data->warrantyIncrement ?? 0,
             ':pay'      => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
-            ':sale_date'=> date('Y-m-d H:i:s'),
+            ':sale_date'=> $saleDate,
             ':uid'      => $_SESSION['user_id'],
             ':uname'    => $_SESSION['username'],
             ':status'   => $status
@@ -289,7 +292,12 @@ if ($method === 'GET') {
         $customerAddress = $data->customerAddress?? $sale['customer_address'];
         $customerCity    = $data->customerCity   ?? $sale['customer_city'];
         $paymentMethod   = $data->paymentMethod  ?? $sale['payment_method'];
-        $saleDate        = $data->saleDate ?? $data->date ?? $sale['sale_date'];
+        $incomingDate    = $data->saleDate ?? $data->date ?? null;
+        if ($incomingDate) {
+            $saleDate = (strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate;
+        } else {
+            $saleDate = $sale['sale_date'];
+        }
 
         $deliveryCost      = isset($data->deliveryCost)      ? (float)$data->deliveryCost      : (float)$sale['delivery_cost'];
         $discount          = isset($data->discount)          ? (float)$data->discount          : (float)$sale['discount'];

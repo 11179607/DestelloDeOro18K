@@ -2231,6 +2231,16 @@
                         </h3>
                         <div class="form-grid">
                             <div class="form-group">
+                                <label for="manualInvoiceId">N�mero de factura (manual)</label>
+                                <input type="text" id="manualInvoiceId" class="form-control" placeholder="Ej: FAC1234">
+                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vac�o se autogenera.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="manualSaleDate">Fecha de venta</label>
+                                <input type="date" id="manualSaleDate" class="form-control">
+                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega autom�ticamente.</small>
+                            </div>
+                            <div class="form-group">
                                 <label for="paymentMethod">Método de Pago *</label>
                                 <select id="paymentMethod" class="form-control" required>
                                     <option value="transfer">Transferencia</option>
@@ -3417,6 +3427,10 @@
                     document.getElementById('paymentMethod').selectedIndex = 0;
                     document.getElementById('deliveryType').selectedIndex = 0;
                     document.getElementById('deliveryCost').value = 0;
+            const manualInvoiceField = document.getElementById("manualInvoiceId");
+            if (manualInvoiceField) manualInvoiceField.value = "";
+            const manualSaleDateField = document.getElementById("manualSaleDate");
+            if (manualSaleDateField) manualSaleDateField.value = "";
                     document.getElementById('customerName').value = '';
                     document.getElementById('customerId').value = '';
                     document.getElementById('customerPhone').value = '';
@@ -3604,9 +3618,17 @@
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
             const total = subtotal + deliveryCost;
 
-            // Generar ID de factura
+            // Generar u obtener ID de factura manual
+            const manualInvoiceField = document.getElementById('manualInvoiceId');
+            const manualInvoiceId = manualInvoiceField && manualInvoiceField.value.trim() ? manualInvoiceField.value.trim() : null;
             let nextInvoiceId = parseInt(localStorage.getItem('destelloOroNextInvoiceId') || '1001');
-            const invoiceId = `FAC${nextInvoiceId.toString().padStart(4, '0')}`;
+            const autoInvoiceId = `FAC${nextInvoiceId.toString().padStart(4, '0')}`;
+            const invoiceId = manualInvoiceId || autoInvoiceId;
+
+            // Fecha manual (solo fecha) o actual
+            const manualDateField = document.getElementById('manualSaleDate');
+            const manualDateValue = manualDateField && manualDateField.value ? manualDateField.value : null;
+            const saleDate = manualDateValue || new Date().toISOString();
 
             // Crear objeto de venta con múltiples productos
             const sale = {
@@ -3628,7 +3650,7 @@
                 paymentMethod: paymentMethod,
                 deliveryType: deliveryType,
                 customerInfo: customerInfo,
-                date: new Date().toISOString(),
+                date: saleDate,
                 status: paymentMethod === 'cash' ? 'completed' : 'pending',
                 confirmed: paymentMethod === 'cash',
                 user: currentUser.username,
@@ -3671,8 +3693,10 @@
             // Actualizar historial
             loadHistoryCards();
 
-            // Incrementar número de factura
-            localStorage.setItem('destelloOroNextInvoiceId', (nextInvoiceId + 1).toString());
+            // Incrementar número de factura solo si fue auto
+            if (!manualInvoiceId) {
+                localStorage.setItem('destelloOroNextInvoiceId', (nextInvoiceId + 1).toString());
+            }
         }
 
         // Actualizar resumen de venta
@@ -8436,7 +8460,12 @@
                     body: JSON.stringify(sale)
                 });
                 const data = await response.json();
-    
+
+                if (response.status === 409) {
+                    await showDialog('Error de factura', data.error || 'El número de factura ya existe. Usa un ID único.', 'error');
+                    return false;
+                }
+
                 if (data.success) {
                     // Actualizar tablas e historial
                     loadInventoryTable(); 

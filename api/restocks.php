@@ -87,12 +87,15 @@ if ($method === 'GET') {
         $product = $pStmt->fetch();
         $pName = $product ? $product['name'] : 'Producto desconocido';
         
+        $incomingDate = $data->date ?? null;
+        $restockDate = $incomingDate ? ((strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate) : date('Y-m-d H:i:s');
+
         $histStmt = $conn->prepare("INSERT INTO restocks (product_ref, product_name, quantity, restock_date, user_id, username) VALUES (:ref, :name, :qty, :date, :uid, :uname)");
         $histStmt->execute([
             ':ref' => $data->id,
             ':name' => $pName,
             ':qty' => $data->quantity,
-            ':date' => date('Y-m-d H:i:s'),
+            ':date' => $restockDate,
             ':uid' => $_SESSION['user_id'],
             ':uname' => $_SESSION['username']
         ]);
@@ -181,10 +184,13 @@ if ($method === 'GET') {
             ]);
 
             // 3. Actualizar el registro
+            $incomingDate = $data->date ?? null;
+            $restockDate = $incomingDate ? ((strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate) : date('Y-m-d H:i:s');
+
             $updateStmt = $conn->prepare("UPDATE restocks SET quantity = :qty, restock_date = :date WHERE id = :id");
             $updateStmt->execute([
                 ':qty' => $data->quantity, 
-                ':date' => date('Y-m-d H:i:s'),
+                ':date' => $restockDate,
                 ':id' => $data->id
             ]);
         }

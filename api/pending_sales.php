@@ -76,6 +76,9 @@ if ($method === 'GET') {
             VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :war, :pay, :del_type, :sale_date, :uid, :uname, 'pending')";
     
             $stmt = $conn->prepare($sql);
+            $incomingDate = $data->date ?? null;
+            $saleDate = $incomingDate ? ((strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate) : date('Y-m-d H:i:s');
+
             $stmt->execute([
                 ':inv' => $data->id,
                 ':name' => $data->customerInfo->name,
@@ -90,7 +93,7 @@ if ($method === 'GET') {
                 ':war' => $data->warrantyIncrement ?? 0,
                 ':pay' => $data->paymentMethod,
                 ':del_type' => $data->deliveryType,
-                ':sale_date' => $data->date ?? date('Y-m-d H:i:s'),
+                ':sale_date' => $saleDate,
                 ':uid' => $_SESSION['user_id'],
                 ':uname' => $_SESSION['username']
             ]);
