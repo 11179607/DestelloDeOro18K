@@ -7979,14 +7979,15 @@
                     }
 
                     try {
-                        const response = await fetch('api/change_password.php', {
+                        const response = await fetch('api/users.php', {
                             method: 'POST',
                             headers: {'Content-Type': 'application/json'},
                             body: JSON.stringify({
-                                admin_username: adminUsername,
-                                admin_password: adminPassword,
-                                user_to_change: userToChange,
-                                new_password: newPassword
+                                action: 'change_password',
+                                adminUsername: adminUsername,
+                                adminPassword: adminPassword,
+                                userToChange: userToChange,
+                                newPassword: newPassword
                             })
                         });
 
@@ -8604,91 +8605,6 @@
                 case 'question': return 'var(--gold-primary)';
                 default: return 'var(--info)';
             }
-        }
-
-        // Configurar cambio de contraseña
-        function setupPasswordChange() {
-            const showBtn = document.getElementById('showPasswordChange');
-            const closeBtn = document.getElementById('closePasswordChange');
-            const cancelBtn = document.getElementById('cancelPasswordChange');
-            const modal = document.getElementById('passwordChangeModal');
-            const form = document.getElementById('passwordChangeForm');
-
-            // Mostrar modal
-            showBtn.addEventListener('click', function () {
-                modal.style.display = 'flex';
-
-                // Cargar usuarios en el select
-                loadUsersForPasswordChange();
-
-                // Enfocar el primer campo
-                setTimeout(() => {
-                    document.getElementById('adminUsername').focus();
-                }, 100);
-            });
-
-            // Cerrar modal
-            closeBtn.addEventListener('click', function () {
-                modal.style.display = 'none';
-                form.reset();
-            });
-
-            cancelBtn.addEventListener('click', function () {
-                modal.style.display = 'none';
-                form.reset();
-            });
-
-            // Cerrar modal al hacer clic fuera
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                    form.reset();
-                }
-            });
-
-            // Enviar formulario
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const adminUsername = document.getElementById('adminUsername').value;
-                const adminPassword = document.getElementById('adminPassword').value;
-                const userToChange = document.getElementById('userToChange').value;
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-
-                // Validar que las contraseñas coincidan
-                if (newPassword !== confirmPassword) {
-                    await showDialog('Error', 'Las contraseñas no coinciden.', 'error');
-                    return;
-                }
-
-                // Validar credenciales de administrador
-                const users = JSON.parse(localStorage.getItem('destelloOroUsers'));
-                const adminUser = users.find(u => u.username === adminUsername && u.password === adminPassword && u.role === 'admin');
-
-                if (!adminUser) {
-                    await showDialog('Error', 'Credenciales de administrador incorrectas.', 'error');
-                    return;
-                }
-
-                // Buscar usuario a modificar
-                const userIndex = users.findIndex(u => u.username === userToChange);
-
-                if (userIndex === -1) {
-                    await showDialog('Error', 'Usuario no encontrado.', 'error');
-                    return;
-                }
-
-                // Actualizar contraseña
-                users[userIndex].password = newPassword;
-                localStorage.setItem('destelloOroUsers', JSON.stringify(users));
-
-                // Cerrar modal y limpiar formulario
-                modal.style.display = 'none';
-                form.reset();
-
-                await showDialog('Éxito', 'Contraseña cambiada exitosamente.', 'success');
-            });
         }
 
         // Cargar usuarios para cambio de contraseña (se usa la versión asíncrona definida anteriormente)

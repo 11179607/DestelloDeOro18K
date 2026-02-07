@@ -42,7 +42,7 @@ $conn->exec("SET time_zone = '-05:00'");
 
 ### 2. Script de Migración de Base de Datos
 
-Se creó el archivo **`api/migrate_database.php`** que reorganiza las columnas en todas las tablas:
+Se dejó un único script **`migration_fecha_primero.sql`** que reorganiza las columnas en todas las tablas:
 
 #### Cambios en la estructura:
 
@@ -70,7 +70,7 @@ Se creó el archivo **`api/migrate_database.php`** que reorganiza las columnas e
 
 ### Opción 1: Desde el Navegador (RECOMENDADO)
 1. Asegúrate de estar logueado como **administrador**
-2. Abre tu navegador y ve a: `http://localhost/DestellodeOro18K/api/migrate_database.php`
+2. Ejecuta el script SQL anterior en tu gestor favorito (phpMyAdmin o CLI).
 3. El script se ejecutará automáticamente y mostrará el progreso
 4. Verifica que todas las tablas se hayan reorganizado correctamente
 
@@ -115,9 +115,7 @@ Después de ejecutar la migración, puedes verificar que todo funcionó correcta
 - ✓ `api/restocks.php`
 
 ### Archivos Nuevos:
-- ✓ `api/migrate_database.php` (script de migración con interfaz web)
 - ✓ `migration_fecha_primero.sql` (script SQL de migración)
-- ✓ `migrate_dates.php` (script PHP de migración para línea de comandos)
 - ✓ `test_timezone.php` (script de verificación de zona horaria)
 - ✓ `config/db.php` (actualizado con configuración de zona horaria)
 

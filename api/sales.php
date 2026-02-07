@@ -18,11 +18,11 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     // Listar ventas o detalles
     $saleId = $_GET['id'] ?? null;
-    
+
     if ($saleId) {
         // Detalles de una venta
         try {
-            $stmt = $conn->prepare("SELECT si.*, p.name as product_name FROM sale_items si LEFT JOIN products p ON si.product_ref = p.reference WHERE si.sale_id = :id");
+            $stmt = $conn->prepare("SELECT si.*, p.name AS product_name FROM sale_items si LEFT JOIN products p ON si.product_ref = p.reference WHERE si.sale_id = :id");
             $stmt->execute([':id' => $saleId]);
             $items = $stmt->fetchAll();
             echo json_encode($items);
@@ -33,65 +33,63 @@ if ($method === 'GET') {
     } else {
         // Historial de ventas
         try {
-            // Filtrar por mes/año si se proporciona
             $month = $_GET['month'] ?? null;
-            $year = $_GET['year'] ?? null;
-            
-            $sql = "SELECT * FROM sales WHERE status IN ('completed', 'pending')";
+            $year  = $_GET['year'] ?? null;
+
+            $sql    = "SELECT * FROM sales WHERE status IN ('completed', 'pending')";
             $params = [];
-            
+
             if ($month !== null && $year !== null) {
-                // SQL month is 1-based, JS is 0-based usually. Let's assume passed as 1-based or handle JS logic.
-                // Using JS convention (0-11) + 1 for SQL
+                // JS envía month 0-11; SQL 1-12
                 $month = intval($month) + 1;
-                $sql .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
+                $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
                 $params[':month'] = $month;
-                $params[':year'] = $year;
+                $params[':year']  = $year;
             }
-            
+
             $sql .= " ORDER BY sale_date DESC";
-            
+
             $stmt = $conn->prepare($sql);
             $stmt->execute($params);
             $sales = $stmt->fetchAll();
 
-            // Cargar items para cada venta (necesario para cálculos de ganancia en el frontend)
+            // Cargar items para cada venta
             foreach ($sales as &$sale) {
-                $itemStmt = $conn->prepare("SELECT si.*, p.purchase_price, p.name as product_name 
-                                           FROM sale_items si 
-                                           LEFT JOIN products p ON si.product_ref = p.reference 
-                                           WHERE si.sale_id = :id");
+                $itemStmt = $conn->prepare("
+                    SELECT si.*, p.purchase_price, p.name AS product_name
+                    FROM sale_items si
+                    LEFT JOIN products p ON si.product_ref = p.reference
+                    WHERE si.sale_id = :id
+                ");
                 $itemStmt->execute([':id' => $sale['id']]);
                 $sale['products'] = $itemStmt->fetchAll();
-                
-                // Formatear para compatibilidad con el JS existente (que espera 'unitPrice' y 'productName')
+
                 foreach ($sale['products'] as &$item) {
-                    $item['productId'] = $item['product_ref'];
-                    $item['productName'] = $item['product_name'];
-                    $item['unitPrice'] = (float)$item['unit_price'];
-                    $item['quantity'] = (int)$item['quantity'];
-                    $item['subtotal'] = (float)$item['subtotal'];
+                    $item['productId']     = $item['product_ref'];
+                    $item['productName']   = $item['product_name'];
+                    $item['unitPrice']     = (float)$item['unit_price'];
+                    $item['quantity']      = (int)$item['quantity'];
+                    $item['subtotal']      = (float)$item['subtotal'];
                     $item['purchasePrice'] = (float)($item['purchase_price'] ?? 0);
-                    $item['saleType'] = $item['sale_type'] ?? 'retail';
+                    $item['saleType']      = $item['sale_type'] ?? 'retail';
                 }
-                
-                // Map database fields to JS expected fields
+
+                // Mapeo a formato esperado por el frontend
                 $sale['date'] = $sale['sale_date'];
                 $sale['customerInfo'] = [
-                    'name' => $sale['customer_name'],
-                    'id' => $sale['customer_id'],
-                    'phone' => $sale['customer_phone'],
-                    'email' => $sale['customer_email'],
+                    'name'    => $sale['customer_name'],
+                    'id'      => $sale['customer_id'],
+                    'phone'   => $sale['customer_phone'],
+                    'email'   => $sale['customer_email'],
                     'address' => $sale['customer_address'],
-                    'city' => $sale['customer_city']
+                    'city'    => $sale['customer_city']
                 ];
-                $sale['paymentMethod'] = $sale['payment_method'];
-                $sale['deliveryType'] = $sale['delivery_type'];
-                $sale['deliveryCost'] = (float)($sale['delivery_cost'] ?? 0);
+                $sale['paymentMethod']   = $sale['payment_method'];
+                $sale['deliveryType']    = $sale['delivery_type'];
+                $sale['deliveryCost']    = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
-                $sale['user'] = $sale['username'];
-                // Determinar el tipo de venta basado en el primer producto
-                $sale['saleType'] = (!empty($sale['products'])) ? $sale['products'][0]['saleType'] : 'retail';
+                $sale['user']            = $sale['username'];
+                $sale['saleType']        = (!empty($sale['products'])) ? $sale['products'][0]['saleType'] : 'retail';
             }
 
             echo json_encode($sales);
@@ -104,7 +102,7 @@ if ($method === 'GET') {
 } elseif ($method === 'POST') {
     // Registrar Venta
     $data = json_decode(file_get_contents("php://input"));
-    
+
     if (!$data || !isset($data->products) || !is_array($data->products)) {
         http_response_code(400);
         echo json_encode(['error' => 'Datos inválidos']);
@@ -115,24 +113,22 @@ if ($method === 'GET') {
 
     try {
         $conn->beginTransaction();
-        
+
         // 1. Crear cabecera de venta
-        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, warranty_increment, payment_method, delivery_type, sale_date, user_id, username, status) 
+        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, warranty_increment, payment_method, delivery_type, sale_date, user_id, username, status)
                 VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :war, :pay, :del_type, :sale_date, :uid, :uname, :status)";
-        
+
         // Verificar si el ID de factura ya existe
         $invoiceNumber = $data->id;
         $checkStmt = $conn->prepare("SELECT COUNT(*) FROM sales WHERE invoice_number = :inv");
         $checkStmt->execute([':inv' => $invoiceNumber]);
-        
+
         if ($checkStmt->fetchColumn() > 0) {
-            // Generar nuevo ID basado en el último existente
             $maxStmt = $conn->prepare("SELECT invoice_number FROM sales WHERE invoice_number LIKE 'FAC%' ORDER BY LENGTH(invoice_number) DESC, invoice_number DESC LIMIT 1");
             $maxStmt->execute();
             $maxInv = $maxStmt->fetchColumn();
-            
+
             if ($maxInv) {
-                // Extraer número y sumar 1
                 $num = intval(substr($maxInv, 3)) + 1;
                 $invoiceNumber = 'FAC' . str_pad($num, 4, '0', STR_PAD_LEFT);
             } else {
@@ -142,53 +138,52 @@ if ($method === 'GET') {
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            ':inv' => $invoiceNumber,
-            ':name' => $data->customerInfo->name,
-            ':cid' => $data->customerInfo->id,
-            ':phone' => $data->customerInfo->phone,
-            ':email' => $data->customerInfo->email ?? '',
-            ':addr' => $data->customerInfo->address,
-            ':city' => $data->customerInfo->city,
-            ':total' => $data->total,
-            ':disc' => $data->discount ?? 0,
-            ':del' => $data->deliveryCost ?? 0,
-            ':war' => $data->warrantyIncrement ?? 0,
-            ':pay' => $data->paymentMethod,
+            ':inv'      => $invoiceNumber,
+            ':name'     => $data->customerInfo->name,
+            ':cid'      => $data->customerInfo->id,
+            ':phone'    => $data->customerInfo->phone,
+            ':email'    => $data->customerInfo->email ?? '',
+            ':addr'     => $data->customerInfo->address,
+            ':city'     => $data->customerInfo->city,
+            ':total'    => $data->total,
+            ':disc'     => $data->discount ?? 0,
+            ':del'      => $data->deliveryCost ?? 0,
+            ':war'      => $data->warrantyIncrement ?? 0,
+            ':pay'      => $data->paymentMethod,
             ':del_type' => $data->deliveryType,
-            ':sale_date' => date('Y-m-d H:i:s'),
-            ':uid' => $_SESSION['user_id'],
-            ':uname' => $_SESSION['username'],
-            ':status' => $status
+            ':sale_date'=> date('Y-m-d H:i:s'),
+            ':uid'      => $_SESSION['user_id'],
+            ':uname'    => $_SESSION['username'],
+            ':status'   => $status
         ]);
-        
+
         $saleId = $conn->lastInsertId();
-        
+
         // 2. Insertar items y actualizar inventario
-        $itemSql = "INSERT INTO sale_items (sale_id, product_ref, product_name, quantity, unit_price, subtotal, sale_type) VALUES (:sid, :ref, :pname, :qty, :price, :sub, :type)";
+        $itemSql  = "INSERT INTO sale_items (sale_id, product_ref, product_name, quantity, unit_price, subtotal, sale_type) VALUES (:sid, :ref, :pname, :qty, :price, :sub, :type)";
         $stockSql = "UPDATE products SET quantity = quantity - :qty WHERE reference = :ref";
-        
-        $itemStmt = $conn->prepare($itemSql);
+
+        $itemStmt  = $conn->prepare($itemSql);
         $stockStmt = $conn->prepare($stockSql);
-        
+
         foreach ($data->products as $item) {
-            // Insertar item (usando campos del frontend: productId, quantity, unitPrice, subtotal)
             $itemStmt->execute([
-                ':sid' => $saleId,
-                ':ref' => $item->productId,
+                ':sid'   => $saleId,
+                ':ref'   => $item->productId,
                 ':pname' => $item->productName,
-                ':qty' => $item->quantity,
+                ':qty'   => $item->quantity,
                 ':price' => $item->unitPrice,
-                ':sub' => $item->subtotal,
-                ':type' => $item->saleType ?? 'retail'
+                ':sub'   => $item->subtotal,
+                ':type'  => $item->saleType ?? 'retail'
             ]);
-            
+
             // Descontar inventario
             $stockStmt->execute([
                 ':qty' => $item->quantity,
                 ':ref' => $item->productId
             ]);
         }
-        
+
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Venta registrada con éxito', 'id' => $invoiceNumber]);
 
@@ -214,7 +209,6 @@ if ($method === 'GET') {
     }
 
     try {
-        // Buscar la venta por ID o número de factura para obtener el ID real de la base de datos
         $stmt = $conn->prepare("SELECT id, invoice_number, total, customer_name FROM sales WHERE id = :id OR invoice_number = :id");
         $stmt->execute([':id' => $id]);
         $saleToDelete = $stmt->fetch();
@@ -225,12 +219,12 @@ if ($method === 'GET') {
             exit;
         }
 
-        $dbId = $saleToDelete['id'];
+        $dbId   = $saleToDelete['id'];
         $details = "Venta #" . ($saleToDelete['invoice_number'] ?? $dbId) . " eliminada. Cliente: " . ($saleToDelete['customer_name'] ?? 'N/A') . ". Total: " . ($saleToDelete['total'] ?? 0);
 
         $conn->beginTransaction();
 
-        // 1. Obtener items de la venta para restablecer stock
+        // Devolver inventario
         $stmt = $conn->prepare("SELECT product_ref, quantity FROM sale_items WHERE sale_id = :id");
         $stmt->execute([':id' => $dbId]);
         $items = $stmt->fetchAll();
@@ -243,11 +237,10 @@ if ($method === 'GET') {
             ]);
         }
 
-        // 2. Eliminar la venta (la eliminación en cascada se encargará de sale_items)
+        // Eliminar venta
         $deleteStmt = $conn->prepare("DELETE FROM sales WHERE id = :id");
         $deleteStmt->execute([':id' => $dbId]);
 
-        // Registrar en LOG
         logAction($conn, $_SESSION['username'], 'DELETE', 'SALE', $dbId, $details);
 
         $conn->commit();
@@ -257,8 +250,9 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
+
 } elseif ($method === 'PUT') {
-    // Editar Venta (Solo admin)
+    // Editar / confirmar venta (Solo admin)
     if ($_SESSION['role'] !== 'admin') {
         http_response_code(403);
         echo json_encode(['error' => 'Acceso denegado']);
@@ -273,9 +267,7 @@ if ($method === 'GET') {
     }
 
     try {
-        // 1. Obtener la venta actual para tener los valores base
-        // Incluimos 'total' para poder calcular el subtotal inverso si es necesario
-        $stmt = $conn->prepare("SELECT id, delivery_cost, discount, warranty_increment, status, invoice_number, total FROM sales WHERE id = :id OR invoice_number = :id");
+        $stmt = $conn->prepare("SELECT * FROM sales WHERE id = :id OR invoice_number = :id");
         $stmt->execute([':id' => $data->id]);
         $sale = $stmt->fetch();
 
@@ -285,73 +277,73 @@ if ($method === 'GET') {
             exit;
         }
 
-        $dbId = $sale['id'];
+        $dbId     = $sale['id'];
         $oldStatus = $sale['status'];
-        $newStatus = $data->status ?? 'completed';
 
-        // Calcular susbtotal actual: Total - Delivery + Discount - Warranty
-        $currentSubtotal = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'] - (float)($sale['warranty_increment'] ?? 0);
-        
-        $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : 0;
-        
-        // Validación estricta: Si subtotal es 0 o no viene, usar actual.
-        // El subtotal de una venta nunca debería ser 0.
-        $incomingSubtotal = isset($data->subtotal) ? (float)$data->subtotal : 0;
-        $subtotal = ($incomingSubtotal > 0) ? $incomingSubtotal : $currentSubtotal;
-        
-        // Para delivery y descuento permitimos 0 si el usuario lo pone explícitamente, 
-        // pero tendríamos que distinguir entre 0 intencional y 0 por omisión si fuera posible.
-        // Asumimos que la lógica isset funciona, pero mejor usamos el valor actual si no viene definido.
-        $deliveryCost = isset($data->deliveryCost) ? (float)$data->deliveryCost : (float)$sale['delivery_cost'];
-        $discount = isset($data->discount) ? (float)$data->discount : (float)$sale['discount'];
-        
-        // Recalcular total: total = subtotal + delivery - discount + warranty
-        $newTotal = $subtotal + $deliveryCost - $discount + $warrantyIncrement;
+        // Fallback a valores actuales
+        $invoiceNumber   = $data->invoiceNumber ?? $data->id ?? $sale['invoice_number'];
+        $customerName    = $data->customerName   ?? $sale['customer_name'];
+        $customerId      = $data->customerId     ?? $sale['customer_id'];
+        $customerPhone   = $data->customerPhone  ?? $sale['customer_phone'];
+        $customerEmail   = $data->customerEmail  ?? $sale['customer_email'];
+        $customerAddress = $data->customerAddress?? $sale['customer_address'];
+        $customerCity    = $data->customerCity   ?? $sale['customer_city'];
+        $paymentMethod   = $data->paymentMethod  ?? $sale['payment_method'];
+        $saleDate        = $data->saleDate ?? $data->date ?? $sale['sale_date'];
 
-        $sql = "UPDATE sales SET 
-                invoice_number = :inv,
-                customer_name = :name, 
-                customer_id = :cid, 
-                customer_phone = :phone, 
-                customer_email = :email, 
-                customer_address = :addr, 
-                customer_city = :city,
-                payment_method = :pay,
-                status = :status,
-                delivery_cost = :del,
+        $deliveryCost      = isset($data->deliveryCost)      ? (float)$data->deliveryCost      : (float)$sale['delivery_cost'];
+        $discount          = isset($data->discount)          ? (float)$data->discount          : (float)$sale['discount'];
+        $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : (float)($sale['warranty_increment'] ?? 0);
+
+        $currentSubtotal  = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'] - (float)($sale['warranty_increment'] ?? 0);
+        $incomingSubtotal = isset($data->subtotal) ? (float)$data->subtotal : $currentSubtotal;
+        $subtotal         = ($incomingSubtotal > 0) ? $incomingSubtotal : $currentSubtotal;
+
+        $newStatus = $data->status ?? $sale['status'];
+        $newTotal  = $subtotal + $deliveryCost - $discount + $warrantyIncrement;
+
+        $sql = "UPDATE sales SET
+                invoice_number     = :inv,
+                customer_name      = :name,
+                customer_id        = :cid,
+                customer_phone     = :phone,
+                customer_email     = :email,
+                customer_address   = :addr,
+                customer_city      = :city,
+                payment_method     = :pay,
+                status             = :status,
+                delivery_cost      = :del,
                 warranty_increment = :war,
-                discount = :disc,
-                total = :total,
-                sale_date = :date
+                discount           = :disc,
+                total              = :total,
+                sale_date          = :date
                 WHERE id = :dbId";
-        
+
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            ':inv' => $data->invoiceNumber ?? $data->id,
-            ':name' => $data->customerName ?? '',
-            ':cid' => $data->customerId ?? '',
-            ':phone' => $data->customerPhone ?? '',
-            ':email' => $data->customerEmail ?? '',
-            ':addr' => $data->customerAddress ?? '',
-            ':city' => $data->customerCity ?? '',
-            ':pay' => $data->paymentMethod ?? 'cash',
-            ':status' => $newStatus,
-            ':del' => $deliveryCost,
-            ':war' => $warrantyIncrement,
-            ':disc' => $discount,
+            ':inv'   => $invoiceNumber,
+            ':name'  => $customerName,
+            ':cid'   => $customerId,
+            ':phone' => $customerPhone,
+            ':email' => $customerEmail,
+            ':addr'  => $customerAddress,
+            ':city'  => $customerCity,
+            ':pay'   => $paymentMethod,
+            ':status'=> $newStatus,
+            ':del'   => $deliveryCost,
+            ':war'   => $warrantyIncrement,
+            ':disc'  => $discount,
             ':total' => $newTotal,
-            ':date' => date('Y-m-d H:i:s'),
-            ':dbId' => $dbId
+            ':date'  => $saleDate ?: date('Y-m-d H:i:s'),
+            ':dbId'  => $dbId
         ]);
 
-        // Registrar en LOG
         $actionType = 'EDIT';
-        $details = "Venta #" . ($data->invoiceNumber ?? $data->id) . " actualizada.";
+        $details    = "Venta #{$invoiceNumber} actualizada.";
 
-        // Detectar si fue confirmación de pago
         if ($oldStatus === 'pending' && $newStatus === 'completed') {
             $actionType = 'CONFIRM_PAYMENT';
-            $details = "Pago confirmado para venta #" . ($data->invoiceNumber ?? $data->id);
+            $details    = "Pago confirmado para venta #{$invoiceNumber}.";
         }
 
         logAction($conn, $_SESSION['username'], $actionType, 'SALE', $dbId, $details);
@@ -361,88 +353,5 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
-
-} elseif ($method === 'PUT') {
-    // Actualizar estado de venta (principalmente para confirmar pagos pendientes)
-    if ($_SESSION['role'] !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['error' => 'Acceso denegado']);
-        exit;
-    }
-
-    $data = json_decode(file_get_contents("php://input"));
-    
-    if (!isset($data->id)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'ID es requerido']);
-        exit;
-    }
-
-    try {
-        // Buscar la venta por ID o número de factura
-        $stmt = $conn->prepare("SELECT id, status FROM sales WHERE id = :id OR invoice_number = :id");
-        $stmt->execute([':id' => $data->id]);
-        $sale = $stmt->fetch();
-
-        if (!$sale) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Venta no encontrada']);
-            exit;
-        }
-
-        $dbId = $sale['id'];
-        $oldStatus = $sale['status'];
-        $newStatus = $data->status;
-
-        // Actualizar todos los campos permitidos
-        $updateSql = "UPDATE sales SET 
-            status = :status,
-            customer_name = :customerName,
-            customer_id = :customerId,
-            customer_phone = :customerPhone,
-            sale_date = :saleDate,
-            subtotal = :subtotal,
-            delivery_cost = :deliveryCost,
-            discount = :discount,
-            warranty_increment = :warrantyIncrement,
-            total = :total,
-            payment_method = :paymentMethod
-            WHERE id = :id";
-
-        $updateStmt = $conn->prepare($updateSql);
-        
-        // Mapear datos, usando valores actuales como fallback si no vienen en el request
-        $updateStmt->execute([
-            ':status' => $data->status ?? $sale['status'],
-            ':customerName' => $data->customerName ?? $sale['customer_name'],
-            ':customerId' => $data->customerId ?? $sale['customer_id'],
-            ':customerPhone' => $data->customerPhone ?? $sale['customer_phone'],
-            ':saleDate' => $data->saleDate ?? $data->date ?? $sale['sale_date'], // Frontend manda 'date'
-            ':subtotal' => $data->subtotal ?? $sale['subtotal'],
-            ':deliveryCost' => $data->deliveryCost ?? $sale['delivery_cost'],
-            ':discount' => $data->discount ?? $sale['discount'],
-            ':warrantyIncrement' => $data->warrantyIncrement ?? $sale['warranty_increment'],
-            ':total' => $data->total ?? $sale['total'], // Debería recalcularse, pero confiamos en el frontend por ahora o usamos el enviado
-            ':paymentMethod' => $data->paymentMethod ?? $sale['payment_method'],
-            ':id' => $dbId
-        ]);
-
-        // Registrar en LOG
-        $actionType = 'UPDATE_SALE';
-        $details = "Venta #{$dbId} actualizada por admin";
-
-        if ($oldStatus === 'pending' && ($data->status ?? $oldStatus) === 'completed') {
-            $actionType = 'CONFIRM_PAYMENT';
-            $details .= ". Pago confirmado.";
-        }
-
-        logAction($conn, $_SESSION['username'], $actionType, 'SALE', $dbId, $details);
-
-        echo json_encode(['success' => true, 'message' => 'Venta actualizada correctamente']);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
 }
-
 ?>
