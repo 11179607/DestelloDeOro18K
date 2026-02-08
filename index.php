@@ -3367,18 +3367,22 @@
 
         async function updateProduct(formData) {
             try {
+                const payload = {
+                    id: (formData.id || '').toUpperCase(),
+                    originalId: formData.originalId ? formData.originalId.toUpperCase() : (formData.id || '').toUpperCase(),
+                    date: formData.date || null,
+                    name: formData.name,
+                    quantity: formData.quantity,
+                    purchasePrice: formData.purchasePrice,
+                    wholesalePrice: formData.wholesalePrice,
+                    retailPrice: formData.retailPrice,
+                    supplier: formData.supplier
+                };
+
                 const response = await fetch('api/products.php', {
                     method: 'POST', // api/products.php usa POST para insert/update
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        id: formData.id,
-                        name: formData.name,
-                        quantity: formData.quantity,
-                        purchasePrice: formData.purchasePrice,
-                        wholesalePrice: formData.wholesalePrice,
-                        retailPrice: formData.retailPrice,
-                        supplier: formData.supplier
-                    })
+                    body: JSON.stringify(payload)
                 });
                 const data = await response.json();
                 if (data.success) {
