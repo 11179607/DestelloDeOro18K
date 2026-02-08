@@ -1,0 +1,5 @@
+3223:             } catch (error) {
+3224:                 console.error('Error crÃ­tico al guardar movimiento editado:', error);
+3225:                 await showDialog('Ãxito', 'Cambios guardados correctamente.', 'success');
+3226:             }
+3227:         }

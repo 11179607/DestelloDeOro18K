@@ -6988,7 +6988,31 @@
                     break;
                     break;
                 case 'product':
+                    let productDate = '';
+                    try {
+                        productDate = new Date(movement.date).toISOString().split('T')[0];
+                    } catch(e) {
+                        productDate = movement.date ? movement.date.split(' ')[0] : '';
+                    }
+
                     formContent = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-calendar"></i> Fecha de Ingreso
+                                </label>
+                                <input type="date" name="date" value="${productDate}"
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-barcode"></i> Referencia
+                                </label>
+                                <input type="text" name="id" value="${movement.id}" oninput="this.value = this.value.toUpperCase();"
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Identificador único del producto</small>
+                            </div>
+                        </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Nombre del Producto</label>
                             <input type="text" name="name" value="${movement.name}" class="form-control" style="width: 100%; padding: 8px;" required>
@@ -7013,7 +7037,7 @@
                             <label style="font-weight: 500;">Proveedor</label>
                             <input type="text" name="supplier" value="${movement.supplier || ''}" class="form-control" style="width: 100%; padding: 8px;">
                         </div>
-                        <input type="hidden" name="id" value="${movement.id}">
+                        <input type="hidden" name="originalId" value="${movement.id}">
                     `;
                     break;
                 case 'restocks':
