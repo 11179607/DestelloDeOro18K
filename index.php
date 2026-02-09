@@ -6742,7 +6742,7 @@
             const modalTitle = document.getElementById('editMovementTitle');
             const modalContent = document.getElementById('editMovementContent');
 
-            modalTitle.textContent = `Editar ${type === 'sales' ? 'Venta' : type === 'expenses' ? 'Gasto' : 'Garantía'}`;
+            modalTitle.textContent = `Editar ${type === 'sales' ? 'Venta' : type === 'expenses' ? 'Gasto' : type === 'product' ? 'Producto de Inventario' : 'Garantía'}`;
 
             // Generar formulario según el tipo
             let formContent = '';
@@ -6994,7 +6994,9 @@
                 case 'product':
                     let productDate = '';
                     try {
-                        productDate = new Date(movement.date).toISOString().split('T')[0];
+                        // Convertir fecha sin cambiar zona horaria
+                      const dateObj = new Date(movement.date);
+                      productDate = dateObj.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
                     } catch(e) {
                         productDate = movement.date ? movement.date.split(' ')[0] : '';
                     }
