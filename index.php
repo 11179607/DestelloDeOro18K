@@ -3206,6 +3206,11 @@
                     // 1. Recargar los datos desde el servidor y ESPERAR a que terminen
                     console.log('Recargando tarjetas de historial...');
                     await loadHistoryCards();
+                    
+                    // Si el tipo es gastos, recargar también la tabla de gastos general
+                    if (typeToRefresh === 'expenses') {
+                        loadExpensesTable();
+                    }
 
                     // 2. Actualizar la vista de detalles si está abierta
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
@@ -6857,6 +6862,14 @@
                     break;
 
                 case 'expenses':
+                    // Convertir fecha para el input date
+                    let expenseDateEdit = '';
+                    try {
+                        expenseDateEdit = movement.date ? movement.date.split(' ')[0] : '';
+                    } catch(e) {
+                         expenseDateEdit = '';
+                    }
+
                     formContent = `
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -6865,12 +6878,12 @@
                             <input type="text" name="description" value="${movement.description}" 
                                    class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                         </div>
-                        
+
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                 <i class="fas fa-calendar"></i> Fecha
                             </label>
-                            <input type="date" name="date" value="${movement.date}" 
+                            <input type="date" name="date" value="${expenseDateEdit}"  
                                    class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                         </div>
                         
