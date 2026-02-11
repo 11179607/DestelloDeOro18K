@@ -3,7 +3,6 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-echo "TEST_REACHED"; 
 header('Content-Type: application/json');
 require_once '../config/db.php';
 
@@ -73,7 +72,7 @@ try {
         $mail->Password   = 'gkkw jbnz jkie rpet'; // Contraseña de aplicación
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
-        $mail->setCharset('UTF-8');
+        $mail->CharSet    = 'UTF-8';
 
         // Emisor y receptor
         $mail->setFrom('no-reply@destellodeoro.com', 'Destello de Oro 18K');
