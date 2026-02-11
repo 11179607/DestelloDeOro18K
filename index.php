@@ -3802,16 +3802,23 @@
 
             // Actualizar historial
             refreshBtn.addEventListener('click', async function () {
-                await loadHistoryCards();
-                if (document.getElementById('historyDetailsView').classList.contains('active')) {
-                    showHistoryDetails(currentHistoryDetailType || currentHistoryType);
+                const currentFilter = document.getElementById('historyFilter').value;
+                if (currentFilter === 'admin_audit') {
+                    await loadAuditLogs();
+                } else {
+                    await loadHistoryCards();
+                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                        showHistoryDetails(currentHistoryDetailType || currentHistoryType);
+                    }
                 }
             });
 
             // Volver a las tarjetas
             backToCardsBtn.addEventListener('click', function () {
                 document.getElementById('historyCardsView').style.display = 'grid';
-                document.getElementById('historyDetailsView').classList.remove('active');
+                const detailsView = document.getElementById('historyDetailsView');
+                detailsView.classList.remove('active');
+                detailsView.style.display = 'none';
             });
         }
 
@@ -4386,14 +4393,16 @@
 
         // Mostrar detalles del historial
         function showHistoryDetails(type) {
+            const detailsView = document.getElementById('historyDetailsView');
+            const wasActive = detailsView.classList.contains('active');
+
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
 
             // Mostrar detalles
-            const detailsView = document.getElementById('historyDetailsView');
             detailsView.style.display = 'block'; // Forzar display block para sobrescribir el none de backToHistoryCards
             
-            if (!detailsView.classList.contains('active')) {
+            if (!wasActive) {
                 detailsView.classList.add('active');
             }
             
@@ -4405,6 +4414,10 @@
                  document.getElementById('detailsTableTitle').textContent = 'Inversión';
             } else {
                 const iconInfo = historyIcons[type];
+                if (!iconInfo) {
+                    console.error('No se encontró información de icono para el tipo:', type);
+                    return;
+                }
                 document.getElementById('detailsTitle').textContent = `Detalles de ${iconInfo.title}`;
                 document.getElementById('detailsTableTitle').textContent = iconInfo.title;
             }
