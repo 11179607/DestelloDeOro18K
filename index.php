@@ -8160,9 +8160,11 @@
                         const data = await response.json();
 
                         if (data.success) {
-                            await showDialog('Éxito', data.message || 'Contraseña cambiada exitosamente.', 'success');
+                            // Primero cerramos el modal y reseteamos el formulario
                             modal.style.display = 'none';
                             form.reset();
+                            // Luego mostramos el mensaje de éxito para que sea visible
+                            await showDialog('Éxito', data.message || 'Contraseña cambiada exitosamente.', 'success');
                         } else {
                             await showDialog('Error', data.message || data.error || 'Error al cambiar la contraseña.', 'error');
                         }
