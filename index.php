@@ -6766,22 +6766,26 @@
                     }
 
                     formContent = `
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-calendar"></i> Fecha de Venta
-                                </label>
-                                <input type="date" name="date" value="${saleDate}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                            </div>
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-hashtag"></i> Número de Factura
-                                </label>
-                                <input type="text" name="invoiceNumber" value="${movement.id}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                            </div>
-                        </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                            <i class="fas fa-calendar"></i> Fecha de Venta
+                                        </label>
+                                        <input type="date" name="date" value="${saleDate}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                            <i class="fas fa-fingerprint"></i> ID de Venta
+                                        </label>
+                                        <input type="text" name="id" value="${movement.id}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f5f5f5;" readonly>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                        <i class="fas fa-hashtag"></i> Número de Factura (Manual)
+                                    </label>
+                                    <input type="text" name="invoiceNumber" value="${movement.invoice_number || movement.invoiceNumber || ''}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
 
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
