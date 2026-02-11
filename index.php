@@ -1547,7 +1547,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 8000;
+            z-index: 10000;
             justify-content: center;
             align-items: center;
             padding: 15px;
