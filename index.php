@@ -143,7 +143,7 @@
             height: 100%;
             z-index: 5000; /* Asegura estar por encima del fondo del body */
             padding: 15px;
-            background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)),
+            background: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.65)),
                 url('fondo.jpeg') no-repeat center center fixed;
             background-size: cover;
             overflow-y: auto; /* Permite scroll interno si el contenido es grande */
