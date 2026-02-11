@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -2231,14 +2231,14 @@
                         </h3>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="manualInvoiceId">Número de factura (manual)</label>
+                                <label for="manualInvoiceId">Nï¿½mero de factura (manual)</label>
                                 <input type="text" id="manualInvoiceId" class="form-control" placeholder="Ej: FAC1234">
-                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vacío se autogenera.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vacï¿½o se autogenera.</small>
                             </div>
                             <div class="form-group">
                                 <label for="manualSaleDate">Fecha de venta</label>
                                 <input type="date" id="manualSaleDate" class="form-control">
-                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega automáticamente.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega automï¿½ticamente.</small>
                             </div>
                             <div class="form-group">
                                 <label for="paymentMethod">MÃ©todo de Pago *</label>
@@ -4618,6 +4618,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
+                                <th>ID de Venta</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
                                 <th>Total</th>
@@ -4670,6 +4671,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
+                                <th>ID de Venta</th>
                                 <th>Cliente</th>
                                 <th>Total</th>
                                 <th>MÃ©todo Pago</th>
@@ -4722,6 +4724,7 @@
                             row = `
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
+                                    <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td>
@@ -4868,6 +4871,7 @@
                             row = `
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
+                                    <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
@@ -7029,7 +7033,7 @@
                                 </label>
                                 <input type="text" name="id" value="${movement.id}" oninput="this.value = this.value.toUpperCase();"
                                        class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                                <small class="form-text" style="font-size: 0.8rem;">Identificador único del producto</small>
+                                <small class="form-text" style="font-size: 0.8rem;">Identificador ï¿½nico del producto</small>
                             </div>
                         </div>
                         <div style="margin-bottom: 1rem;">
