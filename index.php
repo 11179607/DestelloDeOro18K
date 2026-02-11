@@ -8295,18 +8295,24 @@
                         }
 
                         if (result.success) {
-                            await showDialog('Éxito', result.message, 'success');
+                            // Resetear botón y cerrar modal ANTES del diálogo para que no se vea el "cargando" de fondo
+                            sendBtn.disabled = false;
+                            sendBtn.innerHTML = originalText;
                             modal.style.display = 'none';
                             form.reset();
+                            
+                            await showDialog('Éxito', result.message, 'success');
                         } else {
+                            // Si hay error, solo habilitamos el botón para reintentar
+                            sendBtn.disabled = false;
+                            sendBtn.innerHTML = originalText;
                             await showDialog('Error', result.message || 'Error al procesar la solicitud', 'error');
                         }
                     } catch (error) {
                         console.error('Error al recuperar contraseña:', error);
-                        await showDialog('Error', 'Error de conexión: ' + error.message, 'error');
-                    } finally {
                         sendBtn.disabled = false;
                         sendBtn.innerHTML = originalText;
+                        await showDialog('Error', 'Error de conexión: ' + error.message, 'error');
                     }
                 });
             }
