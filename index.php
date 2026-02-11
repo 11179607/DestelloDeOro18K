@@ -143,7 +143,7 @@
             height: 100%;
             z-index: 5000; /* Asegura estar por encima del fondo del body */
             padding: 15px;
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+            background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)),
                 url('fondo.jpeg') no-repeat center center fixed;
             background-size: cover;
             overflow-y: auto; /* Permite scroll interno si el contenido es grande */
@@ -184,58 +184,59 @@
             color: var(--gold-primary);
             margin-bottom: 0.75rem;
             display: block;
-            text-shadow: 2px 2px 4px #000000;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .login-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--gold-dark);
             margin-bottom: 0.5rem;
             letter-spacing: 1px;
-            text-shadow: 2px 2px 4px #000000;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .login-header p {
-            color: #ffffff;
+            color: var(--dark-gray);
             font-size: 0.9rem;
-            font-weight: 300;
-            text-shadow: 1px 1px 3px #000000;
+            font-weight: 400;
+            text-shadow: none;
         }
 
         /* Ajustes textos login fondo transparente - LEGIBILIDAD TOTAL */
         .login-box h3 {
-            color: #ffffff !important;
-            text-shadow: 2px 2px 4px #000000 !important;
+            color: var(--gold-dark) !important;
+            text-shadow: none !important;
         }
         
         .login-box label {
-            color: #ffffff !important;
-            text-shadow: 1px 1px 3px #000000 !important;
+            color: var(--text-dark) !important;
+            text-shadow: none !important;
             font-weight: 600;
             font-size: 1rem; /* Un poco más grande para leer mejor */
         }
 
         .login-box small, .login-box p, .login-box .form-text {
-            color: #f0f0f0 !important;
-            text-shadow: 1px 1px 2px #000000 !important;
+            color: var(--dark-gray) !important;
+            text-shadow: none !important;
             font-weight: 400;
         }
 
         /* Inputs transparentes estilo material - Texto blanco */
         .login-box .form-control {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.5);
             border: none;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.7);
-            border-radius: 0;
-            padding: 10px 0;
-            color: #ffffff !important; /* Texto que escribe el usuario en blanco */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border-bottom: 2px solid var(--medium-gray);
+            border-radius: var(--radius-sm);
+            padding: 12px 15px;
+            color: var(--text-dark) !important;
+            text-shadow: none;
         }
         
         .login-box .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--dark-gray);
+            opacity: 0.5;
         }
         
         .login-box .form-control:focus {
@@ -4616,9 +4617,9 @@
                     case 'sales':
                         headers = `
                             <tr>
-                                <th>Fecha</th>
-                                <th>Factura</th>
                                 <th>ID de Venta</th>
+                                <th>Factura</th>
+                                <th>Fecha</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
                                 <th>Total</th>
@@ -4669,9 +4670,9 @@
                     case 'pending':
                         headers = `
                             <tr>
-                                <th>Fecha</th>
-                                <th>Factura</th>
                                 <th>ID de Venta</th>
+                                <th>Factura</th>
+                                <th>Fecha</th>
                                 <th>Cliente</th>
                                 <th>Total</th>
                                 <th>Método Pago</th>
@@ -6769,15 +6770,15 @@
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                     <div style="margin-bottom: 1rem;">
                                         <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                            <i class="fas fa-calendar"></i> Fecha de Venta
-                                        </label>
-                                        <input type="date" name="date" value="${saleDate}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                                    </div>
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                             <i class="fas fa-fingerprint"></i> ID de Venta
                                         </label>
                                         <input type="text" name="id" value="${movement.id}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f5f5f5;" readonly>
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                            <i class="fas fa-calendar"></i> Fecha de Venta
+                                        </label>
+                                        <input type="date" name="date" value="${saleDate}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                                     </div>
                                 </div>
                                 <div style="margin-bottom: 1rem;">
