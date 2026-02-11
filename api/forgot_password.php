@@ -1,8 +1,5 @@
 <?php
 // api/forgot_password.php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 header('Content-Type: application/json');
 require_once '../config/db.php';
 
@@ -111,16 +108,6 @@ try {
     }
 
 } catch (PDOException $e) {
-    $msg = $e->getMessage();
-    if (strpos($msg, '1054') !== false) {
-        try {
-            $check = $conn->query("DESCRIBE users");
-            $cols = $check->fetchAll(PDO::FETCH_COLUMN);
-            $msg .= " | Columnas encontradas en 'users': " . implode(', ', $cols);
-        } catch (Exception $e2) {
-            $msg .= " | No se pudo listar columnas de 'users'.";
-        }
-    }
-    echo json_encode(['success' => false, 'message' => 'Error en el servidor: ' . $msg]);
+    echo json_encode(['success' => false, 'message' => 'Error en el servidor: ' . $e->getMessage()]);
 }
 ?>

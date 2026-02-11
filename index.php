@@ -8290,8 +8290,7 @@
                             result = JSON.parse(text);
                         } catch (e) {
                             console.error('La respuesta no es JSON:', text);
-                            const snippet = text.substring(0, 100).replace(/</g, '&lt;');
-                            await showDialog('Error', 'El servidor no envió JSON. Respuesta: ' + snippet + '...', 'error');
+                            await showDialog('Error', 'El servidor respondió de forma inesperada. Por favor, intenta de nuevo más tarde.', 'error');
                             return;
                         }
 
