@@ -99,6 +99,16 @@ try {
     }
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Error en el servidor: ' . $e->getMessage()]);
+    $msg = $e->getMessage();
+    if (strpos($msg, '1054') !== false) {
+        try {
+            $check = $conn->query("DESCRIBE users");
+            $cols = $check->fetchAll(PDO::FETCH_COLUMN);
+            $msg .= " | Columnas encontradas en 'users': " . implode(', ', $cols);
+        } catch (Exception $e2) {
+            $msg .= " | No se pudo listar columnas de 'users'.";
+        }
+    }
+    echo json_encode(['success' => false, 'message' => 'Error en el servidor: ' . $msg]);
 }
 ?>
