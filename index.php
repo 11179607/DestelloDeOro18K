@@ -9247,7 +9247,10 @@
 
                     row.innerHTML = `
                         <td>${formatDate(sale.date || sale.sale_date)}</td>
-                        <td><strong>${sale.id}</strong></td>
+                        <td>
+                            <strong>${sale.invoice_number || sale.invoiceNumber || sale.id}</strong>
+                            ${(sale.invoice_number && sale.invoice_number !== sale.id) ? '<br><small style="color:#666; font-size:0.75rem;">Ref: ' + sale.id + '</small>' : ''}
+                        </td>
                         <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
                         <td>
                             <strong>${productCount} producto(s)</strong><br>
