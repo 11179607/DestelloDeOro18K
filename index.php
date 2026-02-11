@@ -1726,9 +1726,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="roleToChange">Seleccionar Rol *</label>
+                    <select id="roleToChange" class="form-control" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="admin">Administrador</option>
+                        <option value="worker">Trabajador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="userToChange">Usuario a modificar *</label>
-                    <select id="userToChange" class="form-control" required>
-                        <option value="">Seleccione un usuario</option>
+                    <select id="userToChange" class="form-control" required disabled>
+                        <option value="">Primero seleccione un rol</option>
                         <!-- Se llenará dinámicamente -->
                     </select>
                 </div>
@@ -8060,7 +8069,26 @@
                 showBtn.addEventListener('click', function() {
                     console.log('Clic en Cambiar Contraseña');
                     modal.style.display = 'flex';
-                    loadUsersForPasswordChange();
+                    // Resetear selectores
+                    document.getElementById('roleToChange').value = '';
+                    const userSelect = document.getElementById('userToChange');
+                    userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
+                    userSelect.disabled = true;
+                });
+            }
+
+            // NUEVO: Listener para el cambio de rol en el modal de contraseña
+            const roleSelect = document.getElementById('roleToChange');
+            if (roleSelect) {
+                roleSelect.addEventListener('change', function() {
+                    const role = this.value;
+                    if (role) {
+                        loadUsersForPasswordChange(role);
+                    } else {
+                        const userSelect = document.getElementById('userToChange');
+                        userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
+                        userSelect.disabled = true;
+                    }
                 });
             }
 
@@ -8068,7 +8096,11 @@
                 forgotBtn.addEventListener('click', function() {
                     console.log('Clic en Olvidé mi contraseña');
                     modal.style.display = 'flex';
-                    loadUsersForPasswordChange();
+                    // Resetear selectores
+                    document.getElementById('roleToChange').value = '';
+                    const userSelect = document.getElementById('userToChange');
+                    userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
+                    userSelect.disabled = true;
                 });
             }
 
@@ -8318,25 +8350,37 @@
             }
         }
 
-        // Cargar usuarios disponibles para cambio de contraseña
-        async function loadUsersForPasswordChange() {
+        // Cargar usuarios disponibles para cambio de contraseña (Filtrado por rol opcional)
+        async function loadUsersForPasswordChange(roleFilter = '') {
             try {
                 const response = await fetch('api/users.php');
                 const data = await response.json();
 
                 const select = document.getElementById('userToChange');
                 select.innerHTML = '<option value="">Seleccione un usuario</option>';
+                select.disabled = false;
 
                 if (data.success && data.users) {
-                    data.users.forEach(user => {
-                        const option = document.createElement('option');
-                        option.value = user.username;
-                        option.textContent = `${user.name} (${user.role === 'admin' ? 'Administrador' : 'Trabajador'})`;
-                        select.appendChild(option);
-                    });
+                    let filteredUsers = data.users;
+                    if (roleFilter) {
+                        filteredUsers = data.users.filter(u => u.role === roleFilter);
+                    }
+
+                    if (filteredUsers.length === 0) {
+                        select.innerHTML = '<option value="">No hay usuarios con este rol</option>';
+                    } else {
+                        filteredUsers.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.username;
+                            option.textContent = `${user.name} (${user.role === 'admin' ? 'Administrador' : 'Trabajador'})`;
+                            select.appendChild(option);
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
+                const select = document.getElementById('userToChange');
+                select.innerHTML = '<option value="">Error al cargar usuarios</option>';
             }
         }
 

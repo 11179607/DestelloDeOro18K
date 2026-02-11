@@ -4,23 +4,11 @@ session_start();
 header('Content-Type: application/json');
 require_once '../config/db.php';
 
-// Verificar autenticación
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
-
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     // Obtener lista de usuarios (para el select de cambiar contraseña)
-    if ($_SESSION['role'] !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['error' => 'Acceso denegado']);
-        exit;
-    }
-
+    // Se permite sin sesión para que funcione desde la pantalla de login
     try {
         $stmt = $conn->query("SELECT username, name, lastname, role FROM users WHERE username != 'marlon'");
         $users = $stmt->fetchAll();
@@ -29,8 +17,16 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+    exit;
+}
 
-} elseif ($method === 'POST') {
+// Para otras peticiones (POST) sí requerimos autenticación
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'No autorizado']);
+    exit;
+}
+
     // Cambiar contraseña
     $data = json_decode(file_get_contents("php://input"));
     
