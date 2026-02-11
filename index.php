@@ -8284,7 +8284,15 @@
                             })
                         });
 
-                        const result = await response.json();
+                        const text = await response.text();
+                        let result;
+                        try {
+                            result = JSON.parse(text);
+                        } catch (e) {
+                            console.error('La respuesta no es JSON:', text);
+                            await showDialog('Error', 'El servidor respondió de forma inesperada. Verifica que el archivo exista y no tenga errores.', 'error');
+                            return;
+                        }
 
                         if (result.success) {
                             await showDialog('Éxito', result.message, 'success');
@@ -8295,7 +8303,7 @@
                         }
                     } catch (error) {
                         console.error('Error al recuperar contraseña:', error);
-                        await showDialog('Error', 'Ocurrió un error al conectar con el servidor.', 'error');
+                        await showDialog('Error', 'Error de conexión: ' + error.message, 'error');
                     } finally {
                         sendBtn.disabled = false;
                         sendBtn.innerHTML = originalText;
