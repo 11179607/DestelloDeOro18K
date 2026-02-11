@@ -8354,9 +8354,18 @@
         async function loadUsersForPasswordChange(roleFilter = '') {
             try {
                 const response = await fetch('api/users.php');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error del servidor:', errorText);
+                    throw new Error('El servidor devolvió un error (Status ' + response.status + ')');
+                }
+
                 const data = await response.json();
 
                 const select = document.getElementById('userToChange');
+                if (!select) return;
+
                 select.innerHTML = '<option value="">Seleccione un usuario</option>';
                 select.disabled = false;
 
@@ -8372,15 +8381,20 @@
                         filteredUsers.forEach(user => {
                             const option = document.createElement('option');
                             option.value = user.username;
-                            option.textContent = `${user.name} (${user.role === 'admin' ? 'Administrador' : 'Trabajador'})`;
+                            const roleDisplay = user.role === 'admin' ? 'Administrador' : 'Trabajador';
+                            option.textContent = `${user.name} ${user.lastname || ''} (${roleDisplay})`;
                             select.appendChild(option);
                         });
                     }
+                } else if (data.error) {
+                    throw new Error(data.error);
                 }
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
                 const select = document.getElementById('userToChange');
-                select.innerHTML = '<option value="">Error al cargar usuarios</option>';
+                if (select) {
+                    select.innerHTML = `<option value="">Error: ${error.message}</option>`;
+                }
             }
         }
 
