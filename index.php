@@ -5014,10 +5014,13 @@
                     return sum + itemsCost;
                 }, 0);
 
-                const totalWarrantyCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost || warranty.total_cost) || 0), 0);
+                // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
+                // porque el additionalValue ya está incluido en totalSales (warranty_increment)
+                const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
                 const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
                 
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
+                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos de garantías
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -5047,15 +5050,15 @@
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('warranties')">
                         <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="stat-value">${formatCurrency(totalWarrantyCosts)}</div>
-                        <div class="stat-label">Costos Garantías</div>
-                        <small>${(warranties || []).length} garantías con costo</small>
+                        <div class="stat-value">${formatCurrency(totalWarrantyShippingCosts)}</div>
+                        <div class="stat-label">Costos de Envío (Garantías)</div>
+                        <small>${(warranties || []).length} garantías procesadas</small>
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
                         <div class="stat-label">Ganancia Real</div>
-                        <small>Ventas - Gastos - Costo Inv - Garantías</small>
+                        <small>Ventas - Gastos - Costo Inv - Envíos Garantías</small>
                     </div>
                 `;
             } catch (error) {
@@ -5120,9 +5123,10 @@
                 return sum + saleCost;
             }, 0);
 
-            const totalWarrantyCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
-            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
+            // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
+            const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
+            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
 
             let title = '';
             let detailsHTML = '';
@@ -5142,11 +5146,11 @@
                     break;
                 case 'warranties':
                     title = `Detalles de Garantías - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyCosts);
+                    detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyShippingCosts, totalWarrantyIncrement);
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyCosts, netProfit);
+                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -5360,7 +5364,7 @@
         }
 
         // Generar HTML para detalles de garantías
-        function generateWarrantiesDetailsHTML(warranties, total) {
+        function generateWarrantiesDetailsHTML(warranties, shippingCosts, warrantyIncrement) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5368,8 +5372,12 @@
                     </h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
-                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(total)}</strong><br>
-                            <small>Costo Total</small>
+                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(shippingCosts)}</strong><br>
+                            <small>Costos de Envío</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(warrantyIncrement)}</strong><br>
+                            <small>Ingresos por Incremento</small>
                         </div>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
                             <strong style="font-size: 1.2em; color: var(--info);">${warranties.length}</strong><br>
@@ -5487,7 +5495,7 @@
         }
 
         // Generar HTML para resumen de ganancias
-        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantiesTotal, netProfit) {
+        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5496,7 +5504,8 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
                         <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--success);">
                             <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(salesTotal)}</strong><br>
-                            <small>Ingresos por Ventas</small>
+                            <small>Ingresos por Ventas</small><br>
+                            <small style="color: var(--warning); font-size: 0.8em;">(Incluye ${formatCurrency(warrantyIncrement)} de garantías)</small>
                         </div>
                         <div style="background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--danger);">
                             <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(expensesTotal)}</strong><br>
@@ -5507,8 +5516,8 @@
                             <small>Costo de lo Vendido</small>
                         </div>
                         <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #9c27b0;">
-                            <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantiesTotal)}</strong><br>
-                            <small>Costos de Garantías</small>
+                            <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong><br>
+                            <small>Envíos de Garantías</small>
                         </div>
                         <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
                             <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
@@ -5523,7 +5532,7 @@
                     </h4>
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Ingresos por Ventas:</span>
+                            <span>Ingresos por Ventas (incluye incrementos de garantías):</span>
                             <strong style="color: var(--success);">+${formatCurrency(salesTotal)}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
@@ -5535,8 +5544,8 @@
                             <strong style="color: var(--warning);">-(${formatCurrency(costOfGoodsSoldTotal)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Costos de Garantías:</span>
-                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantiesTotal)})</strong>
+                            <span>Envíos de Garantías:</span>
+                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantyShippingCosts)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
                             <span><strong>Ganancia Neta:</strong></span>
