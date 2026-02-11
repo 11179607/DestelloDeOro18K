@@ -4,9 +4,18 @@ header('Content-Type: application/json');
 require_once '../config/db.php';
 
 // Cargar PHPMailer
-require_once '../libs/PHPMailer/PHPMailer.php';
-require_once '../libs/PHPMailer/SMTP.php';
-require_once '../libs/PHPMailer/Exception.php';
+$phpmailer_path = '../libs/PHPMailer/PHPMailer.php';
+$smtp_path = '../libs/PHPMailer/SMTP.php';
+$exception_path = '../libs/PHPMailer/Exception.php';
+
+if (!file_exists($phpmailer_path) || !file_exists($smtp_path) || !file_exists($exception_path)) {
+    echo json_encode(['success' => false, 'message' => 'Error: No se han subido los archivos de PHPMailer a la carpeta libs/']);
+    exit;
+}
+
+require_once $phpmailer_path;
+require_once $smtp_path;
+require_once $exception_path;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
