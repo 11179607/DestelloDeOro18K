@@ -2780,8 +2780,8 @@
                         <table class="data-table" id="pendingTable">
                             <thead>
                                 <tr>
-                                    <th>ID Venta</th>
                                     <th>Fecha</th>
+                                    <th>ID Venta</th>
                                     <th>Cliente</th>
                                     <th>Productos</th>
                                     <th>Total</th>
