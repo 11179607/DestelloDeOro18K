@@ -6824,12 +6824,7 @@
             switch (type) {
                 case 'sales':
                     // Convertir fecha para el input date
-                    let saleDate = '';
-                    try {
-                        saleDate = new Date(movement.date).toISOString().split('T')[0];
-                    } catch(e) {
-                         saleDate = movement.date ? movement.date.split(' ')[0] : '';
-                    }
+                    let saleDate = (movement.date || '').split(' ')[0];
 
                     formContent = `
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -6937,12 +6932,7 @@
 
                 case 'expenses':
                     // Convertir fecha para el input date
-                    let expenseDateEdit = '';
-                    try {
-                        expenseDateEdit = movement.date ? movement.date.split(' ')[0] : '';
-                    } catch(e) {
-                         expenseDateEdit = '';
-                    }
+                    let expenseDateEdit = (movement.date || '').split(' ')[0];
 
                     formContent = `
                         <div style="margin-bottom: 1rem;">
@@ -6974,12 +6964,7 @@
 
                 case 'warranties':
                     // Convertir fecha de garantía
-                    let warrantyDate = '';
-                    try {
-                        warrantyDate = new Date(movement.createdAt).toISOString().split('T')[0];
-                    } catch(e) {
-                         warrantyDate = movement.createdAt ? movement.createdAt.split(' ')[0] : '';
-                    }
+                    let warrantyDate = (movement.date || '').split(' ')[0] || (movement.createdAt || '').split(' ')[0];
 
                     formContent = `
                         <div style="margin-bottom: 1rem;">
@@ -7077,16 +7062,8 @@
                         </div>
                     `;
                     break;
-                    break;
                 case 'product':
-                    let productDate = '';
-                    try {
-                        // Convertir fecha sin cambiar zona horaria
-                      const dateObj = new Date(movement.date);
-                      productDate = dateObj.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
-                    } catch(e) {
-                        productDate = movement.date ? movement.date.split(' ')[0] : '';
-                    }
+                    let productDate = (movement.date || '').split(' ')[0];
 
                     formContent = `
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -7135,12 +7112,7 @@
                     break;
                 case 'restocks':
                     // Convertir fecha de surtido
-                    let restockDate = '';
-                    try {
-                        restockDate = new Date(movement.date).toISOString().split('T')[0];
-                    } catch(e) {
-                         restockDate = movement.date ? movement.date.split(' ')[0] : '';
-                    }
+                    let restockDate = (movement.date || '').split(' ')[0];
 
                     formContent = `
                         <div style="margin-bottom: 1rem;">
@@ -9548,6 +9520,11 @@
         // Nueva función para formato de fecha simple
         function formatDateSimple(dateString) {
             if (!dateString) return '---';
+            // Evitar problemas de zona horaria con strings YYYY-MM-DD
+            if (dateString.length === 10) {
+                const parts = dateString.split('-');
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
@@ -9569,7 +9546,13 @@
 
         function formatDate(dateString) {
             if (!dateString) return '---';
-            const date = new Date(dateString);
+            // Si es solo fecha YYYY-MM-DD
+            if (dateString.length === 10) {
+                const parts = dateString.split('-');
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            // Si tiene hora, intentamos parsear cuidando el desfase
+            const date = new Date(dateString.replace(/-/g, '/'));
             if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
                 day: '2-digit',
