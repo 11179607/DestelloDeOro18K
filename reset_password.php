@@ -40,6 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             $stmt->bindParam(':password', $new_password);
             $stmt->bindParam(':id', $user['id']);
             $stmt->execute();
+            
+            // Invalida cualquier sesión activa para forzar login
+            session_start();
+            session_destroy();
 
             $success = 'Tu contraseña ha sido actualizada correctamente. Ya puedes iniciar sesión.';
         } catch (PDOException $e) {

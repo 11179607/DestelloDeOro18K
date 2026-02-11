@@ -7484,6 +7484,7 @@
 
                             // Guardar en sessionStorage para persistencia de pestaña
                             sessionStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
+                            sessionStorage.setItem('destelloOroTabActive', 'true'); // Marcar esta pestaña como activa para auto-login
 
                             await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
                             showApp();
@@ -9710,6 +9711,15 @@
 
         // Verificar sesión con el servidor
         async function checkSession() {
+            // SEGURIDAD: Solo intentar auto-login si esta pestaña ya ha sido marcada como activa
+            // Esto evita que al abrir el link en una pestaña nueva se use una sesión previa del navegador
+            // sin haber pasado por el login en esta pestaña específica.
+            if (!sessionStorage.getItem('destelloOroTabActive')) {
+                console.log('Nueva entrada detectada: Se requiere login');
+                initLoginSteps();
+                return;
+            }
+
             try {
                 const response = await fetch('api/check_auth.php', { cache: 'no-cache' });
                 const data = await response.json();
@@ -9732,7 +9742,8 @@
                     console.log('Sesión activa:', currentUser);
                     showApp();
                 } else {
-                    console.log('No hay sesión activa');
+                    console.log('No hay sesión activa o ha expirado');
+                    sessionStorage.removeItem('destelloOroTabActive');
                     initLoginSteps();
                 }
             } catch (error) {
