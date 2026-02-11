@@ -1734,6 +1734,12 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="newEmail">Correo Electrónico (Para recuperación) *</label>
+                    <input type="email" id="newEmail" class="form-control" placeholder="usuario@email.com">
+                    <small class="form-text">Si lo dejas vacío no se cambiará el actual.</small>
+                </div>
+
+                <div class="form-group">
                     <label for="newPassword">Nueva Contraseña *</label>
                     <input type="password" id="newPassword" class="form-control" placeholder="Nueva contraseña" required
                         minlength="6">
@@ -1789,6 +1795,52 @@
         </div>
     </div>
 
+    <!-- NUEVO: Modal para Olvidaste tu contraseña -->
+    <div id="forgotPasswordModal" class="password-change-container">
+        <div class="password-change-box">
+            <button class="close-password-change" id="closeForgotPassword">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="password-change-header">
+                <i class="fas fa-envelope-open-text"></i>
+                <h2>Recuperar Contraseña</h2>
+                <p>Ingresa tu correo registrado para recibir un link de restauración</p>
+            </div>
+
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label>¿De quién es la cuenta? *</label>
+                    <div class="role-selector" style="margin-bottom: 1rem;">
+                        <div id="forgotAdminRole" class="role-btn active" data-role="admin">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Admin</span>
+                        </div>
+                        <div id="forgotWorkerRole" class="role-btn" data-role="worker">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Trabajador</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="recoveryEmail">Correo Electrónico Registrado *</label>
+                    <input type="email" id="recoveryEmail" class="form-control" placeholder="ejemplo@correo.com" required>
+                    <small id="emailHelp" class="form-text text-muted">Debes confirmar el correo exacto que está en la base de datos.</small>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary" id="sendRecoveryBtn">
+                        <i class="fas fa-paper-plane"></i> Enviar Link de Recuperación
+                    </button>
+                    <button type="button" class="btn btn-danger" id="cancelForgotPassword">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
@@ -1820,11 +1872,15 @@
                     <i class="fas fa-arrow-right"></i> Continuar
                 </button>
 
-                <!-- NUEVO: Enlace para cambiar contraseña -->
-                <div style="text-align: center; margin-top: 1rem;">
+                <!-- NUEVO: Enlace para cambiar contraseña y olvidar contraseña -->
+                <div style="text-align: center; margin-top: 1rem; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                     <button type="button" id="showPasswordChange" class="btn btn-sm btn-info"
                         style="padding: 8px 15px; font-size: 0.85rem;">
                         <i class="fas fa-key"></i> Cambiar Contraseña
+                    </button>
+                    <button type="button" id="showForgotPassword" class="btn btn-sm btn-warning"
+                        style="padding: 8px 15px; font-size: 0.85rem;">
+                        <i class="fas fa-question-circle"></i> ¿Olvidaste tu contraseña?
                     </button>
                 </div>
             </div>
@@ -8039,6 +8095,7 @@
                     const adminUsername = document.getElementById('adminUsername').value;
                     const adminPassword = document.getElementById('adminPassword').value;
                     const userToChange = document.getElementById('userToChange').value;
+                    const newEmail = document.getElementById('newEmail').value;
                     const newPassword = document.getElementById('newPassword').value;
                     const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -8063,6 +8120,7 @@
                                 adminUsername: adminUsername,
                                 adminPassword: adminPassword,
                                 userToChange: userToChange,
+                                newEmail: newEmail,
                                 newPassword: newPassword
                             })
                         });
@@ -8153,6 +8211,94 @@
                     } catch (error) {
                         console.error('Error al resetear registros:', error);
                         await showDialog('Error', 'Ocurrió un error al conectar con el servidor.', 'error');
+                    }
+                });
+            }
+        }
+
+        // NUEVO: Eventos para Olvidaste tu contraseña
+        function setupForgotPasswordEvents() {
+            const modal = document.getElementById('forgotPasswordModal');
+            const showBtn = document.getElementById('showForgotPassword');
+            const closeBtn = document.getElementById('closeForgotPassword');
+            const cancelBtn = document.getElementById('cancelForgotPassword');
+            const form = document.getElementById('forgotPasswordForm');
+            
+            // Gestión de roles dentro del modal de olvido
+            const adminRole = document.getElementById('forgotAdminRole');
+            const workerRole = document.getElementById('forgotWorkerRole');
+            let selectedRole = 'admin';
+
+            if (adminRole && workerRole) {
+                adminRole.addEventListener('click', () => {
+                    adminRole.classList.add('active');
+                    workerRole.classList.remove('active');
+                    selectedRole = 'admin';
+                });
+                workerRole.addEventListener('click', () => {
+                    workerRole.classList.add('active');
+                    adminRole.classList.remove('active');
+                    selectedRole = 'worker';
+                });
+            }
+
+            if (showBtn) {
+                showBtn.addEventListener('click', function() {
+                    modal.style.display = 'flex';
+                });
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    if (form) form.reset();
+                });
+            }
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    if (form) form.reset();
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('recoveryEmail').value;
+                    const sendBtn = document.getElementById('sendRecoveryBtn');
+                    
+                    // Bloquear botón para evitar doble clic
+                    const originalText = sendBtn.innerHTML;
+                    sendBtn.disabled = true;
+                    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+                    try {
+                        const response = await fetch('api/forgot_password.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                role: selectedRole,
+                                email: email
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            await showDialog('Éxito', result.message, 'success');
+                            modal.style.display = 'none';
+                            form.reset();
+                        } else {
+                            await showDialog('Error', result.message || 'Error al procesar la solicitud', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error al recuperar contraseña:', error);
+                        await showDialog('Error', 'Ocurrió un error al conectar con el servidor.', 'error');
+                    } finally {
+                        sendBtn.disabled = false;
+                        sendBtn.innerHTML = originalText;
                     }
                 });
             }
@@ -9548,6 +9694,7 @@
             setupCustomDialog();
             setupPasswordChange();
             setupResetRecordsEvents();
+            setupForgotPasswordEvents();
             setupWarrantyEvents();
             setupHistoryEvents();
             setupViewMovementModalEvents();

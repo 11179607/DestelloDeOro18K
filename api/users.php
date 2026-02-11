@@ -62,14 +62,20 @@ if ($method === 'GET') {
             exit;
         }
 
-        // Actualizar contraseña del usuario objetivo
+        // Actualizar datos del usuario objetivo
         $targetUser = $data->userToChange;
-        $newPassword = $data->newPassword; // En producción: password_hash($data->newPassword, PASSWORD_DEFAULT);
+        $newPassword = $data->newPassword;
+        $newEmail = $data->newEmail ?? '';
 
-        $updateStmt = $conn->prepare("UPDATE users SET password = :password WHERE username = :username");
-        $updateStmt->execute([':password' => $newPassword, ':username' => $targetUser]);
+        if (!empty($newEmail)) {
+            $updateStmt = $conn->prepare("UPDATE users SET password = :password, email = :email WHERE username = :username");
+            $updateStmt->execute([':password' => $newPassword, ':email' => $newEmail, ':username' => $targetUser]);
+        } else {
+            $updateStmt = $conn->prepare("UPDATE users SET password = :password WHERE username = :username");
+            $updateStmt->execute([':password' => $newPassword, ':username' => $targetUser]);
+        }
 
-        echo json_encode(['success' => true, 'message' => 'Contraseña actualizada correctamente']);
+        echo json_encode(['success' => true, 'message' => 'Usuario actualizado correctamente']);
 
     } catch (PDOException $e) {
         http_response_code(500);
