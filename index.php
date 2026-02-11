@@ -2231,14 +2231,14 @@
                         </h3>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="manualInvoiceId">N�mero de factura (manual)</label>
+                                <label for="manualInvoiceId">Numero de factura (manual)</label>
                                 <input type="text" id="manualInvoiceId" class="form-control" placeholder="Ej: FAC1234">
-                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vac�o se autogenera.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vacio se autogenera.</small>
                             </div>
                             <div class="form-group">
                                 <label for="manualSaleDate">Fecha de venta</label>
                                 <input type="date" id="manualSaleDate" class="form-control">
-                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega autom�ticamente.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega automaticamente.</small>
                             </div>
                             <div class="form-group">
                                 <label for="paymentMethod">Método de Pago *</label>
@@ -7033,7 +7033,7 @@
                                 </label>
                                 <input type="text" name="id" value="${movement.id}" oninput="this.value = this.value.toUpperCase();"
                                        class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                                <small class="form-text" style="font-size: 0.8rem;">Identificador �nico del producto</small>
+                                <small class="form-text" style="font-size: 0.8rem;">Identificador unico del producto</small>
                             </div>
                         </div>
                         <div style="margin-bottom: 1rem;">
