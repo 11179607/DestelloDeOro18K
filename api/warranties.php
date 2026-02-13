@@ -96,10 +96,15 @@ if ($method === 'GET') {
         $params = [];
         
         if ($month !== null && $year !== null) {
-            $month = intval($month) + 1;
-            $sql .= " WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year";
-            $params[':month'] = $month;
-            $params[':year'] = $year;
+            if (intval($month) === -1) {
+                $sql .= " WHERE YEAR(created_at) = :year";
+                $params[':year'] = $year;
+            } else {
+                $month = intval($month) + 1;
+                $sql .= " WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year";
+                $params[':month'] = $month;
+                $params[':year'] = $year;
+            }
         }
         
         $sql .= " ORDER BY created_at DESC";

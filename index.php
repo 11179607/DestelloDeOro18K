@@ -4089,7 +4089,7 @@
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-tag"></i> <span>Canal Minorista</span></div>
-                    <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
+                    <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
             retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
@@ -4122,7 +4122,7 @@
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-truck"></i> <span>Canal Mayorista</span></div>
-                    <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
+                    <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
             wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
@@ -4155,7 +4155,7 @@
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-chart-line"></i> <span>Consolidado</span></div>
-                    <div class="history-card-date"><span>Mes ${new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
+                    <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
             totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
@@ -4275,7 +4275,8 @@
             document.getElementById('historyDetailsView').style.display = 'block';
 
             const content = document.getElementById('monthlyDetailsContent');
-            const title = `Análisis de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+            const dateStr = currentMonth === -1 ? `Año ${currentYear}` : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            const title = `Análisis de Ganancias - ${dateStr}`;
 
             const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales);
 
@@ -4452,6 +4453,9 @@
                 // Filtrar productos por fecha actual (mes/año seleccionado globalmente)
                 const fProducts = products.filter(p => {
                     const d = new Date(p.date || p.created_at);
+                    if (currentMonth === -1) {
+                        return d.getFullYear() === currentYear;
+                    }
                     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
                 });
 
@@ -4611,6 +4615,9 @@
                  // Filtro de productos
                  const fProducts = products.filter(p => {
                     const d = new Date(p.date || p.created_at);
+                    if (currentMonth === -1) {
+                        return d.getFullYear() === currentYear;
+                    }
                     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
                  });
  
@@ -8969,6 +8976,15 @@
                 }
                 monthSelect.appendChild(option);
             });
+
+            // Agregar opción para todo el año
+            const allYearOption = document.createElement('option');
+            allYearOption.value = -1;
+            allYearOption.textContent = '--- Todos los meses ---';
+            if (currentMonth === -1) {
+                allYearOption.selected = true;
+            }
+            monthSelect.appendChild(allYearOption);
 
             // Agregar años (desde 2025 hasta 2030)
             for (let year = 2025; year <= 2050; year++) {
