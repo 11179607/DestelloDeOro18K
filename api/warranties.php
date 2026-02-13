@@ -189,6 +189,30 @@ if ($method === 'GET') {
             :status, :uid, :uname, :created_at
         )";
         
+        // Validar Stock si se completa de inmediato
+        if (($data->status ?? 'pending') === 'completed') {
+             $productRefForCheck = $data->newProductRef ?? ($data->originalProductId ?? '');
+             $qtyForCheck = $data->quantity ?? 1;
+             
+             if ($productRefForCheck) {
+                 $stmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
+                 $stmt->execute([':ref' => $productRefForCheck]);
+                 $prod = $stmt->fetch();
+                 
+                 if (!$prod) {
+                     http_response_code(400);
+                     echo json_encode(['error' => 'Producto no encontrado: ' . $productRefForCheck]);
+                     exit;
+                 }
+                 
+                 if ($prod['quantity'] < $qtyForCheck) {
+                     http_response_code(400);
+                     echo json_encode(['error' => "Stock insuficiente para garantía. Producto: '{$prod['name']}'. Disponible: {$prod['quantity']}"]);
+                     exit;
+                 }
+             }
+        }
+
         // Buscar ID de venta si es posible
         $saleIdInt = null;
         if (isset($data->originalSaleId)) {
@@ -327,6 +351,25 @@ if ($method === 'GET') {
             $productRef = $currentWarranty['product_ref'];
         }
         $qtyToDeduct = $data->quantity ?? $currentWarranty['quantity'] ?? 1;
+
+        // Validar Stock antes de actualizar si se cambia a completado
+        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
+            $stmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
+            $stmt->execute([':ref' => $productRef]);
+            $prod = $stmt->fetch();
+
+            if (!$prod) {
+                 http_response_code(400);
+                 echo json_encode(['error' => 'Producto no encontrado: ' . $productRef]);
+                 exit;
+            }
+            
+            if ($prod['quantity'] < $qtyToDeduct) {
+                http_response_code(400);
+                echo json_encode(['error' => "No se puede finalizar la garantía. Stock insuficiente para '{$prod['name']}'. Disponible: {$prod['quantity']}"]);
+                exit;
+            }
+        }
 
         $conn->beginTransaction();
 

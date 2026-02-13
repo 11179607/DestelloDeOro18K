@@ -117,6 +117,34 @@ if ($method === 'GET') {
 
     $status = $data->status ?? 'completed';
 
+    // Validar stock antes de procesar
+    $requestedQuantities = [];
+    foreach ($data->products as $item) {
+        $ref = $item->productId;
+        if (!isset($requestedQuantities[$ref])) {
+            $requestedQuantities[$ref] = 0;
+        }
+        $requestedQuantities[$ref] += $item->quantity;
+    }
+
+    foreach ($requestedQuantities as $ref => $qty) {
+        $stmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
+        $stmt->execute([':ref' => $ref]);
+        $product = $stmt->fetch();
+
+        if (!$product) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Producto no encontrado: ' . $ref]);
+            exit;
+        }
+
+        if ($product['quantity'] < $qty) {
+             http_response_code(400);
+             echo json_encode(['error' => "Stock insuficiente para '{$product['name']}'. Disponible: {$product['quantity']}, Solicitado: {$qty}"]);
+             exit;
+        }
+    }
+
     try {
         $conn->beginTransaction();
 
