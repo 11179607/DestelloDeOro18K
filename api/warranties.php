@@ -13,6 +13,11 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Helper function para formatear dinero en logs
+function formatMoney($value) {
+    return '$' . number_format((float)$value, 0, ',', '.');
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
@@ -203,11 +208,6 @@ if ($method === 'GET') {
             logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED', 'WARRANTY', $warrantyId, "Garantía registrada para Factura: " . ($data->originalSaleId ?? 'N/A'));
         }
         
-        // Helper function para formatear dinero en logs
-        function formatMoney($value) {
-            return '$' . number_format($value, 0, ',', '.');
-        }
-        
         echo json_encode(['success' => true, 'message' => 'Garantía registrada', 'id' => $warrantyId]);
 
     } catch (PDOException $e) {
@@ -233,7 +233,7 @@ if ($method === 'GET') {
     
     try {
         // 1. Obtener estado actual y datos de la garantía
-        $checkStmt = $conn->prepare("SELECT status, new_product_ref, product_type, product_ref, sale_id, additional_value FROM warranties WHERE id = :id");
+        $checkStmt = $conn->prepare("SELECT status, quantity, new_product_ref, product_type, product_ref, sale_id, additional_value FROM warranties WHERE id = :id");
         $checkStmt->execute([':id' => $data->id]);
         $currentWarranty = $checkStmt->fetch();
 
@@ -324,12 +324,6 @@ if ($method === 'GET') {
                     ':id' => $saleIdInt
                 ]);
                 
-                if (!function_exists('formatMoney')) {
-                    function formatMoney($value) {
-                        return '$' . number_format($value, 0, ',', '.');
-                    }
-                }
-                
                 $changeText = $incrementDifference > 0 ? "+" . formatMoney($incrementDifference) : formatMoney($incrementDifference);
                 logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_UPDATED', 'SALE', $saleIdInt, "Incremento por garantía actualizado: {$changeText}. Nuevo total: " . formatMoney($newTotal));
             }
@@ -410,12 +404,6 @@ if ($method === 'GET') {
                     ':total' => $newTotal,
                     ':id' => $saleIdInt
                 ]);
-                
-                if (!function_exists('formatMoney')) {
-                    function formatMoney($value) {
-                        return '$' . number_format($value, 0, ',', '.');
-                    }
-                }
                 
                 logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_REMOVED', 'SALE', $saleIdInt, "Incremento por garantía eliminado: -" . formatMoney($additionalValue) . ". Nuevo total: " . formatMoney($newTotal));
             }
