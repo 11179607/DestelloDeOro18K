@@ -31,6 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 
     if (strlen($new_password) < 6) {
         $error = 'La contraseña debe tener al menos 6 caracteres.';
+    } elseif (!preg_match('/[A-Z]/', $new_password) || 
+              !preg_match('/[0-9]/', $new_password) || 
+              !preg_match('/[^A-Za-z0-9]/', $new_password)) {
+        $error = 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial.';
     } elseif ($new_password !== $confirm_password) {
         $error = 'Las contraseñas no coinciden.';
     } else {

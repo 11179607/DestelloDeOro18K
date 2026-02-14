@@ -59,6 +59,13 @@ try {
                 throw new Exception("Datos de usuario o contraseña incompletos.");
             }
 
+            // Validar seguridad de la contraseña: una mayúscula, un número y un carácter especial
+            if (!preg_match('/[A-Z]/', $newPassword) || 
+                !preg_match('/[0-9]/', $newPassword) || 
+                !preg_match('/[^A-Za-z0-9]/', $newPassword)) {
+                throw new Exception("La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial.");
+            }
+
             if (!empty($newEmail)) {
                 $updateStmt = $conn->prepare("UPDATE users SET password = :password, email = :email WHERE username = :username");
                 $updateStmt->execute([':password' => $newPassword, ':email' => $newEmail, ':username' => $targetUser]);
