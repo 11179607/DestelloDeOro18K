@@ -4116,7 +4116,7 @@
         }
 
         // Crear tarjetas de ganancias desglosadas (detal, mayorista, total)
-        function createProfitHistoryCard(sales) {
+        function createProfitHistoryCard(sales, expenses = []) {
             const cardsContainer = document.getElementById('historyCardsView');
 
             // Calcular ganancias por tipo de venta
@@ -6877,10 +6877,17 @@
                                 <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal)}</div>
                                 <div><strong>Descuento:</strong> ${formatCurrency(movement.discount || 0)}</div>
                                 <div><strong>Costo envío:</strong> 
-                                    ${movement.isFreeShipping ? 
-                                        `<span style="color: #2e7d32; font-weight: bold;">¡GRATIS!</span> (Asumido)` : 
-                                        formatCurrency(movement.deliveryCost || 0)
-                                    }
+                                    ${(function() {
+                                        if (movement.isFreeShipping) return `<span style="color: #2e7d32; font-weight: bold;">¡GRATIS!</span> (Asumido)`;
+                                        
+                                        // Intento de detección por gasto si no está en el objeto de venta
+                                        const expenses = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses') || '[]');
+                                        const hasShippingExpense = expenses.some(e => e.description.includes(`Envío Gratis`) && (e.description.includes(movement.id) || e.description.includes(movement.invoice_number)));
+                                        
+                                        if (hasShippingExpense) return `<span style="color: #2e7d32; font-weight: bold;">¡GRATIS!</span> (Asumido)`;
+                                        
+                                        return formatCurrency(movement.deliveryCost || 0);
+                                    })()}
                                 </div>
                                 <div><strong>Incremento garantía:</strong> ${formatCurrency(movement.warrantyIncrement || 0)}</div>
                                 <div><strong>Total:</strong> ${formatCurrency(movement.total)}</div>
