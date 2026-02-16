@@ -2077,35 +2077,31 @@
                             </div>
                             <div class="form-group">
                                 <label for="productQuantity">Cantidad Inicial *</label>
-                                <input type="number" id="productQuantity" class="form-control" min="0" required>
+                                <input type="text" id="productQuantity" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                             </div>
                             <div class="form-group">
                                 <label for="purchasePrice">Precio de Compra *</label>
-                                <input type="number" id="purchasePrice" class="form-control" min="0" step="0.01"
-                                    required>
+                                <input type="text" id="purchasePrice" class="form-control currency-input" placeholder="Ej: 100.000" required>
                             </div>
                             <div class="form-group">
                                 <label for="wholesalePrice">Precio Mayorista *</label>
-                                <input type="number" id="wholesalePrice" class="form-control" min="0" step="0.01"
-                                    required>
+                                <input type="text" id="wholesalePrice" class="form-control currency-input" placeholder="Ej: 150.000" required>
                             </div>
                             <div class="form-group">
                                 <label for="retailPrice">Precio al Detal *</label>
-                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01" required>
+                                <input type="text" id="retailPrice" class="form-control currency-input" placeholder="Ej: 200.000" required>
                             </div>
                             <div class="form-group">
                                 <label for="supplier">Proveedor *</label>
                                 <input type="text" id="supplier" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label>Ganancia Detal Estimada</label>
-                                <input type="text" id="profitEstimate" class="form-control" readonly
-                                    style="background-color: var(--light-gray); font-size: 0.9rem;">
+                                <label for="profitEstimate">Ganancia Est. Detal</label>
+                                <input type="text" id="profitEstimate" class="form-control" readonly style="background-color: var(--light-gray); font-size: 0.9rem;">
                             </div>
                             <div class="form-group">
-                                <label>Ganancia Mayorista Estimada</label>
-                                <input type="text" id="profitWholesaleEstimate" class="form-control" readonly
-                                    style="background-color: var(--light-gray); font-size: 0.9rem;">
+                                <label for="profitWholesaleEstimate">Ganancia Est. Mayorista</label>
+                                <input type="text" id="profitWholesaleEstimate" class="form-control" readonly style="background-color: var(--light-gray); font-size: 0.9rem;">
                             </div>
                         </div>
                         <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
@@ -2181,8 +2177,8 @@
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <label for="manualSalesCounter" style="font-weight: 500;">Cantidad</label>
-                                <input type="number" id="manualSalesCounter" class="form-control"
-                                    style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
+                                <input type="text" id="manualSalesCounter" class="form-control"
+                                    style="width: 80px; text-align: center; font-weight: bold;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="0">
                             </div>
                         </div>
                     </div>
@@ -2204,12 +2200,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="customerId">Cédula *</label>
-                                <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890"
+                                <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="customerPhone">Teléfono *</label>
-                                <input type="tel" id="customerPhone" class="form-control" placeholder="Ej: 3001234567"
+                                <input type="text" id="customerPhone" class="form-control" placeholder="Ej: 3001234567" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                     required>
                             </div>
                             <div class="form-group">
@@ -2246,7 +2242,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="saleQuantity">Cantidad *</label>
-                                <input type="number" id="saleQuantity" class="form-control" min="1" required>
+                                <input type="text" id="saleQuantity" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                             </div>
                             <div class="form-group">
                                 <label for="saleType">Tipo de Venta *</label>
@@ -2257,7 +2253,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="discount">Descuento (%)</label>
-                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0">
+                                <input type="text" id="discount" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '')" value="0">
                                 <small class="form-text" style="font-size: 0.8rem;">Entre 0 y 100%</small>
                             </div>
                         </div>
@@ -2344,7 +2340,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="deliveryCost">Costo de Envío</label>
-                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
+                                <input type="text" id="deliveryCost" class="form-control currency-input" value="0">
                             </div>
 
                             <!-- Campo de Envío Gratis (Condicional) -->
@@ -2433,7 +2429,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="restockQuantity">Cantidad a Surtir *</label>
-                                <input type="number" id="restockQuantity" class="form-control" min="1" required>
+                                <input type="text" id="restockQuantity" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                             </div>
                         </div>
                         <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -2476,8 +2472,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="expenseAmount">Valor *</label>
-                                <input type="number" id="expenseAmount" class="form-control" min="0" step="0.01"
-                                    required>
+                                <input type="text" id="expenseAmount" class="form-control currency-input" placeholder="Ej: 5.000" required>
                             </div>
                         </div>
                         <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
@@ -2541,8 +2536,8 @@
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <label for="manualWarrantyCounter" style="font-weight: 500;">Cantidad</label>
-                                <input type="number" id="manualWarrantyCounter" class="form-control"
-                                    style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
+                                <input type="text" id="manualWarrantyCounter" class="form-control"
+                                    style="width: 80px; text-align: center; font-weight: bold;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="0">
                             </div>
                         </div>
                     </div>
@@ -3336,16 +3331,24 @@
             const inputs = form.querySelectorAll('input, select, textarea');
             const data = {};
 
+            const currencyFields = ['subtotal', 'deliveryCost', 'discount', 'warrantyIncrement', 'amount', 'additionalValue', 'purchasePrice', 'wholesalePrice', 'retailPrice'];
+            const idPhoneFields = ['id', 'phone', 'customerId', 'customerPhone']; // Fields that might be IDs/Phones and need unformatting
+
             inputs.forEach(input => {
                 if (input.name) {
-                    if (input.type === 'number') {
-                        data[input.name] = parseFloat(input.value) || 0;
+                    let value = input.value;
+
+                    if (input.type === 'number' || currencyFields.includes(input.name)) {
+                        value = unformatCurrency(value);
+                        data[input.name] = parseFloat(value) || 0;
                     } else if (input.type === 'date') {
-                        data[input.name] = input.value;
+                        data[input.name] = value;
                     } else if (input.type === 'checkbox') {
                         data[input.name] = input.checked;
+                    } else if (idPhoneFields.includes(input.name)) {
+                        data[input.name] = value.replace(/\D/g, ''); // Remove non-digits for IDs/Phones
                     } else {
-                        data[input.name] = input.value.trim();
+                        data[input.name] = value.trim();
                     }
                 }
             });
@@ -3479,9 +3482,9 @@
                     date: formData.date || null,
                     name: formData.name,
                     quantity: formData.quantity,
-                    purchasePrice: formData.purchasePrice,
-                    wholesalePrice: formData.wholesalePrice,
-                    retailPrice: formData.retailPrice,
+                    purchasePrice: unformatCurrency(formData.purchasePrice),
+                    wholesalePrice: unformatCurrency(formData.wholesalePrice),
+                    retailPrice: unformatCurrency(formData.retailPrice),
                     supplier: formData.supplier
                 };
 
@@ -3710,8 +3713,8 @@
 
             // Obtener información de pago
             const paymentMethod = document.getElementById('paymentMethod').value;
-            const deliveryType = document.getElementById('deliveryType').value;
-            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const deliveryCostField = document.getElementById('deliveryCost');
+            const deliveryCost = unformatCurrency(deliveryCostField ? deliveryCostField.value : '0');
 
             // Información del cliente
             const customerInfo = {
@@ -3722,6 +3725,12 @@
                 address: customerAddress,
                 city: customerCity
             };
+
+            // Validar formato de email (si se proporciona)
+            if (customerInfo.email && !customerInfo.email.includes('@')) {
+                await showDialog('Error', 'Por favor ingrese un correo electrónico válido (debe contener "@").', 'error');
+                return;
+            }
 
             // Calcular totales
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
@@ -3840,7 +3849,7 @@
         function updateSaleSummary() {
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const deliveryCost = unformatCurrency(document.getElementById('deliveryCost').value);
             
             // Lógica de Envío Gratis
             const freeShippingContainer = document.getElementById('freeShippingContainer');
@@ -7230,14 +7239,14 @@
                                     <i class="fas fa-id-card"></i> Cédula
                                 </label>
                                 <input type="text" name="customerId" value="${movement.customerInfo?.id || movement.customer_id || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-phone"></i> Teléfono
                                 </label>
                                 <input type="text" name="customerPhone" value="${movement.customerInfo?.phone || movement.customer_phone || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                         </div>
 
@@ -7246,22 +7255,22 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-money-bill"></i> Subtotal
                                 </label>
-                                <input type="number" name="subtotal" value="${movement.subtotal || 0}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
+                                <input type="text" name="subtotal" value="${new Intl.NumberFormat('de-DE').format(movement.subtotal || 0)}" 
+                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-truck"></i> Envío
                                 </label>
-                                <input type="number" name="deliveryCost" value="${movement.deliveryCost || 0}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
+                                <input type="text" name="deliveryCost" value="${new Intl.NumberFormat('de-DE').format(movement.deliveryCost || 0)}" 
+                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-tag"></i> Descuento
                                 </label>
-                                <input type="number" name="discount" value="${movement.discount || 0}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
+                                <input type="text" name="discount" value="${new Intl.NumberFormat('de-DE').format(movement.discount || 0)}" 
+                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                         </div>
                         
@@ -7270,9 +7279,8 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-shield-alt"></i> Inc. Garantía
                                 </label>
-                                <input type="number" name="warrantyIncrement" value="${movement.warrantyIncrement || 0}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
-                                       min="0" step="0.01">
+                                <input type="text" name="warrantyIncrement" value="${new Intl.NumberFormat('de-DE').format(movement.warrantyIncrement || 0)}" 
+                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -7323,9 +7331,8 @@
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                 <i class="fas fa-money-bill"></i> Valor
                             </label>
-                            <input type="number" name="amount" value="${movement.amount}" 
-                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
-                                   min="0" step="0.01" required>
+                            <input type="text" name="amount" value="${new Intl.NumberFormat('de-DE').format(movement.amount || 0)}" 
+                                   class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                         </div>
                     `;
                     break;
@@ -7396,9 +7403,8 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-plus-circle"></i> Valor Adicional
                                 </label>
-                                <input type="number" name="additionalValue" value="${movement.additionalValue || 0}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
-                                       min="0" step="0.01">
+                                <input type="text" name="additionalValue" value="${new Intl.NumberFormat('de-DE').format(movement.additionalValue || 0)}" 
+                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -8223,10 +8229,10 @@
                     date: document.getElementById('productDate').value,
                     id: document.getElementById('productRef').value.trim().toUpperCase(),
                     name: document.getElementById('productName').value.trim(),
-                    quantity: parseInt(document.getElementById('productQuantity').value),
-                    purchasePrice: parseFloat(document.getElementById('purchasePrice').value),
-                    wholesalePrice: parseFloat(document.getElementById('wholesalePrice').value),
-                    retailPrice: parseFloat(document.getElementById('retailPrice').value),
+                    quantity: unformatCurrency(document.getElementById('productQuantity').value),
+                    purchasePrice: unformatCurrency(document.getElementById('purchasePrice').value),
+                    wholesalePrice: unformatCurrency(document.getElementById('wholesalePrice').value),
+                    retailPrice: unformatCurrency(document.getElementById('retailPrice').value),
                     supplier: document.getElementById('supplier').value.trim(),
                     addedBy: currentUser.username
                 };
@@ -8265,7 +8271,7 @@
                 }
 
                 const productRef = document.getElementById('restockProductRef').value.trim().toUpperCase();
-                const quantity = parseInt(document.getElementById('restockQuantity').value);
+                const quantity = unformatCurrency(document.getElementById('restockQuantity').value);
 
                 // Validar datos
                 if (!productRef || isNaN(quantity) || quantity <= 0) {
@@ -8335,7 +8341,7 @@
                 const expense = {
                     description: document.getElementById('expenseDescription').value.trim(),
                     date: document.getElementById('expenseDate').value,
-                    amount: parseFloat(document.getElementById('expenseAmount').value),
+                    amount: unformatCurrency(document.getElementById('expenseAmount').value),
                     user: currentUser.username
                 };
 
@@ -8372,7 +8378,7 @@
                 e.preventDefault();
 
                 const productRef = document.getElementById('saleProductRef').value.trim().toUpperCase();
-                const quantity = parseInt(document.getElementById('saleQuantity').value) || 0;
+                const quantity = unformatCurrency(document.getElementById('saleQuantity').value);
                 const saleType = document.getElementById('saleType').value;
                 const discount = parseFloat(document.getElementById('discount').value) || 0;
 
@@ -9402,9 +9408,9 @@
 
         // Calcular ganancia estimada
         function calculateProfit() {
-            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
-            const retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0;
-            const wholesalePrice = parseFloat(document.getElementById('wholesalePrice').value) || 0;
+            const purchasePrice = unformatCurrency(document.getElementById('purchasePrice').value);
+            const retailPrice = unformatCurrency(document.getElementById('retailPrice').value);
+            const wholesalePrice = unformatCurrency(document.getElementById('wholesalePrice').value);
 
             if (purchasePrice > 0) {
                 // Ganancia Detal
@@ -9997,6 +10003,32 @@
                 maximumFractionDigits: 0
             }).format(amount);
         }
+
+        // Función para quitar puntos y convertir a número
+        function unformatCurrency(value) {
+            if (!value) return 0;
+            // Eliminar puntos y cualquier cosa que no sea número
+            const cleanValue = value.toString().replace(/\./g, '').replace(/[^0-9]/g, '');
+            return parseFloat(cleanValue) || 0;
+        }
+
+        // Función para aplicar máscara de miles (.) mientras se escribe
+        function applyCurrencyMask(e) {
+            let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+            if (value === "") {
+                e.target.value = "";
+                return;
+            }
+            // Formatear con puntos cada 3 dígitos
+            e.target.value = new Intl.NumberFormat('de-DE').format(value);
+        }
+
+        // Delegación de eventos para campos de moneda (estáticos y dinámicos)
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('currency-input')) {
+                applyCurrencyMask(e);
+            }
+        });
 
         function formatDate(dateString) {
             if (!dateString) return '---';
