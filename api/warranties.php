@@ -177,6 +177,9 @@ if ($method === 'GET') {
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_by VARCHAR(50)");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1 AFTER product_name");
+             // Add warranty_id to expenses to link shipping costs
+             $conn->exec("ALTER TABLE expenses ADD COLUMN IF NOT EXISTS warranty_id INT");
+             $conn->exec("ALTER TABLE expenses ADD INDEX (warranty_id)");
         } catch(Exception $e) {}
 
         $sql = "INSERT INTO warranties (
@@ -222,7 +225,8 @@ if ($method === 'GET') {
             if ($sRow) $saleIdInt = $sRow['id'];
         }
         
-        $totalCost = ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0);
+        // Costo total en DB será solo el valor adicional (el envío va a gastos)
+        $totalCost = ($data->additionalValue ?? 0);
 
         $incomingCreated = $data->date ?? $data->createdAt ?? null;
         $createdAt = $incomingCreated ? ((strlen($incomingCreated) === 10) ? ($incomingCreated . ' ' . date('H:i:s')) : $incomingCreated) : date('Y-m-d H:i:s');
@@ -286,7 +290,21 @@ if ($method === 'GET') {
             }
         }
 
-        // 3. Lógica de deducción de stock si se crea como completada
+        // 4. Registrar Gasto de Envío si aplica
+        $shippingValue = $data->shippingValue ?? 0;
+        if ($shippingValue > 0) {
+            $expenseDesc = "Envío por garantía del producto " . ($data->originalProductName ?? '') . " (" . ($data->originalProductId ?? '') . ")";
+            $expenseStmt = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
+            $expenseStmt->execute([
+                ':desc' => $expenseDesc,
+                ':amt' => $shippingValue,
+                ':date' => $createdAt,
+                ':uid' => $_SESSION['user_id'],
+                ':uname' => $_SESSION['username'],
+                ':wid' => $warrantyId
+            ]);
+        }
+
         if (($data->status ?? 'pending') === 'completed') {
             $productRef = $data->newProductRef ?? ($data->originalProductId ?? '');
             $qtyToDeduct = $data->quantity ?? 1;
@@ -402,7 +420,7 @@ if ($method === 'GET') {
             ':qty_val' => $data->quantity ?? 1,
             ':addval' => $data->additionalValue ?? 0,
             ':shipval' => $data->shippingValue ?? 0,
-            ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
+            ':total' => ($data->additionalValue ?? 0),
             ':status' => $newStatus,
             ':created_at' => $createdAt,
             ':uby' => $_SESSION['username'],
@@ -446,6 +464,42 @@ if ($method === 'GET') {
                 $changeText = $incrementDifference > 0 ? "+" . formatMoney($incrementDifference) : formatMoney($incrementDifference);
                 logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_UPDATED', 'SALE', $saleIdInt, "Incremento por garantía actualizado: {$changeText}. Nuevo total: " . formatMoney($newTotal));
             }
+        }
+
+        // Handle Shipping Expense Update
+        $shippingValue = $data->shippingValue ?? 0;
+        // Check if expense exists
+        $checkExpense = $conn->prepare("SELECT id FROM expenses WHERE warranty_id = :wid");
+        $checkExpense->execute([':wid' => $data->id]);
+        $existingExpense = $checkExpense->fetch();
+
+        if ($shippingValue > 0) {
+            $expenseDesc = "Envío por garantía del producto " . ($data->originalProductName ?? $currentWarranty['product_name'] ?? '') . " (" . ($data->originalProductId ?? $currentWarranty['product_ref'] ?? '') . ")";
+            if ($existingExpense) {
+                // Update
+                $updExpense = $conn->prepare("UPDATE expenses SET amount = :amt, description = :desc, expense_date = :date WHERE id = :id");
+                $updExpense->execute([
+                    ':amt' => $shippingValue,
+                    ':desc' => $expenseDesc,
+                    ':date' => $createdAt,
+                    ':id' => $existingExpense['id']
+                ]);
+            } else {
+                // Insert
+                $insExpense = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
+                $insExpense->execute([
+                    ':desc' => $expenseDesc,
+                    ':amt' => $shippingValue,
+                    ':date' => $createdAt,
+                    ':uid' => $_SESSION['user_id'],
+                    ':uname' => $_SESSION['username'],
+                    ':wid' => $data->id
+                ]);
+            }
+        } else if ($existingExpense) {
+            // Delete if shipping is now 0
+             $delExpense = $conn->prepare("DELETE FROM expenses WHERE id = :id");
+             $delExpense->execute([':id' => $existingExpense['id']]);
         }
 
         // 3. Lógica de deducción de stock
@@ -533,6 +587,10 @@ if ($method === 'GET') {
             }
         }
         
+        // Remove associated expense
+        $delExp = $conn->prepare("DELETE FROM expenses WHERE warranty_id = :id");
+        $delExp->execute([':id' => $id]);
+
         // 3. Eliminar la garantía
         $stmt = $conn->prepare("DELETE FROM warranties WHERE id = :id");
         $stmt->execute([':id' => $id]);

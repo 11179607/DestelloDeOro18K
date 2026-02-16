@@ -2744,7 +2744,8 @@
                                     <th>Producto Original</th>
                                     <th>Producto Garantía</th>
                                     <th>Motivo</th>
-                                    <th>Costo Total</th>
+                                    <th>Valor Adicional</th>
+                                    <th>Valor Envío</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -4760,12 +4761,12 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID de Venta</th>
                                 <th>Cliente</th>
-                                <th>Productos</th>
+                                <th>Referencias</th>
+                                <th>Tipo</th>
                                 <th>Total</th>
-                                <th>Envío</th>
-                                <th>Incremento Garantía</th>
+                                <th>Pago</th>
+                                <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -4801,7 +4802,8 @@
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
                                 <th>Motivo</th>
-                                <th>Costo</th>
+                                <th>Incremento</th>
+                                <th>Envío</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
@@ -4867,15 +4869,28 @@
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
-                                    <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td>
-                                        <strong>${productCount} producto(s)</strong><br>
-                                        <small>${productNames}</small>
+                                        <div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.products ? item.products.map(p => p.productId).join(', ') : ''}">
+                                            ${item.products ? item.products.map(p => p.productId).join(', ') : 'N/A'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}">
+                                            ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
+                                        </span>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
-                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
+                                    <td>
+                                        <span class="badge ${getPaymentMethodClass(item.paymentMethod)}">
+                                            ${getPaymentMethodName(item.paymentMethod)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : 'badge-warning'}">
+                                            ${item.status === 'completed' ? 'Confirmada' : 'Pendiente'}
+                                        </span>
+                                    </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
@@ -4965,7 +4980,8 @@
                                     <td><strong>${item.originalSaleId}</strong></td>
                                     <td>${item.customerName}</td>
                                     <td>${item.warrantyReasonText || item.warrantyReason}</td>
-                                    <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.additionalValue || 0)}</strong></td>
+                                    <td>${formatCurrency(item.shippingValue || 0)}</td>
                                     <td>
                                         <span class="badge ${item.status === 'completed' ? 'badge-success' :
                                     item.status === 'pending' ? 'badge-warning' :
@@ -5095,8 +5111,9 @@
                 const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
                 const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
                 
-                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos de garantías
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
+                // Ganancia = Ventas (incluye warranty_increment) - Gastos (incluye envíos de garantía) - Costo de productos
+                // NO RESTAMOS totalWarrantyShippingCosts porque ya está en totalExpenses (al registrarse en la tabla expenses)
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -5200,9 +5217,11 @@
             }, 0);
 
             // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
+            // Y SI totalExpenses YA incluye los envíos, NO restarlos de nuevo.
+            // Asumimos que totalExpenses incluye los envíos de garantía (por el cambio en backend).
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
             let title = '';
             let detailsHTML = '';
@@ -5226,7 +5245,8 @@
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
+                    // Restamos los envíos de los gastos totales SOLO para la visualización desglosada
+                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses - totalWarrantyShippingCosts, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -6468,7 +6488,8 @@
                     <td>${warranty.originalProductName} (${warranty.originalProductId})</td>
                     <td>${warrantyProduct}</td>
                     <td>${warranty.warrantyReasonText || warranty.warrantyReason}</td>
-                    <td><strong>${formatCurrency(warranty.totalCost || 0)}</strong></td>
+                    <td><strong>${formatCurrency(warranty.additionalValue || 0)}</strong></td>
+                    <td>${formatCurrency(warranty.shippingValue || 0)}</td>
                     <td>
                         <span class="badge ${statusBadge}">
                             ${statusText}
