@@ -4434,19 +4434,10 @@
                                         <tr style="border-bottom: 1px solid #eee;">
                                             <td style="padding: 10px;">${formatDate(sale.date)}</td>
                                             <td style="padding: 10px;">
-                                                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                                                    <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center;">
-                                                        ${typeLabel}
+                                                <div style="display: flex; justify-content: center;">
+                                                    <span style="background: ${typeColor}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; min-width: 80px; text-align: center; display: inline-block; font-weight: 500;">
+                                                        ${typeLabel === 'Al Detal' ? 'Detal' : typeLabel}
                                                     </span>
-                                                    ${isMixed && sale.products ? `
-                                                        <div style="font-size: 0.7em; display: flex; gap: 2px; flex-wrap: wrap; justify-content: center;">
-                                                            ${sale.products.map(p => `
-                                                                <span style="color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold;">
-                                                                    ${p.saleType === 'wholesale' ? 'May' : 'Det'}
-                                                                </span>
-                                                            `).join('')}
-                                                        </div>
-                                                    ` : ''}
                                                 </div>
                                             </td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
@@ -4924,16 +4915,10 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 0.9em; text-align: center; display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                                            ${item.saleType === 'mixed' ? (function() {
-                                                const hasDet = item.products?.some(p => (p.saleType || p.sale_type) !== 'wholesale');
-                                                const hasMay = item.products?.some(p => (p.saleType || p.sale_type) === 'wholesale');
-                                                let res = '';
-                                                if (hasDet) res += '<span class="badge badge-success" style="width: 100%;">Detal</span>';
-                                                if (hasMay) res += '<span class="badge badge-info" style="width: 100%;">Mayorista</span>';
-                                                return res;
-                                            })() : 
-                                                `<span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="width: 100%;">
+                                        <div style="display: flex; justify-content: center;">
+                                            ${item.saleType === 'mixed' ? 
+                                                '<span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; min-width: 80px; text-align: center; font-weight: 500;">Mixto</span>' :
+                                                `<span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="min-width: 80px; text-align: center; font-weight: 500;">
                                                     ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
                                                 </span>`
                                             }
@@ -5389,20 +5374,19 @@
                 let typeBadge = '';
                 if (sale.saleType === 'mixed') {
                     typeBadge = `
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                            <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; width: 100%; text-align: center;">Mixto</span>
-                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; justify-content: center;">
-                                ${(sale.products || []).map(p => `
-                                    <span style="font-size: 0.65em; color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold;">
-                                        ${p.saleType === 'wholesale' ? 'May' : 'Det'}
-                                    </span>
-                                `).join('')}
-                            </div>
+                        <div style="display: flex; justify-content: center;">
+                            <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; min-width: 80px; text-align: center; font-weight: 500;">Mixto</span>
                         </div>
                     `;
                 } else {
                     const isRetail = sale.saleType !== 'wholesale';
-                    typeBadge = `<span class="badge ${isRetail ? 'badge-success' : 'badge-info'}" style="width: 100%; text-align: center; display: block;">${isRetail ? 'Detal' : 'Mayorista'}</span>`;
+                    typeBadge = `
+                        <div style="display: flex; justify-content: center;">
+                            <span class="badge ${isRetail ? 'badge-success' : 'badge-info'}" style="min-width: 80px; text-align: center; font-weight: 500;">
+                                ${isRetail ? 'Detal' : 'Mayorista'}
+                            </span>
+                        </div>
+                    `;
                 }
 
                 html += `
