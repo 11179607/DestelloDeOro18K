@@ -6821,6 +6821,34 @@
                                 </div>
                             </div>
                         </div>
+
+                        ${(function() {
+                            const warranties = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties')) || [];
+                            const associatedWarranties = warranties.filter(w => w.originalSaleId == movement.id || w.originalSaleId == movement.invoice_number);
+                            
+                            if (associatedWarranties.length === 0) return '';
+                            
+                            return `
+                                <div style="margin-top: 1.5rem; padding: 15px; background: rgba(212, 175, 55, 0.05); border-left: 4px solid var(--gold-primary); border-radius: 4px;">
+                                    <h3 style="color: var(--gold-dark); margin-bottom: 0.8rem; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-shield-alt"></i> Garantías Asociadas
+                                    </h3>
+                                    ${associatedWarranties.map(w => `
+                                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ddd;">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                                                <div><strong>Producto Reclamado:</strong><br>${w.originalProductName} <small>(${w.originalProductId})</small></div>
+                                                <div><strong>Producto de Repuesto:</strong><br>${w.productType === 'different' ? `${w.newProductName} <small>(${w.newProductRef})</small>` : 'Mismo producto'}</div>
+                                                <div><strong>Motivo:</strong><br>${getWarrantyReasonText(w.reason || w.warrantyReason)}</div>
+                                                <div><strong>Valor Adicional:</strong><br>${formatCurrency(w.additionalValue || 0)}</div>
+                                            </div>
+                                            <div style="margin-top: 5px; font-size: 0.85rem;">
+                                                <strong>Estado:</strong> <span class="badge ${w.status === 'completed' ? 'badge-success' : 'badge-warning'}">${getWarrantyStatusText(w.status)}</span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        })()}
                     `;
                     break;
 
