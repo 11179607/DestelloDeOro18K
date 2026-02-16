@@ -3847,7 +3847,8 @@
             const freeShippingToggle = document.getElementById('freeShippingToggle');
             const freeShippingLabel = document.getElementById('freeShippingLabel');
             
-            if (subtotal >= 250000) {
+            const deliveryType = document.getElementById('deliveryType').value;
+            if (subtotal >= 250000 && deliveryType !== 'store') {
                 freeShippingContainer.style.display = 'block';
             } else {
                 freeShippingContainer.style.display = 'none';
@@ -8384,9 +8385,10 @@
                 }
             });
 
-            // Actualizar resumen de venta al cambiar costo de envío o toggle de envío gratis
+            // Actualizar resumen de venta al cambiar costo de envío, toggle de envío gratis o tipo de entrega
             document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
             document.getElementById('freeShippingToggle').addEventListener('change', updateSaleSummary);
+            document.getElementById('deliveryType').addEventListener('change', updateSaleSummary);
         }
 
         // Configurar eventos de la factura (SIN REDES SOCIALES)
