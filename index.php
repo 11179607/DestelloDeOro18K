@@ -4435,18 +4435,20 @@
                                             <td style="padding: 10px;">${formatDate(sale.date)}</td>
                                             <td style="padding: 10px;">
                                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                                                    <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em;">
-                                                        ${typeLabel}
-                                                    </span>
-                                                    ${isMixed && sale.products ? `
-                                                        <div style="font-size: 0.7em; display: flex; gap: 2px; flex-wrap: wrap; justify-content: center;">
-                                                            ${sale.products.map(p => `
-                                                                <span style="color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold;">
-                                                                    ${p.saleType === 'wholesale' ? 'May' : 'Det'}
-                                                                </span>
-                                                            `).join('')}
-                                                        </div>
-                                                    ` : ''}
+                                                    ${!isMixed ? `
+                                                        <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center;">
+                                                            ${typeLabel}
+                                                        </span>
+                                                    ` : `
+                                                        ${(function() {
+                                                            const hasDet = sale.products?.some(p => p.saleType !== 'wholesale');
+                                                            const hasMay = sale.products?.some(p => p.saleType === 'wholesale');
+                                                            let res = '';
+                                                            if (hasDet) res += '<span style="background: #4CAF50; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center; margin-bottom: 2px;">Detal</span>';
+                                                            if (hasMay) res += '<span style="background: #2196F3; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center;">Mayorista</span>';
+                                                            return res;
+                                                        })()}
+                                                    `}
                                                 </div>
                                             </td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
@@ -4924,21 +4926,19 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 0.9em; text-align: center;">
-                                            ${item.saleType === 'mixed' ? 
-                                                '<span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white;">Mixto</span>' :
-                                                `<span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}">
+                                        <div style="font-size: 0.9em; text-align: center; display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                                            ${item.saleType === 'mixed' ? (function() {
+                                                const hasDet = item.products?.some(p => (p.saleType || p.sale_type) !== 'wholesale');
+                                                const hasMay = item.products?.some(p => (p.saleType || p.sale_type) === 'wholesale');
+                                                let res = '';
+                                                if (hasDet) res += '<span class="badge badge-success" style="width: 100%;">Detal</span>';
+                                                if (hasMay) res += '<span class="badge badge-info" style="width: 100%;">Mayorista</span>';
+                                                return res;
+                                            })() : 
+                                                `<span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="width: 100%;">
                                                     ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
                                                 </span>`
                                             }
-                                            ${item.saleType === 'mixed' && item.products ? 
-                                                `<div style="font-size: 0.8em; margin-top: 2px;">` + 
-                                                item.products.map(p => {
-                                                    const isWho = (p.saleType === 'wholesale');
-                                                    return `<div style="color: ${isWho ? 'var(--info)' : 'var(--success)'};">${isWho ? 'May' : 'Det'}</div>`;
-                                                }).join('') + 
-                                                `</div>` 
-                                                : ''}
                                         </div>
                                     </td>
                                     <td>
@@ -5390,21 +5390,15 @@
                 
                 let typeBadge = '';
                 if (sale.saleType === 'mixed') {
-                    typeBadge = `
-                        <div style="display: flex; flex-direction: column; align-items: start; gap: 2px;">
-                            <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; padding: 2px 8px;">Mixto</span>
-                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;">
-                                ${(sale.products || []).map(p => `
-                                    <span style="font-size: 0.65em; color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold; padding: 1px 3px; border: 1px solid currentColor; border-radius: 3px;">
-                                        ${p.saleType === 'wholesale' ? 'May' : 'Det'}
-                                    </span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
+                    const hasDet = sale.products?.some(p => p.saleType !== 'wholesale');
+                    const hasMay = sale.products?.some(p => p.saleType === 'wholesale');
+                    typeBadge = '<div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">';
+                    if (hasDet) typeBadge += '<span class="badge badge-success" style="width: 100%; text-align: center;">Detal</span>';
+                    if (hasMay) typeBadge += '<span class="badge badge-info" style="width: 100%; text-align: center;">Mayorista</span>';
+                    typeBadge += '</div>';
                 } else {
                     const isRetail = sale.saleType !== 'wholesale';
-                    typeBadge = `<span class="badge" style="background: ${isRetail ? '#4CAF50' : '#2196F3'}; color: white;">${isRetail ? 'Detal' : 'Mayorista'}</span>`;
+                    typeBadge = `<span class="badge ${isRetail ? 'badge-success' : 'badge-info'}" style="width: 100%; text-align: center; display: block;">${isRetail ? 'Detal' : 'Mayorista'}</span>`;
                 }
 
                 html += `
