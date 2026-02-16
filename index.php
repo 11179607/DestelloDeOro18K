@@ -6977,11 +6977,19 @@
                         
                         <div style="margin-bottom: 1.5rem;">
                             <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
-                                <i class="fas fa-chart-line"></i> Rentabilidad (al detal)
+                                <i class="fas fa-chart-line"></i> Rentabilidad
                             </h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                <div><strong>Ganancia:</strong> ${formatCurrency(profit)}</div>
-                                <div><strong>Margen:</strong> ${profitPercent}%</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div style="padding: 10px; background: rgba(76, 175, 80, 0.05); border-radius: 6px;">
+                                    <div style="color: #4CAF50; font-weight: bold; margin-bottom: 5px;">Al Detal</div>
+                                    <div><strong>Ganancia:</strong> ${formatCurrency(profit)}</div>
+                                    <div><strong>Margen:</strong> ${profitPercent}%</div>
+                                </div>
+                                <div style="padding: 10px; background: rgba(33, 150, 243, 0.05); border-radius: 6px;">
+                                    <div style="color: #2196F3; font-weight: bold; margin-bottom: 5px;">Al Mayorista</div>
+                                    <div><strong>Ganancia:</strong> ${formatCurrency(movement.wholesalePrice - movement.purchasePrice)}</div>
+                                    <div><strong>Margen:</strong> ${((movement.wholesalePrice - movement.purchasePrice) / movement.purchasePrice * 100).toFixed(2)}%</div>
+                                </div>
                             </div>
                         </div>
                     `;
