@@ -4402,6 +4402,7 @@
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ventas</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ganancia</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4446,6 +4447,11 @@
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
                                             <td style="padding: 10px; text-align: right; font-weight: bold; color: ${profit >= 0 ? '#4CAF50' : '#F44336'};">
                                                 ${formatCurrency(profit)}
+                                            </td>
+                                            <td style="padding: 10px; text-align: center;">
+                                                <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${sale.id || sale.invoice_number}', 'sales')" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     `;
