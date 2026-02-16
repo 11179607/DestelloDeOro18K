@@ -1553,6 +1553,12 @@
             padding: 15px;
         }
 
+        /* Capas de modales para evitar que se tapen entre sí */
+        #monthlyDetailsModal { z-index: 10000; }
+        #viewMovementModal, #editMovementModal { z-index: 11000; }
+        #customDialog { z-index: 12000; }
+        #invoiceModal { z-index: 11500; }
+
         .dialog-content {
             background: var(--white);
             border-radius: var(--radius-lg);
