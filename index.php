@@ -4762,7 +4762,9 @@
                                 <th>Fecha</th>
                                 <th>Factura</th>
                                 <th>Cliente</th>
-                                <th>Referencias</th>
+                                <th>Productos</th>
+                                <th>Cant.</th>
+                                <th>Precio Unit.</th>
                                 <th>Tipo</th>
                                 <th>Total</th>
                                 <th>Pago</th>
@@ -4801,6 +4803,8 @@
                                 <th>Fecha</th>
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
+                                <th>Producto Original</th>
+                                <th>Producto Garantía</th>
                                 <th>Motivo</th>
                                 <th>Incremento</th>
                                 <th>Envío</th>
@@ -4871,8 +4875,18 @@
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td>
-                                        <div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.products ? item.products.map(p => p.productId).join(', ') : ''}">
-                                            ${item.products ? item.products.map(p => p.productId).join(', ') : 'N/A'}
+                                        <div style="font-size: 0.9em;">
+                                            ${item.products ? item.products.map(p => `<div>${p.productName || 'Producto'} <small>(${p.productId})</small></div>`).join('') : (item.productName || 'N/A')}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.9em; text-align: center;">
+                                            ${item.products ? item.products.map(p => `<div>${p.quantity}</div>`).join('') : (item.quantity || 1)}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.9em; text-align: right;">
+                                            ${item.products ? item.products.map(p => `<div>${formatCurrency(p.unitPrice || 0)}</div>`).join('') : formatCurrency(item.unitPrice || 0)}
                                         </div>
                                     </td>
                                     <td>
@@ -4979,6 +4993,8 @@
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.originalSaleId}</strong></td>
                                     <td>${item.customerName}</td>
+                                    <td>${item.originalProductName || 'N/A'} <small>(${item.originalProductId || 'N/A'})</small></td>
+                                    <td>${item.productId === item.originalProductId ? 'Mismo producto' : `${item.newProductName || 'Producto diferente'} <small>(${item.newProductId || item.productId})</small>`}</td>
                                     <td>${item.warrantyReasonText || item.warrantyReason}</td>
                                     <td><strong>${formatCurrency(item.additionalValue || 0)}</strong></td>
                                     <td>${formatCurrency(item.shippingValue || 0)}</td>
