@@ -95,7 +95,19 @@ if ($method === 'GET') {
                 $sale['deliveryCost']    = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user']            = $sale['username'];
-                $sale['saleType']        = (!empty($sale['products'])) ? $sale['products'][0]['saleType'] : 'retail';
+                $types = [];
+                foreach ($sale['products'] as $p) {
+                    $types[] = $p['saleType'];
+                }
+                $uniqueTypes = array_unique($types);
+                
+                if (count($uniqueTypes) > 1) {
+                    $sale['saleType'] = 'mixed';
+                } elseif (!empty($uniqueTypes)) {
+                    $sale['saleType'] = reset($uniqueTypes);
+                } else {
+                    $sale['saleType'] = 'retail';
+                }
             }
 
             echo json_encode($sales);

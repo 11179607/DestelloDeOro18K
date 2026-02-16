@@ -4400,26 +4400,41 @@
                             </thead>
                             <tbody>
                                 ${sales.map(sale => {
-                const isRetail = sale.saleType !== 'wholesale';
-                const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
-                const saleCOGS = (sale.products || []).reduce((sum, product) => {
-                    const prod = products.find(p => p.id === product.productId);
-                    if (prod) {
-                        return sum + (prod.purchasePrice * product.quantity);
-                    }
-                    return sum;
-                }, 0);
-                const profit = sale.total - saleCOGS;
-                const typeLabel = isRetail ? 'Al Detal' : 'Mayorista';
-                const typeColor = isRetail ? '#4CAF50' : '#2196F3';
+                const isMixed = sale.saleType === 'mixed';
+                const isRetail = sale.saleType === 'retail' || (!isMixed && sale.saleType !== 'wholesale');
+                
+                const saleCOGS = (sale.products || []).reduce((sum, p) => sum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
+                const profit = parseFloat(sale.total) - saleCOGS;
+                
+                let typeLabel = '';
+                let typeColor = '';
+                
+                if (isMixed) {
+                    typeLabel = 'Mixto';
+                    typeColor = 'linear-gradient(135deg, #4CAF50 0%, #2196F3 100%)';
+                } else {
+                    typeLabel = isRetail ? 'Al Detal' : 'Mayorista';
+                    typeColor = isRetail ? '#4CAF50' : '#2196F3';
+                }
 
                 return `
                                         <tr style="border-bottom: 1px solid #eee;">
                                             <td style="padding: 10px;">${formatDate(sale.date)}</td>
                                             <td style="padding: 10px;">
-                                                <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em;">
-                                                    ${typeLabel}
-                                                </span>
+                                                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                                                    <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em;">
+                                                        ${typeLabel}
+                                                    </span>
+                                                    ${isMixed && sale.products ? `
+                                                        <div style="font-size: 0.7em; display: flex; gap: 2px; flex-wrap: wrap; justify-content: center;">
+                                                            ${sale.products.map(p => `
+                                                                <span style="color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold;">
+                                                                    ${p.saleType === 'wholesale' ? 'May' : 'Det'}
+                                                                </span>
+                                                            `).join('')}
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
                                             </td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
@@ -4891,9 +4906,22 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}">
-                                            ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
-                                        </span>
+                                        <div style="font-size: 0.9em; text-align: center;">
+                                            ${item.saleType === 'mixed' ? 
+                                                '<span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white;">Mixto</span>' :
+                                                `<span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}">
+                                                    ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
+                                                </span>`
+                                            }
+                                            ${item.saleType === 'mixed' && item.products ? 
+                                                `<div style="font-size: 0.8em; margin-top: 2px;">` + 
+                                                item.products.map(p => {
+                                                    const isWho = (p.saleType === 'wholesale');
+                                                    return `<div style="color: ${isWho ? 'var(--info)' : 'var(--success)'};">${isWho ? 'May' : 'Det'}</div>`;
+                                                }).join('') + 
+                                                `</div>` 
+                                                : ''}
+                                        </div>
                                     </td>
                                     <td>
                                         <div style="font-size: 0.9em; text-align: right; color: var(--warning);">
@@ -5327,6 +5355,7 @@
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Factura</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Cliente</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tipo</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Total</th>
                                     <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Pago</th>
                                 </tr>
@@ -5339,12 +5368,32 @@
                 const invoiceDisplay = sale.invoice_number || sale.id || 'N/A';
                 const statusBadge = sale.status === 'pending' ? 
                     `<br><span class="badge badge-warning" style="font-size: 0.7em;">Pendiente</span>` : '';
+                
+                let typeBadge = '';
+                if (sale.saleType === 'mixed') {
+                    typeBadge = `
+                        <div style="display: flex; flex-direction: column; align-items: start; gap: 2px;">
+                            <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; padding: 2px 8px;">Mixto</span>
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px;">
+                                ${(sale.products || []).map(p => `
+                                    <span style="font-size: 0.65em; color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold; padding: 1px 3px; border: 1px solid currentColor; border-radius: 3px;">
+                                        ${p.saleType === 'wholesale' ? 'May' : 'Det'}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const isRetail = sale.saleType !== 'wholesale';
+                    typeBadge = `<span class="badge" style="background: ${isRetail ? '#4CAF50' : '#2196F3'}; color: white;">${isRetail ? 'Detal' : 'Mayorista'}</span>`;
+                }
 
                 html += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px;">${formatDate(sale.date)}</td>
                         <td style="padding: 10px;"><strong>${invoiceDisplay}</strong>${statusBadge}</td>
                         <td style="padding: 10px;">${customerName}</td>
+                        <td style="padding: 10px;">${typeBadge}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(sale.total)}</td>
                         <td style="padding: 10px; text-align: center;">
                             <span class="payment-badge ${getPaymentMethodClass(sale.paymentMethod)}">${getPaymentMethodName(sale.paymentMethod)}</span>
@@ -6678,8 +6727,43 @@
                             <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
                                 <i class="fas fa-box-open"></i> Productos Vendidos
                             </h3>
-                            <p><strong>Cantidad de productos:</strong> ${productCount}</p>
-                            <p><strong>Productos:</strong> ${productNames}</p>
+                            <div style="max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; padding: 10px;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr style="border-bottom: 2px solid #ddd;">
+                                            <th style="text-align: left; padding: 5px;">Producto</th>
+                                            <th style="text-align: center; padding: 5px;">Cant.</th>
+                                            <th style="text-align: right; padding: 5px;">Precio</th>
+                                            <th style="text-align: center; padding: 5px;">Tipo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${movement.products ? movement.products.map(p => `
+                                            <tr style="border-bottom: 1px solid #eee;">
+                                                <td style="padding: 5px;">${p.productName || 'N/A'} <br><small>${p.productId || p.product_ref || ''}</small></td>
+                                                <td style="padding: 5px; text-align: center;">${p.quantity}</td>
+                                                <td style="padding: 5px; text-align: right;">${formatCurrency(p.unitPrice || p.unit_price || 0)}</td>
+                                                <td style="padding: 5px; text-align: center;">
+                                                    <span class="badge ${p.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.7em;">
+                                                        ${p.saleType === 'wholesale' ? 'May' : 'Det'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        `).join('') : `
+                                            <tr>
+                                                <td style="padding: 5px;">${movement.productName || 'N/A'}</td>
+                                                <td style="padding: 5px; text-align: center;">${movement.quantity || 1}</td>
+                                                <td style="padding: 5px; text-align: right;">${formatCurrency(movement.unitPrice || 0)}</td>
+                                                <td style="padding: 5px; text-align: center;">
+                                                    <span class="badge ${movement.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.7em;">
+                                                        ${movement.saleType === 'wholesale' ? 'May' : 'Det'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        `}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         
                         <div style="margin-bottom: 1.5rem;">
@@ -6705,7 +6789,12 @@
                                 <div><strong>Estado:</strong> ${movement.confirmed ? 'Confirmada' : 'Pendiente'}</div>
                                 <div><strong>Registrado por:</strong> ${getUserName(movement.user)}</div>
                                 <div><strong>Tipo entrega:</strong> ${movement.deliveryType === 'store' ? 'Recoge en tienda' : movement.deliveryType === 'delivery' ? 'Domicilio' : 'Envío nacional'}</div>
-                                <div><strong>Tipo de Venta:</strong> <span style="color: ${saleTypeColor}; font-weight: bold;">${saleTypeLabel}</span></div>
+                                <div><strong>Tipo de Venta:</strong> 
+                                    ${movement.saleType === 'mixed' ? 
+                                        '<span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; padding: 2px 8px;">Mixto</span>' :
+                                        `<span style="color: ${saleTypeColor}; font-weight: bold;">${saleTypeLabel}</span>`
+                                    }
+                                </div>
                             </div>
                         </div>
                     `;
