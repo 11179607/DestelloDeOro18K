@@ -4435,20 +4435,18 @@
                                             <td style="padding: 10px;">${formatDate(sale.date)}</td>
                                             <td style="padding: 10px;">
                                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                                                    ${!isMixed ? `
-                                                        <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center;">
-                                                            ${typeLabel}
-                                                        </span>
-                                                    ` : `
-                                                        ${(function() {
-                                                            const hasDet = sale.products?.some(p => p.saleType !== 'wholesale');
-                                                            const hasMay = sale.products?.some(p => p.saleType === 'wholesale');
-                                                            let res = '';
-                                                            if (hasDet) res += '<span style="background: #4CAF50; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center; margin-bottom: 2px;">Detal</span>';
-                                                            if (hasMay) res += '<span style="background: #2196F3; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center;">Mayorista</span>';
-                                                            return res;
-                                                        })()}
-                                                    `}
+                                                    <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em; width: 100%; text-align: center;">
+                                                        ${typeLabel}
+                                                    </span>
+                                                    ${isMixed && sale.products ? `
+                                                        <div style="font-size: 0.7em; display: flex; gap: 2px; flex-wrap: wrap; justify-content: center;">
+                                                            ${sale.products.map(p => `
+                                                                <span style="color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold;">
+                                                                    ${p.saleType === 'wholesale' ? 'May' : 'Det'}
+                                                                </span>
+                                                            `).join('')}
+                                                        </div>
+                                                    ` : ''}
                                                 </div>
                                             </td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
@@ -5390,12 +5388,18 @@
                 
                 let typeBadge = '';
                 if (sale.saleType === 'mixed') {
-                    const hasDet = sale.products?.some(p => p.saleType !== 'wholesale');
-                    const hasMay = sale.products?.some(p => p.saleType === 'wholesale');
-                    typeBadge = '<div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">';
-                    if (hasDet) typeBadge += '<span class="badge badge-success" style="width: 100%; text-align: center;">Detal</span>';
-                    if (hasMay) typeBadge += '<span class="badge badge-info" style="width: 100%; text-align: center;">Mayorista</span>';
-                    typeBadge += '</div>';
+                    typeBadge = `
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                            <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; width: 100%; text-align: center;">Mixto</span>
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; justify-content: center;">
+                                ${(sale.products || []).map(p => `
+                                    <span style="font-size: 0.65em; color: ${p.saleType === 'wholesale' ? '#2196F3' : '#4CAF50'}; font-weight: bold;">
+                                        ${p.saleType === 'wholesale' ? 'May' : 'Det'}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
                 } else {
                     const isRetail = sale.saleType !== 'wholesale';
                     typeBadge = `<span class="badge ${isRetail ? 'badge-success' : 'badge-info'}" style="width: 100%; text-align: center; display: block;">${isRetail ? 'Detal' : 'Mayorista'}</span>`;
@@ -6780,8 +6784,8 @@
                                                 <td style="padding: 5px; text-align: center;">${p.quantity}</td>
                                                 <td style="padding: 5px; text-align: right;">${formatCurrency(p.unitPrice || p.unit_price || 0)}</td>
                                                 <td style="padding: 5px; text-align: center;">
-                                                    <span class="badge ${p.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.7em;">
-                                                        ${p.saleType === 'wholesale' ? 'May' : 'Det'}
+                                                    <span class="badge ${p.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.75em;">
+                                                        ${p.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
                                                     </span>
                                                 </td>
                                             </tr>
@@ -6791,8 +6795,8 @@
                                                 <td style="padding: 5px; text-align: center;">${movement.quantity || 1}</td>
                                                 <td style="padding: 5px; text-align: right;">${formatCurrency(movement.unitPrice || 0)}</td>
                                                 <td style="padding: 5px; text-align: center;">
-                                                    <span class="badge ${movement.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.7em;">
-                                                        ${movement.saleType === 'wholesale' ? 'May' : 'Det'}
+                                                    <span class="badge ${movement.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.75em;">
+                                                        ${movement.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
                                                     </span>
                                                 </td>
                                             </tr>
