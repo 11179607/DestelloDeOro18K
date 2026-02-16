@@ -95,6 +95,9 @@ if ($method === 'GET') {
                 $sale['deliveryCost']    = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user']            = $sale['username'];
+                $sale['discount']        = (float)($sale['discount'] ?? 0);
+                $sale['subtotal']        = (float)$sale['total'] - $sale['deliveryCost'] + $sale['discount'] - $sale['warrantyIncrement'];
+                
                 $types = [];
                 foreach ($sale['products'] as $p) {
                     $types[] = $p['saleType'];

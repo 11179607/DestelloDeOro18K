@@ -6874,7 +6874,7 @@
                                 <i class="fas fa-receipt"></i> Información de Pago
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal)}</div>
+                                <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal || (parseFloat(movement.total) - (parseFloat(movement.deliveryCost) || 0) + (parseFloat(movement.discount) || 0) - (parseFloat(movement.warrantyIncrement) || 0)))}</div>
                                 <div><strong>Descuento:</strong> ${formatCurrency(movement.discount || 0)}</div>
                                 <div><strong>Costo envío:</strong> 
                                     ${(function() {
