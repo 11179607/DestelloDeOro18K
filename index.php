@@ -2346,6 +2346,24 @@
                                 <label for="deliveryCost">Costo de Envío</label>
                                 <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
                             </div>
+
+                            <!-- Campo de Envío Gratis (Condicional) -->
+                            <div id="freeShippingContainer" style="display: none; margin-top: -5px; margin-bottom: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                    <div style="flex-grow: 1;">
+                                        <div style="font-weight: bold; color: #2e7d32; font-size: 0.9rem;">
+                                            <i class="fas fa-truck"></i> ¡Aplica Envío Gratis!
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: #43a047;">Venta superior a 250,000</div>
+                                    </div>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="freeShippingToggle">
+                                        <label class="custom-control-label" for="freeShippingToggle" id="freeShippingLabel">
+                                            <i class="fas fa-times-circle" style="color: #666;"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -3708,7 +3726,10 @@
             // Calcular totales
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            const total = subtotal + deliveryCost;
+            
+            const freeShippingEnabled = document.getElementById('freeShippingToggle').checked;
+            const finalDeliveryCost = freeShippingEnabled ? 0 : deliveryCost;
+            const total = subtotal + finalDeliveryCost;
 
             // Generar u obtener ID de factura manual
             const manualInvoiceField = document.getElementById('manualInvoiceId');
@@ -3737,8 +3758,10 @@
                 })),
                 subtotal: subtotal,
                 discount: totalDiscount,
-                deliveryCost: deliveryCost,
+                deliveryCost: finalDeliveryCost,
                 total: total,
+                isFreeShipping: freeShippingEnabled,
+                originalDeliveryCost: deliveryCost,
                 paymentMethod: paymentMethod,
                 deliveryType: deliveryType,
                 customerInfo: customerInfo,
@@ -3752,6 +3775,28 @@
 
             // Procesar venta a nivel de API (ahora maneja status 'pending' o 'completed')
             const success = await processSale(sale);
+
+            // Si el envío fue gratis, registrarlo como un gasto para el administrador
+            if (success && freeShippingEnabled && deliveryCost > 0) {
+                try {
+                    const expense = {
+                        description: `Envío Gratis - Factura ${invoiceId} - Cliente ${customerName}`,
+                        date: new Date().toISOString().split('T')[0],
+                        amount: deliveryCost,
+                        user: 'admin' // Se registra a nombre del admin como gasto del negocio
+                    };
+                    
+                    await fetch('api/expenses.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(expense)
+                    });
+                    
+                    console.log('Gasto de envío gratis registrado.');
+                } catch (e) {
+                    console.error('Error al registrar gasto de envío gratis:', e);
+                }
+            }
 
             if (success) {
                 if (paymentMethod !== 'cash') {
@@ -3796,12 +3841,35 @@
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
             const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
-            const total = subtotal + deliveryCost;
+            
+            // Lógica de Envío Gratis
+            const freeShippingContainer = document.getElementById('freeShippingContainer');
+            const freeShippingToggle = document.getElementById('freeShippingToggle');
+            const freeShippingLabel = document.getElementById('freeShippingLabel');
+            
+            if (subtotal >= 250000) {
+                freeShippingContainer.style.display = 'block';
+            } else {
+                freeShippingContainer.style.display = 'none';
+                freeShippingToggle.checked = false;
+            }
+            
+            // Actualizar icono de la etiqueta
+            if (freeShippingToggle.checked) {
+                freeShippingLabel.innerHTML = '<i class="fas fa-check-circle" style="color: #2e7d32; font-size: 1.2rem;"></i>';
+            } else {
+                freeShippingLabel.innerHTML = '<i class="fas fa-times-circle" style="color: #666; font-size: 1.2rem;"></i>';
+            }
+            
+            const isFreeShipping = freeShippingToggle.checked;
+            const finalDeliveryCost = isFreeShipping ? 0 : deliveryCost;
+            const totalAddressableDelivery = isFreeShipping ? 0 : deliveryCost; 
+            const total = subtotal + totalAddressableDelivery;
 
             // Actualizar UI
             document.getElementById('subtotalAmount').textContent = formatCurrency(subtotal);
             document.getElementById('discountAmount').textContent = formatCurrency(totalDiscount);
-            document.getElementById('deliveryAmount').textContent = formatCurrency(deliveryCost);
+            document.getElementById('deliveryAmount').textContent = formatCurrency(finalDeliveryCost);
             document.getElementById('totalAmount').textContent = formatCurrency(total);
         }
 
@@ -8316,8 +8384,9 @@
                 }
             });
 
-            // Actualizar resumen de venta al cambiar costo de envío
+            // Actualizar resumen de venta al cambiar costo de envío o toggle de envío gratis
             document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
+            document.getElementById('freeShippingToggle').addEventListener('change', updateSaleSummary);
         }
 
         // Configurar eventos de la factura (SIN REDES SOCIALES)
