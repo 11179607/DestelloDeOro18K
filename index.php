@@ -5364,6 +5364,7 @@
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tipo</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Total</th>
                                     <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Pago</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5403,6 +5404,11 @@
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(sale.total)}</td>
                         <td style="padding: 10px; text-align: center;">
                             <span class="payment-badge ${getPaymentMethodClass(sale.paymentMethod)}">${getPaymentMethodName(sale.paymentMethod)}</span>
+                        </td>
+                        <td style="padding: 10px; text-align: center;">
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${sale.id || sale.invoice_number}', 'sales')" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -5449,6 +5455,7 @@
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Descripción</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Monto</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Usuario</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5461,6 +5468,11 @@
                         <td style="padding: 10px;">${expense.description}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(expense.amount)}</td>
                         <td style="padding: 10px;">${getUserName(expense.user)}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${expense.id}', 'expenses')" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
@@ -5508,6 +5520,7 @@
                                     <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Cantidad</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Valor</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Usuario</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5522,6 +5535,11 @@
                         <td style="padding: 10px; text-align: center;">${restock.quantity}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(restock.totalValue)}</td>
                         <td style="padding: 10px;">${getUserName(restock.user)}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${restock.id}', 'restocks')" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
@@ -5573,6 +5591,7 @@
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Motivo</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Estado</th>
+                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5587,6 +5606,11 @@
                         <td style="padding: 10px;">${getWarrantyReasonText(warranty.reason || warranty.warrantyReason)}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(warranty.totalCost || 0)}</td>
                         <td style="padding: 10px;">${getWarrantyStatusText(warranty.status || 'pending')}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${warranty.id}', 'warranties')" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
