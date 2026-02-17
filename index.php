@@ -2101,6 +2101,12 @@
                 </div>
 
                 <div class="user-controls">
+                    <!-- NUEVO: Cronómetro en medio -->
+                    <div id="datetimeBadge" class="datetime-badge">
+                        <i class="fas fa-clock"></i>
+                        <span id="currentDateTime">Cargando...</span>
+                    </div>
+
                     <div id="currentUserRole" class="user-badge admin">
                         <i class="fas fa-user-shield"></i>
                         <span>Administrador</span>
@@ -10476,7 +10482,7 @@
                 second: '2-digit',
                 hour12: true 
             };
-            const dateStr = now.toLocaleDateString('es-ES', options).replace(',', ' |');
+            const dateStr = now.toLocaleString('es-ES', options).replace(',', ' |');
             const timeEl = document.getElementById('currentDateTime');
             if (timeEl) timeEl.textContent = dateStr;
         }
@@ -10539,6 +10545,8 @@
             updateClock();
         });
     </script>
-</body>
 
+    <!-- NUEVO: Contenedor para efectos de relámpago -->
+    <div id="lightningContainer" class="lightning-container"></div>
+</body>
 </html>
