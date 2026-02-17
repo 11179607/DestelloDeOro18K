@@ -1684,33 +1684,78 @@
             border-left: 3px solid var(--success);
             display: none;
         }
-        /* NUEVO: Estilos para Cronómetro en Cabecera */
+        /* NUEVO: Estilos para Reloj Analógico "Vacano" */
+        .analog-clock {
+            width: 38px;
+            height: 38px;
+            border: 2px solid var(--gold-primary);
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            flex-shrink: 0;
+        }
+
+        .analog-clock .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+            transform: translateX(-50%) rotate(0deg);
+            transition: transform 0.1s cubic-bezier(0.4, 2.08, 0.55, 0.44);
+        }
+
+        .analog-clock .hour-hand {
+            width: 3px;
+            height: 10px;
+            background: #fff;
+            z-index: 5;
+        }
+
+        .analog-clock .min-hand {
+            width: 2px;
+            height: 14px;
+            background: var(--gold-secondary);
+            z-index: 6;
+        }
+
+        .analog-clock .sec-hand {
+            width: 1px;
+            height: 16px;
+            background: #ff4d4d;
+            z-index: 7;
+            box-shadow: 0 0 5px #ff4d4d;
+        }
+
+        .analog-clock .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: var(--gold-primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 5px var(--gold-primary);
+        }
+
         .datetime-badge {
-            background: rgba(212, 175, 55, 0.15);
-            padding: 5px 15px;
-            border-radius: 50px;
-            border: 1px solid var(--gold-primary);
-            color: var(--gold-primary);
+            background: rgba(0, 0, 0, 0.4) !important;
+            padding: 5px 15px !important;
+            border-radius: 12px !important;
+            border: 1px solid var(--gold-primary) !important;
+            color: var(--gold-primary) !important;
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            min-width: 180px;
-            justify-content: center;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+            gap: 12px !important;
+            font-size: 0.9rem !important;
+            min-width: 220px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
             order: 2;
-        }
-
-        .datetime-badge i {
-            font-size: 0.9rem;
-            animation: rotateClock 5s infinite linear;
-        }
-
-        @keyframes rotateClock {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -2101,9 +2146,14 @@
                 </div>
 
                 <div class="user-controls">
-                    <!-- NUEVO: Cronómetro en medio -->
+                    <!-- NUEVO: Cronómetro en medio con figura de reloj -->
                     <div id="datetimeBadge" class="datetime-badge">
-                        <i class="fas fa-clock"></i>
+                        <div class="analog-clock">
+                            <div id="hrHand" class="hand hour-hand"></div>
+                            <div id="minHand" class="hand min-hand"></div>
+                            <div id="secHand" class="hand sec-hand"></div>
+                            <div class="center-dot"></div>
+                        </div>
                         <span id="currentDateTime">Cargando...</span>
                     </div>
 
@@ -10473,6 +10523,8 @@
         // NUEVO: Función para actualizar el cronómetro
         function updateClock() {
             const now = new Date();
+            
+            // Actualizar Fecha Digital
             const options = { 
                 day: 'numeric', 
                 month: 'short', 
@@ -10485,6 +10537,23 @@
             const dateStr = now.toLocaleString('es-ES', options).replace(',', ' |');
             const timeEl = document.getElementById('currentDateTime');
             if (timeEl) timeEl.textContent = dateStr;
+
+            // Actualizar Reloj Analógico
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours();
+
+            const secDeg = (seconds / 60) * 360;
+            const minDeg = ((minutes + seconds / 60) / 60) * 360;
+            const hrDeg = ((hours % 12 + minutes / 60) / 12) * 360;
+
+            const hrHand = document.getElementById('hrHand');
+            const minHand = document.getElementById('minHand');
+            const secHand = document.getElementById('secHand');
+
+            if(hrHand) hrHand.style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+            if(minHand) minHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+            if(secHand) secHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
         }
 
         // NUEVO: Función para mostrar destellos dorados
