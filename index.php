@@ -1684,6 +1684,109 @@
             border-left: 3px solid var(--success);
             display: none;
         }
+        /* NUEVO: Estilos para Cronómetro en Cabecera */
+        .datetime-badge {
+            background: rgba(212, 175, 55, 0.15);
+            padding: 5px 15px;
+            border-radius: 50px;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            min-width: 180px;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+            order: 2;
+        }
+
+        .datetime-badge i {
+            font-size: 0.9rem;
+            animation: rotateClock 5s infinite linear;
+        }
+
+        @keyframes rotateClock {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .datetime-badge {
+                order: 3;
+                width: 100%;
+            }
+        }
+
+        /* NUEVO: Estilos para Destellos Dorados (Sparkles) */
+        .sparkle {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, var(--gold-secondary) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 15000;
+            animation: sparkleAnim 2s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% { transform: scale(0) translateY(0); opacity: 1; }
+            100% { transform: scale(1.5) translateY(-100px); opacity: 0; }
+        }
+
+        /* NUEVO: Estilos para Relámpagos (Lightning) */
+        .lightning-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 16000;
+            display: none;
+        }
+
+        .lightning {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            opacity: 0;
+        }
+
+        .lightning.success {
+            box-shadow: 0 0 20px 5px #2E8B57, 0 0 40px 10px #32CD32;
+            background: #fff;
+        }
+
+        .lightning.error {
+            box-shadow: 0 0 20px 5px #DC143C, 0 0 40px 10px #FF6347;
+            background: #fff;
+        }
+
+        .lightning-flash {
+            animation: flashAnim 0.3s ease-out forwards;
+        }
+
+        @keyframes flashAnim {
+            0% { opacity: 0; transform: scaleX(1); }
+            20% { opacity: 1; transform: scaleX(15); }
+            40% { opacity: 0.1; transform: scaleX(2); }
+            60% { opacity: 0.8; transform: scaleX(10); }
+            100% { opacity: 0; transform: scaleX(1); }
+        }
+
+        .spark-flash {
+            animation: screenFlash 0.3s ease-out forwards;
+        }
+
+        @keyframes screenFlash {
+            0% { background: transparent; }
+            50% { background: rgba(255, 255, 255, 0.2); }
+            100% { background: transparent; }
+        }
     </style>
 </head>
 
@@ -3814,8 +3917,10 @@
                         'Venta registrada como pendiente de pago. El administrador debe confirmar el pago en la sección correspondiente.',
                         'warning'
                     );
+                    showSparkles(); // NUEVO: Destellos para venta pendiente
                 } else {
                     await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
+                    showSparkles(); // NUEVO: Destellos para venta exitosa
                 }
 
                 // Mostrar factura
@@ -9273,6 +9378,13 @@
 
                 // Guardar callback
                 window.dialogCallback = (result) => {
+                    // NUEVO: Efectos de relámpago al cerrar según el tipo
+                    if (type === 'success' && result === true) {
+                        triggerLightning('success');
+                    } else if (type === 'error') {
+                        triggerLightning('error');
+                    }
+                    
                     resolve(result);
                     delete window.dialogCallback;
                 };
@@ -10352,8 +10464,80 @@
             }
         };
 
+        // NUEVO: Función para actualizar el cronómetro
+        function updateClock() {
+            const now = new Date();
+            const options = { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            };
+            const dateStr = now.toLocaleDateString('es-ES', options).replace(',', ' |');
+            const timeEl = document.getElementById('currentDateTime');
+            if (timeEl) timeEl.textContent = dateStr;
+        }
+
+        // NUEVO: Función para mostrar destellos dorados
+        function showSparkles() {
+            const duration = 5000;
+            const end = Date.now() + duration;
+
+            const interval = setInterval(() => {
+                if (Date.now() > end) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                for (let i = 0; i < 5; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = Math.random() * 100 + 'vw';
+                    sparkle.style.top = Math.random() * 100 + 'vh';
+                    sparkle.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(sparkle);
+
+                    setTimeout(() => sparkle.remove(), 2000);
+                }
+            }, 100);
+        }
+
+        // NUEVO: Función para disparar relámpagos
+        function triggerLightning(type) {
+            const container = document.getElementById('lightningContainer');
+            if (!container) return;
+
+            container.style.display = 'block';
+            container.classList.add('spark-flash');
+            
+            // Crear 3 rayos aleatorios
+            for (let i = 0; i < 3; i++) {
+                const beam = document.createElement('div');
+                beam.className = `lightning ${type} lightning-flash`;
+                beam.style.left = (20 + Math.random() * 60) + '%';
+                beam.style.top = '0';
+                beam.style.transform = `rotate(${(Math.random() - 0.5) * 40}deg)`;
+                beam.style.animationDelay = (i * 0.1) + 's';
+                container.appendChild(beam);
+                
+                setTimeout(() => beam.remove(), 500);
+            }
+
+            setTimeout(() => {
+                container.style.display = 'none';
+                container.classList.remove('spark-flash');
+            }, 600);
+        }
+
         // Iniciar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', initApp);
+        setInterval(updateClock, 1000);
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            updateClock();
+        });
     </script>
 </body>
 
