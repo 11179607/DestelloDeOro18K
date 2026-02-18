@@ -750,9 +750,11 @@
         }
 
         .brand-text span {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            font-weight: 300;
+            font-size: 1.2rem; /* Aumentado de 0.8rem para que combine con el nombre principal */
+            opacity: 0.9;
+            font-weight: 400;
+            display: block;
+            margin-top: -5px;
         }
 
         .user-controls {
