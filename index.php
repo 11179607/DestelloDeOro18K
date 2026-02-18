@@ -131,6 +131,90 @@
             }
         }
 
+        /* Reloj Analógico Estilizado */
+        .clock-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 15px;
+            border-radius: 50px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            margin-right: 10px;
+        }
+
+        .analog-clock {
+            width: 42px;
+            height: 42px;
+            border: 2px solid var(--gold-primary);
+            border-radius: 50%;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .analog-clock .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            background: var(--gold-secondary);
+            border-radius: 5px;
+        }
+
+        .analog-clock .hour-hand {
+            width: 3px;
+            height: 10px;
+            z-index: 3;
+        }
+
+        .analog-clock .min-hand {
+            width: 2px;
+            height: 15px;
+            z-index: 2;
+            background: var(--white);
+        }
+
+        .analog-clock .sec-hand {
+            width: 1px;
+            height: 17px;
+            z-index: 4;
+            background: var(--danger);
+        }
+
+        .analog-clock .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: var(--gold-primary);
+            border-radius: 50%;
+            z-index: 5;
+        }
+
+        .digital-info {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        #header-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold-secondary);
+            line-height: 1;
+            letter-spacing: 0.5px;
+        }
+
+        #header-date {
+            font-size: 0.7rem;
+            color: var(--white);
+            opacity: 0.9;
+            text-transform: capitalize;
+        }
+
         /* Pantalla de Login */
         .login-container {
             display: flex;
@@ -215,6 +299,31 @@
             text-shadow: none !important;
             font-weight: 600;
             font-size: 1rem; /* Un poco más grande para leer mejor */
+        }
+
+        /* Lightning Effects for Dialog */
+        @keyframes successLightning {
+            0% { box-shadow: 0 0 0 rgba(46, 139, 87, 0); }
+            10% { box-shadow: 0 0 30px rgba(46, 139, 87, 1); border-color: #3fde86; }
+            20% { box-shadow: 0 0 5px rgba(46, 139, 87, 0.5); }
+            40% { box-shadow: 0 0 40px rgba(46, 139, 87, 1); border-color: #3fde86; }
+            100% { box-shadow: 0 0 0 rgba(46, 139, 87, 0); }
+        }
+
+        @keyframes errorLightning {
+            0% { box-shadow: 0 0 0 rgba(220, 20, 60, 0); }
+            10% { box-shadow: 0 0 30px rgba(220, 20, 60, 1); border-color: #ff4d4d; }
+            20% { box-shadow: 0 0 5px rgba(220, 20, 60, 0.5); }
+            40% { box-shadow: 0 0 40px rgba(220, 20, 60, 1); border-color: #ff4d4d; }
+            100% { box-shadow: 0 0 0 rgba(220, 20, 60, 0); }
+        }
+
+        .dialog-content.success-lightning {
+            animation: successLightning 0.8s ease-out;
+        }
+
+        .dialog-content.error-lightning {
+            animation: errorLightning 0.8s ease-out;
         }
 
         .login-box small, .login-box p, .login-box .form-text {
@@ -333,6 +442,18 @@
             outline: none;
             border-color: var(--gold-primary);
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Imagen de fondo para Modales y Popups */
+        .dialog-content, 
+        .invoice-container, 
+        .password-change-box,
+        .detail-view-container,
+        #movement-details-modal .modal-content {
+            background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.98)),
+                        url('fondo.jpeg') no-repeat center center !important;
+            background-size: cover !important;
+            position: relative;
         }
 
         .btn {
@@ -932,33 +1053,38 @@
         }
 
         .badge-admin {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);
-            color: var(--gold-dark);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: linear-gradient(135deg, var(--gold-dark) 0%, #8b6b06 100%);
+            color: var(--white);
+            border: 1px solid var(--gold-primary);
+            font-weight: 600;
         }
 
         .badge-worker {
-            background: linear-gradient(135deg, rgba(65, 105, 225, 0.15) 0%, rgba(30, 144, 255, 0.1) 100%);
-            color: var(--info);
-            border: 1px solid rgba(65, 105, 225, 0.3);
+            background: linear-gradient(135deg, var(--info) 0%, #1e4bb5 100%);
+            color: var(--white);
+            border: 1px solid #4169E1;
+            font-weight: 600;
         }
 
         .badge-success {
-            background: linear-gradient(135deg, rgba(46, 139, 87, 0.15) 0%, rgba(50, 205, 50, 0.1) 100%);
-            color: var(--success);
-            border: 1px solid rgba(46, 139, 87, 0.3);
+            background: linear-gradient(135deg, var(--success) 0%, #228b22 100%);
+            color: var(--white);
+            border: 1px solid #2E8B57;
+            font-weight: 600;
         }
 
         .badge-warning {
-            background: linear-gradient(135deg, rgba(255, 165, 0, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);
-            color: var(--warning);
-            border: 1px solid rgba(255, 165, 0, 0.3);
+            background: linear-gradient(135deg, var(--warning) 0%, #e69500 100%);
+            color: var(--text-dark);
+            border: 1px solid #FFA500;
+            font-weight: 600;
         }
 
         .badge-danger {
-            background: linear-gradient(135deg, rgba(220, 20, 60, 0.15) 0%, rgba(255, 99, 71, 0.1) 100%);
-            color: var(--danger);
-            border: 1px solid rgba(220, 20, 60, 0.3);
+            background: linear-gradient(135deg, var(--danger) 0%, #b2102f 100%);
+            color: var(--white);
+            border: 1px solid #DC143C;
+            font-weight: 600;
         }
 
         /* Botones */
@@ -1989,6 +2115,20 @@
                 </div>
 
                 <div class="user-controls">
+                    <!-- Reloj en Header -->
+                    <div class="clock-container">
+                        <div class="analog-clock">
+                            <div class="hand hour-hand" id="hourHand"></div>
+                            <div class="hand min-hand" id="minHand"></div>
+                            <div class="hand sec-hand" id="secHand"></div>
+                            <div class="center-dot"></div>
+                        </div>
+                        <div class="digital-info">
+                            <span id="header-time">00:00:00</span>
+                            <span id="header-date">Cargando...</span>
+                        </div>
+                    </div>
+
                     <div id="currentUserRole" class="user-badge admin">
                         <i class="fas fa-user-shield"></i>
                         <span>Administrador</span>
@@ -3605,9 +3745,15 @@
                 return;
             }
 
-            // Verificar stock
-            if (quantity > product.quantity) {
-                showDialog('Error', `No hay suficiente stock. Solo hay ${product.quantity} unidades disponibles.`, 'error');
+            // Verificar stock acumulativo en el carrito
+            const existingQuantity = shoppingCart
+                .filter(item => item.productId === productRef)
+                .reduce((sum, item) => sum + item.quantity, 0);
+            
+            const totalRequested = existingQuantity + quantity;
+
+            if (totalRequested > product.quantity) {
+                showDialog('Stock Insuficiente', `No hay suficiente stock. Disponible: ${product.quantity}. Ya tienes ${existingQuantity} en el carrito y estás intentando agregar ${quantity} más.`, 'error');
                 return;
             }
 
@@ -4043,18 +4189,62 @@
             let wholesaleCount = 0;
 
             sales.forEach(sale => {
-                const isRetail = sale.saleType !== 'wholesale'; // Por defecto es detal a menos que sea explícitamente mayorista
                 const saleTotal = parseFloat(sale.total) || 0;
-                const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
+                const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost || 0);
+                const discount = parseFloat(sale.discount || 0);
+                const warranty = parseFloat(sale.warrantyIncrement || sale.warranty_increment || 0);
+                const otherCharges = delivery - discount + warranty;
 
-                if (isRetail) {
-                    retailSales += saleTotal;
-                    retailCOGS += saleCOGS;
-                    retailCount++;
+                let saleRetailSubtotal = 0;
+                let saleWholesaleSubtotal = 0;
+                let saleRetailCOGS = 0;
+                let saleWholesaleCOGS = 0;
+
+                (sale.products || []).forEach(p => {
+                    const pQty = parseInt(p.quantity) || 0;
+                    const pPrice = parseFloat(p.unit_price || p.unitPrice) || 0;
+                    const pPurchase = parseFloat(p.purchase_price || p.purchasePrice) || 0;
+                    const pType = p.sale_type || p.saleType || 'retail';
+                    const pSubtotal = pQty * pPrice;
+                    const pCOGS = pQty * pPurchase;
+
+                    if (pType === 'wholesale') {
+                        saleWholesaleSubtotal += pSubtotal;
+                        saleWholesaleCOGS += pCOGS;
+                    } else {
+                        saleRetailSubtotal += pSubtotal;
+                        saleRetailCOGS += pCOGS;
+                    }
+                });
+
+                const totalItemsSubtotal = saleRetailSubtotal + saleWholesaleSubtotal;
+
+                if (totalItemsSubtotal > 0) {
+                    const ratioRetail = saleRetailSubtotal / totalItemsSubtotal;
+                    const ratioWholesale = saleWholesaleSubtotal / totalItemsSubtotal;
+
+                    retailSales += saleRetailSubtotal + (otherCharges * ratioRetail);
+                    wholesaleSales += saleWholesaleSubtotal + (otherCharges * ratioWholesale);
                 } else {
-                    wholesaleSales += saleTotal;
-                    wholesaleCOGS += saleCOGS;
+                    // Fallback si no hay items (ventas viejas o con errores)
+                    if (sale.saleType === 'wholesale') {
+                        wholesaleSales += saleTotal;
+                    } else {
+                        retailSales += saleTotal;
+                    }
+                }
+
+                retailCOGS += saleRetailCOGS;
+                wholesaleCOGS += saleWholesaleCOGS;
+
+                // Contar para el resumen
+                if (sale.saleType === 'mixed') {
+                    retailCount++;
                     wholesaleCount++;
+                } else if (sale.saleType === 'wholesale') {
+                    wholesaleCount++;
+                } else {
+                    retailCount++;
                 }
             });
 
@@ -4808,8 +4998,12 @@
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td>
-                                        <strong>${productCount} producto(s)</strong><br>
-                                        <small>${productNames}</small>
+                                        <strong>${productCount} producto(s):</strong><br>
+                                        <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
+                                            ${item.products ? item.products.map(p => 
+                                                `• ${p.productName} <b>(x${p.quantity})</b> - ${formatCurrency(p.unitPrice || p.unit_price)}`
+                                            ).join('<br>') : (item.productName || 'N/A')}
+                                        </div>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
@@ -7270,7 +7464,7 @@
 
             } catch (error) {
                 console.error('Error al eliminar movimiento:', error);
-                await showDialog('Éxito', 'Venta eliminada exitosamente', 'success');
+                await showDialog('Error', 'Ocurrió un error al intentar eliminar el movimiento. Verifique su conexión.', 'error');
             }
         };
 
@@ -7527,6 +7721,11 @@
             console.log('Cargando datos de la sección activa (inventario)...');
             loadInventoryTable();
 
+            // Iniciar Reloj del Header
+            updateHeaderClock();
+            if (window.clockInterval) clearInterval(window.clockInterval);
+            window.clockInterval = setInterval(updateHeaderClock, 1000);
+
             // Configurar refresco automático solo para la sección activa
             if (window.syncInterval) clearInterval(window.syncInterval);
             window.syncInterval = setInterval(() => {
@@ -7555,6 +7754,48 @@
                     }
                 }
             }, 60000);
+        }
+
+        // Función para actualizar el reloj del header (Analógico y Digital)
+        function updateHeaderClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // Actualizar Reloj Analógico
+            const hourDeg = (hours % 12) * 30 + minutes / 2;
+            const minDeg = minutes * 6;
+            const secDeg = seconds * 6;
+
+            const hourHand = document.getElementById('hourHand');
+            const minHand = document.getElementById('minHand');
+            const secHand = document.getElementById('secHand');
+
+            if (hourHand) hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+            if (minHand) minHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+            if (secHand) secHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+
+            // Actualizar Info Digital
+            const timeEl = document.getElementById('header-time');
+            const dateEl = document.getElementById('header-date');
+
+            if (timeEl) {
+                timeEl.textContent = now.toLocaleTimeString('es-CO', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit', 
+                    hour12: true 
+                });
+            }
+
+            if (dateEl) {
+                dateEl.textContent = now.toLocaleDateString('es-CO', { 
+                    weekday: 'long', 
+                    day: 'numeric', 
+                    month: 'long' 
+                });
+            }
         }
 
         // Actualizar interfaz según rol del usuario
@@ -8848,15 +9089,19 @@
             });
         }
 
-        // Mostrar diálogo personalizado
+        // Mostrar diálogo personalizado con efectos
         function showDialog(title, message, type = 'info', showCancel = false) {
             return new Promise((resolve) => {
                 const dialog = document.getElementById('customDialog');
+                const content = dialog.querySelector('.dialog-content');
                 const icon = document.getElementById('dialogIcon');
                 const dialogTitle = document.getElementById('dialogTitle');
                 const dialogMessage = document.getElementById('dialogMessage');
                 const confirmBtn = document.getElementById('dialogConfirm');
                 const cancelBtn = document.getElementById('dialogCancel');
+
+                // Limpiar efectos previos
+                content.classList.remove('success-lightning', 'error-lightning');
 
                 // Configurar icono según tipo
                 icon.innerHTML = getDialogIcon(type);
@@ -8871,12 +9116,26 @@
 
                 // Guardar callback
                 window.dialogCallback = (result) => {
+                    dialog.style.display = 'none';
+                    content.classList.remove('success-lightning', 'error-lightning');
                     resolve(result);
                     delete window.dialogCallback;
                 };
 
                 // Mostrar diálogo
                 dialog.style.display = 'flex';
+
+                // Aplicar efecto de rayo
+                if (type === 'success') {
+                    content.classList.add('success-lightning');
+                } else if (type === 'error') {
+                    content.classList.add('error-lightning');
+                }
+
+                // Quitar efecto después de un momento
+                setTimeout(() => {
+                    content.classList.remove('success-lightning', 'error-lightning');
+                }, 1000);
             });
         }
 

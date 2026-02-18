@@ -22,7 +22,11 @@ function ensureLogsTableExists($conn) {
 }
 
 function logAction($conn, $user, $action, $entityType, $entityId, $details) {
-    ensureLogsTableExists($conn);
+    static $tableChecked = false;
+    if (!$tableChecked) {
+        ensureLogsTableExists($conn);
+        $tableChecked = true;
+    }
     
     try {
         $stmt = $conn->prepare("INSERT INTO audit_logs (user_username, action_type, entity_type, entity_id, details) VALUES (:user, :action, :entityType, :entityId, :details)");

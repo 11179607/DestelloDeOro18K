@@ -89,7 +89,21 @@ if ($method === 'GET') {
                 $sale['deliveryCost']    = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user']            = $sale['username'];
-                $sale['saleType']        = (!empty($sale['products'])) ? $sale['products'][0]['saleType'] : 'retail';
+                // Determinar tipo de venta (mixed, wholesale, retail)
+                $hasRetail = false;
+                $hasWholesale = false;
+                foreach ($sale['products'] as $item) {
+                    if (($item['saleType'] ?? 'retail') === 'retail') $hasRetail = true;
+                    if (($item['saleType'] ?? 'retail') === 'wholesale') $hasWholesale = true;
+                }
+
+                if ($hasRetail && $hasWholesale) {
+                    $sale['saleType'] = 'mixed';
+                } elseif ($hasWholesale) {
+                    $sale['saleType'] = 'wholesale';
+                } else {
+                    $sale['saleType'] = 'retail';
+                }
             }
 
             echo json_encode($sales);
@@ -139,21 +153,73 @@ if ($method === 'GET') {
             $saleDate = date('Y-m-d H:i:s');
         }
 
+        // --- NORMALIZACIÓN DE DATOS ---
+        // Cliente: soporta tanto customerInfo (frontend) como campos directos (backend)
+        $customerName = '';
+        $customerId = '';
+        $customerPhone = '';
+        $customerEmail = '';
+        $customerAddress = '';
+        $customerCity = '';
+
+        if (isset($data->customerInfo)) {
+            // Formato frontend: customerInfo es un objeto
+            $customerName    = $data->customerInfo->name ?? '';
+            $customerId      = $data->customerInfo->id ?? '';
+            $customerPhone   = $data->customerInfo->phone ?? '';
+            $customerEmail   = $data->customerInfo->email ?? '';
+            $customerAddress = $data->customerInfo->address ?? '';
+            $customerCity    = $data->customerInfo->city ?? '';
+        } else {
+            // Formato backend: campos directos
+            $customerName    = $data->customer_name ?? '';
+            $customerId      = $data->customer_id ?? '';
+            $customerPhone   = $data->customer_phone ?? '';
+            $customerEmail   = $data->customer_email ?? '';
+            $customerAddress = $data->customer_address ?? '';
+            $customerCity    = $data->customer_city ?? '';
+        }
+
+        // Normalizar otros campos
+        $deliveryCost = 0;
+        if (isset($data->deliveryCost)) {
+            $deliveryCost = (float)$data->deliveryCost;
+        } elseif (isset($data->delivery_cost)) {
+            $deliveryCost = (float)$data->delivery_cost;
+        }
+
+        $warrantyIncrement = 0;
+        if (isset($data->warrantyIncrement)) {
+            $warrantyIncrement = (float)$data->warrantyIncrement;
+        } elseif (isset($data->warranty_increment)) {
+            $warrantyIncrement = (float)$data->warranty_increment;
+        }
+
+        $discount = 0;
+        if (isset($data->discount)) {
+            $discount = (float)$data->discount;
+        } elseif (isset($data->totalDiscount)) {
+            $discount = (float)$data->totalDiscount;
+        }
+
+        $paymentMethod = $data->paymentMethod ?? $data->payment_method ?? '';
+        $deliveryType = $data->deliveryType ?? $data->delivery_type ?? '';
+
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':inv'      => $invoiceNumber,
-            ':name'     => $data->customerInfo->name,
-            ':cid'      => $data->customerInfo->id,
-            ':phone'    => $data->customerInfo->phone,
-            ':email'    => $data->customerInfo->email ?? '',
-            ':addr'     => $data->customerInfo->address,
-            ':city'     => $data->customerInfo->city,
+            ':name'     => $customerName,
+            ':cid'      => $customerId,
+            ':phone'    => $customerPhone,
+            ':email'    => $customerEmail,
+            ':addr'     => $customerAddress,
+            ':city'     => $customerCity,
             ':total'    => $data->total,
-            ':disc'     => $data->discount ?? 0,
-            ':del'      => $data->deliveryCost ?? 0,
-            ':war'      => $data->warrantyIncrement ?? 0,
-            ':pay'      => $data->paymentMethod,
-            ':del_type' => $data->deliveryType,
+            ':disc'     => $discount,
+            ':del'      => $deliveryCost,
+            ':war'      => $warrantyIncrement,
+            ':pay'      => $paymentMethod,
+            ':del_type' => $deliveryType,
             ':sale_date'=> $saleDate,
             ':uid'      => $_SESSION['user_id'],
             ':uname'    => $_SESSION['username'],
@@ -170,20 +236,38 @@ if ($method === 'GET') {
         $stockStmt = $conn->prepare($stockSql);
 
         foreach ($data->products as $item) {
+            // Normalizar nombres de campos en productos
+            $productRef = $item->productId ?? $item->product_ref ?? $item->id ?? '';
+            $productName = $item->productName ?? $item->product_name ?? $item->name ?? '';
+            $quantity = $item->quantity ?? 0;
+            $unitPrice = $item->unitPrice ?? $item->unit_price ?? 0;
+            $subtotal = $item->subtotal ?? 0;
+            $saleType = $item->saleType ?? $item->sale_type ?? 'retail';
+
+            // Verificar stock antes de procesar
+            $checkStockStmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
+            $checkStockStmt->execute([':ref' => $productRef]);
+            $pData = $checkStockStmt->fetch();
+            
+            if (!$pData || $pData['quantity'] < $quantity) {
+                $pName = $pData['name'] ?? $productName;
+                throw new Exception("Stock insuficiente para: $pName. Disponible: " . ($pData['quantity'] ?? 0));
+            }
+
             $itemStmt->execute([
                 ':sid'   => $saleId,
-                ':ref'   => $item->productId,
-                ':pname' => $item->productName,
-                ':qty'   => $item->quantity,
-                ':price' => $item->unitPrice,
-                ':sub'   => $item->subtotal,
-                ':type'  => $item->saleType ?? 'retail'
+                ':ref'   => $productRef,
+                ':pname' => $productName,
+                ':qty'   => $quantity,
+                ':price' => $unitPrice,
+                ':sub'   => $subtotal,
+                ':type'  => $saleType
             ]);
 
             // Descontar inventario
             $stockStmt->execute([
-                ':qty' => $item->quantity,
-                ':ref' => $item->productId
+                ':qty' => $quantity,
+                ':ref' => $productRef
             ]);
         }
 
@@ -283,25 +367,68 @@ if ($method === 'GET') {
         $dbId     = $sale['id'];
         $oldStatus = $sale['status'];
 
-        // Fallback a valores actuales
-        $invoiceNumber   = $data->invoiceNumber ?? $data->id ?? $sale['invoice_number'];
-        $customerName    = $data->customerName   ?? $sale['customer_name'];
-        $customerId      = $data->customerId     ?? $sale['customer_id'];
-        $customerPhone   = $data->customerPhone  ?? $sale['customer_phone'];
-        $customerEmail   = $data->customerEmail  ?? $sale['customer_email'];
-        $customerAddress = $data->customerAddress?? $sale['customer_address'];
-        $customerCity    = $data->customerCity   ?? $sale['customer_city'];
-        $paymentMethod   = $data->paymentMethod  ?? $sale['payment_method'];
-        $incomingDate    = $data->saleDate ?? $data->date ?? null;
+        // Normalizar datos para edición
+        $invoiceNumber   = $data->invoiceNumber ?? $data->invoice_number ?? $data->id ?? $sale['invoice_number'];
+        
+        // Cliente - soportar múltiples formatos
+        $customerName = '';
+        $customerId = '';
+        $customerPhone = '';
+        $customerEmail = '';
+        $customerAddress = '';
+        $customerCity = '';
+
+        if (isset($data->customerInfo)) {
+            $customerName    = $data->customerInfo->name ?? $sale['customer_name'];
+            $customerId      = $data->customerInfo->id ?? $sale['customer_id'];
+            $customerPhone   = $data->customerInfo->phone ?? $sale['customer_phone'];
+            $customerEmail   = $data->customerInfo->email ?? $sale['customer_email'];
+            $customerAddress = $data->customerInfo->address ?? $sale['customer_address'];
+            $customerCity    = $data->customerInfo->city ?? $sale['customer_city'];
+        } else {
+            $customerName    = $data->customerName ?? $data->customer_name ?? $sale['customer_name'];
+            $customerId      = $data->customerId ?? $data->customer_id ?? $sale['customer_id'];
+            $customerPhone   = $data->customerPhone ?? $data->customer_phone ?? $sale['customer_phone'];
+            $customerEmail   = $data->customerEmail ?? $data->customer_email ?? $sale['customer_email'];
+            $customerAddress = $data->customerAddress ?? $data->customer_address ?? $sale['customer_address'];
+            $customerCity    = $data->customerCity ?? $data->customer_city ?? $sale['customer_city'];
+        }
+
+        $paymentMethod   = $data->paymentMethod ?? $data->payment_method ?? $sale['payment_method'];
+        
+        $incomingDate    = $data->saleDate ?? $data->date ?? $data->sale_date ?? null;
         if ($incomingDate) {
             $saleDate = (strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate;
         } else {
             $saleDate = $sale['sale_date'];
         }
 
-        $deliveryCost      = isset($data->deliveryCost)      ? (float)$data->deliveryCost      : (float)$sale['delivery_cost'];
-        $discount          = isset($data->discount)          ? (float)$data->discount          : (float)$sale['discount'];
-        $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : (float)($sale['warranty_increment'] ?? 0);
+        $deliveryCost = 0;
+        if (isset($data->deliveryCost)) {
+            $deliveryCost = (float)$data->deliveryCost;
+        } elseif (isset($data->delivery_cost)) {
+            $deliveryCost = (float)$data->delivery_cost;
+        } else {
+            $deliveryCost = (float)$sale['delivery_cost'];
+        }
+
+        $discount = 0;
+        if (isset($data->discount)) {
+            $discount = (float)$data->discount;
+        } elseif (isset($data->totalDiscount)) {
+            $discount = (float)$data->totalDiscount;
+        } else {
+            $discount = (float)$sale['discount'];
+        }
+
+        $warrantyIncrement = 0;
+        if (isset($data->warrantyIncrement)) {
+            $warrantyIncrement = (float)$data->warrantyIncrement;
+        } elseif (isset($data->warranty_increment)) {
+            $warrantyIncrement = (float)$data->warranty_increment;
+        } else {
+            $warrantyIncrement = (float)($sale['warranty_increment'] ?? 0);
+        }
 
         $currentSubtotal  = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'] - (float)($sale['warranty_increment'] ?? 0);
         $incomingSubtotal = isset($data->subtotal) ? (float)$data->subtotal : $currentSubtotal;
