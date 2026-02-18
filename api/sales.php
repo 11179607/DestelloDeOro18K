@@ -101,11 +101,72 @@ if ($method === 'GET') {
 
 } elseif ($method === 'POST') {
     // Registrar Venta
-    $data = json_decode(file_get_contents("php://input"));
+    $rawInput = file_get_contents("php://input");
+    $data = json_decode($rawInput);
 
-    if (!$data || !isset($data->products) || !is_array($data->products)) {
+    // Validación mejorada de datos de entrada
+    if (!$data) {
         http_response_code(400);
-        echo json_encode(['error' => 'Datos inválidos']);
+        echo json_encode(['error' => 'Datos inválidos: JSON mal formado']);
+        exit;
+    }
+
+    if (!isset($data->products)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos inválidos: falta el campo "products"']);
+        exit;
+    }
+
+    if (!is_array($data->products)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos inválidos: "products" debe ser un array']);
+        exit;
+    }
+
+    if (empty($data->products)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Datos inválidos: debe incluir al menos un producto']);
+        exit;
+    }
+
+    // Validar campos requeridos
+    $requiredFields = ['id', 'customerInfo', 'paymentMethod', 'deliveryType', 'total'];
+    foreach ($requiredFields as $field) {
+        if (!isset($data->$field)) {
+            http_response_code(400);
+            echo json_encode(['error' => "Campo requerido faltante: $field"]);
+            exit;
+        }
+    }
+
+    // Validar información del cliente
+    if (!isset($data->customerInfo->name) || empty(trim($data->customerInfo->name))) {
+        http_response_code(400);
+        echo json_encode(['error' => 'El nombre del cliente es requerido']);
+        exit;
+    }
+
+    if (!isset($data->customerInfo->id) || empty(trim($data->customerInfo->id))) {
+        http_response_code(400);
+        echo json_encode(['error' => 'La cédula del cliente es requerida']);
+        exit;
+    }
+
+    if (!isset($data->customerInfo->phone) || empty(trim($data->customerInfo->phone))) {
+        http_response_code(400);
+        echo json_encode(['error' => 'El teléfono del cliente es requerido']);
+        exit;
+    }
+
+    if (!isset($data->customerInfo->address) || empty(trim($data->customerInfo->address))) {
+        http_response_code(400);
+        echo json_encode(['error' => 'La dirección del cliente es requerida']);
+        exit;
+    }
+
+    if (!isset($data->customerInfo->city) || empty(trim($data->customerInfo->city))) {
+        http_response_code(400);
+        echo json_encode(['error' => 'La ciudad del cliente es requerida']);
         exit;
     }
 
@@ -114,21 +175,58 @@ if ($method === 'GET') {
     try {
         $conn->beginTransaction();
 
-        // 1. Crear cabecera de venta
-        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, warranty_increment, payment_method, delivery_type, sale_date, user_id, username, status)
-                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :war, :pay, :del_type, :sale_date, :uid, :uname, :status)";
-
         // Verificar si el ID de factura ya existe
         $invoiceNumber = $data->id;
         $checkStmt = $conn->prepare("SELECT COUNT(*) FROM sales WHERE invoice_number = :inv");
         $checkStmt->execute([':inv' => $invoiceNumber]);
 
         if ($checkStmt->fetchColumn() > 0) {
+            $conn->rollBack();
             http_response_code(409);
             echo json_encode(['error' => 'El número de factura ya existe. Usa un ID único.']);
-            $conn->rollBack();
             exit;
         }
+
+        // Validar que todos los productos existan y tengan stock suficiente
+        foreach ($data->products as $index => $item) {
+            if (!isset($item->productId) || empty($item->productId)) {
+                $conn->rollBack();
+                http_response_code(400);
+                echo json_encode(['error' => "Producto #" . ($index + 1) . ": falta la referencia del producto"]);
+                exit;
+            }
+
+            if (!isset($item->quantity) || $item->quantity <= 0) {
+                $conn->rollBack();
+                http_response_code(400);
+                echo json_encode(['error' => "Producto #" . ($index + 1) . " ({$item->productId}): cantidad inválida"]);
+                exit;
+            }
+
+            // Verificar que el producto existe en la base de datos
+            $productStmt = $conn->prepare("SELECT reference, name, quantity FROM products WHERE reference = :ref");
+            $productStmt->execute([':ref' => $item->productId]);
+            $product = $productStmt->fetch();
+
+            if (!$product) {
+                $conn->rollBack();
+                http_response_code(404);
+                echo json_encode(['error' => "Producto no encontrado: {$item->productId}. Verifica que el producto existe en el inventario."]);
+                exit;
+            }
+
+            // Verificar stock suficiente
+            if ($product['quantity'] < $item->quantity) {
+                $conn->rollBack();
+                http_response_code(400);
+                echo json_encode(['error' => "Stock insuficiente para '{$product['name']}'. Disponible: {$product['quantity']}, Solicitado: {$item->quantity}"]);
+                exit;
+            }
+        }
+
+        // 1. Crear cabecera de venta
+        $sql = "INSERT INTO sales (invoice_number, customer_name, customer_id, customer_phone, customer_email, customer_address, customer_city, total, discount, delivery_cost, warranty_increment, payment_method, delivery_type, sale_date, user_id, username, status)
+                VALUES (:inv, :name, :cid, :phone, :email, :addr, :city, :total, :disc, :del, :war, :pay, :del_type, :sale_date, :uid, :uname, :status)";
 
         // Fecha manual (solo fecha) + hora automática
         $incomingDate = $data->date ?? $data->saleDate ?? null;
@@ -193,7 +291,29 @@ if ($method === 'GET') {
     } catch (PDOException $e) {
         $conn->rollBack();
         http_response_code(500);
-        echo json_encode(['error' => 'Error al procesar la venta: ' . $e->getMessage()]);
+        
+        // Proporcionar mensaje de error más específico
+        $errorMsg = $e->getMessage();
+        $userMsg = 'Error al procesar la venta';
+        
+        // Detectar errores comunes y proporcionar mensajes más útiles
+        if (strpos($errorMsg, 'Duplicate entry') !== false) {
+            $userMsg = 'Error: Registro duplicado en la base de datos';
+        } elseif (strpos($errorMsg, 'foreign key constraint') !== false) {
+            $userMsg = 'Error: Referencia inválida en la base de datos';
+        } elseif (strpos($errorMsg, 'Data too long') !== false) {
+            $userMsg = 'Error: Uno de los campos excede el tamaño máximo permitido';
+        } elseif (strpos($errorMsg, 'Incorrect') !== false) {
+            $userMsg = 'Error: Formato de datos incorrecto';
+        } elseif (strpos($errorMsg, 'Connection') !== false || strpos($errorMsg, 'connect') !== false) {
+            $userMsg = 'Error de conexión con la base de datos. Verifica tu conexión a internet.';
+        }
+        
+        echo json_encode([
+            'error' => $userMsg,
+            'details' => $errorMsg,
+            'help' => 'Si el problema persiste, contacta al administrador del sistema'
+        ]);
     }
 
 } elseif ($method === 'DELETE') {

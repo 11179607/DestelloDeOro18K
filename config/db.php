@@ -2,9 +2,9 @@
 // config/db.php
 
 $host = 'sql308.infinityfree.com';
-$db_name = 'if0_41128039_destellodeoro18kv2';
-$username = 'if0_41128039';
-$password = 'Jd1Id4AGBPyam3'; // Por defecto en XAMPP es vacío
+$db_name = 'if0_40983741_destellodeoro18k1';
+$username = 'if0_40983741';
+$password = 'SdT2vqAaxmr'; // Por defecto en XAMPP es vacío
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$db_name;charset=utf8", $username, $password);
