@@ -13,6 +13,11 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Función helper para formatear dinero en los logs
+function formatMoney($value) {
+    return '$' . number_format((float)$value, 0, ',', '.');
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
@@ -95,15 +100,36 @@ if ($method === 'GET') {
     
     try {
         // Asegurar columnas (end_date y username)
+        // Migración robusta de esquema
         try {
-             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS end_date DATE AFTER reason");
-             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS username VARCHAR(50) AFTER user_id");
-             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
-             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_by VARCHAR(50)");
-             $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1 AFTER product_name");
-             // Asegurar columna en tabla de gastos
-             $conn->exec("ALTER TABLE expenses ADD COLUMN IF NOT EXISTS warranty_id INT DEFAULT NULL");
-        } catch(Exception $e) {}
+            // Auxiliar para verificar existencia de columna
+            $checkColumn = function($table, $column) use ($conn) {
+                $stmt = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+                return $stmt->fetch() !== false;
+            };
+
+            if (!$checkColumn('warranties', 'end_date')) {
+                $conn->exec("ALTER TABLE warranties ADD COLUMN end_date DATE AFTER reason");
+            }
+            if (!$checkColumn('warranties', 'username')) {
+                $conn->exec("ALTER TABLE warranties ADD COLUMN username VARCHAR(50) AFTER user_id");
+            }
+            if (!$checkColumn('warranties', 'updated_at')) {
+                $conn->exec("ALTER TABLE warranties ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+            }
+            if (!$checkColumn('warranties', 'updated_by')) {
+                $conn->exec("ALTER TABLE warranties ADD COLUMN updated_by VARCHAR(50)");
+            }
+            if (!$checkColumn('warranties', 'quantity')) {
+                $conn->exec("ALTER TABLE warranties ADD COLUMN quantity INT DEFAULT 1 AFTER product_name");
+            }
+            if (!$checkColumn('expenses', 'warranty_id')) {
+                $conn->exec("ALTER TABLE expenses ADD COLUMN warranty_id INT DEFAULT NULL");
+            }
+        } catch(Exception $e) {
+            // Ignorar errores menores de esquema, pero loggearlos si es crítico
+            error_log("Schema migration error: " . $e->getMessage());
+        }
 
         // CORREGIDO: Cambiar :qty_val por :quantity para que coincida con el nombre de la columna
         $sql = "INSERT INTO warranties (
@@ -222,11 +248,6 @@ if ($method === 'GET') {
             logAction($conn, $_SESSION['username'], 'WARRANTY_SHIPPING_EXPENSE', 'EXPENSE', $conn->lastInsertId(), "Gasto de envío registrado por garantía #$warrantyId: " . formatMoney($shippingValue));
         }
         
-        // Helper function para formatear dinero en logs
-        function formatMoney($value) {
-            return '$' . number_format($value, 0, ',', '.');
-        }
-        
         echo json_encode(['success' => true, 'message' => 'Garantía registrada', 'id' => $warrantyId]);
 
     } catch (PDOException $e) {
@@ -342,12 +363,6 @@ if ($method === 'GET') {
                     ':total' => $newTotal,
                     ':id' => $saleIdInt
                 ]);
-                
-                if (!function_exists('formatMoney')) {
-                    function formatMoney($value) {
-                        return '$' . number_format($value, 0, ',', '.');
-                    }
-                }
                 
                 $changeText = $incrementDifference > 0 ? "+" . formatMoney($incrementDifference) : formatMoney($incrementDifference);
                 logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_UPDATED', 'SALE', $saleIdInt, "Incremento por garantía actualizado: {$changeText}. Nuevo total: " . formatMoney($newTotal));
@@ -467,12 +482,6 @@ if ($method === 'GET') {
                     ':total' => $newTotal,
                     ':id' => $saleIdInt
                 ]);
-                
-                if (!function_exists('formatMoney')) {
-                    function formatMoney($value) {
-                        return '$' . number_format($value, 0, ',', '.');
-                    }
-                }
                 
                 logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_REMOVED', 'SALE', $saleIdInt, "Incremento por garantía eliminado: -" . formatMoney($additionalValue) . ". Nuevo total: " . formatMoney($newTotal));
             }
