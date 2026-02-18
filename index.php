@@ -131,35 +131,61 @@
             }
         }
 
-        /* Reloj Estilizado - El "Cuadro Negro" Prominente */
         .clock-container {
             display: flex;
             align-items: center;
-            gap: 15px;
-            background: #000000; /* Negro intenso para el "cuadro negro" */
-            padding: 8px 22px;
-            border-radius: 12px;
+            justify-content: center;
+            background: #000000;
+            padding: 10px;
+            border-radius: 15px; /* Cuadro un poco más rectangular o redondeado */
             border: 2px solid var(--gold-primary);
             margin-right: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(212, 175, 55, 0.1);
-            transition: var(--transition);
-        }
-
-        .clock-container:hover {
-            transform: scale(1.02);
-            border-color: var(--gold-secondary);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
         }
 
         .analog-clock {
-            width: 48px;
-            height: 48px;
+            width: 100px; /* Mucho más grande para que quepa la info dentro */
+            height: 100px;
             border: 2px solid var(--gold-primary);
             border-radius: 50%;
             position: relative;
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
-            flex-shrink: 0;
+            background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Información Digital DENTRO del círculo */
+        .digital-inside {
+            position: absolute;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        #header-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+            margin-bottom: 2px;
+        }
+
+        #header-date {
+            font-size: 0.55rem;
+            color: var(--gold-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.82);
+            text-align: center;
+            max-width: 80%;
         }
 
         .analog-clock .hand {
@@ -167,28 +193,29 @@
             bottom: 50%;
             left: 50%;
             transform-origin: bottom;
-            background: var(--gold-secondary);
-            border-radius: 5px;
+            border-radius: 10px;
+            z-index: 10; /* Por encima del texto */
         }
 
         .analog-clock .hour-hand {
-            width: 3px;
-            height: 12px;
-            z-index: 3;
+            width: 4px;
+            height: 25px;
+            background: var(--gold-primary); /* DORADA */
+            box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
         }
 
         .analog-clock .min-hand {
-            width: 2px;
-            height: 18px;
-            z-index: 2;
-            background: var(--white);
+            width: 3px;
+            height: 35px;
+            background: #007bff; /* AZUL */
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
 
         .analog-clock .sec-hand {
-            width: 1px;
-            height: 20px;
-            z-index: 4;
-            background: var(--danger);
+            width: 2px;
+            height: 40px;
+            background: var(--danger); /* ROJA */
+            z-index: 11;
         }
 
         .analog-clock .center-dot {
@@ -203,28 +230,7 @@
             z-index: 5;
         }
 
-        .digital-info {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
 
-        #header-time {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--gold-secondary);
-            line-height: 1.1;
-            letter-spacing: 0.5px;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
-        }
-
-        #header-date {
-            font-size: 0.8rem;
-            color: var(--white);
-            opacity: 0.9;
-            text-transform: capitalize;
-            font-weight: 400;
-        }
 
         /* Pantalla de Login */
         .login-container {
@@ -2212,14 +2218,14 @@
                     <!-- Reloj en Header -->
                     <div class="clock-container">
                         <div class="analog-clock">
+                            <div class="digital-inside">
+                                <span id="header-time">00:00:00</span>
+                                <span id="header-date">Cargando...</span>
+                            </div>
                             <div class="hand hour-hand" id="hourHand"></div>
                             <div class="hand min-hand" id="minHand"></div>
                             <div class="hand sec-hand" id="secHand"></div>
                             <div class="center-dot"></div>
-                        </div>
-                        <div class="digital-info">
-                            <span id="header-time">00:00:00</span>
-                            <span id="header-date">Cargando...</span>
                         </div>
                     </div>
 
