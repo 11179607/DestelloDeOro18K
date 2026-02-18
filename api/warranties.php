@@ -159,7 +159,7 @@ if ($method === 'GET') {
             if ($sRow) $saleIdInt = $sRow['id'];
         }
         
-        $totalCost = ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0);
+        $totalCost = (float)($data->shippingValue ?? 0);
 
         $incomingCreated = $data->date ?? $data->createdAt ?? null;
         $createdAt = $incomingCreated ? ((strlen($incomingCreated) === 10) ? ($incomingCreated . ' ' . date('H:i:s')) : $incomingCreated) : date('Y-m-d H:i:s');
@@ -331,7 +331,7 @@ if ($method === 'GET') {
             ':qty_val' => $data->quantity ?? 1,
             ':addval' => $data->additionalValue ?? 0,
             ':shipval' => $data->shippingValue ?? 0,
-            ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
+            ':total' => $data->shippingValue ?? 0,
             ':status' => $newStatus,
             ':created_at' => $createdAt,
             ':uby' => $_SESSION['username'],

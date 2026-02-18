@@ -3044,7 +3044,8 @@
                                     <th>Producto Original</th>
                                     <th>Producto Garantía</th>
                                     <th>Motivo</th>
-                                    <th>Costo Total</th>
+                                    <th>Incremento</th>
+                                    <th>Costo Envío</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -4573,7 +4574,7 @@
                 } else if (type === 'restocks') {
                     totalValue += parseFloat(item.totalValue) || 0;
                 } else if (type === 'warranties') {
-                    totalValue += parseFloat(item.totalCost) || 0;
+                    totalValue += parseFloat(item.shippingValue || item.shipping_value) || 0;
                 } else if (type === 'pending') {
                     totalValue += parseFloat(item.total) || 0;
                 }
@@ -5122,7 +5123,8 @@
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
                                 <th>Motivo</th>
-                                <th>Costo</th>
+                                <th>Incremento</th>
+                                <th>Costo Envío</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
@@ -5290,7 +5292,8 @@
                                     <td><strong>${item.originalSaleId}</strong></td>
                                     <td>${item.customerName}</td>
                                     <td>${item.warrantyReasonText || item.warrantyReason}</td>
-                                    <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.additionalValue || item.additional_value || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.shippingValue || item.shipping_value || 0)}</strong></td>
                                     <td>
                                         <span class="badge ${item.status === 'completed' ? 'badge-success' :
                                     item.status === 'pending' ? 'badge-warning' :
@@ -5415,13 +5418,8 @@
                     return sum + itemsCost;
                 }, 0);
 
-                // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
-                // porque el additionalValue ya está incluido en totalSales (warranty_increment)
-                const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
-                const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-                
-                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos de garantías
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
+                // Ganancia = Ventas (incluye warranty_increment) - Gastos (incluye envíos de garantías) - Costo de productos
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -5945,8 +5943,8 @@
                             <strong style="color: var(--warning);">-(${formatCurrency(costOfGoodsSoldTotal)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Envíos de Garantías:</span>
-                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantyShippingCosts)})</strong>
+                            <span>Envíos de Garantías (Ya incluidos en Gastos):</span>
+                            <strong style="color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
                             <span><strong>Ganancia Neta:</strong></span>
@@ -6153,8 +6151,8 @@
                 return sum + saleCost;
             }, 0);
 
-            const warrantiesTotal = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
-            const netProfit = salesTotal - expensesTotal - costOfGoodsSold - warrantiesTotal;
+            // Ganancia = Ventas (incluye warranty_increment) - Gastos (incluye envíos de garantías) - Costo de productos
+            const netProfit = salesTotal - expensesTotal - costOfGoodsSold;
 
             let content = `ANÁLISIS DE GANANCIAS DEL MES\n\n`;
             content += `RESUMEN FINANCIERO:\n`;
@@ -6162,7 +6160,6 @@
             content += `Ingresos por Ventas:     +${formatCurrency(salesTotal)}\n`;
             content += `Gastos Operativos:       -${formatCurrency(expensesTotal)}\n`;
             content += `Costo de lo Vendido:     -${formatCurrency(costOfGoodsSold)}\n`;
-            content += `Costos de Garantías:     -${formatCurrency(warrantiesTotal)}\n`;
             content += `--------------------------------------------------------------------------------\n`;
             content += `GANANCIA NETA:           ${formatCurrency(netProfit)}\n\n`;
 
@@ -6789,7 +6786,8 @@
                     <td>${warranty.originalProductName} (${warranty.originalProductId})</td>
                     <td>${warrantyProduct}</td>
                     <td>${warranty.warrantyReasonText || warranty.warrantyReason}</td>
-                    <td><strong>${formatCurrency(warranty.totalCost || 0)}</strong></td>
+                    <td><strong>${formatCurrency(warranty.additionalValue || 0)}</strong></td>
+                    <td><strong>${formatCurrency(warranty.shippingValue || 0)}</strong></td>
                     <td>
                         <span class="badge ${statusBadge}">
                             ${statusText}
@@ -10118,8 +10116,8 @@
             return new Intl.NumberFormat('es-CO', {
                 style: 'currency',
                 currency: 'COP',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }).format(safeNum(amount));
         }
 
