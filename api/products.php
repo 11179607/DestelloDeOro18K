@@ -14,6 +14,23 @@ if (!isset($_SESSION['user_id'])) {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    // AUTOCORRECCIÓN DE ESQUEMA: Asegurar que las columnas existen antes de consultar
+    $schemaUpdates = [
+        "ALTER TABLE products ADD COLUMN entry_date DATE AFTER reference",
+        "ALTER TABLE products ADD COLUMN wholesale_price DECIMAL(10,2) DEFAULT 0",
+        "ALTER TABLE products ADD COLUMN retail_price DECIMAL(10,2) DEFAULT 0",
+        "ALTER TABLE products ADD COLUMN supplier VARCHAR(100)",
+        "ALTER TABLE products ADD COLUMN added_by VARCHAR(50)"
+    ];
+
+    foreach ($schemaUpdates as $sql) {
+        try {
+            $conn->exec($sql);
+        } catch (PDOException $e) {
+            // Ignoramos el error si la columna ya existe
+        }
+    }
+
     // Listar productos
     try {
         $stmt = $conn->query("SELECT *, reference as id, entry_date as date, purchase_price as purchasePrice, wholesale_price as wholesalePrice, retail_price as retailPrice FROM products ORDER BY created_at DESC");
