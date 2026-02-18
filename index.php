@@ -7,7 +7,7 @@
     <title>Destello de Oro 18K | Sistema de Gestión</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&family=Orbitron:wght@400;700&display=swap"
         rel="stylesheet">
 
     <!-- QR Code Generator Library -->
@@ -172,12 +172,15 @@
         }
 
         #header-time {
-            font-size: 1.3rem; /* Un poco más grande */
+            font-family: 'Orbitron', sans-serif; /* Estilo calculadora */
+            font-size: 0.95rem; /* Tamaño reducido como pediste */
             font-weight: 700;
+            color: #00ff00; /* Color verde digital clásico o blanco */
             color: var(--white);
             line-height: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
-            margin-bottom: 3px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            margin-bottom: 2px;
+            letter-spacing: 1px;
         }
 
         #header-date {
@@ -7949,19 +7952,19 @@
             const dateEl = document.getElementById('header-date');
 
             if (timeEl) {
-                timeEl.textContent = now.toLocaleTimeString('es-CO', { 
-                    hour: '2-digit', 
+                // Formato 12h con AM/PM, sin segundos para que no sea muy largo
+                let timeStr = now.toLocaleTimeString('es-CO', { 
+                    hour: 'numeric', 
                     minute: '2-digit', 
-                    second: '2-digit', 
                     hour12: true 
                 });
+                timeEl.textContent = timeStr.toLowerCase();
             }
 
             if (dateEl) {
                 dateEl.textContent = now.toLocaleDateString('es-CO', { 
-                    weekday: 'long', 
                     day: 'numeric', 
-                    month: 'long' 
+                    month: 'short' 
                 });
             }
         }
