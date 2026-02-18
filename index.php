@@ -8404,7 +8404,11 @@
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(product)
                     });
+                    
+                    // Log the response for debugging
+                    console.log('Response status:', response.status);
                     const data = await response.json();
+                    console.log('Response data:', data);
 
                     if (data.success) {
                         loadInventoryTable();
@@ -8413,11 +8417,14 @@
                         document.getElementById('addProductForm').style.display = 'none';
                         await showDialog('Éxito', 'Producto agregado exitosamente al inventario.', 'success');
                     } else {
-                        await showDialog('Error', data.message || 'Error al agregar producto', 'error');
+                        // Show detailed error message
+                        const errorMsg = data.error || data.message || 'Error desconocido al agregar producto';
+                        console.error('Error del servidor:', errorMsg);
+                        await showDialog('Error al agregar producto', errorMsg, 'error');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    await showDialog('Error', 'Error de conexión', 'error');
+                    console.error('Error completo:', error);
+                    await showDialog('Error', 'Error de conexión con el servidor: ' + error.message, 'error');
                 }
             });
 
