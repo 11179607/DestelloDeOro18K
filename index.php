@@ -2948,25 +2948,23 @@
                                         <input type="text" id="newProductName" class="form-control"
                                             placeholder="Nombre del nuevo producto">
                                     </div>
-
-                                    <div class="form-group">
-                                        <label for="additionalValue">Valor Adicional *</label>
-                                        <input type="number" id="additionalValue" class="form-control" min="0" value="0"
-                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); updateWarrantyCostSummary();"
-                                            required>
-                                        <small class="form-text" style="font-size: 0.8rem;">Valor adicional si el
-                                            producto es diferente</small>
-                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Valor de envío -->
+                            <!-- Valores Extra (Siempre visibles) -->
+                            <div class="form-group">
+                                <label for="additionalValue">Valor Adicional *</label>
+                                <input type="number" id="additionalValue" class="form-control" min="0" value="0"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); updateWarrantyCostSummary();"
+                                    required>
+                                <small class="form-text" style="font-size: 0.8rem;">Cargo extra por la garantía</small>
+                            </div>
+
                             <div class="form-group">
                                 <label for="shippingValue">Valor Envío *</label>
                                 <input type="number" id="shippingValue" class="form-control" min="0" value="0" required
                                     oninput="this.value = this.value.replace(/[^0-9.]/g, ''); updateWarrantyCostSummary();">
-                                <small class="form-text" style="font-size: 0.8rem;">Este valor se agregará a los gastos
-                                    mensuales</small>
+                                <small class="form-text" style="font-size: 0.8rem;">Este valor se agregará a los gastos mensuales</small>
                             </div>
 
                             <div class="form-group">
@@ -6400,15 +6398,11 @@
             // Cambiar visibilidad de sección de producto diferente
             productTypeSelect.addEventListener('change', function () {
                 const differentSection = document.getElementById('differentProductSection');
-                const additionalValueInput = document.getElementById('additionalValue');
 
                 if (this.value === 'different') {
                     differentSection.style.display = 'block';
-                    additionalValueInput.required = true;
                 } else {
                     differentSection.style.display = 'none';
-                    additionalValueInput.required = false;
-                    additionalValueInput.value = 0;
                 }
 
                 updateWarrantyCostSummary();

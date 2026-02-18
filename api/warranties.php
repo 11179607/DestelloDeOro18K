@@ -101,6 +101,8 @@ if ($method === 'GET') {
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_by VARCHAR(50)");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1 AFTER product_name");
+             // Asegurar columna en tabla de gastos
+             $conn->exec("ALTER TABLE expenses ADD COLUMN IF NOT EXISTS warranty_id INT DEFAULT NULL");
         } catch(Exception $e) {}
 
         $sql = "INSERT INTO warranties (
@@ -201,6 +203,22 @@ if ($method === 'GET') {
             }
         } else {
             logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED', 'WARRANTY', $warrantyId, "Garantía registrada para Factura: " . ($data->originalSaleId ?? 'N/A'));
+        }
+        
+        // 4. Registrar valor de envío como gasto (NUEVA LÓGICA)
+        $shippingValue = (float)($data->shippingValue ?? 0);
+        if ($shippingValue > 0) {
+            $expenseDesc = "Gasto de Envío por Garantía #" . $warrantyId . " - Cliente: " . ($data->customerName ?? 'N/A');
+            $expStmt = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
+            $expStmt->execute([
+                ':desc' => $expenseDesc,
+                ':amt' => $shippingValue,
+                ':date' => $createdAt,
+                ':uid' => $_SESSION['user_id'],
+                ':uname' => $_SESSION['username'],
+                ':wid' => $warrantyId
+            ]);
+            logAction($conn, $_SESSION['username'], 'WARRANTY_SHIPPING_EXPENSE', 'EXPENSE', $conn->lastInsertId(), "Gasto de envío registrado por garantía #$warrantyId: " . formatMoney($shippingValue));
         }
         
         // Helper function para formatear dinero en logs
@@ -357,6 +375,44 @@ if ($method === 'GET') {
             }
         }
 
+        // 4. Actualizar o Crear Gasto de Envío (NUEVA LÓGICA)
+        $shippingValue = (float)($data->shippingValue ?? 0);
+        $warrantyId = $data->id;
+        
+        // Verificar si ya existe un gasto para esta garantía
+        $checkExpStmt = $conn->prepare("SELECT id FROM expenses WHERE warranty_id = :wid");
+        $checkExpStmt->execute([':wid' => $warrantyId]);
+        $existingExpense = $checkExpStmt->fetch();
+        
+        if ($shippingValue > 0) {
+            $expenseDesc = "Gasto de Envío por Garantía #" . $warrantyId . " - Cliente: " . ($data->customerName ?? 'N/A');
+            if ($existingExpense) {
+                // Actualizar gasto existente
+                $upExpStmt = $conn->prepare("UPDATE expenses SET description = :desc, amount = :amt, expense_date = :date WHERE id = :eid");
+                $upExpStmt->execute([
+                    ':desc' => $expenseDesc,
+                    ':amt' => $shippingValue,
+                    ':date' => $createdAt,
+                    ':eid' => $existingExpense['id']
+                ]);
+            } else {
+                // Crear nuevo gasto
+                $insExpStmt = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
+                $insExpStmt->execute([
+                    ':desc' => $expenseDesc,
+                    ':amt' => $shippingValue,
+                    ':date' => $createdAt,
+                    ':uid' => $_SESSION['user_id'],
+                    ':uname' => $_SESSION['username'],
+                    ':wid' => $warrantyId
+                ]);
+            }
+        } else if ($existingExpense) {
+            // Si el valor de envío es 0 pero había un gasto, eliminarlo
+            $delExpStmt = $conn->prepare("DELETE FROM expenses WHERE id = :eid");
+            $delExpStmt->execute([':eid' => $existingExpense['id']]);
+        }
+        
         $conn->commit();
         echo json_encode(['success' => true]);
     } catch (PDOException $e) {
@@ -421,7 +477,11 @@ if ($method === 'GET') {
             }
         }
         
-        // 3. Eliminar la garantía
+        // 3. Eliminar la garantía y su gasto asociado (NUEVA LÓGICA)
+        // El gasto se elimina automáticamente o manualmente aquí
+        $delExpStmt = $conn->prepare("DELETE FROM expenses WHERE warranty_id = :wid");
+        $delExpStmt->execute([':wid' => $id]);
+
         $stmt = $conn->prepare("DELETE FROM warranties WHERE id = :id");
         $stmt->execute([':id' => $id]);
         
