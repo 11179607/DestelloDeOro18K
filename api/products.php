@@ -25,12 +25,33 @@ if ($method === 'GET') {
     }
 
 } elseif ($method === 'POST') {
+
     // Agregar o Actualizar producto (Solo admin)
     if ($_SESSION['role'] !== 'admin') {
         http_response_code(403);
         echo json_encode(['error' => 'Acceso denegado']);
         exit;
     }
+
+    // AUTOCORRECCIÓN DE ESQUEMA: Asegurar que las columnas existen
+    // Esto previene errores si la base de datos es antigua
+    $schemaUpdates = [
+        "ALTER TABLE products ADD COLUMN entry_date DATE AFTER reference",
+        "ALTER TABLE products ADD COLUMN wholesale_price DECIMAL(10,2) DEFAULT 0",
+        "ALTER TABLE products ADD COLUMN retail_price DECIMAL(10,2) DEFAULT 0",
+        "ALTER TABLE products ADD COLUMN supplier VARCHAR(100)",
+        "ALTER TABLE products ADD COLUMN added_by VARCHAR(50)"
+    ];
+
+    foreach ($schemaUpdates as $sql) {
+        try {
+            $conn->exec($sql);
+        } catch (PDOException $e) {
+            // Ignoramos el error si la columna ya existe
+            // (Standard approach for legacy MySQL/MariaDB without IF NOT EXISTS)
+        }
+    }
+
 
     $data = json_decode(file_get_contents("php://input"));
     
@@ -45,7 +66,7 @@ if ($method === 'GET') {
 
     try {
         // Asegurar que la columna existe (opcional, para mayor robustez en esta actualizaci?n)
-        $conn->exec("ALTER TABLE products ADD COLUMN IF NOT EXISTS entry_date DATE AFTER reference");
+        // (La verificación de columnas se realiza en fix_db_structure.php)
         
         // Si se cambia la referencia, validar que la nueva no exista y actualizar PK
         if ($originalId !== $data->id) {

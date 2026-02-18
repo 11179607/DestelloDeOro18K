@@ -132,6 +132,21 @@ if ($method === 'GET') {
 
     $status = $data->status ?? 'completed';
 
+    // AUTOCORRECCIÓN DE ESQUEMA: Asegurar que las columnas existen en sales
+    $salesSchemaUpdates = [
+        "ALTER TABLE sales ADD COLUMN user_id INT",
+        "ALTER TABLE sales ADD COLUMN username VARCHAR(50)",
+        "ALTER TABLE sales ADD COLUMN status VARCHAR(20) DEFAULT 'completed'"
+    ];
+
+    foreach ($salesSchemaUpdates as $sql) {
+        try {
+            $conn->exec($sql);
+        } catch (PDOException $e) {
+            // Ignorar error si columna existe
+        }
+    }
+
     // Validar stock antes de procesar
     $requestedQuantities = [];
     foreach ($data->products as $item) {
