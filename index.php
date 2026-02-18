@@ -716,7 +716,7 @@
         }
 
         .brand-icon {
-            font-size: 1.8rem;
+            font-size: 2.5rem; /* Aumentado de 1.8rem */
             color: var(--gold-primary);
             animation: pulse 2s infinite;
         }
@@ -737,9 +737,10 @@
 
         .brand-text h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-size: 2.2rem; /* Aumentado de 1.5rem */
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 1.1;
         }
 
         @media (max-width: 480px) {
@@ -771,14 +772,14 @@
 
         .user-badge {
             background: rgba(255, 255, 255, 0.1);
-            padding: 8px 15px;
+            padding: 12px 22px; /* Aumentado padding */
             border-radius: 50px;
-            font-weight: 500;
+            font-weight: 600;
             border: 1px solid rgba(212, 175, 55, 0.3);
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
+            gap: 10px;
+            font-size: 1.1rem; /* Aumentado de 0.9rem */
         }
 
         .user-badge.admin {
@@ -793,15 +794,15 @@
             background: rgba(220, 20, 60, 0.1);
             border: 1px solid rgba(220, 20, 60, 0.3);
             color: var(--danger);
-            padding: 8px 15px;
+            padding: 12px 22px; /* Aumentado padding */
             border-radius: var(--radius-md);
             cursor: pointer;
             transition: var(--transition);
-            font-weight: 500;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 1.1rem; /* Aumentado de 0.9rem */
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .logout-btn:hover {
