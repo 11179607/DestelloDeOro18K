@@ -135,27 +135,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #000000;
-            padding: 10px;
-            border-radius: 15px; /* Cuadro un poco más rectangular o redondeado */
-            border: 2px solid var(--gold-primary);
-            margin-right: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            background: transparent;
+            padding: 0;
+            border: none;
+            margin-right: 20px;
+            box-shadow: none;
         }
 
         .analog-clock {
-            width: 100px; /* Mucho más grande para que quepa la info dentro */
-            height: 100px;
-            border: 2px solid var(--gold-primary);
+            width: 125px; /* Ampliado para ocupar el espacio del cuadro */
+            height: 125px;
+            border: 3px solid var(--gold-primary); /* Borde dorado un poco más grueso */
             border-radius: 50%;
             position: relative;
-            background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            background: radial-gradient(circle, #000000 0%, #1a1a1a 100%);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3), 0 0 40px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         /* Información Digital DENTRO del círculo */
@@ -167,25 +167,27 @@
             align-items: center;
             pointer-events: none;
             width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         #header-time {
-            font-size: 1.1rem;
+            font-size: 1.3rem; /* Un poco más grande */
             font-weight: 700;
             color: var(--white);
             line-height: 1;
-            text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
-            margin-bottom: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+            margin-bottom: 3px;
         }
 
         #header-date {
-            font-size: 0.55rem;
+            font-size: 0.6rem;
             color: var(--gold-secondary);
             text-transform: uppercase;
-            font-weight: 600;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.82);
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
             text-align: center;
-            max-width: 80%;
+            max-width: 85%;
         }
 
         .analog-clock .hand {
@@ -194,26 +196,26 @@
             left: 50%;
             transform-origin: bottom;
             border-radius: 10px;
-            z-index: 10; /* Por encima del texto */
+            z-index: 10;
         }
 
         .analog-clock .hour-hand {
-            width: 4px;
-            height: 25px;
+            width: 5px;
+            height: 30px;
             background: var(--gold-primary); /* DORADA */
-            box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
         .analog-clock .min-hand {
-            width: 3px;
-            height: 35px;
+            width: 4px;
+            height: 45px;
             background: #007bff; /* AZUL */
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
         .analog-clock .sec-hand {
             width: 2px;
-            height: 40px;
+            height: 52px;
             background: var(--danger); /* ROJA */
             z-index: 11;
         }
@@ -223,11 +225,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 4px;
-            height: 4px;
+            width: 8px;
+            height: 8px;
             background: var(--gold-primary);
             border-radius: 50%;
-            z-index: 5;
+            z-index: 12;
+            border: 1px solid rgba(0,0,0,0.5);
         }
 
 
