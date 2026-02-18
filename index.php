@@ -131,26 +131,35 @@
             }
         }
 
-        /* Reloj Analógico Estilizado */
+        /* Reloj Estilizado - El "Cuadro Negro" Prominente */
         .clock-container {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 5px 15px;
-            border-radius: 50px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            margin-right: 10px;
+            gap: 15px;
+            background: #000000; /* Negro intenso para el "cuadro negro" */
+            padding: 8px 22px;
+            border-radius: 12px;
+            border: 2px solid var(--gold-primary);
+            margin-right: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(212, 175, 55, 0.1);
+            transition: var(--transition);
+        }
+
+        .clock-container:hover {
+            transform: scale(1.02);
+            border-color: var(--gold-secondary);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
         }
 
         .analog-clock {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             border: 2px solid var(--gold-primary);
             border-radius: 50%;
             position: relative;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.05);
             box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+            flex-shrink: 0;
         }
 
         .analog-clock .hand {
@@ -164,20 +173,20 @@
 
         .analog-clock .hour-hand {
             width: 3px;
-            height: 10px;
+            height: 12px;
             z-index: 3;
         }
 
         .analog-clock .min-hand {
             width: 2px;
-            height: 15px;
+            height: 18px;
             z-index: 2;
             background: var(--white);
         }
 
         .analog-clock .sec-hand {
             width: 1px;
-            height: 17px;
+            height: 20px;
             z-index: 4;
             background: var(--danger);
         }
@@ -197,22 +206,24 @@
         .digital-info {
             display: flex;
             flex-direction: column;
-            text-align: center;
+            text-align: left;
         }
 
         #header-time {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--gold-secondary);
-            line-height: 1;
+            line-height: 1.1;
             letter-spacing: 0.5px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
         }
 
         #header-date {
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             color: var(--white);
             opacity: 0.9;
             text-transform: capitalize;
+            font-weight: 400;
         }
 
         /* Pantalla de Login */
