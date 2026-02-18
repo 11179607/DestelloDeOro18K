@@ -167,9 +167,25 @@
             align-items: center;
             pointer-events: none;
             width: 100%;
-            top: 72%; /* Bajado para que no lo tapen las manecillas en el centro */
+            top: 65%; /* Ajustado un pelín para que juegue bien con los números */
             transform: translateY(-50%);
         }
+
+        /* Números del Reloj */
+        .clock-number {
+            position: absolute;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gold-secondary);
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .num-12 { top: 8px; left: 50%; transform: translateX(-50%); }
+        .num-3  { right: 10px; top: 50%; transform: translateY(-50%); }
+        .num-6  { bottom: 8px; left: 50%; transform: translateX(-50%); }
+        .num-9  { left: 10px; top: 50%; transform: translateY(-50%); }
 
         #header-time {
             font-family: 'Orbitron', sans-serif; /* Estilo calculadora */
@@ -2228,6 +2244,12 @@
                                 <span id="header-time">00:00:00</span>
                                 <span id="header-date">Cargando...</span>
                             </div>
+                            <!-- Marcadores Horarios -->
+                            <div class="clock-number num-12">12</div>
+                            <div class="clock-number num-3">3</div>
+                            <div class="clock-number num-6">6</div>
+                            <div class="clock-number num-9">9</div>
+
                             <div class="hand hour-hand" id="hourHand"></div>
                             <div class="hand min-hand" id="minHand"></div>
                             <div class="hand sec-hand" id="secHand"></div>
