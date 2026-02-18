@@ -13,77 +13,6 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Helper function para formatear dinero en logs
-function formatMoney($value) {
-    return '$' . number_format((float)$value, 0, ',', '.');
-}
-
-/**
- * Sincroniza el cambio de producto de una garantía con los items de la venta original.
- * Esto permite que el historial de ganancias refleje el costo del nuevo producto.
- */
-function syncWarrantyWithSaleItems($conn, $saleId, $oldProductRef, $newProductRef, $quantity, $newProductName = null) {
-    if (!$saleId || !$oldProductRef || !$newProductRef || $oldProductRef === $newProductRef) {
-        return;
-    }
-
-    try {
-        // Buscar el item original en la venta
-        $stmt = $conn->prepare("SELECT * FROM sale_items WHERE sale_id = :sid AND product_ref = :ref LIMIT 1");
-        $stmt->execute([':sid' => $saleId, ':ref' => $oldProductRef]);
-        $item = $stmt->fetch();
-
-        if ($item) {
-            $oldId = $item['id'];
-            $oldQty = (int)$item['quantity'];
-            $qtyToMove = (int)$quantity;
-
-            if ($oldQty > $qtyToMove) {
-                // Caso parcial: reducir cantidad del original e insertar nuevo
-                $updateQtyStmt = $conn->prepare("UPDATE sale_items SET quantity = quantity - :moveQty, subtotal = (quantity - :moveQty) * unit_price WHERE id = :id");
-                $updateQtyStmt->execute([':moveQty' => $qtyToMove, ':id' => $oldId]);
-
-                // Insertar el nuevo producto con la referencia de reemplazo
-                $insertStmt = $conn->prepare("INSERT INTO sale_items (sale_id, product_ref, product_name, quantity, unit_price, subtotal, sale_type) 
-                                              VALUES (:sid, :ref, :name, :qty, :price, :sub, :type)");
-                
-                // Si no tenemos el nombre, buscarlo
-                if (!$newProductName) {
-                    $pStmt = $conn->prepare("SELECT name FROM products WHERE reference = :ref");
-                    $pStmt->execute([':ref' => $newProductRef]);
-                    $newProductName = $pStmt->fetchColumn() ?: "Producto de Reemplazo";
-                }
-
-                $insertStmt->execute([
-                    ':sid' => $saleId,
-                    ':ref' => $newProductRef,
-                    ':name' => $newProductName,
-                    ':qty' => $qtyToMove,
-                    ':price' => $item['unit_price'],
-                    ':sub' => $qtyToMove * $item['unit_price'],
-                    ':type' => $item['sale_type']
-                ]);
-            } else {
-                // Caso total: simplemente actualizar la referencia y nombre
-                if (!$newProductName) {
-                    $pStmt = $conn->prepare("SELECT name FROM products WHERE reference = :ref");
-                    $pStmt->execute([':ref' => $newProductRef]);
-                    $newProductName = $pStmt->fetchColumn() ?: "Producto de Reemplazo";
-                }
-
-                $updateStmt = $conn->prepare("UPDATE sale_items SET product_ref = :newRef, product_name = :newName WHERE id = :id");
-                $updateStmt->execute([
-                    ':newRef' => $newProductRef,
-                    ':newName' => $newProductName,
-                    ':id' => $oldId
-                ]);
-            }
-        }
-    } catch (PDOException $e) {
-        error_log("Error syncing warranty with sale items: " . $e->getMessage());
-    }
-}
-
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
@@ -96,15 +25,10 @@ if ($method === 'GET') {
         $params = [];
         
         if ($month !== null && $year !== null) {
-            if (intval($month) === -1) {
-                $sql .= " WHERE YEAR(created_at) = :year";
-                $params[':year'] = $year;
-            } else {
-                $month = intval($month) + 1;
-                $sql .= " WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year";
-                $params[':month'] = $month;
-                $params[':year'] = $year;
-            }
+            $month = intval($month) + 1;
+            $sql .= " WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year";
+            $params[':month'] = $month;
+            $params[':year'] = $year;
         }
         
         $sql .= " ORDER BY created_at DESC";
@@ -177,9 +101,6 @@ if ($method === 'GET') {
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS updated_by VARCHAR(50)");
              $conn->exec("ALTER TABLE warranties ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1 AFTER product_name");
-             // Add warranty_id to expenses to link shipping costs
-             $conn->exec("ALTER TABLE expenses ADD COLUMN IF NOT EXISTS warranty_id INT");
-             $conn->exec("ALTER TABLE expenses ADD INDEX (warranty_id)");
         } catch(Exception $e) {}
 
         $sql = "INSERT INTO warranties (
@@ -192,30 +113,6 @@ if ($method === 'GET') {
             :status, :uid, :uname, :created_at
         )";
         
-        // Validar Stock si se completa de inmediato
-        if (($data->status ?? 'pending') === 'completed') {
-             $productRefForCheck = $data->newProductRef ?? ($data->originalProductId ?? '');
-             $qtyForCheck = $data->quantity ?? 1;
-             
-             if ($productRefForCheck) {
-                 $stmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
-                 $stmt->execute([':ref' => $productRefForCheck]);
-                 $prod = $stmt->fetch();
-                 
-                 if (!$prod) {
-                     http_response_code(400);
-                     echo json_encode(['error' => 'Producto no encontrado: ' . $productRefForCheck]);
-                     exit;
-                 }
-                 
-                 if ($prod['quantity'] < $qtyForCheck) {
-                     http_response_code(400);
-                     echo json_encode(['error' => "Stock insuficiente para garantía. Producto: '{$prod['name']}'. Disponible: {$prod['quantity']}"]);
-                     exit;
-                 }
-             }
-        }
-
         // Buscar ID de venta si es posible
         $saleIdInt = null;
         if (isset($data->originalSaleId)) {
@@ -225,8 +122,7 @@ if ($method === 'GET') {
             if ($sRow) $saleIdInt = $sRow['id'];
         }
         
-        // Costo total en DB será solo el valor adicional (el envío va a gastos)
-        $totalCost = ($data->additionalValue ?? 0);
+        $totalCost = ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0);
 
         $incomingCreated = $data->date ?? $data->createdAt ?? null;
         $createdAt = $incomingCreated ? ((strlen($incomingCreated) === 10) ? ($incomingCreated . ' ' . date('H:i:s')) : $incomingCreated) : date('Y-m-d H:i:s');
@@ -256,55 +152,7 @@ if ($method === 'GET') {
         
         $warrantyId = $conn->lastInsertId();
 
-        // 2. Actualizar warranty_increment en la venta original si hay additionalValue
-        $additionalValue = $data->additionalValue ?? 0;
-        if ($additionalValue > 0 && $saleIdInt) {
-            // Obtener datos actuales de la venta
-            $saleStmt = $conn->prepare("SELECT warranty_increment, total, delivery_cost, discount FROM sales WHERE id = :id");
-            $saleStmt->execute([':id' => $saleIdInt]);
-            $saleData = $saleStmt->fetch();
-            
-            if ($saleData) {
-                // Calcular nuevo warranty_increment (acumulativo si ya había garantías previas)
-                $currentWarrantyIncrement = (float)($saleData['warranty_increment'] ?? 0);
-                $newWarrantyIncrement = $currentWarrantyIncrement + $additionalValue;
-                
-                // Recalcular total de la venta
-                // total = subtotal + delivery_cost - discount + warranty_increment
-                // subtotal = total_actual - delivery_cost + discount - warranty_increment_actual
-                $currentTotal = (float)$saleData['total'];
-                $deliveryCost = (float)$saleData['delivery_cost'];
-                $discount = (float)$saleData['discount'];
-                $subtotal = $currentTotal - $deliveryCost + $discount - $currentWarrantyIncrement;
-                $newTotal = $subtotal + $deliveryCost - $discount + $newWarrantyIncrement;
-                
-                // Actualizar venta
-                $updateSaleStmt = $conn->prepare("UPDATE sales SET warranty_increment = :war, total = :total WHERE id = :id");
-                $updateSaleStmt->execute([
-                    ':war' => $newWarrantyIncrement,
-                    ':total' => $newTotal,
-                    ':id' => $saleIdInt
-                ]);
-                
-                logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_UPDATED', 'SALE', $saleIdInt, "Incremento por garantía actualizado: +" . formatMoney($additionalValue) . ". Nuevo total: " . formatMoney($newTotal));
-            }
-        }
-
-        // 4. Registrar Gasto de Envío si aplica
-        $shippingValue = $data->shippingValue ?? 0;
-        if ($shippingValue > 0) {
-            $expenseDesc = "Envío por garantía del producto " . ($data->originalProductName ?? '') . " (" . ($data->originalProductId ?? '') . ")";
-            $expenseStmt = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
-            $expenseStmt->execute([
-                ':desc' => $expenseDesc,
-                ':amt' => $shippingValue,
-                ':date' => $createdAt,
-                ':uid' => $_SESSION['user_id'],
-                ':uname' => $_SESSION['username'],
-                ':wid' => $warrantyId
-            ]);
-        }
-
+        // 2. Lógica de deducción de stock si se crea como completada
         if (($data->status ?? 'pending') === 'completed') {
             $productRef = $data->newProductRef ?? ($data->originalProductId ?? '');
             $qtyToDeduct = $data->quantity ?? 1;
@@ -316,11 +164,6 @@ if ($method === 'GET') {
                 if ($stockStmt->rowCount() > 0) {
                     logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED_COMPLETED', 'WARRANTY', $warrantyId, "Garantía creada como completada. Stock descontado ($qtyToDeduct unidades) para REF: $productRef");
                 }
-            }
-
-            // Sincronizar referencia en la venta si el producto es diferente
-            if (isset($data->productType) && $data->productType === 'different' && $saleIdInt) {
-                syncWarrantyWithSaleItems($conn, $saleIdInt, $data->originalProductId, $data->newProductRef, $data->quantity, $data->newProductName);
             }
         } else {
             logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED', 'WARRANTY', $warrantyId, "Garantía registrada para Factura: " . ($data->originalSaleId ?? 'N/A'));
@@ -351,7 +194,7 @@ if ($method === 'GET') {
     
     try {
         // 1. Obtener estado actual y datos de la garantía
-        $checkStmt = $conn->prepare("SELECT status, quantity, new_product_ref, product_type, product_ref, sale_id, additional_value FROM warranties WHERE id = :id");
+        $checkStmt = $conn->prepare("SELECT status, new_product_ref, product_type, product_ref FROM warranties WHERE id = :id");
         $checkStmt->execute([':id' => $data->id]);
         $currentWarranty = $checkStmt->fetch();
 
@@ -369,25 +212,6 @@ if ($method === 'GET') {
             $productRef = $currentWarranty['product_ref'];
         }
         $qtyToDeduct = $data->quantity ?? $currentWarranty['quantity'] ?? 1;
-
-        // Validar Stock antes de actualizar si se cambia a completado
-        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
-            $stmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
-            $stmt->execute([':ref' => $productRef]);
-            $prod = $stmt->fetch();
-
-            if (!$prod) {
-                 http_response_code(400);
-                 echo json_encode(['error' => 'Producto no encontrado: ' . $productRef]);
-                 exit;
-            }
-            
-            if ($prod['quantity'] < $qtyToDeduct) {
-                http_response_code(400);
-                echo json_encode(['error' => "No se puede finalizar la garantía. Stock insuficiente para '{$prod['name']}'. Disponible: {$prod['quantity']}"]);
-                exit;
-            }
-        }
 
         $conn->beginTransaction();
 
@@ -420,89 +244,14 @@ if ($method === 'GET') {
             ':qty_val' => $data->quantity ?? 1,
             ':addval' => $data->additionalValue ?? 0,
             ':shipval' => $data->shippingValue ?? 0,
-            ':total' => ($data->additionalValue ?? 0),
+            ':total' => ($data->additionalValue ?? 0) + ($data->shippingValue ?? 0),
             ':status' => $newStatus,
             ':created_at' => $createdAt,
             ':uby' => $_SESSION['username'],
             ':id' => $data->id
         ]);
 
-        // 2. Actualizar warranty_increment en la venta original si cambió el additionalValue
-        $oldAdditionalValue = (float)($currentWarranty['additional_value'] ?? 0);
-        $newAdditionalValue = (float)($data->additionalValue ?? 0);
-        $saleIdInt = $currentWarranty['sale_id'];
-        
-        if ($saleIdInt && ($newAdditionalValue != $oldAdditionalValue)) {
-            // Obtener datos actuales de la venta
-            $saleStmt = $conn->prepare("SELECT warranty_increment, total, delivery_cost, discount FROM sales WHERE id = :id");
-            $saleStmt->execute([':id' => $saleIdInt]);
-            $saleData = $saleStmt->fetch();
-            
-            if ($saleData) {
-                // Calcular la diferencia (puede ser positiva o negativa)
-                $incrementDifference = $newAdditionalValue - $oldAdditionalValue;
-                
-                // Actualizar warranty_increment (sumar la diferencia)
-                $currentWarrantyIncrement = (float)($saleData['warranty_increment'] ?? 0);
-                $newWarrantyIncrement = $currentWarrantyIncrement + $incrementDifference;
-                
-                // Recalcular total de la venta
-                $currentTotal = (float)$saleData['total'];
-                $deliveryCost = (float)$saleData['delivery_cost'];
-                $discount = (float)$saleData['discount'];
-                $subtotal = $currentTotal - $deliveryCost + $discount - $currentWarrantyIncrement;
-                $newTotal = $subtotal + $deliveryCost - $discount + $newWarrantyIncrement;
-                
-                // Actualizar venta
-                $updateSaleStmt = $conn->prepare("UPDATE sales SET warranty_increment = :war, total = :total WHERE id = :id");
-                $updateSaleStmt->execute([
-                    ':war' => $newWarrantyIncrement,
-                    ':total' => $newTotal,
-                    ':id' => $saleIdInt
-                ]);
-                
-                $changeText = $incrementDifference > 0 ? "+" . formatMoney($incrementDifference) : formatMoney($incrementDifference);
-                logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_UPDATED', 'SALE', $saleIdInt, "Incremento por garantía actualizado: {$changeText}. Nuevo total: " . formatMoney($newTotal));
-            }
-        }
-
-        // Handle Shipping Expense Update
-        $shippingValue = $data->shippingValue ?? 0;
-        // Check if expense exists
-        $checkExpense = $conn->prepare("SELECT id FROM expenses WHERE warranty_id = :wid");
-        $checkExpense->execute([':wid' => $data->id]);
-        $existingExpense = $checkExpense->fetch();
-
-        if ($shippingValue > 0) {
-            $expenseDesc = "Envío por garantía del producto " . ($data->originalProductName ?? $currentWarranty['product_name'] ?? '') . " (" . ($data->originalProductId ?? $currentWarranty['product_ref'] ?? '') . ")";
-            if ($existingExpense) {
-                // Update
-                $updExpense = $conn->prepare("UPDATE expenses SET amount = :amt, description = :desc, expense_date = :date WHERE id = :id");
-                $updExpense->execute([
-                    ':amt' => $shippingValue,
-                    ':desc' => $expenseDesc,
-                    ':date' => $createdAt,
-                    ':id' => $existingExpense['id']
-                ]);
-            } else {
-                // Insert
-                $insExpense = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
-                $insExpense->execute([
-                    ':desc' => $expenseDesc,
-                    ':amt' => $shippingValue,
-                    ':date' => $createdAt,
-                    ':uid' => $_SESSION['user_id'],
-                    ':uname' => $_SESSION['username'],
-                    ':wid' => $data->id
-                ]);
-            }
-        } else if ($existingExpense) {
-            // Delete if shipping is now 0
-             $delExpense = $conn->prepare("DELETE FROM expenses WHERE id = :id");
-             $delExpense->execute([':id' => $existingExpense['id']]);
-        }
-
-        // 3. Lógica de deducción de stock
+        // 2. Lógica de deducción de stock
         // Solo si pasa de cualquier estado a 'completed' y no estaba ya 'completed'
         if ($newStatus === 'completed' && $oldStatus !== 'completed') {
             // Verificar si el producto existe y tiene stock
@@ -521,11 +270,6 @@ if ($method === 'GET') {
                     // Si no hay stock, registrar advertencia
                     logAction($conn, $_SESSION['username'], 'WARRANTY_WARNING', 'WARRANTY', $data->id, "Garantía completada PERO NO HABÍA STOCK SUFICIENTE ($qtyToDeduct requeridas) para REF: $productRef");
                 }
-            }
-
-            // Sincronizar referencia en la venta si el producto es diferente
-            if ($currentWarranty['product_type'] === 'different' && $currentWarranty['sale_id']) {
-                syncWarrantyWithSaleItems($conn, $currentWarranty['sale_id'], $currentWarranty['product_ref'], $currentWarranty['new_product_ref'], $currentWarranty['quantity'], $data->newProductName ?? $currentWarranty['new_product_name']);
             }
         }
 
@@ -546,59 +290,10 @@ if ($method === 'GET') {
 
     $id = $_GET['id'] ?? null;
     try {
-        $conn->beginTransaction();
-        
-        // 1. Obtener datos de la garantía antes de eliminarla
-        $getStmt = $conn->prepare("SELECT sale_id, additional_value FROM warranties WHERE id = :id");
-        $getStmt->execute([':id' => $id]);
-        $warranty = $getStmt->fetch();
-        
-        // 2. Si la garantía tenía additionalValue, restar del warranty_increment de la venta
-        if ($warranty && $warranty['sale_id'] && ($warranty['additional_value'] ?? 0) > 0) {
-            $saleIdInt = $warranty['sale_id'];
-            $additionalValue = (float)$warranty['additional_value'];
-            
-            // Obtener datos actuales de la venta
-            $saleStmt = $conn->prepare("SELECT warranty_increment, total, delivery_cost, discount FROM sales WHERE id = :id");
-            $saleStmt->execute([':id' => $saleIdInt]);
-            $saleData = $saleStmt->fetch();
-            
-            if ($saleData) {
-                // Restar el additionalValue del warranty_increment
-                $currentWarrantyIncrement = (float)($saleData['warranty_increment'] ?? 0);
-                $newWarrantyIncrement = max(0, $currentWarrantyIncrement - $additionalValue); // No permitir negativos
-                
-                // Recalcular total de la venta
-                $currentTotal = (float)$saleData['total'];
-                $deliveryCost = (float)$saleData['delivery_cost'];
-                $discount = (float)$saleData['discount'];
-                $subtotal = $currentTotal - $deliveryCost + $discount - $currentWarrantyIncrement;
-                $newTotal = $subtotal + $deliveryCost - $discount + $newWarrantyIncrement;
-                
-                // Actualizar venta
-                $updateSaleStmt = $conn->prepare("UPDATE sales SET warranty_increment = :war, total = :total WHERE id = :id");
-                $updateSaleStmt->execute([
-                    ':war' => $newWarrantyIncrement,
-                    ':total' => $newTotal,
-                    ':id' => $saleIdInt
-                ]);
-                
-                logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_REMOVED', 'SALE', $saleIdInt, "Incremento por garantía eliminado: -" . formatMoney($additionalValue) . ". Nuevo total: " . formatMoney($newTotal));
-            }
-        }
-        
-        // Remove associated expense
-        $delExp = $conn->prepare("DELETE FROM expenses WHERE warranty_id = :id");
-        $delExp->execute([':id' => $id]);
-
-        // 3. Eliminar la garantía
         $stmt = $conn->prepare("DELETE FROM warranties WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        
-        $conn->commit();
         echo json_encode(['success' => true]);
     } catch (PDOException $e) {
-        if ($conn->inTransaction()) $conn->rollBack();
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }

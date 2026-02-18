@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -143,7 +143,7 @@
             height: 100%;
             z-index: 5000; /* Asegura estar por encima del fondo del body */
             padding: 15px;
-            background: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.45)),
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
                 url('fondo.jpeg') no-repeat center center fixed;
             background-size: cover;
             overflow-y: auto; /* Permite scroll interno si el contenido es grande */
@@ -184,59 +184,58 @@
             color: var(--gold-primary);
             margin-bottom: 0.75rem;
             display: block;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px #000000;
         }
 
         .login-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 600;
-            color: var(--gold-dark);
+            color: #ffffff;
             margin-bottom: 0.5rem;
             letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-shadow: 2px 2px 4px #000000;
         }
 
         .login-header p {
-            color: var(--dark-gray);
+            color: #ffffff;
             font-size: 0.9rem;
-            font-weight: 400;
-            text-shadow: none;
+            font-weight: 300;
+            text-shadow: 1px 1px 3px #000000;
         }
 
         /* Ajustes textos login fondo transparente - LEGIBILIDAD TOTAL */
         .login-box h3 {
-            color: var(--gold-dark) !important;
-            text-shadow: none !important;
+            color: #ffffff !important;
+            text-shadow: 2px 2px 4px #000000 !important;
         }
         
         .login-box label {
-            color: var(--text-dark) !important;
-            text-shadow: none !important;
+            color: #ffffff !important;
+            text-shadow: 1px 1px 3px #000000 !important;
             font-weight: 600;
             font-size: 1rem; /* Un poco más grande para leer mejor */
         }
 
         .login-box small, .login-box p, .login-box .form-text {
-            color: var(--dark-gray) !important;
-            text-shadow: none !important;
+            color: #f0f0f0 !important;
+            text-shadow: 1px 1px 2px #000000 !important;
             font-weight: 400;
         }
 
         /* Inputs transparentes estilo material - Texto blanco */
         .login-box .form-control {
-            background: rgba(255, 255, 255, 0.5);
+            background: transparent;
             border: none;
-            border-bottom: 2px solid var(--medium-gray);
-            border-radius: var(--radius-sm);
-            padding: 12px 15px;
-            color: var(--text-dark) !important;
-            text-shadow: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 0;
+            padding: 10px 0;
+            color: #ffffff !important; /* Texto que escribe el usuario en blanco */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         
         .login-box .form-control::placeholder {
-            color: var(--dark-gray);
-            opacity: 0.5;
+            color: rgba(255, 255, 255, 0.6);
         }
         
         .login-box .form-control:focus {
@@ -1547,17 +1546,11 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 10000;
+            z-index: 8000;
             justify-content: center;
             align-items: center;
             padding: 15px;
         }
-
-        /* Capas de modales para evitar que se tapen entre sí */
-        #monthlyDetailsModal { z-index: 10000; }
-        #viewMovementModal, #editMovementModal { z-index: 11000; }
-        #customDialog { z-index: 12000; }
-        #invoiceModal { z-index: 11500; }
 
         .dialog-content {
             background: var(--white);
@@ -1684,154 +1677,6 @@
             border-left: 3px solid var(--success);
             display: none;
         }
-        /* NUEVO: Estilos para Reloj Analógico "Vacano" */
-        .analog-clock {
-            width: 38px;
-            height: 38px;
-            border: 2px solid var(--gold-primary);
-            border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-            flex-shrink: 0;
-        }
-
-        .analog-clock .hand {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            transform-origin: bottom center;
-            border-radius: 4px;
-            transform: translateX(-50%) rotate(0deg);
-            transition: transform 0.1s cubic-bezier(0.4, 2.08, 0.55, 0.44);
-        }
-
-        .analog-clock .hour-hand {
-            width: 3px;
-            height: 10px;
-            background: #fff;
-            z-index: 5;
-        }
-
-        .analog-clock .min-hand {
-            width: 2px;
-            height: 14px;
-            background: var(--gold-secondary);
-            z-index: 6;
-        }
-
-        .analog-clock .sec-hand {
-            width: 1px;
-            height: 16px;
-            background: #ff4d4d;
-            z-index: 7;
-            box-shadow: 0 0 5px #ff4d4d;
-        }
-
-        .analog-clock .center-dot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 4px;
-            height: 4px;
-            background: var(--gold-primary);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            box-shadow: 0 0 5px var(--gold-primary);
-        }
-
-        .datetime-badge {
-            background: rgba(0, 0, 0, 0.4) !important;
-            padding: 5px 15px !important;
-            border-radius: 12px !important;
-            border: 1px solid var(--gold-primary) !important;
-            color: var(--gold-primary) !important;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px !important;
-            font-size: 0.9rem !important;
-            min-width: 220px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-            order: 2;
-        }
-
-        @media (max-width: 768px) {
-            .datetime-badge {
-                order: 3;
-                width: 100%;
-            }
-        }
-
-        /* NUEVO: Estilos para Destellos Dorados (Sparkles) */
-        .sparkle {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: radial-gradient(circle, var(--gold-secondary) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 15000;
-            animation: sparkleAnim 2s ease-out forwards;
-        }
-
-        @keyframes sparkleAnim {
-            0% { transform: scale(0) translateY(0); opacity: 1; }
-            100% { transform: scale(1.5) translateY(-100px); opacity: 0; }
-        }
-
-        /* NUEVO: Estilos para Relámpagos (Lightning) */
-        .lightning-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 16000;
-            display: none;
-        }
-
-        .lightning {
-            position: absolute;
-            width: 2px;
-            height: 100%;
-            opacity: 0;
-        }
-
-        .lightning.success {
-            box-shadow: 0 0 20px 5px #2E8B57, 0 0 40px 10px #32CD32;
-            background: #fff;
-        }
-
-        .lightning.error {
-            box-shadow: 0 0 20px 5px #DC143C, 0 0 40px 10px #FF6347;
-            background: #fff;
-        }
-
-        .lightning-flash {
-            animation: flashAnim 0.3s ease-out forwards;
-        }
-
-        @keyframes flashAnim {
-            0% { opacity: 0; transform: scaleX(1); }
-            20% { opacity: 1; transform: scaleX(15); }
-            40% { opacity: 0.1; transform: scaleX(2); }
-            60% { opacity: 0.8; transform: scaleX(10); }
-            100% { opacity: 0; transform: scaleX(1); }
-        }
-
-        .spark-flash {
-            animation: screenFlash 0.3s ease-out forwards;
-        }
-
-        @keyframes screenFlash {
-            0% { background: transparent; }
-            50% { background: rgba(255, 255, 255, 0.2); }
-            100% { background: transparent; }
-        }
     </style>
 </head>
 
@@ -1880,35 +1725,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="roleToChange">Seleccionar Rol *</label>
-                    <select id="roleToChange" class="form-control" required>
-                        <option value="">Seleccione un rol</option>
-                        <option value="admin">Administrador</option>
-                        <option value="worker">Trabajador</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
                     <label for="userToChange">Usuario a modificar *</label>
-                    <select id="userToChange" class="form-control" required disabled>
-                        <option value="">Primero seleccione un rol</option>
+                    <select id="userToChange" class="form-control" required>
+                        <option value="">Seleccione un usuario</option>
                         <!-- Se llenará dinámicamente -->
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="newEmail">Correo Electrónico (Para recuperación) *</label>
-                    <input type="email" id="newEmail" class="form-control" placeholder="usuario@email.com">
-                    <small class="form-text">Si lo dejas vacío no se cambiará el actual.</small>
                 </div>
 
                 <div class="form-group">
                     <label for="newPassword">Nueva Contraseña *</label>
                     <input type="password" id="newPassword" class="form-control" placeholder="Nueva contraseña" required
                         minlength="6">
-                    <small class="form-text" style="color: #666; font-size: 0.8rem;">
-                        <i class="fas fa-info-circle"></i> Debe tener al menos una mayúscula, un número y un carácter especial.
-                    </small>
                 </div>
 
                 <div class="form-group">
@@ -1961,52 +1788,6 @@
         </div>
     </div>
 
-    <!-- NUEVO: Modal para Olvidaste tu contraseña -->
-    <div id="forgotPasswordModal" class="password-change-container">
-        <div class="password-change-box">
-            <button class="close-password-change" id="closeForgotPassword">
-                <i class="fas fa-times"></i>
-            </button>
-
-            <div class="password-change-header">
-                <i class="fas fa-envelope-open-text"></i>
-                <h2>Recuperar Contraseña</h2>
-                <p>Ingresa tu correo registrado para recibir un link de restauración</p>
-            </div>
-
-            <form id="forgotPasswordForm">
-                <div class="form-group">
-                    <label>¿De quién es la cuenta? *</label>
-                    <div class="role-selector" style="margin-bottom: 1rem;">
-                        <div id="forgotAdminRole" class="role-btn active" data-role="admin">
-                            <i class="fas fa-user-shield"></i>
-                            <span>Admin</span>
-                        </div>
-                        <div id="forgotWorkerRole" class="role-btn" data-role="worker">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Trabajador</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="recoveryEmail">Correo Electrónico Registrado *</label>
-                    <input type="email" id="recoveryEmail" class="form-control" placeholder="ejemplo@correo.com" required>
-                    <small id="emailHelp" class="form-text text-muted">Debes confirmar el correo exacto que está en la base de datos.</small>
-                </div>
-
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
-                    <button type="submit" class="btn btn-primary" id="sendRecoveryBtn">
-                        <i class="fas fa-paper-plane"></i> Enviar Link de Recuperación
-                    </button>
-                    <button type="button" class="btn btn-danger" id="cancelForgotPassword">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
@@ -2038,15 +1819,11 @@
                     <i class="fas fa-arrow-right"></i> Continuar
                 </button>
 
-                <!-- NUEVO: Enlace para cambiar contraseña y olvidar contraseña -->
-                <div style="text-align: center; margin-top: 1rem; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <!-- NUEVO: Enlace para cambiar contraseña -->
+                <div style="text-align: center; margin-top: 1rem;">
                     <button type="button" id="showPasswordChange" class="btn btn-sm btn-info"
                         style="padding: 8px 15px; font-size: 0.85rem;">
                         <i class="fas fa-key"></i> Cambiar Contraseña
-                    </button>
-                    <button type="button" id="showForgotPassword" class="btn btn-sm btn-warning"
-                        style="padding: 8px 15px; font-size: 0.85rem;">
-                        <i class="fas fa-question-circle"></i> ¿Olvidaste tu contraseña?
                     </button>
                 </div>
             </div>
@@ -2146,17 +1923,6 @@
                 </div>
 
                 <div class="user-controls">
-                    <!-- NUEVO: Cronómetro en medio con figura de reloj -->
-                    <div id="datetimeBadge" class="datetime-badge">
-                        <div class="analog-clock">
-                            <div id="hrHand" class="hand hour-hand"></div>
-                            <div id="minHand" class="hand min-hand"></div>
-                            <div id="secHand" class="hand sec-hand"></div>
-                            <div class="center-dot"></div>
-                        </div>
-                        <span id="currentDateTime">Cargando...</span>
-                    </div>
-
                     <div id="currentUserRole" class="user-badge admin">
                         <i class="fas fa-user-shield"></i>
                         <span>Administrador</span>
@@ -2236,31 +2002,30 @@
                             </div>
                             <div class="form-group">
                                 <label for="productQuantity">Cantidad Inicial *</label>
-                                <input type="text" id="productQuantity" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                <input type="number" id="productQuantity" class="form-control" min="0" required>
                             </div>
                             <div class="form-group">
                                 <label for="purchasePrice">Precio de Compra *</label>
-                                <input type="text" id="purchasePrice" class="form-control currency-input" placeholder="Ej: 100.000" required>
+                                <input type="number" id="purchasePrice" class="form-control" min="0" step="0.01"
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label for="wholesalePrice">Precio Mayorista *</label>
-                                <input type="text" id="wholesalePrice" class="form-control currency-input" placeholder="Ej: 150.000" required>
+                                <input type="number" id="wholesalePrice" class="form-control" min="0" step="0.01"
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label for="retailPrice">Precio al Detal *</label>
-                                <input type="text" id="retailPrice" class="form-control currency-input" placeholder="Ej: 200.000" required>
+                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01" required>
                             </div>
                             <div class="form-group">
                                 <label for="supplier">Proveedor *</label>
                                 <input type="text" id="supplier" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="profitEstimate">Ganancia Est. Detal</label>
-                                <input type="text" id="profitEstimate" class="form-control" readonly style="background-color: var(--light-gray); font-size: 0.9rem;">
-                            </div>
-                            <div class="form-group">
-                                <label for="profitWholesaleEstimate">Ganancia Est. Mayorista</label>
-                                <input type="text" id="profitWholesaleEstimate" class="form-control" readonly style="background-color: var(--light-gray); font-size: 0.9rem;">
+                                <label>Ganancia Estimada</label>
+                                <input type="text" id="profitEstimate" class="form-control" readonly
+                                    style="background-color: var(--light-gray); font-size: 0.9rem;">
                             </div>
                         </div>
                         <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
@@ -2302,8 +2067,7 @@
                                     <th>Precio Compra</th>
                                     <th>Precio Mayorista</th>
                                     <th>Precio Detal</th>
-                                    <th>Ganancia Detal</th>
-                                    <th>Ganancia Mayorista</th>
+                                    <th>Ganancia</th>
                                     <th>Proveedor</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -2336,8 +2100,8 @@
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <label for="manualSalesCounter" style="font-weight: 500;">Cantidad</label>
-                                <input type="text" id="manualSalesCounter" class="form-control"
-                                    style="width: 80px; text-align: center; font-weight: bold;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="0">
+                                <input type="number" id="manualSalesCounter" class="form-control"
+                                    style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
                             </div>
                         </div>
                     </div>
@@ -2359,12 +2123,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="customerId">Cédula *</label>
-                                <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="customerPhone">Teléfono *</label>
-                                <input type="text" id="customerPhone" class="form-control" placeholder="Ej: 3001234567" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                <input type="tel" id="customerPhone" class="form-control" placeholder="Ej: 3001234567"
                                     required>
                             </div>
                             <div class="form-group">
@@ -2401,7 +2165,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="saleQuantity">Cantidad *</label>
-                                <input type="text" id="saleQuantity" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                <input type="number" id="saleQuantity" class="form-control" min="1" required>
                             </div>
                             <div class="form-group">
                                 <label for="saleType">Tipo de Venta *</label>
@@ -2412,7 +2176,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="discount">Descuento (%)</label>
-                                <input type="text" id="discount" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '')" value="0">
+                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0">
                                 <small class="form-text" style="font-size: 0.8rem;">Entre 0 y 100%</small>
                             </div>
                         </div>
@@ -2467,14 +2231,14 @@
                         </h3>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="manualInvoiceId">Numero de factura (manual)</label>
+                                <label for="manualInvoiceId">N�mero de factura (manual)</label>
                                 <input type="text" id="manualInvoiceId" class="form-control" placeholder="Ej: FAC1234">
-                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vacio se autogenera.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vac�o se autogenera.</small>
                             </div>
                             <div class="form-group">
                                 <label for="manualSaleDate">Fecha de venta</label>
                                 <input type="date" id="manualSaleDate" class="form-control">
-                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega automaticamente.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega autom�ticamente.</small>
                             </div>
                             <div class="form-group">
                                 <label for="paymentMethod">Método de Pago *</label>
@@ -2499,25 +2263,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="deliveryCost">Costo de Envío</label>
-                                <input type="text" id="deliveryCost" class="form-control currency-input" value="0">
-                            </div>
-
-                            <!-- Campo de Envío Gratis (Condicional) -->
-                            <div id="freeShippingContainer" style="display: none; margin-top: -5px; margin-bottom: 15px;">
-                                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
-                                    <div style="flex-grow: 1;">
-                                        <div style="font-weight: bold; color: #2e7d32; font-size: 0.9rem;">
-                                            <i class="fas fa-truck"></i> ¡Aplica Envío Gratis!
-                                        </div>
-                                        <div style="font-size: 0.75rem; color: #43a047;">Venta superior a 250,000</div>
-                                    </div>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="freeShippingToggle">
-                                        <label class="custom-control-label" for="freeShippingToggle" id="freeShippingLabel">
-                                            <i class="fas fa-times-circle" style="color: #666;"></i>
-                                        </label>
-                                    </div>
-                                </div>
+                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
                             </div>
                         </div>
                     </div>
@@ -2588,7 +2334,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="restockQuantity">Cantidad a Surtir *</label>
-                                <input type="text" id="restockQuantity" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                <input type="number" id="restockQuantity" class="form-control" min="1" required>
                             </div>
                         </div>
                         <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -2631,7 +2377,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="expenseAmount">Valor *</label>
-                                <input type="text" id="expenseAmount" class="form-control currency-input" placeholder="Ej: 5.000" required>
+                                <input type="number" id="expenseAmount" class="form-control" min="0" step="0.01"
+                                    required>
                             </div>
                         </div>
                         <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
@@ -2695,8 +2442,8 @@
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <label for="manualWarrantyCounter" style="font-weight: 500;">Cantidad</label>
-                                <input type="text" id="manualWarrantyCounter" class="form-control"
-                                    style="width: 80px; text-align: center; font-weight: bold;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="0">
+                                <input type="number" id="manualWarrantyCounter" class="form-control"
+                                    style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
                             </div>
                         </div>
                     </div>
@@ -2928,8 +2675,7 @@
                                     <th>Producto Original</th>
                                     <th>Producto Garantía</th>
                                     <th>Motivo</th>
-                                    <th>Valor Adicional</th>
-                                    <th>Valor Envío</th>
+                                    <th>Costo Total</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -2969,8 +2715,7 @@
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
-                                    <th>Factura</th>
-                                    <th>ID de Venta</th>
+                                    <th>ID Venta</th>
                                     <th>Cliente</th>
                                     <th>Productos</th>
                                     <th>Total</th>
@@ -3461,11 +3206,6 @@
                     // 1. Recargar los datos desde el servidor y ESPERAR a que terminen
                     console.log('Recargando tarjetas de historial...');
                     await loadHistoryCards();
-                    
-                    // Si el tipo es gastos, recargar también la tabla de gastos general
-                    if (typeToRefresh === 'expenses') {
-                        loadExpensesTable();
-                    }
 
                     // 2. Actualizar la vista de detalles si está abierta
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
@@ -3490,24 +3230,16 @@
             const inputs = form.querySelectorAll('input, select, textarea');
             const data = {};
 
-            const currencyFields = ['subtotal', 'deliveryCost', 'discount', 'warrantyIncrement', 'amount', 'additionalValue', 'purchasePrice', 'wholesalePrice', 'retailPrice'];
-            const idPhoneFields = ['id', 'phone', 'customerId', 'customerPhone']; // Fields that might be IDs/Phones and need unformatting
-
             inputs.forEach(input => {
                 if (input.name) {
-                    let value = input.value;
-
-                    if (input.type === 'number' || currencyFields.includes(input.name)) {
-                        value = unformatCurrency(value);
-                        data[input.name] = parseFloat(value) || 0;
+                    if (input.type === 'number') {
+                        data[input.name] = parseFloat(input.value) || 0;
                     } else if (input.type === 'date') {
-                        data[input.name] = value;
+                        data[input.name] = input.value;
                     } else if (input.type === 'checkbox') {
                         data[input.name] = input.checked;
-                    } else if (idPhoneFields.includes(input.name)) {
-                        data[input.name] = value.replace(/\D/g, ''); // Remove non-digits for IDs/Phones
                     } else {
-                        data[input.name] = value.trim();
+                        data[input.name] = input.value.trim();
                     }
                 }
             });
@@ -3635,22 +3367,18 @@
 
         async function updateProduct(formData) {
             try {
-                const payload = {
-                    id: (formData.id || '').toUpperCase(),
-                    originalId: formData.originalId ? formData.originalId.toUpperCase() : (formData.id || '').toUpperCase(),
-                    date: formData.date || null,
-                    name: formData.name,
-                    quantity: formData.quantity,
-                    purchasePrice: unformatCurrency(formData.purchasePrice),
-                    wholesalePrice: unformatCurrency(formData.wholesalePrice),
-                    retailPrice: unformatCurrency(formData.retailPrice),
-                    supplier: formData.supplier
-                };
-
                 const response = await fetch('api/products.php', {
                     method: 'POST', // api/products.php usa POST para insert/update
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        id: formData.id,
+                        name: formData.name,
+                        quantity: formData.quantity,
+                        purchasePrice: formData.purchasePrice,
+                        wholesalePrice: formData.wholesalePrice,
+                        retailPrice: formData.retailPrice,
+                        supplier: formData.supplier
+                    })
                 });
                 const data = await response.json();
                 if (data.success) {
@@ -3872,8 +3600,8 @@
 
             // Obtener información de pago
             const paymentMethod = document.getElementById('paymentMethod').value;
-            const deliveryCostField = document.getElementById('deliveryCost');
-            const deliveryCost = unformatCurrency(deliveryCostField ? deliveryCostField.value : '0');
+            const deliveryType = document.getElementById('deliveryType').value;
+            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
 
             // Información del cliente
             const customerInfo = {
@@ -3885,19 +3613,10 @@
                 city: customerCity
             };
 
-            // Validar formato de email (si se proporciona)
-            if (customerInfo.email && !customerInfo.email.includes('@')) {
-                await showDialog('Error', 'Por favor ingrese un correo electrónico válido (debe contener "@").', 'error');
-                return;
-            }
-
             // Calcular totales
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            
-            const freeShippingEnabled = document.getElementById('freeShippingToggle').checked;
-            const finalDeliveryCost = freeShippingEnabled ? 0 : deliveryCost;
-            const total = subtotal + finalDeliveryCost;
+            const total = subtotal + deliveryCost;
 
             // Generar u obtener ID de factura manual
             const manualInvoiceField = document.getElementById('manualInvoiceId');
@@ -3926,10 +3645,8 @@
                 })),
                 subtotal: subtotal,
                 discount: totalDiscount,
-                deliveryCost: finalDeliveryCost,
+                deliveryCost: deliveryCost,
                 total: total,
-                isFreeShipping: freeShippingEnabled,
-                originalDeliveryCost: deliveryCost,
                 paymentMethod: paymentMethod,
                 deliveryType: deliveryType,
                 customerInfo: customerInfo,
@@ -3944,28 +3661,6 @@
             // Procesar venta a nivel de API (ahora maneja status 'pending' o 'completed')
             const success = await processSale(sale);
 
-            // Si el envío fue gratis, registrarlo como un gasto para el administrador
-            if (success && freeShippingEnabled && deliveryCost > 0) {
-                try {
-                    const expense = {
-                        description: `Envío Gratis - Factura ${invoiceId} - Cliente ${customerName}`,
-                        date: new Date().toISOString().split('T')[0],
-                        amount: deliveryCost,
-                        user: 'admin' // Se registra a nombre del admin como gasto del negocio
-                    };
-                    
-                    await fetch('api/expenses.php', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(expense)
-                    });
-                    
-                    console.log('Gasto de envío gratis registrado.');
-                } catch (e) {
-                    console.error('Error al registrar gasto de envío gratis:', e);
-                }
-            }
-
             if (success) {
                 if (paymentMethod !== 'cash') {
                     await showDialog(
@@ -3973,10 +3668,8 @@
                         'Venta registrada como pendiente de pago. El administrador debe confirmar el pago en la sección correspondiente.',
                         'warning'
                     );
-                    showSparkles(); // NUEVO: Destellos para venta pendiente
                 } else {
                     await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
-                    showSparkles(); // NUEVO: Destellos para venta exitosa
                 }
 
                 // Mostrar factura
@@ -4010,37 +3703,13 @@
         function updateSaleSummary() {
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            const deliveryCost = unformatCurrency(document.getElementById('deliveryCost').value);
-            
-            // Lógica de Envío Gratis
-            const freeShippingContainer = document.getElementById('freeShippingContainer');
-            const freeShippingToggle = document.getElementById('freeShippingToggle');
-            const freeShippingLabel = document.getElementById('freeShippingLabel');
-            
-            const deliveryType = document.getElementById('deliveryType').value;
-            if (subtotal >= 250000 && deliveryType !== 'store') {
-                freeShippingContainer.style.display = 'block';
-            } else {
-                freeShippingContainer.style.display = 'none';
-                freeShippingToggle.checked = false;
-            }
-            
-            // Actualizar icono de la etiqueta
-            if (freeShippingToggle.checked) {
-                freeShippingLabel.innerHTML = '<i class="fas fa-check-circle" style="color: #2e7d32; font-size: 1.2rem;"></i>';
-            } else {
-                freeShippingLabel.innerHTML = '<i class="fas fa-times-circle" style="color: #666; font-size: 1.2rem;"></i>';
-            }
-            
-            const isFreeShipping = freeShippingToggle.checked;
-            const finalDeliveryCost = isFreeShipping ? 0 : deliveryCost;
-            const totalAddressableDelivery = isFreeShipping ? 0 : deliveryCost; 
-            const total = subtotal + totalAddressableDelivery;
+            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const total = subtotal + deliveryCost;
 
             // Actualizar UI
             document.getElementById('subtotalAmount').textContent = formatCurrency(subtotal);
             document.getElementById('discountAmount').textContent = formatCurrency(totalDiscount);
-            document.getElementById('deliveryAmount').textContent = formatCurrency(finalDeliveryCost);
+            document.getElementById('deliveryAmount').textContent = formatCurrency(deliveryCost);
             document.getElementById('totalAmount').textContent = formatCurrency(total);
         }
 
@@ -4058,23 +3727,16 @@
 
             // Actualizar historial
             refreshBtn.addEventListener('click', async function () {
-                const currentFilter = document.getElementById('historyFilter').value;
-                if (currentFilter === 'admin_audit') {
-                    await loadAuditLogs();
-                } else {
-                    await loadHistoryCards();
-                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
-                        showHistoryDetails(currentHistoryDetailType || currentHistoryType);
-                    }
+                await loadHistoryCards();
+                if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                    showHistoryDetails(currentHistoryDetailType || currentHistoryType);
                 }
             });
 
             // Volver a las tarjetas
             backToCardsBtn.addEventListener('click', function () {
                 document.getElementById('historyCardsView').style.display = 'grid';
-                const detailsView = document.getElementById('historyDetailsView');
-                detailsView.classList.remove('active');
-                detailsView.style.display = 'none';
+                document.getElementById('historyDetailsView').classList.remove('active');
             });
         }
 
@@ -4158,7 +3820,7 @@
 
                     // Tarjeta de ganancias solo si estamos en 'all' o explícitamente 'profit' o 'sales'
                     if (currentHistoryType === 'all' || currentHistoryType === 'profit' || currentHistoryType === 'sales') {
-                        if (sales.length > 0) createProfitHistoryCard(sales, expenses);
+                        if (sales.length > 0) createProfitHistoryCard(sales);
                     }
                 }
 
@@ -4286,7 +3948,7 @@
         }
 
         // Crear tarjetas de ganancias desglosadas (detal, mayorista, total)
-        function createProfitHistoryCard(sales, expenses = []) {
+        function createProfitHistoryCard(sales) {
             const cardsContainer = document.getElementById('historyCardsView');
 
             // Calcular ganancias por tipo de venta
@@ -4298,80 +3960,24 @@
             let wholesaleCount = 0;
 
             sales.forEach(sale => {
-                let saleRetailTotal = 0;
-                let saleWholesaleTotal = 0;
-                let saleRetailCOGS = 0;
-                let saleWholesaleCOGS = 0;
-                let hasWholesaleItems = false;
-                let hasRetailItems = false;
-                let rawSubtotal = 0;
+                const isRetail = sale.saleType !== 'wholesale'; // Por defecto es detal a menos que sea explícitamente mayorista
+                const saleTotal = parseFloat(sale.total) || 0;
+                const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
 
-                if (sale.products && Array.isArray(sale.products)) {
-                    sale.products.forEach(p => {
-                        const qty = parseInt(p.quantity) || 0;
-                        const subtotal = parseFloat(p.subtotal) || 0;
-                        const cost = (parseFloat(p.purchasePrice || p.purchase_price) || 0) * qty;
-                        const type = p.saleType || p.sale_type || 'retail';
-
-                        if (type === 'wholesale') {
-                            saleWholesaleTotal += subtotal;
-                            saleWholesaleCOGS += cost;
-                            hasWholesaleItems = true;
-                        } else {
-                            saleRetailTotal += subtotal;
-                            saleRetailCOGS += cost;
-                            hasRetailItems = true;
-                        }
-                        rawSubtotal += subtotal;
-                    });
+                if (isRetail) {
+                    retailSales += saleTotal;
+                    retailCOGS += saleCOGS;
+                    retailCount++;
                 } else {
-                    // Fallback
-                    const isRetail = sale.saleType !== 'wholesale';
-                    const total = parseFloat(sale.total) || 0;
-                    if (!isRetail) {
-                        saleRetailTotal = total;
-                        hasRetailItems = true;
-                    } else {
-                        saleWholesaleTotal = total;
-                        hasWholesaleItems = true;
-                    }
-                    rawSubtotal = total;
+                    wholesaleSales += saleTotal;
+                    wholesaleCOGS += saleCOGS;
+                    wholesaleCount++;
                 }
-
-                // Ajustar proporcionalmente descuentos, envíos y garantías para cuadrar con el Total de Factura
-                if (rawSubtotal > 0) {
-                    const retailRatio = saleRetailTotal / rawSubtotal;
-                    const wholesaleRatio = saleWholesaleTotal / rawSubtotal;
-                    
-                    const discount = parseFloat(sale.discount) || 0;
-                    const delivery = parseFloat(sale.deliveryCost) || 0;
-                    const warranty = parseFloat(sale.warrantyIncrement) || 0;
-
-                    // El ingreso neto es: Subtotal - Descuento + Envío + Garantía
-                    // Distribuimos los ajustes según el peso de cada categoría
-                    
-                    const adjustments = delivery + warranty - discount;
-                    
-                    saleRetailTotal += (adjustments * retailRatio);
-                    saleWholesaleTotal += (adjustments * wholesaleRatio);
-                }
-
-                retailSales += saleRetailTotal;
-                wholesaleSales += saleWholesaleTotal;
-                retailCOGS += saleRetailCOGS;
-                wholesaleCOGS += saleWholesaleCOGS;
-
-                if (hasRetailItems) retailCount++;
-                if (hasWholesaleItems) wholesaleCount++;
             });
 
             const retailProfit = retailSales - retailCOGS;
             const wholesaleProfit = wholesaleSales - wholesaleCOGS;
-            const operationalProfit = retailProfit + wholesaleProfit;
-            
-            // Calcular gastos totales para la ganancia neta
-            const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            const netProfit = operationalProfit - totalExpenses;
+            const totalProfit = retailProfit + wholesaleProfit;
 
             // 1. TARJETA GANANCIAS AL DETAL
             const retailCard = document.createElement('div');
@@ -4400,10 +4006,10 @@
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-tag"></i> <span>Canal Minorista</span></div>
-                    <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
+                    <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
                 </div>
             `;
-            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, operationalProfit, sales, expenses));
+            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
             cardsContainer.appendChild(retailCard);
 
             // 2. TARJETA GANANCIAS MAYORISTA
@@ -4433,10 +4039,10 @@
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-truck"></i> <span>Canal Mayorista</span></div>
-                    <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
+                    <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
                 </div>
             `;
-            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, operationalProfit, sales, expenses));
+            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
             cardsContainer.appendChild(wholesaleCard);
 
             // 3. TARJETA GANANCIA TOTAL
@@ -4459,21 +4065,17 @@
                         <span>Costo Total:</span>
                         <span class="history-card-detail-value">${formatCurrency(retailCOGS + wholesaleCOGS)}</span>
                     </div>
-                    <div class="history-card-detail">
-                        <span>Gastos Totales:</span>
-                        <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses)}</span>
-                    </div>
                     <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
                         <span style="font-weight: bold;">GANANCIA NETA:</span>
-                        <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(netProfit)}</span>
+                        <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(totalProfit)}</span>
                     </div>
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-chart-line"></i> <span>Consolidado</span></div>
-                    <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
+                    <div class="history-card-date"><span>Mes ${new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, operationalProfit, sales, expenses));
+            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
             cardsContainer.appendChild(totalCard);
         }
 
@@ -4584,16 +4186,15 @@
         }
 
         // Mostrar detalles de ganancias
-        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
+        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
             document.getElementById('historyDetailsView').style.display = 'block';
 
             const content = document.getElementById('monthlyDetailsContent');
-            const dateStr = currentMonth === -1 ? `Año ${currentYear}` : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-            const title = `Análisis de Ganancias - ${dateStr}`;
+            const title = `Análisis de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
 
-            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses);
+            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales);
 
             content.innerHTML = `
                 <div class="dialog-icon" style="color: var(--gold-primary);">
@@ -4608,9 +4209,7 @@
         }
 
         // Generar HTML del desglose de ganancias
-        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
-            const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            const netProfit = totalProfit - totalExpenses;
+        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
             return `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -4634,12 +4233,12 @@
                             <small>Costo: ${formatCurrency(wholesaleCOGS)}</small>
                         </div>
                         <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--gold-primary);">
-                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancia Neta</strong><br>
+                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancia Total</strong><br>
                             <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
-                                ${formatCurrency(netProfit)}
+                                ${formatCurrency(totalProfit)}
                             </div>
-                            <small>Ganancia Operativa: ${formatCurrency(totalProfit)}</small><br>
-                            <small style="color: var(--danger);">Gastos Totales: -${formatCurrency(totalExpenses)}</small>
+                            <small>Total Ventas: ${formatCurrency(retailSales + wholesaleSales)}</small><br>
+                            <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small>
                         </div>
                     </div>
                 </div>
@@ -4657,47 +4256,35 @@
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ventas</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ganancia</th>
-                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${sales.map(sale => {
-                const isMixed = sale.saleType === 'mixed';
-                const isRetail = sale.saleType === 'retail' || (!isMixed && sale.saleType !== 'wholesale');
-                
-                const saleCOGS = (sale.products || []).reduce((sum, p) => sum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
-                const profit = parseFloat(sale.total) - saleCOGS;
-                
-                let typeLabel = '';
-                let typeColor = '';
-                
-                if (isMixed) {
-                    typeLabel = 'Mixto';
-                    typeColor = 'linear-gradient(135deg, #4CAF50 0%, #2196F3 100%)';
-                } else {
-                    typeLabel = isRetail ? 'Al Detal' : 'Mayorista';
-                    typeColor = isRetail ? '#4CAF50' : '#2196F3';
-                }
+                const isRetail = sale.saleType !== 'wholesale';
+                const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                const saleCOGS = (sale.products || []).reduce((sum, product) => {
+                    const prod = products.find(p => p.id === product.productId);
+                    if (prod) {
+                        return sum + (prod.purchasePrice * product.quantity);
+                    }
+                    return sum;
+                }, 0);
+                const profit = sale.total - saleCOGS;
+                const typeLabel = isRetail ? 'Al Detal' : 'Mayorista';
+                const typeColor = isRetail ? '#4CAF50' : '#2196F3';
 
                 return `
                                         <tr style="border-bottom: 1px solid #eee;">
                                             <td style="padding: 10px;">${formatDate(sale.date)}</td>
                                             <td style="padding: 10px;">
-                                                <div style="display: flex; justify-content: center;">
-                                                    <span style="background: ${typeColor}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; min-width: 80px; text-align: center; display: inline-block; font-weight: 500;">
-                                                        ${typeLabel === 'Al Detal' ? 'Detal' : typeLabel}
-                                                    </span>
-                                                </div>
+                                                <span style="background: ${typeColor}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.85em;">
+                                                    ${typeLabel}
+                                                </span>
                                             </td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
                                             <td style="padding: 10px; text-align: right; font-weight: bold; color: ${profit >= 0 ? '#4CAF50' : '#F44336'};">
                                                 ${formatCurrency(profit)}
-                                            </td>
-                                            <td style="padding: 10px; text-align: center;">
-                                                <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${sale.id || sale.invoice_number}', 'sales')" title="Ver detalles">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
                                             </td>
                                         </tr>
                                     `;
@@ -4724,16 +4311,14 @@
 
         // Mostrar detalles del historial
         function showHistoryDetails(type) {
-            const detailsView = document.getElementById('historyDetailsView');
-            const wasActive = detailsView.classList.contains('active');
-
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
 
             // Mostrar detalles
+            const detailsView = document.getElementById('historyDetailsView');
             detailsView.style.display = 'block'; // Forzar display block para sobrescribir el none de backToHistoryCards
             
-            if (!wasActive) {
+            if (!detailsView.classList.contains('active')) {
                 detailsView.classList.add('active');
             }
             
@@ -4745,10 +4330,6 @@
                  document.getElementById('detailsTableTitle').textContent = 'Inversión';
             } else {
                 const iconInfo = historyIcons[type];
-                if (!iconInfo) {
-                    console.error('No se encontró información de icono para el tipo:', type);
-                    return;
-                }
                 document.getElementById('detailsTitle').textContent = `Detalles de ${iconInfo.title}`;
                 document.getElementById('detailsTableTitle').textContent = iconInfo.title;
             }
@@ -4782,9 +4363,6 @@
                 // Filtrar productos por fecha actual (mes/año seleccionado globalmente)
                 const fProducts = products.filter(p => {
                     const d = new Date(p.date || p.created_at);
-                    if (currentMonth === -1) {
-                        return d.getFullYear() === currentYear;
-                    }
                     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
                 });
 
@@ -4944,9 +4522,6 @@
                  // Filtro de productos
                  const fProducts = products.filter(p => {
                     const d = new Date(p.date || p.created_at);
-                    if (currentMonth === -1) {
-                        return d.getFullYear() === currentYear;
-                    }
                     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
                  });
  
@@ -5036,13 +4611,9 @@
                                 <th>Factura</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
-                                <th>Cant.</th>
-                                <th>Precio Unit.</th>
-                                <th>Tipo</th>
-                                <th>Incremento G.</th>
                                 <th>Total</th>
-                                <th>Pago</th>
-                                <th>Estado</th>
+                                <th>Envío</th>
+                                <th>Incremento Garantía</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5077,11 +4648,8 @@
                                 <th>Fecha</th>
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
-                                <th>Producto Original</th>
-                                <th>Producto Garantía</th>
                                 <th>Motivo</th>
-                                <th>Incremento</th>
-                                <th>Envío</th>
+                                <th>Costo</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
@@ -5093,7 +4661,6 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID de Venta</th>
                                 <th>Cliente</th>
                                 <th>Total</th>
                                 <th>Método Pago</th>
@@ -5146,49 +4713,15 @@
                             row = `
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
-                                    <td><strong>${item.invoice_number || 'N/A'}</strong></td>
+                                    <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td>
-                                        <div style="font-size: 0.9em;">
-                                            ${item.products ? item.products.map(p => `<div>${p.productName || 'Producto'} <small>(${p.productId})</small></div>`).join('') : (item.productName || 'N/A')}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.9em; text-align: center;">
-                                            ${item.products ? item.products.map(p => `<div>${p.quantity}</div>`).join('') : (item.quantity || 1)}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.9em; text-align: right;">
-                                            ${item.products ? item.products.map(p => `<div>${formatCurrency(p.unitPrice || 0)}</div>`).join('') : formatCurrency(item.unitPrice || 0)}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="display: flex; justify-content: center;">
-                                            ${item.saleType === 'mixed' ? 
-                                                '<span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; min-width: 80px; text-align: center; font-weight: 500;">Mixto</span>' :
-                                                `<span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="min-width: 80px; text-align: center; font-weight: 500;">
-                                                    ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
-                                                </span>`
-                                            }
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.9em; text-align: right; color: var(--warning);">
-                                            ${item.warrantyIncrement > 0 ? formatCurrency(item.warrantyIncrement) : '-'}
-                                        </div>
+                                        <strong>${productCount} producto(s)</strong><br>
+                                        <small>${productNames}</small>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
-                                    <td>
-                                        <span class="badge ${getPaymentMethodClass(item.paymentMethod)}">
-                                            ${getPaymentMethodName(item.paymentMethod)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : 'badge-warning'}">
-                                            ${item.status === 'completed' ? 'Confirmada' : 'Pendiente'}
-                                        </span>
-                                    </td>
+                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
@@ -5277,11 +4810,8 @@
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.originalSaleId}</strong></td>
                                     <td>${item.customerName}</td>
-                                    <td>${item.originalProductName || 'N/A'} <small>(${item.originalProductId || 'N/A'})</small></td>
-                                    <td>${item.productId === item.originalProductId ? 'Mismo producto' : `${item.newProductName || 'Producto diferente'} <small>(${item.newProductId || item.productId})</small>`}</td>
                                     <td>${item.warrantyReasonText || item.warrantyReason}</td>
-                                    <td><strong>${formatCurrency(item.additionalValue || 0)}</strong></td>
-                                    <td>${formatCurrency(item.shippingValue || 0)}</td>
+                                    <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
                                     <td>
                                         <span class="badge ${item.status === 'completed' ? 'badge-success' :
                                     item.status === 'pending' ? 'badge-warning' :
@@ -5329,7 +4859,6 @@
                             row = `
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
-                                    <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
@@ -5406,14 +4935,10 @@
                     return sum + itemsCost;
                 }, 0);
 
-                // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
-                // porque el additionalValue ya está incluido en totalSales (warranty_increment)
-                const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
+                const totalWarrantyCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost || warranty.total_cost) || 0), 0);
                 const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
                 
-                // Ganancia = Ventas (incluye warranty_increment) - Gastos (incluye envíos de garantía) - Costo de productos
-                // NO RESTAMOS totalWarrantyShippingCosts porque ya está en totalExpenses (al registrarse en la tabla expenses)
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold;
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -5443,15 +4968,15 @@
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('warranties')">
                         <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="stat-value">${formatCurrency(totalWarrantyShippingCosts)}</div>
-                        <div class="stat-label">Costos de Envío (Garantías)</div>
-                        <small>${(warranties || []).length} garantías procesadas</small>
+                        <div class="stat-value">${formatCurrency(totalWarrantyCosts)}</div>
+                        <div class="stat-label">Costos Garantías</div>
+                        <small>${(warranties || []).length} garantías con costo</small>
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
                         <div class="stat-label">Ganancia Real</div>
-                        <small>Ventas - Gastos - Costo Inv - Envíos Garantías</small>
+                        <small>Ventas - Gastos - Costo Inv - Garantías</small>
                     </div>
                 `;
             } catch (error) {
@@ -5516,12 +5041,9 @@
                 return sum + saleCost;
             }, 0);
 
-            // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
-            // Y SI totalExpenses YA incluye los envíos, NO restarlos de nuevo.
-            // Asumimos que totalExpenses incluye los envíos de garantía (por el cambio en backend).
-            const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
-            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold;
+            const totalWarrantyCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
+            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement) || 0), 0);
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
 
             let title = '';
             let detailsHTML = '';
@@ -5541,12 +5063,11 @@
                     break;
                 case 'warranties':
                     title = `Detalles de Garantías - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyShippingCosts, totalWarrantyIncrement);
+                    detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyCosts);
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    // Restamos los envíos de los gastos totales SOLO para la visualización desglosada
-                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses - totalWarrantyShippingCosts, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
+                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyCosts, netProfit);
                     break;
             }
 
@@ -5605,10 +5126,8 @@
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Fecha</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Factura</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Cliente</th>
-                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tipo</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Total</th>
                                     <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Pago</th>
-                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5619,39 +5138,15 @@
                 const invoiceDisplay = sale.invoice_number || sale.id || 'N/A';
                 const statusBadge = sale.status === 'pending' ? 
                     `<br><span class="badge badge-warning" style="font-size: 0.7em;">Pendiente</span>` : '';
-                
-                let typeBadge = '';
-                if (sale.saleType === 'mixed') {
-                    typeBadge = `
-                        <div style="display: flex; justify-content: center;">
-                            <span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; min-width: 80px; text-align: center; font-weight: 500;">Mixto</span>
-                        </div>
-                    `;
-                } else {
-                    const isRetail = sale.saleType !== 'wholesale';
-                    typeBadge = `
-                        <div style="display: flex; justify-content: center;">
-                            <span class="badge ${isRetail ? 'badge-success' : 'badge-info'}" style="min-width: 80px; text-align: center; font-weight: 500;">
-                                ${isRetail ? 'Detal' : 'Mayorista'}
-                            </span>
-                        </div>
-                    `;
-                }
 
                 html += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px;">${formatDate(sale.date)}</td>
                         <td style="padding: 10px;"><strong>${invoiceDisplay}</strong>${statusBadge}</td>
                         <td style="padding: 10px;">${customerName}</td>
-                        <td style="padding: 10px;">${typeBadge}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(sale.total)}</td>
                         <td style="padding: 10px; text-align: center;">
                             <span class="payment-badge ${getPaymentMethodClass(sale.paymentMethod)}">${getPaymentMethodName(sale.paymentMethod)}</span>
-                        </td>
-                        <td style="padding: 10px; text-align: center;">
-                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${sale.id || sale.invoice_number}', 'sales')" title="Ver detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </td>
                     </tr>
                 `;
@@ -5698,7 +5193,6 @@
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Descripción</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Monto</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Usuario</th>
-                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5711,11 +5205,6 @@
                         <td style="padding: 10px;">${expense.description}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(expense.amount)}</td>
                         <td style="padding: 10px;">${getUserName(expense.user)}</td>
-                        <td style="padding: 10px; text-align: center;">
-                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${expense.id}', 'expenses')" title="Ver detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
                     </tr>
                 `;
             });
@@ -5763,7 +5252,6 @@
                                     <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Cantidad</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Valor</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Usuario</th>
-                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5778,11 +5266,6 @@
                         <td style="padding: 10px; text-align: center;">${restock.quantity}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(restock.totalValue)}</td>
                         <td style="padding: 10px;">${getUserName(restock.user)}</td>
-                        <td style="padding: 10px; text-align: center;">
-                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${restock.id}', 'restocks')" title="Ver detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
                     </tr>
                 `;
             });
@@ -5798,7 +5281,7 @@
         }
 
         // Generar HTML para detalles de garantías
-        function generateWarrantiesDetailsHTML(warranties, shippingCosts, warrantyIncrement) {
+        function generateWarrantiesDetailsHTML(warranties, total) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5806,12 +5289,8 @@
                     </h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
-                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(shippingCosts)}</strong><br>
-                            <small>Costos de Envío</small>
-                        </div>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
-                            <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(warrantyIncrement)}</strong><br>
-                            <small>Ingresos por Incremento</small>
+                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(total)}</strong><br>
+                            <small>Costo Total</small>
                         </div>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
                             <strong style="font-size: 1.2em; color: var(--info);">${warranties.length}</strong><br>
@@ -5834,7 +5313,6 @@
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Motivo</th>
                                     <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Costo</th>
                                     <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Estado</th>
-                                    <th style="padding: 10px; text-align: center; border-bottom: 1px solid #ddd;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5849,11 +5327,6 @@
                         <td style="padding: 10px;">${getWarrantyReasonText(warranty.reason || warranty.warrantyReason)}</td>
                         <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(warranty.totalCost || 0)}</td>
                         <td style="padding: 10px;">${getWarrantyStatusText(warranty.status || 'pending')}</td>
-                        <td style="padding: 10px; text-align: center;">
-                            <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${warranty.id}', 'warranties')" title="Ver detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
                     </tr>
                 `;
             });
@@ -5935,7 +5408,7 @@
         }
 
         // Generar HTML para resumen de ganancias
-        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit) {
+        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantiesTotal, netProfit) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5944,8 +5417,7 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
                         <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--success);">
                             <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(salesTotal)}</strong><br>
-                            <small>Ingresos por Ventas</small><br>
-                            <small style="color: var(--warning); font-size: 0.8em;">(Incluye ${formatCurrency(warrantyIncrement)} de garantías)</small>
+                            <small>Ingresos por Ventas</small>
                         </div>
                         <div style="background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--danger);">
                             <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(expensesTotal)}</strong><br>
@@ -5956,8 +5428,8 @@
                             <small>Costo de lo Vendido</small>
                         </div>
                         <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #9c27b0;">
-                            <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong><br>
-                            <small>Envíos de Garantías</small>
+                            <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantiesTotal)}</strong><br>
+                            <small>Costos de Garantías</small>
                         </div>
                         <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
                             <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
@@ -5972,7 +5444,7 @@
                     </h4>
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Ingresos por Ventas (incluye incrementos de garantías):</span>
+                            <span>Ingresos por Ventas:</span>
                             <strong style="color: var(--success);">+${formatCurrency(salesTotal)}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
@@ -5984,8 +5456,8 @@
                             <strong style="color: var(--warning);">-(${formatCurrency(costOfGoodsSoldTotal)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Envíos de Garantías:</span>
-                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantyShippingCosts)})</strong>
+                            <span>Costos de Garantías:</span>
+                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantiesTotal)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
                             <span><strong>Ganancia Neta:</strong></span>
@@ -6832,8 +6304,7 @@
                     <td>${warranty.originalProductName} (${warranty.originalProductId})</td>
                     <td>${warrantyProduct}</td>
                     <td>${warranty.warrantyReasonText || warranty.warrantyReason}</td>
-                    <td><strong>${formatCurrency(warranty.additionalValue || 0)}</strong></td>
-                    <td>${formatCurrency(warranty.shippingValue || 0)}</td>
+                    <td><strong>${formatCurrency(warranty.totalCost || 0)}</strong></td>
                     <td>
                         <span class="badge ${statusBadge}">
                             ${statusText}
@@ -7000,43 +6471,8 @@
                             <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
                                 <i class="fas fa-box-open"></i> Productos Vendidos
                             </h3>
-                            <div style="max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; padding: 10px;">
-                                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                                    <thead>
-                                        <tr style="border-bottom: 2px solid #ddd;">
-                                            <th style="text-align: left; padding: 5px;">Producto</th>
-                                            <th style="text-align: center; padding: 5px;">Cant.</th>
-                                            <th style="text-align: right; padding: 5px;">Precio</th>
-                                            <th style="text-align: center; padding: 5px;">Tipo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${movement.products ? movement.products.map(p => `
-                                            <tr style="border-bottom: 1px solid #eee;">
-                                                <td style="padding: 5px;">${p.productName || 'N/A'} <br><small>${p.productId || p.product_ref || ''}</small></td>
-                                                <td style="padding: 5px; text-align: center;">${p.quantity}</td>
-                                                <td style="padding: 5px; text-align: right;">${formatCurrency(p.unitPrice || p.unit_price || 0)}</td>
-                                                <td style="padding: 5px; text-align: center;">
-                                                    <span class="badge ${p.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.75em;">
-                                                        ${p.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        `).join('') : `
-                                            <tr>
-                                                <td style="padding: 5px;">${movement.productName || 'N/A'}</td>
-                                                <td style="padding: 5px; text-align: center;">${movement.quantity || 1}</td>
-                                                <td style="padding: 5px; text-align: right;">${formatCurrency(movement.unitPrice || 0)}</td>
-                                                <td style="padding: 5px; text-align: center;">
-                                                    <span class="badge ${movement.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}" style="font-size: 0.75em;">
-                                                        ${movement.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        `}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <p><strong>Cantidad de productos:</strong> ${productCount}</p>
+                            <p><strong>Productos:</strong> ${productNames}</p>
                         </div>
                         
                         <div style="margin-bottom: 1.5rem;">
@@ -7044,21 +6480,9 @@
                                 <i class="fas fa-receipt"></i> Información de Pago
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal || (parseFloat(movement.total) - (parseFloat(movement.deliveryCost) || 0) + (parseFloat(movement.discount) || 0) - (parseFloat(movement.warrantyIncrement) || 0)))}</div>
+                                <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal)}</div>
                                 <div><strong>Descuento:</strong> ${formatCurrency(movement.discount || 0)}</div>
-                                <div><strong>Costo envío:</strong> 
-                                    ${(function() {
-                                        if (movement.isFreeShipping) return `<span style="color: #2e7d32; font-weight: bold;">¡GRATIS!</span> (Asumido)`;
-                                        
-                                        // Intento de detección por gasto si no está en el objeto de venta
-                                        const expenses = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses') || '[]');
-                                        const hasShippingExpense = expenses.some(e => e.description.includes(`Envío Gratis`) && (e.description.includes(movement.id) || e.description.includes(movement.invoice_number)));
-                                        
-                                        if (hasShippingExpense) return `<span style="color: #2e7d32; font-weight: bold;">¡GRATIS!</span> (Asumido)`;
-                                        
-                                        return formatCurrency(movement.deliveryCost || 0);
-                                    })()}
-                                </div>
+                                <div><strong>Costo envío:</strong> ${formatCurrency(movement.deliveryCost || 0)}</div>
                                 <div><strong>Incremento garantía:</strong> ${formatCurrency(movement.warrantyIncrement || 0)}</div>
                                 <div><strong>Total:</strong> ${formatCurrency(movement.total)}</div>
                                 <div><strong>Método de pago:</strong> ${getPaymentMethodName(movement.paymentMethod)}</div>
@@ -7074,42 +6498,9 @@
                                 <div><strong>Estado:</strong> ${movement.confirmed ? 'Confirmada' : 'Pendiente'}</div>
                                 <div><strong>Registrado por:</strong> ${getUserName(movement.user)}</div>
                                 <div><strong>Tipo entrega:</strong> ${movement.deliveryType === 'store' ? 'Recoge en tienda' : movement.deliveryType === 'delivery' ? 'Domicilio' : 'Envío nacional'}</div>
-                                <div><strong>Tipo de Venta:</strong> 
-                                    ${movement.saleType === 'mixed' ? 
-                                        '<span class="badge" style="background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%); color: white; padding: 2px 8px;">Mixto</span>' :
-                                        `<span style="color: ${saleTypeColor}; font-weight: bold;">${saleTypeLabel}</span>`
-                                    }
-                                </div>
+                                <div><strong>Tipo de Venta:</strong> <span style="color: ${saleTypeColor}; font-weight: bold;">${saleTypeLabel}</span></div>
                             </div>
                         </div>
-
-                        ${(function() {
-                            const warranties = JSON.parse(localStorage.getItem('destelloOroHistoryWarranties')) || [];
-                            const associatedWarranties = warranties.filter(w => w.originalSaleId == movement.id || w.originalSaleId == movement.invoice_number);
-                            
-                            if (associatedWarranties.length === 0) return '';
-                            
-                            return `
-                                <div style="margin-top: 1.5rem; padding: 15px; background: rgba(212, 175, 55, 0.05); border-left: 4px solid var(--gold-primary); border-radius: 4px;">
-                                    <h3 style="color: var(--gold-dark); margin-bottom: 0.8rem; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                                        <i class="fas fa-shield-alt"></i> Garantías Asociadas
-                                    </h3>
-                                    ${associatedWarranties.map(w => `
-                                        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #ddd;">
-                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
-                                                <div><strong>Producto Reclamado:</strong><br>${w.originalProductName} <small>(${w.originalProductId})</small></div>
-                                                <div><strong>Producto de Repuesto:</strong><br>${w.productType === 'different' ? `${w.newProductName} <small>(${w.newProductRef})</small>` : 'Mismo producto'}</div>
-                                                <div><strong>Motivo:</strong><br>${getWarrantyReasonText(w.reason || w.warrantyReason)}</div>
-                                                <div><strong>Valor Adicional:</strong><br>${formatCurrency(w.additionalValue || 0)}</div>
-                                            </div>
-                                            <div style="margin-top: 5px; font-size: 0.85rem;">
-                                                <strong>Estado:</strong> <span class="badge ${w.status === 'completed' ? 'badge-success' : 'badge-warning'}">${getWarrantyStatusText(w.status)}</span>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            `;
-                        })()}
                     `;
                     break;
 
@@ -7284,19 +6675,11 @@
                         
                         <div style="margin-bottom: 1.5rem;">
                             <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
-                                <i class="fas fa-chart-line"></i> Rentabilidad
+                                <i class="fas fa-chart-line"></i> Rentabilidad (al detal)
                             </h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                                <div style="padding: 10px; background: rgba(76, 175, 80, 0.05); border-radius: 6px;">
-                                    <div style="color: #4CAF50; font-weight: bold; margin-bottom: 5px;">Al Detal</div>
-                                    <div><strong>Ganancia:</strong> ${formatCurrency(profit)}</div>
-                                    <div><strong>Margen:</strong> ${profitPercent}%</div>
-                                </div>
-                                <div style="padding: 10px; background: rgba(33, 150, 243, 0.05); border-radius: 6px;">
-                                    <div style="color: #2196F3; font-weight: bold; margin-bottom: 5px;">Al Mayorista</div>
-                                    <div><strong>Ganancia:</strong> ${formatCurrency(movement.wholesalePrice - movement.purchasePrice)}</div>
-                                    <div><strong>Margen:</strong> ${((movement.wholesalePrice - movement.purchasePrice) / movement.purchasePrice * 100).toFixed(2)}%</div>
-                                </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                                <div><strong>Ganancia:</strong> ${formatCurrency(profit)}</div>
+                                <div><strong>Margen:</strong> ${profitPercent}%</div>
                             </div>
                         </div>
                     `;
@@ -7355,36 +6738,37 @@
             const modalTitle = document.getElementById('editMovementTitle');
             const modalContent = document.getElementById('editMovementContent');
 
-            modalTitle.textContent = `Editar ${type === 'sales' ? 'Venta' : type === 'expenses' ? 'Gasto' : type === 'product' ? 'Producto de Inventario' : 'Garantía'}`;
+            modalTitle.textContent = `Editar ${type === 'sales' ? 'Venta' : type === 'expenses' ? 'Gasto' : 'Garantía'}`;
 
             // Generar formulario según el tipo
             let formContent = '';
             switch (type) {
                 case 'sales':
                     // Convertir fecha para el input date
-                    let saleDate = (movement.date || '').split(' ')[0];
+                    let saleDate = '';
+                    try {
+                        saleDate = new Date(movement.date).toISOString().split('T')[0];
+                    } catch(e) {
+                         saleDate = movement.date ? movement.date.split(' ')[0] : '';
+                    }
 
                     formContent = `
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                            <i class="fas fa-fingerprint"></i> ID de Venta
-                                        </label>
-                                        <input type="text" name="id" value="${movement.id}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f5f5f5;" readonly>
-                                    </div>
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                            <i class="fas fa-calendar"></i> Fecha de Venta
-                                        </label>
-                                        <input type="date" name="date" value="${saleDate}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                                    </div>
-                                </div>
-                                <div style="margin-bottom: 1rem;">
-                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                        <i class="fas fa-hashtag"></i> Número de Factura (Manual)
-                                    </label>
-                                    <input type="text" name="invoiceNumber" value="${movement.invoice_number || movement.invoiceNumber || ''}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-calendar"></i> Fecha de Venta
+                                </label>
+                                <input type="date" name="date" value="${saleDate}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-hashtag"></i> Número de Factura
+                                </label>
+                                <input type="text" name="invoiceNumber" value="${movement.id}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                        </div>
 
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -7400,14 +6784,14 @@
                                     <i class="fas fa-id-card"></i> Cédula
                                 </label>
                                 <input type="text" name="customerId" value="${movement.customerInfo?.id || movement.customer_id || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-phone"></i> Teléfono
                                 </label>
                                 <input type="text" name="customerPhone" value="${movement.customerInfo?.phone || movement.customer_phone || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                         </div>
 
@@ -7416,22 +6800,22 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-money-bill"></i> Subtotal
                                 </label>
-                                <input type="text" name="subtotal" value="${new Intl.NumberFormat('de-DE').format(movement.subtotal || 0)}" 
-                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <input type="number" name="subtotal" value="${movement.subtotal || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-truck"></i> Envío
                                 </label>
-                                <input type="text" name="deliveryCost" value="${new Intl.NumberFormat('de-DE').format(movement.deliveryCost || 0)}" 
-                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <input type="number" name="deliveryCost" value="${movement.deliveryCost || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-tag"></i> Descuento
                                 </label>
-                                <input type="text" name="discount" value="${new Intl.NumberFormat('de-DE').format(movement.discount || 0)}" 
-                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <input type="number" name="discount" value="${movement.discount || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
                             </div>
                         </div>
                         
@@ -7440,8 +6824,9 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-shield-alt"></i> Inc. Garantía
                                 </label>
-                                <input type="text" name="warrantyIncrement" value="${new Intl.NumberFormat('de-DE').format(movement.warrantyIncrement || 0)}" 
-                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <input type="number" name="warrantyIncrement" value="${movement.warrantyIncrement || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                       min="0" step="0.01">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -7468,9 +6853,6 @@
                     break;
 
                 case 'expenses':
-                    // Convertir fecha para el input date
-                    let expenseDateEdit = (movement.date || '').split(' ')[0];
-
                     formContent = `
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -7479,12 +6861,12 @@
                             <input type="text" name="description" value="${movement.description}" 
                                    class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                         </div>
-
+                        
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                 <i class="fas fa-calendar"></i> Fecha
                             </label>
-                            <input type="date" name="date" value="${expenseDateEdit}"  
+                            <input type="date" name="date" value="${movement.date}" 
                                    class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                         </div>
                         
@@ -7492,15 +6874,21 @@
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                 <i class="fas fa-money-bill"></i> Valor
                             </label>
-                            <input type="text" name="amount" value="${new Intl.NumberFormat('de-DE').format(movement.amount || 0)}" 
-                                   class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            <input type="number" name="amount" value="${movement.amount}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                   min="0" step="0.01" required>
                         </div>
                     `;
                     break;
 
                 case 'warranties':
                     // Convertir fecha de garantía
-                    let warrantyDate = (movement.date || '').split(' ')[0] || (movement.createdAt || '').split(' ')[0];
+                    let warrantyDate = '';
+                    try {
+                        warrantyDate = new Date(movement.createdAt).toISOString().split('T')[0];
+                    } catch(e) {
+                         warrantyDate = movement.createdAt ? movement.createdAt.split(' ')[0] : '';
+                    }
 
                     formContent = `
                         <div style="margin-bottom: 1rem;">
@@ -7564,8 +6952,9 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-plus-circle"></i> Valor Adicional
                                 </label>
-                                <input type="text" name="additionalValue" value="${new Intl.NumberFormat('de-DE').format(movement.additionalValue || 0)}" 
-                                       class="form-control currency-input" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                <input type="number" name="additionalValue" value="${movement.additionalValue || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                       min="0" step="0.01">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -7597,27 +6986,9 @@
                         </div>
                     `;
                     break;
+                    break;
                 case 'product':
-                    let productDate = (movement.date || '').split(' ')[0];
-
                     formContent = `
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-calendar"></i> Fecha de Ingreso
-                                </label>
-                                <input type="date" name="date" value="${productDate}"
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                            </div>
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-barcode"></i> Referencia
-                                </label>
-                                <input type="text" name="id" value="${movement.id}" oninput="this.value = this.value.toUpperCase();"
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                                <small class="form-text" style="font-size: 0.8rem;">Identificador unico del producto</small>
-                            </div>
-                        </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Nombre del Producto</label>
                             <input type="text" name="name" value="${movement.name}" class="form-control" style="width: 100%; padding: 8px;" required>
@@ -7628,38 +6999,31 @@
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Precio Compra</label>
-                            <input type="number" name="purchasePrice" id="editPurchasePrice" value="${movement.purchasePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                            <input type="number" name="purchasePrice" value="${movement.purchasePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Precio Mayorista</label>
-                            <input type="number" name="wholesalePrice" id="editWholesalePrice" value="${movement.wholesalePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                            <input type="number" name="wholesalePrice" value="${movement.wholesalePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Precio Detal</label>
-                            <input type="number" name="retailPrice" id="editRetailPrice" value="${movement.retailPrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
-                            <div>
-                                <label style="font-size: 0.85rem; color: #666;">Ganancia Detal</label>
-                                <input type="text" id="editProfitRetail" class="form-control" readonly style="background-color: #f5f5f5; font-size: 0.85rem;" 
-                                    value="${formatCurrency(parseFloat(movement.retailPrice) - parseFloat(movement.purchasePrice))} (${((parseFloat(movement.retailPrice) - parseFloat(movement.purchasePrice)) / parseFloat(movement.purchasePrice) * 100).toFixed(2)}%)">
-                            </div>
-                            <div>
-                                <label style="font-size: 0.85rem; color: #666;">Ganancia Mayorista</label>
-                                <input type="text" id="editProfitWholesale" class="form-control" readonly style="background-color: #f5f5f5; font-size: 0.85rem;" 
-                                    value="${formatCurrency(parseFloat(movement.wholesalePrice) - parseFloat(movement.purchasePrice))} (${((parseFloat(movement.wholesalePrice) - parseFloat(movement.purchasePrice)) / parseFloat(movement.purchasePrice) * 100).toFixed(2)}%)">
-                            </div>
+                            <input type="number" name="retailPrice" value="${movement.retailPrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Proveedor</label>
                             <input type="text" name="supplier" value="${movement.supplier || ''}" class="form-control" style="width: 100%; padding: 8px;">
                         </div>
-                        <input type="hidden" name="originalId" value="${movement.id}">
+                        <input type="hidden" name="id" value="${movement.id}">
                     `;
                     break;
                 case 'restocks':
                     // Convertir fecha de surtido
-                    let restockDate = (movement.date || '').split(' ')[0];
+                    let restockDate = '';
+                    try {
+                        restockDate = new Date(movement.date).toISOString().split('T')[0];
+                    } catch(e) {
+                         restockDate = movement.date ? movement.date.split(' ')[0] : '';
+                    }
 
                     formContent = `
                         <div style="margin-bottom: 1rem;">
@@ -7681,32 +7045,6 @@
             }
 
             modalContent.innerHTML = formContent;
-            
-            // Agregar listeners para cálculo de ganancia en edición de producto
-            if (type === 'product') {
-                const calculateEditProfit = () => {
-                    const pp = parseFloat(document.getElementById('editPurchasePrice').value) || 0;
-                    const rp = parseFloat(document.getElementById('editRetailPrice').value) || 0;
-                    const wp = parseFloat(document.getElementById('editWholesalePrice').value) || 0;
-                    
-                    if (pp > 0) {
-                        const pr = rp - pp;
-                        const prP = (pr / pp * 100).toFixed(2);
-                        document.getElementById('editProfitRetail').value = `${formatCurrency(pr)} (${prP}%)`;
-                        
-                        const pw = wp - pp;
-                        const pwP = (pw / pp * 100).toFixed(2);
-                        document.getElementById('editProfitWholesale').value = `${formatCurrency(pw)} (${pwP}%)`;
-                    } else {
-                        document.getElementById('editProfitRetail').value = '';
-                        document.getElementById('editProfitWholesale').value = '';
-                    }
-                };
-                
-                document.getElementById('editPurchasePrice').addEventListener('input', calculateEditProfit);
-                document.getElementById('editRetailPrice').addEventListener('input', calculateEditProfit);
-                document.getElementById('editWholesalePrice').addEventListener('input', calculateEditProfit);
-            }
             
             // Agregar listeners para campos dinámicos (especialmente para garantías)
             if (type === 'warranties') {
@@ -8035,7 +7373,6 @@
 
                             // Guardar en sessionStorage para persistencia de pestaña
                             sessionStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
-                            sessionStorage.setItem('destelloOroTabActive', 'true'); // Marcar esta pestaña como activa para auto-login
 
                             await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
                             showApp();
@@ -8372,7 +7709,6 @@
         function setupFormEvents() {
             // Calcular ganancia estimada al cambiar precios
             document.getElementById('retailPrice').addEventListener('input', calculateProfit);
-            document.getElementById('wholesalePrice').addEventListener('input', calculateProfit);
             document.getElementById('purchasePrice').addEventListener('input', calculateProfit);
 
             // Formulario de producto (solo para admin)
@@ -8390,10 +7726,10 @@
                     date: document.getElementById('productDate').value,
                     id: document.getElementById('productRef').value.trim().toUpperCase(),
                     name: document.getElementById('productName').value.trim(),
-                    quantity: unformatCurrency(document.getElementById('productQuantity').value),
-                    purchasePrice: unformatCurrency(document.getElementById('purchasePrice').value),
-                    wholesalePrice: unformatCurrency(document.getElementById('wholesalePrice').value),
-                    retailPrice: unformatCurrency(document.getElementById('retailPrice').value),
+                    quantity: parseInt(document.getElementById('productQuantity').value),
+                    purchasePrice: parseFloat(document.getElementById('purchasePrice').value),
+                    wholesalePrice: parseFloat(document.getElementById('wholesalePrice').value),
+                    retailPrice: parseFloat(document.getElementById('retailPrice').value),
                     supplier: document.getElementById('supplier').value.trim(),
                     addedBy: currentUser.username
                 };
@@ -8404,11 +7740,7 @@
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(product)
                     });
-                    
-                    // Log the response for debugging
-                    console.log('Response status:', response.status);
                     const data = await response.json();
-                    console.log('Response data:', data);
 
                     if (data.success) {
                         loadInventoryTable();
@@ -8417,14 +7749,11 @@
                         document.getElementById('addProductForm').style.display = 'none';
                         await showDialog('Éxito', 'Producto agregado exitosamente al inventario.', 'success');
                     } else {
-                        // Show detailed error message
-                        const errorMsg = data.error || data.message || 'Error desconocido al agregar producto';
-                        console.error('Error del servidor:', errorMsg);
-                        await showDialog('Error al agregar producto', errorMsg, 'error');
+                        await showDialog('Error', data.message || 'Error al agregar producto', 'error');
                     }
                 } catch (error) {
-                    console.error('Error completo:', error);
-                    await showDialog('Error', 'Error de conexión con el servidor: ' + error.message, 'error');
+                    console.error('Error:', error);
+                    await showDialog('Error', 'Error de conexión', 'error');
                 }
             });
 
@@ -8439,7 +7768,7 @@
                 }
 
                 const productRef = document.getElementById('restockProductRef').value.trim().toUpperCase();
-                const quantity = unformatCurrency(document.getElementById('restockQuantity').value);
+                const quantity = parseInt(document.getElementById('restockQuantity').value);
 
                 // Validar datos
                 if (!productRef || isNaN(quantity) || quantity <= 0) {
@@ -8509,7 +7838,7 @@
                 const expense = {
                     description: document.getElementById('expenseDescription').value.trim(),
                     date: document.getElementById('expenseDate').value,
-                    amount: unformatCurrency(document.getElementById('expenseAmount').value),
+                    amount: parseFloat(document.getElementById('expenseAmount').value),
                     user: currentUser.username
                 };
 
@@ -8546,7 +7875,7 @@
                 e.preventDefault();
 
                 const productRef = document.getElementById('saleProductRef').value.trim().toUpperCase();
-                const quantity = unformatCurrency(document.getElementById('saleQuantity').value);
+                const quantity = parseInt(document.getElementById('saleQuantity').value) || 0;
                 const saleType = document.getElementById('saleType').value;
                 const discount = parseFloat(document.getElementById('discount').value) || 0;
 
@@ -8581,10 +7910,8 @@
                 }
             });
 
-            // Actualizar resumen de venta al cambiar costo de envío, toggle de envío gratis o tipo de entrega
+            // Actualizar resumen de venta al cambiar costo de envío
             document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
-            document.getElementById('freeShippingToggle').addEventListener('change', updateSaleSummary);
-            document.getElementById('deliveryType').addEventListener('change', updateSaleSummary);
         }
 
         // Configurar eventos de la factura (SIN REDES SOCIALES)
@@ -8625,26 +7952,7 @@
                 showBtn.addEventListener('click', function() {
                     console.log('Clic en Cambiar Contraseña');
                     modal.style.display = 'flex';
-                    // Resetear selectores
-                    document.getElementById('roleToChange').value = '';
-                    const userSelect = document.getElementById('userToChange');
-                    userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
-                    userSelect.disabled = true;
-                });
-            }
-
-            // NUEVO: Listener para el cambio de rol en el modal de contraseña
-            const roleSelect = document.getElementById('roleToChange');
-            if (roleSelect) {
-                roleSelect.addEventListener('change', function() {
-                    const role = this.value;
-                    if (role) {
-                        loadUsersForPasswordChange(role);
-                    } else {
-                        const userSelect = document.getElementById('userToChange');
-                        userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
-                        userSelect.disabled = true;
-                    }
+                    loadUsersForPasswordChange();
                 });
             }
 
@@ -8652,11 +7960,7 @@
                 forgotBtn.addEventListener('click', function() {
                     console.log('Clic en Olvidé mi contraseña');
                     modal.style.display = 'flex';
-                    // Resetear selectores
-                    document.getElementById('roleToChange').value = '';
-                    const userSelect = document.getElementById('userToChange');
-                    userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
-                    userSelect.disabled = true;
+                    loadUsersForPasswordChange();
                 });
             }
 
@@ -8683,7 +7987,6 @@
                     const adminUsername = document.getElementById('adminUsername').value;
                     const adminPassword = document.getElementById('adminPassword').value;
                     const userToChange = document.getElementById('userToChange').value;
-                    const newEmail = document.getElementById('newEmail').value;
                     const newPassword = document.getElementById('newPassword').value;
                     const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -8699,16 +8002,6 @@
                         return;
                     }
 
-                    // Validar seguridad: una mayúscula, un número y un carácter especial
-                    const hasUpper = /[A-Z]/.test(newPassword);
-                    const hasNumber = /[0-9]/.test(newPassword);
-                    const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
-
-                    if (!hasUpper || !hasNumber || !hasSpecial) {
-                        await showDialog('Error', 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial.', 'error');
-                        return;
-                    }
-
                     try {
                         const response = await fetch('api/users.php', {
                             method: 'POST',
@@ -8718,7 +8011,6 @@
                                 adminUsername: adminUsername,
                                 adminPassword: adminPassword,
                                 userToChange: userToChange,
-                                newEmail: newEmail,
                                 newPassword: newPassword
                             })
                         });
@@ -8726,13 +8018,11 @@
                         const data = await response.json();
 
                         if (data.success) {
-                            // Primero cerramos el modal y reseteamos el formulario
+                            await showDialog('Éxito', 'Contraseña cambiada exitosamente.', 'success');
                             modal.style.display = 'none';
                             form.reset();
-                            // Luego mostramos el mensaje de éxito para que sea visible
-                            await showDialog('Éxito', data.message || 'Contraseña cambiada exitosamente.', 'success');
                         } else {
-                            await showDialog('Error', data.message || data.error || 'Error al cambiar la contraseña.', 'error');
+                            await showDialog('Error', data.message || 'Error al cambiar la contraseña.', 'error');
                         }
                     } catch (error) {
                         console.error('Error:', error);
@@ -8816,153 +8106,25 @@
             }
         }
 
-        // NUEVO: Eventos para Olvidaste tu contraseña
-        function setupForgotPasswordEvents() {
-            const modal = document.getElementById('forgotPasswordModal');
-            const showBtn = document.getElementById('showForgotPassword');
-            const closeBtn = document.getElementById('closeForgotPassword');
-            const cancelBtn = document.getElementById('cancelForgotPassword');
-            const form = document.getElementById('forgotPasswordForm');
-            
-            // Gestión de roles dentro del modal de olvido
-            const adminRole = document.getElementById('forgotAdminRole');
-            const workerRole = document.getElementById('forgotWorkerRole');
-            let selectedRole = 'admin';
-
-            if (adminRole && workerRole) {
-                adminRole.addEventListener('click', () => {
-                    adminRole.classList.add('active');
-                    workerRole.classList.remove('active');
-                    selectedRole = 'admin';
-                });
-                workerRole.addEventListener('click', () => {
-                    workerRole.classList.add('active');
-                    adminRole.classList.remove('active');
-                    selectedRole = 'worker';
-                });
-            }
-
-            if (showBtn) {
-                showBtn.addEventListener('click', function() {
-                    modal.style.display = 'flex';
-                });
-            }
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    modal.style.display = 'none';
-                    if (form) form.reset();
-                });
-            }
-
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', function() {
-                    modal.style.display = 'none';
-                    if (form) form.reset();
-                });
-            }
-
-            if (form) {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const email = document.getElementById('recoveryEmail').value;
-                    const sendBtn = document.getElementById('sendRecoveryBtn');
-                    
-                    // Bloquear botón para evitar doble clic
-                    const originalText = sendBtn.innerHTML;
-                    sendBtn.disabled = true;
-                    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-
-                    try {
-                        const response = await fetch('api/forgot_password.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                role: selectedRole,
-                                email: email
-                            })
-                        });
-
-                        const text = await response.text();
-                        let result;
-                        try {
-                            result = JSON.parse(text);
-                        } catch (e) {
-                            console.error('La respuesta no es JSON:', text);
-                            await showDialog('Error', 'El servidor respondió de forma inesperada. Por favor, intenta de nuevo más tarde.', 'error');
-                            return;
-                        }
-
-                        if (result.success) {
-                            // Resetear botón y cerrar modal ANTES del diálogo para que no se vea el "cargando" de fondo
-                            sendBtn.disabled = false;
-                            sendBtn.innerHTML = originalText;
-                            modal.style.display = 'none';
-                            form.reset();
-                            
-                            await showDialog('Éxito', result.message, 'success');
-                        } else {
-                            // Si hay error, solo habilitamos el botón para reintentar
-                            sendBtn.disabled = false;
-                            sendBtn.innerHTML = originalText;
-                            await showDialog('Error', result.message || 'Error al procesar la solicitud', 'error');
-                        }
-                    } catch (error) {
-                        console.error('Error al recuperar contraseña:', error);
-                        sendBtn.disabled = false;
-                        sendBtn.innerHTML = originalText;
-                        await showDialog('Error', 'Error de conexión: ' + error.message, 'error');
-                    }
-                });
-            }
-        }
-
-        // Cargar usuarios disponibles para cambio de contraseña (Filtrado por rol opcional)
-        async function loadUsersForPasswordChange(roleFilter = '') {
+        // Cargar usuarios disponibles para cambio de contraseña
+        async function loadUsersForPasswordChange() {
             try {
                 const response = await fetch('api/users.php');
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Error del servidor:', errorText);
-                    throw new Error('El servidor devolvió un error (Status ' + response.status + ')');
-                }
-
                 const data = await response.json();
 
                 const select = document.getElementById('userToChange');
-                if (!select) return;
-
                 select.innerHTML = '<option value="">Seleccione un usuario</option>';
-                select.disabled = false;
 
                 if (data.success && data.users) {
-                    let filteredUsers = data.users;
-                    if (roleFilter) {
-                        filteredUsers = data.users.filter(u => u.role === roleFilter);
-                    }
-
-                    if (filteredUsers.length === 0) {
-                        select.innerHTML = '<option value="">No hay usuarios con este rol</option>';
-                    } else {
-                        filteredUsers.forEach(user => {
-                            const option = document.createElement('option');
-                            option.value = user.username;
-                            const roleDisplay = user.role === 'admin' ? 'Administrador' : 'Trabajador';
-                            option.textContent = `${user.name} ${user.lastname || ''} (${roleDisplay})`;
-                            select.appendChild(option);
-                        });
-                    }
-                } else if (data.error) {
-                    throw new Error(data.error);
+                    data.users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.username;
+                        option.textContent = `${user.name} (${user.role === 'admin' ? 'Administrador' : 'Trabajador'})`;
+                        select.appendChild(option);
+                    });
                 }
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
-                const select = document.getElementById('userToChange');
-                if (select) {
-                    select.innerHTML = `<option value="">Error: ${error.message}</option>`;
-                }
             }
         }
 
@@ -9441,13 +8603,6 @@
 
                 // Guardar callback
                 window.dialogCallback = (result) => {
-                    // NUEVO: Efectos de relámpago al cerrar según el tipo
-                    if (type === 'success' && result === true) {
-                        triggerLightning('success');
-                    } else if (type === 'error') {
-                        triggerLightning('error');
-                    }
-                    
                     resolve(result);
                     delete window.dialogCallback;
                 };
@@ -9547,15 +8702,6 @@
                 monthSelect.appendChild(option);
             });
 
-            // Agregar opción para todo el año
-            const allYearOption = document.createElement('option');
-            allYearOption.value = -1;
-            allYearOption.textContent = '--- Todos los meses ---';
-            if (currentMonth === -1) {
-                allYearOption.selected = true;
-            }
-            monthSelect.appendChild(allYearOption);
-
             // Agregar años (desde 2025 hasta 2030)
             for (let year = 2025; year <= 2050; year++) {
                 const option = document.createElement('option');
@@ -9583,33 +8729,16 @@
 
         // Calcular ganancia estimada
         function calculateProfit() {
-            const purchasePrice = unformatCurrency(document.getElementById('purchasePrice').value);
-            const retailPrice = unformatCurrency(document.getElementById('retailPrice').value);
-            const wholesalePrice = unformatCurrency(document.getElementById('wholesalePrice').value);
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0;
 
-            if (purchasePrice > 0) {
-                // Ganancia Detal
-                if (retailPrice > 0) {
-                    const profitRetail = retailPrice - purchasePrice;
-                    const profitRetailPercentage = (profitRetail / purchasePrice * 100).toFixed(2);
-                    document.getElementById('profitEstimate').value =
-                        `${formatCurrency(profitRetail)} (${profitRetailPercentage}%)`;
-                } else {
-                    document.getElementById('profitEstimate').value = '';
-                }
-
-                // Ganancia Mayorista
-                if (wholesalePrice > 0) {
-                    const profitWholesale = wholesalePrice - purchasePrice;
-                    const profitWholesalePercentage = (profitWholesale / purchasePrice * 100).toFixed(2);
-                    document.getElementById('profitWholesaleEstimate').value =
-                        `${formatCurrency(profitWholesale)} (${profitWholesalePercentage}%)`;
-                } else {
-                    document.getElementById('profitWholesaleEstimate').value = '';
-                }
+            if (purchasePrice > 0 && retailPrice > 0) {
+                const profit = retailPrice - purchasePrice;
+                const profitPercentage = (profit / purchasePrice * 100).toFixed(2);
+                document.getElementById('profitEstimate').value =
+                    `${formatCurrency(profit)} (${profitPercentage}%)`;
             } else {
                 document.getElementById('profitEstimate').value = '';
-                document.getElementById('profitWholesaleEstimate').value = '';
             }
         }
 
@@ -9706,17 +8835,14 @@
 
                 if (filteredProducts.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="11" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
+                    row.innerHTML = `<td colspan="10" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
                     tableBody.appendChild(row);
                     return;
                 }
 
                 filteredProducts.forEach(product => {
-                    const profitRetail = (parseFloat(product.retailPrice) || 0) - (parseFloat(product.purchasePrice) || 0);
-                    const profitRetailPercentage = (parseFloat(product.purchasePrice) > 0) ? (profitRetail / parseFloat(product.purchasePrice) * 100).toFixed(2) : '0';
-                    
-                    const profitWholesale = (parseFloat(product.wholesalePrice) || 0) - (parseFloat(product.purchasePrice) || 0);
-                    const profitWholesalePercentage = (parseFloat(product.purchasePrice) > 0) ? (profitWholesale / parseFloat(product.purchasePrice) * 100).toFixed(2) : '0';
+                    const profit = (parseFloat(product.retailPrice) || 0) - (parseFloat(product.purchasePrice) || 0);
+                    const profitPercentage = (parseFloat(product.purchasePrice) > 0) ? (profit / parseFloat(product.purchasePrice) * 100).toFixed(2) : '0';
                     const row = document.createElement('tr');
 
                     // Determinar si mostrar botón de eliminar (solo para admin)
@@ -9739,12 +8865,8 @@
                         <td>${formatCurrency(product.wholesalePrice)}</td>
                         <td>${formatCurrency(product.retailPrice)}</td>
                         <td>
-                            ${formatCurrency(profitRetail)}<br>
-                            <small>(${profitRetailPercentage}%)</small>
-                        </td>
-                        <td>
-                            ${formatCurrency(profitWholesale)}<br>
-                            <small>(${profitWholesalePercentage}%)</small>
+                            ${formatCurrency(profit)}<br>
+                            <small>(${profitPercentage}%)</small>
                         </td>
                         <td>${product.supplier}</td>
                         <td>
@@ -9881,7 +9003,6 @@
 
                     row.innerHTML = `
                         <td>${formatDate(sale.date || sale.sale_date)}</td>
-                        <td><strong>${sale.invoice_number || 'N/A'}</strong></td>
                         <td><strong>${sale.id}</strong></td>
                         <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
                         <td>
@@ -10155,11 +9276,6 @@
         // Nueva función para formato de fecha simple
         function formatDateSimple(dateString) {
             if (!dateString) return '---';
-            // Evitar problemas de zona horaria con strings YYYY-MM-DD
-            if (dateString.length === 10) {
-                const parts = dateString.split('-');
-                return `${parts[2]}/${parts[1]}/${parts[0]}`;
-            }
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
@@ -10179,41 +9295,9 @@
             }).format(amount);
         }
 
-        // Función para quitar puntos y convertir a número
-        function unformatCurrency(value) {
-            if (!value) return 0;
-            // Eliminar puntos y cualquier cosa que no sea número
-            const cleanValue = value.toString().replace(/\./g, '').replace(/[^0-9]/g, '');
-            return parseFloat(cleanValue) || 0;
-        }
-
-        // Función para aplicar máscara de miles (.) mientras se escribe
-        function applyCurrencyMask(e) {
-            let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
-            if (value === "") {
-                e.target.value = "";
-                return;
-            }
-            // Formatear con puntos cada 3 dígitos
-            e.target.value = new Intl.NumberFormat('de-DE').format(value);
-        }
-
-        // Delegación de eventos para campos de moneda (estáticos y dinámicos)
-        document.addEventListener('input', function(e) {
-            if (e.target.classList.contains('currency-input')) {
-                applyCurrencyMask(e);
-            }
-        });
-
         function formatDate(dateString) {
             if (!dateString) return '---';
-            // Si es solo fecha YYYY-MM-DD
-            if (dateString.length === 10) {
-                const parts = dateString.split('-');
-                return `${parts[2]}/${parts[1]}/${parts[0]}`;
-            }
-            // Si tiene hora, intentamos parsear cuidando el desfase
-            const date = new Date(dateString.replace(/-/g, '/'));
+            const date = new Date(dateString);
             if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
                 day: '2-digit',
@@ -10346,15 +9430,6 @@
 
         // Verificar sesión con el servidor
         async function checkSession() {
-            // SEGURIDAD: Solo intentar auto-login si esta pestaña ya ha sido marcada como activa
-            // Esto evita que al abrir el link en una pestaña nueva se use una sesión previa del navegador
-            // sin haber pasado por el login en esta pestaña específica.
-            if (!sessionStorage.getItem('destelloOroTabActive')) {
-                console.log('Nueva entrada detectada: Se requiere login');
-                initLoginSteps();
-                return;
-            }
-
             try {
                 const response = await fetch('api/check_auth.php', { cache: 'no-cache' });
                 const data = await response.json();
@@ -10377,8 +9452,7 @@
                     console.log('Sesión activa:', currentUser);
                     showApp();
                 } else {
-                    console.log('No hay sesión activa o ha expirado');
-                    sessionStorage.removeItem('destelloOroTabActive');
+                    console.log('No hay sesión activa');
                     initLoginSteps();
                 }
             } catch (error) {
@@ -10422,7 +9496,6 @@
             setupCustomDialog();
             setupPasswordChange();
             setupResetRecordsEvents();
-            setupForgotPasswordEvents();
             setupWarrantyEvents();
             setupHistoryEvents();
             setupViewMovementModalEvents();
@@ -10527,102 +9600,9 @@
             }
         };
 
-        // NUEVO: Función para actualizar el cronómetro
-        function updateClock() {
-            const now = new Date();
-            
-            // Actualizar Fecha Digital
-            const options = { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: true 
-            };
-            const dateStr = now.toLocaleString('es-ES', options).replace(',', ' |');
-            const timeEl = document.getElementById('currentDateTime');
-            if (timeEl) timeEl.textContent = dateStr;
-
-            // Actualizar Reloj Analógico
-            const seconds = now.getSeconds();
-            const minutes = now.getMinutes();
-            const hours = now.getHours();
-
-            const secDeg = (seconds / 60) * 360;
-            const minDeg = ((minutes + seconds / 60) / 60) * 360;
-            const hrDeg = ((hours % 12 + minutes / 60) / 12) * 360;
-
-            const hrHand = document.getElementById('hrHand');
-            const minHand = document.getElementById('minHand');
-            const secHand = document.getElementById('secHand');
-
-            if(hrHand) hrHand.style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
-            if(minHand) minHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
-            if(secHand) secHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
-        }
-
-        // NUEVO: Función para mostrar destellos dorados
-        function showSparkles() {
-            const duration = 5000;
-            const end = Date.now() + duration;
-
-            const interval = setInterval(() => {
-                if (Date.now() > end) {
-                    clearInterval(interval);
-                    return;
-                }
-
-                for (let i = 0; i < 5; i++) {
-                    const sparkle = document.createElement('div');
-                    sparkle.className = 'sparkle';
-                    sparkle.style.left = Math.random() * 100 + 'vw';
-                    sparkle.style.top = Math.random() * 100 + 'vh';
-                    sparkle.style.animationDelay = Math.random() * 0.5 + 's';
-                    document.body.appendChild(sparkle);
-
-                    setTimeout(() => sparkle.remove(), 2000);
-                }
-            }, 100);
-        }
-
-        // NUEVO: Función para disparar relámpagos
-        function triggerLightning(type) {
-            const container = document.getElementById('lightningContainer');
-            if (!container) return;
-
-            container.style.display = 'block';
-            container.classList.add('spark-flash');
-            
-            // Crear 3 rayos aleatorios
-            for (let i = 0; i < 3; i++) {
-                const beam = document.createElement('div');
-                beam.className = `lightning ${type} lightning-flash`;
-                beam.style.left = (20 + Math.random() * 60) + '%';
-                beam.style.top = '0';
-                beam.style.transform = `rotate(${(Math.random() - 0.5) * 40}deg)`;
-                beam.style.animationDelay = (i * 0.1) + 's';
-                container.appendChild(beam);
-                
-                setTimeout(() => beam.remove(), 500);
-            }
-
-            setTimeout(() => {
-                container.style.display = 'none';
-                container.classList.remove('spark-flash');
-            }, 600);
-        }
-
         // Iniciar cuando el DOM esté listo
-        setInterval(updateClock, 1000);
-        document.addEventListener('DOMContentLoaded', () => {
-            initApp();
-            updateClock();
-        });
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
-
-    <!-- NUEVO: Contenedor para efectos de relámpago -->
-    <div id="lightningContainer" class="lightning-container"></div>
 </body>
+
 </html>

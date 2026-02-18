@@ -40,17 +40,11 @@ if ($method === 'GET') {
             $params = [];
 
             if ($month !== null && $year !== null) {
-                if (intval($month) === -1) {
-                    // Solo filtrar por año (Todos los meses)
-                    $sql .= " AND YEAR(sale_date) = :year";
-                    $params[':year'] = $year;
-                } else {
-                    // JS envía month 0-11; SQL 1-12
-                    $month = intval($month) + 1;
-                    $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
-                    $params[':month'] = $month;
-                    $params[':year']  = $year;
-                }
+                // JS envía month 0-11; SQL 1-12
+                $month = intval($month) + 1;
+                $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
+                $params[':month'] = $month;
+                $params[':year']  = $year;
             }
 
             $sql .= " ORDER BY sale_date DESC";
@@ -95,22 +89,7 @@ if ($method === 'GET') {
                 $sale['deliveryCost']    = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user']            = $sale['username'];
-                $sale['discount']        = (float)($sale['discount'] ?? 0);
-                $sale['subtotal']        = (float)$sale['total'] - $sale['deliveryCost'] + $sale['discount'] - $sale['warrantyIncrement'];
-                
-                $types = [];
-                foreach ($sale['products'] as $p) {
-                    $types[] = $p['saleType'];
-                }
-                $uniqueTypes = array_unique($types);
-                
-                if (count($uniqueTypes) > 1) {
-                    $sale['saleType'] = 'mixed';
-                } elseif (!empty($uniqueTypes)) {
-                    $sale['saleType'] = reset($uniqueTypes);
-                } else {
-                    $sale['saleType'] = 'retail';
-                }
+                $sale['saleType']        = (!empty($sale['products'])) ? $sale['products'][0]['saleType'] : 'retail';
             }
 
             echo json_encode($sales);
@@ -131,49 +110,6 @@ if ($method === 'GET') {
     }
 
     $status = $data->status ?? 'completed';
-
-    // AUTOCORRECCIÓN DE ESQUEMA: Asegurar que las columnas existen en sales
-    $salesSchemaUpdates = [
-        "ALTER TABLE sales ADD COLUMN user_id INT",
-        "ALTER TABLE sales ADD COLUMN username VARCHAR(50)",
-        "ALTER TABLE sales ADD COLUMN status VARCHAR(20) DEFAULT 'completed'"
-    ];
-
-    foreach ($salesSchemaUpdates as $sql) {
-        try {
-            $conn->exec($sql);
-        } catch (PDOException $e) {
-            // Ignorar error si columna existe
-        }
-    }
-
-    // Validar stock antes de procesar
-    $requestedQuantities = [];
-    foreach ($data->products as $item) {
-        $ref = $item->productId;
-        if (!isset($requestedQuantities[$ref])) {
-            $requestedQuantities[$ref] = 0;
-        }
-        $requestedQuantities[$ref] += $item->quantity;
-    }
-
-    foreach ($requestedQuantities as $ref => $qty) {
-        $stmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
-        $stmt->execute([':ref' => $ref]);
-        $product = $stmt->fetch();
-
-        if (!$product) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Producto no encontrado: ' . $ref]);
-            exit;
-        }
-
-        if ($product['quantity'] < $qty) {
-             http_response_code(400);
-             echo json_encode(['error' => "Stock insuficiente para '{$product['name']}'. Disponible: {$product['quantity']}, Solicitado: {$qty}"]);
-             exit;
-        }
-    }
 
     try {
         $conn->beginTransaction();
