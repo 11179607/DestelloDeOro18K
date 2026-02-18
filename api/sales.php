@@ -6,6 +6,11 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 require_once '../config/db.php';
 require_once 'logger.php';
 
+// Inicializar tabla de logs fuera de cualquier transacción para evitar "Implicit Commit"
+try {
+    ensureLogsTableExists($conn);
+} catch (Exception $e) {}
+
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);

@@ -18,6 +18,14 @@ function formatMoney($value) {
     return '$' . number_format((float)$value, 0, ',', '.');
 }
 
+// Inicializar tabla de logs fuera de cualquier transacción para evitar "Implicit Commit"
+// Esto previene el error "There is no active transaction" en MySQL/PDO
+try {
+    ensureLogsTableExists($conn);
+} catch (Exception $e) {
+    // Error no crítico para la ejecución principal
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
