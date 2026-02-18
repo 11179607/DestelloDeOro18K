@@ -9277,7 +9277,7 @@
             const cancelBtn = document.getElementById('dialogCancel');
 
             confirmBtn.addEventListener('click', function () {
-                dialog.style.display = 'none';
+                // Ya no cerramos aquí, dejamos que el callback maneje el efecto y el cierre
                 if (typeof window.dialogCallback === 'function') {
                     window.dialogCallback(true);
                 }
@@ -9405,28 +9405,29 @@
                 // Configurar botones
                 cancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
 
-                // Guardar callback
+                // Guardar callback con lógica de efecto al confirmar
                 window.dialogCallback = (result) => {
-                    dialog.style.display = 'none';
-                    content.classList.remove('success-lightning', 'error-lightning');
-                    resolve(result);
+                    if (result && (type === 'success' || type === 'error')) {
+                        // Aplicar efecto de rayo AL HACER CLIC EN ACEPTAR
+                        content.classList.add(type + '-lightning');
+                        
+                        // Esperar a que termine la animación antes de cerrar y resolver
+                        setTimeout(() => {
+                            dialog.style.display = 'none';
+                            content.classList.remove('success-lightning', 'error-lightning');
+                            resolve(result);
+                        }, 800);
+                    } else {
+                        // Cierre normal para otros tipos o si se cancela
+                        dialog.style.display = 'none';
+                        content.classList.remove('success-lightning', 'error-lightning');
+                        resolve(result);
+                    }
                     delete window.dialogCallback;
                 };
 
                 // Mostrar diálogo
                 dialog.style.display = 'flex';
-
-                // Aplicar efecto de rayo
-                if (type === 'success') {
-                    content.classList.add('success-lightning');
-                } else if (type === 'error') {
-                    content.classList.add('error-lightning');
-                }
-
-                // Quitar efecto después de un momento
-                setTimeout(() => {
-                    content.classList.remove('success-lightning', 'error-lightning');
-                }, 1000);
             });
         }
 
