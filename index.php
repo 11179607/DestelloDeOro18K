@@ -2208,21 +2208,26 @@
                             </div>
                             <div class="form-group">
                                 <label for="productQuantity">Cantidad Inicial *</label>
-                                <input type="number" id="productQuantity" class="form-control" min="0" required>
+                                <input type="number" id="productQuantity" class="form-control" min="0" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div class="form-group">
                                 <label for="purchasePrice">Precio de Compra *</label>
                                 <input type="number" id="purchasePrice" class="form-control" min="0" step="0.01"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="wholesalePrice">Precio Mayorista *</label>
                                 <input type="number" id="wholesalePrice" class="form-control" min="0" step="0.01"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="retailPrice">Precio al Detal *</label>
-                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01" required>
+                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label for="supplier">Proveedor *</label>
@@ -2330,17 +2335,17 @@
                             <div class="form-group">
                                 <label for="customerId">Cédula *</label>
                                 <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890"
-                                    required>
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                             </div>
                             <div class="form-group">
                                 <label for="customerPhone">Teléfono *</label>
                                 <input type="tel" id="customerPhone" class="form-control" placeholder="Ej: 3001234567"
-                                    required>
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                             </div>
                             <div class="form-group">
-                                <label for="customerEmail">Correo Electrónico</label>
+                                <label for="customerEmail">Correo Electrónico *</label>
                                 <input type="email" id="customerEmail" class="form-control"
-                                    placeholder="Ej: cliente@email.com">
+                                    placeholder="Ej: cliente@email.com" required>
                             </div>
                             <div class="form-group">
                                 <label for="customerAddress">Dirección *</label>
@@ -2371,7 +2376,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="saleQuantity">Cantidad *</label>
-                                <input type="number" id="saleQuantity" class="form-control" min="1" required>
+                                <input type="number" id="saleQuantity" class="form-control" min="1" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div class="form-group">
                                 <label for="saleType">Tipo de Venta *</label>
@@ -2382,7 +2388,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="discount">Descuento (%)</label>
-                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0">
+                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0"
+                                    oninput="if(parseFloat(this.value)>100) this.value=100; this.value=this.value.replace(/[^0-9.]/g,'');">
                                 <small class="form-text" style="font-size: 0.8rem;">Entre 0 y 100%</small>
                             </div>
                         </div>
@@ -2469,7 +2476,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="deliveryCost">Costo de Envío</label>
-                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
+                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                             </div>
                         </div>
                     </div>
@@ -2540,7 +2548,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="restockQuantity">Cantidad a Surtir *</label>
-                                <input type="number" id="restockQuantity" class="form-control" min="1" required>
+                                <input type="number" id="restockQuantity" class="form-control" min="1" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                         </div>
                         <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -2584,6 +2593,7 @@
                             <div class="form-group">
                                 <label for="expenseAmount">Valor *</label>
                                 <input type="number" id="expenseAmount" class="form-control" min="0" step="0.01"
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
                                     required>
                             </div>
                         </div>
@@ -2751,7 +2761,8 @@
 
                             <div class="form-group">
                                 <label for="warrantyQuantity">Cantidad para Garantía *</label>
-                                <input type="number" id="warrantyQuantity" class="form-control" min="1" value="1" required>
+                                <input type="number" id="warrantyQuantity" class="form-control" min="1" value="1" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 <small class="form-text" style="font-size: 0.8rem;">Cantidad de unidades que entran en garantía</small>
                             </div>
 
@@ -2789,6 +2800,7 @@
                                     <div class="form-group">
                                         <label for="additionalValue">Valor Adicional *</label>
                                         <input type="number" id="additionalValue" class="form-control" min="0" value="0"
+                                            oninput="this.value = this.value.replace(/[^0-9.]/g, ''); updateWarrantyCostSummary();"
                                             required>
                                         <small class="form-text" style="font-size: 0.8rem;">Valor adicional si el
                                             producto es diferente</small>
@@ -2799,7 +2811,8 @@
                             <!-- Valor de envío -->
                             <div class="form-group">
                                 <label for="shippingValue">Valor Envío *</label>
-                                <input type="number" id="shippingValue" class="form-control" min="0" value="0" required>
+                                <input type="number" id="shippingValue" class="form-control" min="0" value="0" required
+                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); updateWarrantyCostSummary();">
                                 <small class="form-text" style="font-size: 0.8rem;">Este valor se agregará a los gastos
                                     mensuales</small>
                             </div>
@@ -4533,18 +4546,17 @@
                             </thead>
                             <tbody>
                                 ${sales.map(sale => {
-                const isRetail = sale.saleType !== 'wholesale';
-                const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
+                const saleType = sale.saleType || 'retail';
+                const isRetail = saleType !== 'wholesale';
+                const typeLabel = saleType === 'mixed' ? 'Mixta' : (isRetail ? 'Al Detal' : 'Mayorista');
+                const typeColor = saleType === 'mixed' ? '#9C27B0' : (isRetail ? '#4CAF50' : '#2196F3');
+                const saleTotal = parseFloat(sale.total) || 0;
                 const saleCOGS = (sale.products || []).reduce((sum, product) => {
-                    const prod = products.find(p => p.id === product.productId);
-                    if (prod) {
-                        return sum + (prod.purchasePrice * product.quantity);
-                    }
-                    return sum;
+                    const pPurchase = parseFloat(product.purchase_price || product.purchasePrice) || 0;
+                    const pQty = parseInt(product.quantity) || 0;
+                    return sum + (pPurchase * pQty);
                 }, 0);
-                const profit = sale.total - saleCOGS;
-                const typeLabel = isRetail ? 'Al Detal' : 'Mayorista';
-                const typeColor = isRetail ? '#4CAF50' : '#2196F3';
+                const profit = saleTotal - saleCOGS;
 
                 return `
                                         <tr style="border-bottom: 1px solid #eee;">
@@ -4554,7 +4566,7 @@
                                                     ${typeLabel}
                                                 </span>
                                             </td>
-                                            <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
+                                            <td style="padding: 10px; text-align: right;">${formatCurrency(saleTotal)}</td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
                                             <td style="padding: 10px; text-align: right; font-weight: bold; color: ${profit >= 0 ? '#4CAF50' : '#F44336'};">
                                                 ${formatCurrency(profit)}
@@ -5001,7 +5013,7 @@
                                         <strong>${productCount} producto(s):</strong><br>
                                         <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
                                             ${item.products ? item.products.map(p => 
-                                                `• ${p.productName} <b>(x${p.quantity})</b> - ${formatCurrency(p.unitPrice || p.unit_price)}`
+                                                `• ${p.productName || p.productId || 'Producto'} <b>(x${parseInt(p.quantity)||1})</b> - ${formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)}`
                                             ).join('<br>') : (item.productName || 'N/A')}
                                         </div>
                                     </td>
@@ -6942,8 +6954,10 @@
                     `;
                     break;
                 case 'product':
-                    const profit = (movement.retailPrice - movement.purchasePrice);
-                    const profitPercent = ((profit / movement.purchasePrice) * 100).toFixed(2);
+                    const profit = safeNum(movement.retailPrice) - safeNum(movement.purchasePrice);
+                    const profitPercent = safeNum(movement.purchasePrice) > 0 
+                        ? ((profit / safeNum(movement.purchasePrice)) * 100).toFixed(2)
+                        : '0.00';
                     content = `
                         <div style="margin-bottom: 1.5rem;">
                             <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
@@ -7079,14 +7093,16 @@
                                     <i class="fas fa-id-card"></i> Cédula
                                 </label>
                                 <input type="text" name="customerId" value="${movement.customerInfo?.id || movement.customer_id || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-phone"></i> Teléfono
                                 </label>
                                 <input type="text" name="customerPhone" value="${movement.customerInfo?.phone || movement.customer_phone || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                         </div>
 
@@ -9819,13 +9835,21 @@
         }
 
         // Funciones de utilidad
+        // Helper: convierte cualquier valor a número seguro (nunca NaN)
+        function safeNum(val) {
+            if (val === null || val === undefined || val === '') return 0;
+            if (typeof val === 'string') val = val.replace(/[^\d.-]/g, '');
+            const n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+        }
+
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-CO', {
                 style: 'currency',
                 currency: 'COP',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-            }).format(amount);
+            }).format(safeNum(amount));
         }
 
         function formatDate(dateString) {
