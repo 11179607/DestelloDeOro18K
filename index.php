@@ -326,6 +326,64 @@
             animation: errorLightning 0.8s ease-out;
         }
 
+        /* ===== DESTELLOS DORADOS DE VENTA EXITOSA ===== */
+        #goldSparkleOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99999;
+            overflow: hidden;
+        }
+
+        .gold-particle {
+            position: absolute;
+            top: -20px;
+            border-radius: 50%;
+            animation: goldFall linear forwards;
+            pointer-events: none;
+        }
+
+        @keyframes goldFall {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            70% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        @keyframes goldFlash {
+            0%   { opacity: 0; }
+            10%  { opacity: 0.35; }
+            20%  { opacity: 0; }
+            35%  { opacity: 0.25; }
+            50%  { opacity: 0; }
+            65%  { opacity: 0.15; }
+            80%  { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        #goldFlashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.6) 0%, rgba(212, 175, 55, 0.3) 50%, transparent 80%);
+            pointer-events: none;
+            z-index: 99998;
+            display: none;
+            animation: goldFlash 1.2s ease-out forwards;
+        }
+
         .login-box small, .login-box p, .login-box .form-text {
             color: var(--dark-gray) !important;
             text-shadow: none !important;
@@ -3904,6 +3962,7 @@
                         'warning'
                     );
                 } else {
+                    triggerGoldSparkles();
                     await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
                 }
 
@@ -9105,6 +9164,95 @@
             });
         }
 
+        // ===== FUNCIÓN DE DESTELLOS DORADOS =====
+        function triggerGoldSparkles() {
+            // Crear overlay si no existe
+            let overlay = document.getElementById('goldSparkleOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'goldSparkleOverlay';
+                document.body.appendChild(overlay);
+            }
+
+            // Flash dorado de fondo
+            let flash = document.getElementById('goldFlashScreen');
+            if (!flash) {
+                flash = document.createElement('div');
+                flash.id = 'goldFlashScreen';
+                document.body.appendChild(flash);
+            }
+            flash.style.display = 'block';
+            flash.style.animation = 'none';
+            flash.offsetHeight; // reflow
+            flash.style.animation = 'goldFlash 1.2s ease-out forwards';
+            setTimeout(() => { flash.style.display = 'none'; }, 1300);
+
+            // Limpiar partículas anteriores
+            overlay.innerHTML = '';
+
+            // Colores dorados
+            const goldColors = [
+                '#FFD700', '#D4AF37', '#FFC200', '#FFEC8B',
+                '#DAA520', '#F5C518', '#FFB700', '#FFF8DC',
+                '#B8860B', '#FFFACD', '#FFD700', '#EEC900'
+            ];
+
+            // Formas de partículas
+            const shapes = ['circle', 'star', 'diamond', 'circle', 'circle'];
+
+            const totalParticles = 120;
+            const duration = 5000; // 5 segundos
+
+            for (let i = 0; i < totalParticles; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'gold-particle';
+
+                    // Posición horizontal aleatoria
+                    const x = Math.random() * 100;
+                    const size = Math.random() * 14 + 4; // 4px a 18px
+                    const fallDuration = Math.random() * 3 + 2; // 2s a 5s
+                    const color = goldColors[Math.floor(Math.random() * goldColors.length)];
+                    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                    const delay = Math.random() * 0.5;
+
+                    particle.style.left = x + '%';
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    particle.style.background = color;
+                    particle.style.animationDuration = fallDuration + 's';
+                    particle.style.animationDelay = delay + 's';
+                    particle.style.boxShadow = `0 0 ${size/2}px ${color}, 0 0 ${size}px rgba(255,215,0,0.5)`;
+
+                    if (shape === 'star') {
+                        particle.style.borderRadius = '0';
+                        particle.style.background = 'transparent';
+                        particle.style.width = '0';
+                        particle.style.height = '0';
+                        particle.style.boxShadow = 'none';
+                        particle.innerHTML = `<span style="color:${color};font-size:${size+6}px;text-shadow:0 0 8px ${color},0 0 16px rgba(255,215,0,0.8);">★</span>`;
+                    } else if (shape === 'diamond') {
+                        particle.style.borderRadius = '2px';
+                        particle.style.transform = 'rotate(45deg)';
+                        particle.style.background = color;
+                    }
+
+                    overlay.appendChild(particle);
+
+                    // Eliminar partícula al terminar
+                    setTimeout(() => {
+                        if (particle.parentNode) particle.parentNode.removeChild(particle);
+                    }, (fallDuration + delay + 0.5) * 1000);
+
+                }, (i / totalParticles) * duration * 0.7); // Distribuir lanzamiento en 70% del tiempo
+            }
+
+            // Limpiar overlay al terminar
+            setTimeout(() => {
+                if (overlay) overlay.innerHTML = '';
+            }, duration + 1000);
+        }
+
         // Mostrar diálogo personalizado con efectos
         function showDialog(title, message, type = 'info', showCancel = false) {
             return new Promise((resolve) => {
@@ -9681,6 +9829,7 @@
                         await loadPendingSalesTable();
                         await loadInventoryTable();
                         await loadHistoryCards();
+                        triggerGoldSparkles();
                         await showDialog('Éxito', 'Pago confirmado y venta procesada exitosamente.', 'success');
                     } else {
                         await showDialog('Error', data.message || 'Error al procesar la venta.', 'error');
