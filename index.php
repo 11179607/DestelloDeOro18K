@@ -138,7 +138,7 @@
             background: transparent;
             padding: 0;
             border: none;
-            margin-right: 20px;
+            margin-left: 15px; /* Espacio con el botón de logout */
             box-shadow: none;
         }
 
@@ -2238,6 +2238,15 @@
 
                 <div class="user-controls">
                     <!-- Reloj en Header -->
+                    <div id="currentUserRole" class="user-badge admin">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Administrador</span>
+                    </div>
+                    <button id="logoutButton" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+
+                    <!-- Reloj en la Esquina Final -->
                     <div class="clock-container">
                         <div class="analog-clock">
                             <div class="digital-inside">
@@ -2256,14 +2265,6 @@
                             <div class="center-dot"></div>
                         </div>
                     </div>
-
-                    <div id="currentUserRole" class="user-badge admin">
-                        <i class="fas fa-user-shield"></i>
-                        <span>Administrador</span>
-                    </div>
-                    <button id="logoutButton" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                    </button>
                 </div>
             </div>
         </header>
