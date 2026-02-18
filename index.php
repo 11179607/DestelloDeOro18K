@@ -5082,12 +5082,17 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID de Venta</th>
+                                <th>ID Venta</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
+                                <th>Referencia</th>
+                                <th>Precio</th>
+                                <th>Tipo de Venta</th>
+                                <th>Estado</th>
+                                <th>Método Pago</th>
                                 <th>Total</th>
                                 <th>Envío</th>
-                                <th>Incremento Garantía</th>
+                                <th>Incremental</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5122,6 +5127,8 @@
                                 <th>Fecha</th>
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
+                                <th>Producto Original</th>
+                                <th>Producto Garantía</th>
                                 <th>Motivo</th>
                                 <th>Incremento</th>
                                 <th>Costo Envío</th>
@@ -5136,10 +5143,15 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID de Venta</th>
+                                <th>ID Venta</th>
                                 <th>Cliente</th>
-                                <th>Total</th>
+                                <th>Productos</th>
+                                <th>Referencia</th>
+                                <th>Precio</th>
+                                <th>Tipo de Venta</th>
+                                <th>Estado</th>
                                 <th>Método Pago</th>
+                                <th>Total</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5196,9 +5208,34 @@
                                         <strong>${productCount} producto(s):</strong><br>
                                         <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
                                             ${item.products ? item.products.map(p => 
-                                                `• ${p.productName || p.productId || 'Producto'} <b>(x${parseInt(p.quantity)||1})</b> - ${formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)}`
+                                                `• ${p.productName || p.productId || 'Producto'} (x${parseInt(p.quantity)||1})`
                                             ).join('<br>') : (item.productName || 'N/A')}
                                         </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.75rem; color: #666;">
+                                            ${item.products ? item.products.map(p => p.productId || p.reference || 'N/R').join('<br>') : 'N/R'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.75rem;">
+                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : item.saleType === 'mixed' ? 'badge-warning' : 'badge-success'}">
+                                            ${item.saleType === 'wholesale' ? 'Mayorista' : item.saleType === 'mixed' ? 'Mixta' : 'Detal'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : item.status === 'confirmed' ? 'badge-info' : 'badge-warning'}">
+                                            ${item.status === 'completed' ? 'Completada' : item.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
+                                            ${getPaymentMethodName(item.paymentMethod)}
+                                        </span>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
@@ -5291,6 +5328,18 @@
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.originalSaleId}</strong></td>
                                     <td>${item.customerName}</td>
+                                    <td>
+                                        <div style="font-size: 0.85rem;">
+                                            <strong>${item.productName || item.originalProductName || 'N/A'}</strong><br>
+                                            <small>${item.product_ref || item.originalProductId || ''}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.85rem;">
+                                            <strong>${item.newProductName || 'Mismo Producto'}</strong><br>
+                                            <small>${item.newProductRef || item.product_ref || ''}</small>
+                                        </div>
+                                    </td>
                                     <td>${item.warrantyReasonText || item.warrantyReason}</td>
                                     <td><strong>${formatCurrency(item.additionalValue || item.additional_value || 0)}</strong></td>
                                     <td><strong>${formatCurrency(item.shippingValue || item.shipping_value || 0)}</strong></td>
@@ -5344,23 +5393,48 @@
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
-                                    <td><strong>${formatCurrency(item.total)}</strong></td>
+                                    <td>
+                                        <strong>${productCount} producto(s):</strong><br>
+                                        <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
+                                            ${item.products ? item.products.map(p => 
+                                                `• ${p.productName || p.productId || 'Producto'} (x${parseInt(p.quantity)||1})`
+                                            ).join('<br>') : (item.productName || 'N/A')}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.75rem; color: #666;">
+                                            ${item.products ? item.products.map(p => p.productId || p.reference || 'N/R').join('<br>') : 'N/R'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.75rem;">
+                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : item.saleType === 'mixed' ? 'badge-warning' : 'badge-success'}">
+                                            ${item.saleType === 'wholesale' ? 'Mayorista' : item.saleType === 'mixed' ? 'Mixta' : 'Detal'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        ${statusBadge}
+                                    </td>
                                     <td>
                                         <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
                                             ${getPaymentMethodName(item.paymentMethod)}
                                         </span>
                                     </td>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
                                         </span>
                                     </td>
                                     <td>
-                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="display: flex; align-items: center; gap: 5px;">
                                             <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            ${statusBadge}
                                         </div>
                                     </td>
                                 </tr>
