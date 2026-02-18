@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -143,7 +143,7 @@
             height: 100%;
             z-index: 5000; /* Asegura estar por encima del fondo del body */
             padding: 15px;
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)),
+            background: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.45)),
                 url('fondo.jpeg') no-repeat center center fixed;
             background-size: cover;
             overflow-y: auto; /* Permite scroll interno si el contenido es grande */
@@ -184,58 +184,59 @@
             color: var(--gold-primary);
             margin-bottom: 0.75rem;
             display: block;
-            text-shadow: 2px 2px 4px #000000;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .login-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--gold-dark);
             margin-bottom: 0.5rem;
             letter-spacing: 1px;
-            text-shadow: 2px 2px 4px #000000;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .login-header p {
-            color: #ffffff;
+            color: var(--dark-gray);
             font-size: 0.9rem;
-            font-weight: 300;
-            text-shadow: 1px 1px 3px #000000;
+            font-weight: 400;
+            text-shadow: none;
         }
 
         /* Ajustes textos login fondo transparente - LEGIBILIDAD TOTAL */
         .login-box h3 {
-            color: #ffffff !important;
-            text-shadow: 2px 2px 4px #000000 !important;
+            color: var(--gold-dark) !important;
+            text-shadow: none !important;
         }
         
         .login-box label {
-            color: #ffffff !important;
-            text-shadow: 1px 1px 3px #000000 !important;
+            color: var(--text-dark) !important;
+            text-shadow: none !important;
             font-weight: 600;
             font-size: 1rem; /* Un poco más grande para leer mejor */
         }
 
         .login-box small, .login-box p, .login-box .form-text {
-            color: #f0f0f0 !important;
-            text-shadow: 1px 1px 2px #000000 !important;
+            color: var(--dark-gray) !important;
+            text-shadow: none !important;
             font-weight: 400;
         }
 
         /* Inputs transparentes estilo material - Texto blanco */
         .login-box .form-control {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.5);
             border: none;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.7);
-            border-radius: 0;
-            padding: 10px 0;
-            color: #ffffff !important; /* Texto que escribe el usuario en blanco */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border-bottom: 2px solid var(--medium-gray);
+            border-radius: var(--radius-sm);
+            padding: 12px 15px;
+            color: var(--text-dark) !important;
+            text-shadow: none;
         }
         
         .login-box .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--dark-gray);
+            opacity: 0.5;
         }
         
         .login-box .form-control:focus {
@@ -1546,7 +1547,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 8000;
+            z-index: 10000;
             justify-content: center;
             align-items: center;
             padding: 15px;
@@ -1725,11 +1726,26 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="roleToChange">Seleccionar Rol *</label>
+                    <select id="roleToChange" class="form-control" required>
+                        <option value="">Seleccione un rol</option>
+                        <option value="admin">Administrador</option>
+                        <option value="worker">Trabajador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="userToChange">Usuario a modificar *</label>
-                    <select id="userToChange" class="form-control" required>
-                        <option value="">Seleccione un usuario</option>
+                    <select id="userToChange" class="form-control" required disabled>
+                        <option value="">Primero seleccione un rol</option>
                         <!-- Se llenará dinámicamente -->
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="newEmail">Correo Electrónico (Para recuperación) *</label>
+                    <input type="email" id="newEmail" class="form-control" placeholder="usuario@email.com">
+                    <small class="form-text">Si lo dejas vacío no se cambiará el actual.</small>
                 </div>
 
                 <div class="form-group">
@@ -1788,6 +1804,52 @@
         </div>
     </div>
 
+    <!-- NUEVO: Modal para Olvidaste tu contraseña -->
+    <div id="forgotPasswordModal" class="password-change-container">
+        <div class="password-change-box">
+            <button class="close-password-change" id="closeForgotPassword">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="password-change-header">
+                <i class="fas fa-envelope-open-text"></i>
+                <h2>Recuperar Contraseña</h2>
+                <p>Ingresa tu correo registrado para recibir un link de restauración</p>
+            </div>
+
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label>¿De quién es la cuenta? *</label>
+                    <div class="role-selector" style="margin-bottom: 1rem;">
+                        <div id="forgotAdminRole" class="role-btn active" data-role="admin">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Admin</span>
+                        </div>
+                        <div id="forgotWorkerRole" class="role-btn" data-role="worker">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Trabajador</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="recoveryEmail">Correo Electrónico Registrado *</label>
+                    <input type="email" id="recoveryEmail" class="form-control" placeholder="ejemplo@correo.com" required>
+                    <small id="emailHelp" class="form-text text-muted">Debes confirmar el correo exacto que está en la base de datos.</small>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary" id="sendRecoveryBtn">
+                        <i class="fas fa-paper-plane"></i> Enviar Link de Recuperación
+                    </button>
+                    <button type="button" class="btn btn-danger" id="cancelForgotPassword">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
@@ -1819,11 +1881,15 @@
                     <i class="fas fa-arrow-right"></i> Continuar
                 </button>
 
-                <!-- NUEVO: Enlace para cambiar contraseña -->
-                <div style="text-align: center; margin-top: 1rem;">
+                <!-- NUEVO: Enlace para cambiar contraseña y olvidar contraseña -->
+                <div style="text-align: center; margin-top: 1rem; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                     <button type="button" id="showPasswordChange" class="btn btn-sm btn-info"
                         style="padding: 8px 15px; font-size: 0.85rem;">
                         <i class="fas fa-key"></i> Cambiar Contraseña
+                    </button>
+                    <button type="button" id="showForgotPassword" class="btn btn-sm btn-warning"
+                        style="padding: 8px 15px; font-size: 0.85rem;">
+                        <i class="fas fa-question-circle"></i> ¿Olvidaste tu contraseña?
                     </button>
                 </div>
             </div>
@@ -2231,14 +2297,14 @@
                         </h3>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="manualInvoiceId">N�mero de factura (manual)</label>
+                                <label for="manualInvoiceId">Numero de factura (manual)</label>
                                 <input type="text" id="manualInvoiceId" class="form-control" placeholder="Ej: FAC1234">
-                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vac�o se autogenera.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">Si lo dejas vacio se autogenera.</small>
                             </div>
                             <div class="form-group">
                                 <label for="manualSaleDate">Fecha de venta</label>
                                 <input type="date" id="manualSaleDate" class="form-control">
-                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega autom�ticamente.</small>
+                                <small class="form-text" style="font-size: 0.8rem;">La hora se agrega automaticamente.</small>
                             </div>
                             <div class="form-group">
                                 <label for="paymentMethod">Método de Pago *</label>
@@ -2715,7 +2781,8 @@
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
-                                    <th>ID Venta</th>
+                                    <th>Factura</th>
+                                    <th>ID de Venta</th>
                                     <th>Cliente</th>
                                     <th>Productos</th>
                                     <th>Total</th>
@@ -3206,6 +3273,11 @@
                     // 1. Recargar los datos desde el servidor y ESPERAR a que terminen
                     console.log('Recargando tarjetas de historial...');
                     await loadHistoryCards();
+                    
+                    // Si el tipo es gastos, recargar también la tabla de gastos general
+                    if (typeToRefresh === 'expenses') {
+                        loadExpensesTable();
+                    }
 
                     // 2. Actualizar la vista de detalles si está abierta
                     if (document.getElementById('historyDetailsView').classList.contains('active')) {
@@ -3367,18 +3439,22 @@
 
         async function updateProduct(formData) {
             try {
+                const payload = {
+                    id: (formData.id || '').toUpperCase(),
+                    originalId: formData.originalId ? formData.originalId.toUpperCase() : (formData.id || '').toUpperCase(),
+                    date: formData.date || null,
+                    name: formData.name,
+                    quantity: formData.quantity,
+                    purchasePrice: formData.purchasePrice,
+                    wholesalePrice: formData.wholesalePrice,
+                    retailPrice: formData.retailPrice,
+                    supplier: formData.supplier
+                };
+
                 const response = await fetch('api/products.php', {
                     method: 'POST', // api/products.php usa POST para insert/update
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        id: formData.id,
-                        name: formData.name,
-                        quantity: formData.quantity,
-                        purchasePrice: formData.purchasePrice,
-                        wholesalePrice: formData.wholesalePrice,
-                        retailPrice: formData.retailPrice,
-                        supplier: formData.supplier
-                    })
+                    body: JSON.stringify(payload)
                 });
                 const data = await response.json();
                 if (data.success) {
@@ -3727,16 +3803,23 @@
 
             // Actualizar historial
             refreshBtn.addEventListener('click', async function () {
-                await loadHistoryCards();
-                if (document.getElementById('historyDetailsView').classList.contains('active')) {
-                    showHistoryDetails(currentHistoryDetailType || currentHistoryType);
+                const currentFilter = document.getElementById('historyFilter').value;
+                if (currentFilter === 'admin_audit') {
+                    await loadAuditLogs();
+                } else {
+                    await loadHistoryCards();
+                    if (document.getElementById('historyDetailsView').classList.contains('active')) {
+                        showHistoryDetails(currentHistoryDetailType || currentHistoryType);
+                    }
                 }
             });
 
             // Volver a las tarjetas
             backToCardsBtn.addEventListener('click', function () {
                 document.getElementById('historyCardsView').style.display = 'grid';
-                document.getElementById('historyDetailsView').classList.remove('active');
+                const detailsView = document.getElementById('historyDetailsView');
+                detailsView.classList.remove('active');
+                detailsView.style.display = 'none';
             });
         }
 
@@ -4311,14 +4394,16 @@
 
         // Mostrar detalles del historial
         function showHistoryDetails(type) {
+            const detailsView = document.getElementById('historyDetailsView');
+            const wasActive = detailsView.classList.contains('active');
+
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
 
             // Mostrar detalles
-            const detailsView = document.getElementById('historyDetailsView');
             detailsView.style.display = 'block'; // Forzar display block para sobrescribir el none de backToHistoryCards
             
-            if (!detailsView.classList.contains('active')) {
+            if (!wasActive) {
                 detailsView.classList.add('active');
             }
             
@@ -4330,6 +4415,10 @@
                  document.getElementById('detailsTableTitle').textContent = 'Inversión';
             } else {
                 const iconInfo = historyIcons[type];
+                if (!iconInfo) {
+                    console.error('No se encontró información de icono para el tipo:', type);
+                    return;
+                }
                 document.getElementById('detailsTitle').textContent = `Detalles de ${iconInfo.title}`;
                 document.getElementById('detailsTableTitle').textContent = iconInfo.title;
             }
@@ -4609,6 +4698,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
+                                <th>ID de Venta</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
                                 <th>Total</th>
@@ -4661,6 +4751,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
+                                <th>ID de Venta</th>
                                 <th>Cliente</th>
                                 <th>Total</th>
                                 <th>Método Pago</th>
@@ -4713,6 +4804,7 @@
                             row = `
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
+                                    <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td>
@@ -4859,6 +4951,7 @@
                             row = `
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
+                                    <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
@@ -4935,10 +5028,13 @@
                     return sum + itemsCost;
                 }, 0);
 
-                const totalWarrantyCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost || warranty.total_cost) || 0), 0);
+                // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
+                // porque el additionalValue ya está incluido en totalSales (warranty_increment)
+                const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
                 const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
                 
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
+                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos de garantías
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -4968,15 +5064,15 @@
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('warranties')">
                         <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="stat-value">${formatCurrency(totalWarrantyCosts)}</div>
-                        <div class="stat-label">Costos Garantías</div>
-                        <small>${(warranties || []).length} garantías con costo</small>
+                        <div class="stat-value">${formatCurrency(totalWarrantyShippingCosts)}</div>
+                        <div class="stat-label">Costos de Envío (Garantías)</div>
+                        <small>${(warranties || []).length} garantías procesadas</small>
                     </div>
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
                         <div class="stat-label">Ganancia Real</div>
-                        <small>Ventas - Gastos - Costo Inv - Garantías</small>
+                        <small>Ventas - Gastos - Costo Inv - Envíos Garantías</small>
                     </div>
                 `;
             } catch (error) {
@@ -5041,9 +5137,10 @@
                 return sum + saleCost;
             }, 0);
 
-            const totalWarrantyCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
-            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyCosts;
+            // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
+            const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
+            const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
 
             let title = '';
             let detailsHTML = '';
@@ -5063,11 +5160,11 @@
                     break;
                 case 'warranties':
                     title = `Detalles de Garantías - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyCosts);
+                    detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyShippingCosts, totalWarrantyIncrement);
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyCosts, netProfit);
+                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -5281,7 +5378,7 @@
         }
 
         // Generar HTML para detalles de garantías
-        function generateWarrantiesDetailsHTML(warranties, total) {
+        function generateWarrantiesDetailsHTML(warranties, shippingCosts, warrantyIncrement) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5289,8 +5386,12 @@
                     </h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
-                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(total)}</strong><br>
-                            <small>Costo Total</small>
+                            <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(shippingCosts)}</strong><br>
+                            <small>Costos de Envío</small>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                            <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(warrantyIncrement)}</strong><br>
+                            <small>Ingresos por Incremento</small>
                         </div>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
                             <strong style="font-size: 1.2em; color: var(--info);">${warranties.length}</strong><br>
@@ -5408,7 +5509,7 @@
         }
 
         // Generar HTML para resumen de ganancias
-        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantiesTotal, netProfit) {
+        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5417,7 +5518,8 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
                         <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--success);">
                             <strong style="font-size: 1.2em; color: var(--success);">${formatCurrency(salesTotal)}</strong><br>
-                            <small>Ingresos por Ventas</small>
+                            <small>Ingresos por Ventas</small><br>
+                            <small style="color: var(--warning); font-size: 0.8em;">(Incluye ${formatCurrency(warrantyIncrement)} de garantías)</small>
                         </div>
                         <div style="background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--danger);">
                             <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(expensesTotal)}</strong><br>
@@ -5428,8 +5530,8 @@
                             <small>Costo de lo Vendido</small>
                         </div>
                         <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #9c27b0;">
-                            <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantiesTotal)}</strong><br>
-                            <small>Costos de Garantías</small>
+                            <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong><br>
+                            <small>Envíos de Garantías</small>
                         </div>
                         <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
                             <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
@@ -5444,7 +5546,7 @@
                     </h4>
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Ingresos por Ventas:</span>
+                            <span>Ingresos por Ventas (incluye incrementos de garantías):</span>
                             <strong style="color: var(--success);">+${formatCurrency(salesTotal)}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
@@ -5456,8 +5558,8 @@
                             <strong style="color: var(--warning);">-(${formatCurrency(costOfGoodsSoldTotal)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Costos de Garantías:</span>
-                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantiesTotal)})</strong>
+                            <span>Envíos de Garantías:</span>
+                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantyShippingCosts)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
                             <span><strong>Ganancia Neta:</strong></span>
@@ -6738,37 +6840,36 @@
             const modalTitle = document.getElementById('editMovementTitle');
             const modalContent = document.getElementById('editMovementContent');
 
-            modalTitle.textContent = `Editar ${type === 'sales' ? 'Venta' : type === 'expenses' ? 'Gasto' : 'Garantía'}`;
+            modalTitle.textContent = `Editar ${type === 'sales' ? 'Venta' : type === 'expenses' ? 'Gasto' : type === 'product' ? 'Producto de Inventario' : 'Garantía'}`;
 
             // Generar formulario según el tipo
             let formContent = '';
             switch (type) {
                 case 'sales':
                     // Convertir fecha para el input date
-                    let saleDate = '';
-                    try {
-                        saleDate = new Date(movement.date).toISOString().split('T')[0];
-                    } catch(e) {
-                         saleDate = movement.date ? movement.date.split(' ')[0] : '';
-                    }
+                    let saleDate = (movement.date || '').split(' ')[0];
 
                     formContent = `
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-calendar"></i> Fecha de Venta
-                                </label>
-                                <input type="date" name="date" value="${saleDate}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                            </div>
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-hashtag"></i> Número de Factura
-                                </label>
-                                <input type="text" name="invoiceNumber" value="${movement.id}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
-                            </div>
-                        </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                            <i class="fas fa-fingerprint"></i> ID de Venta
+                                        </label>
+                                        <input type="text" name="id" value="${movement.id}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f5f5f5;" readonly>
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                            <i class="fas fa-calendar"></i> Fecha de Venta
+                                        </label>
+                                        <input type="date" name="date" value="${saleDate}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                        <i class="fas fa-hashtag"></i> Número de Factura (Manual)
+                                    </label>
+                                    <input type="text" name="invoiceNumber" value="${movement.invoice_number || movement.invoiceNumber || ''}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
 
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -6853,6 +6954,9 @@
                     break;
 
                 case 'expenses':
+                    // Convertir fecha para el input date
+                    let expenseDateEdit = (movement.date || '').split(' ')[0];
+
                     formContent = `
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
@@ -6861,12 +6965,12 @@
                             <input type="text" name="description" value="${movement.description}" 
                                    class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                         </div>
-                        
+
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                 <i class="fas fa-calendar"></i> Fecha
                             </label>
-                            <input type="date" name="date" value="${movement.date}" 
+                            <input type="date" name="date" value="${expenseDateEdit}"  
                                    class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
                         </div>
                         
@@ -6883,12 +6987,7 @@
 
                 case 'warranties':
                     // Convertir fecha de garantía
-                    let warrantyDate = '';
-                    try {
-                        warrantyDate = new Date(movement.createdAt).toISOString().split('T')[0];
-                    } catch(e) {
-                         warrantyDate = movement.createdAt ? movement.createdAt.split(' ')[0] : '';
-                    }
+                    let warrantyDate = (movement.date || '').split(' ')[0] || (movement.createdAt || '').split(' ')[0];
 
                     formContent = `
                         <div style="margin-bottom: 1rem;">
@@ -6986,9 +7085,27 @@
                         </div>
                     `;
                     break;
-                    break;
                 case 'product':
+                    let productDate = (movement.date || '').split(' ')[0];
+
                     formContent = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-calendar"></i> Fecha de Ingreso
+                                </label>
+                                <input type="date" name="date" value="${productDate}"
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-barcode"></i> Referencia
+                                </label>
+                                <input type="text" name="id" value="${movement.id}" oninput="this.value = this.value.toUpperCase();"
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Identificador unico del producto</small>
+                            </div>
+                        </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Nombre del Producto</label>
                             <input type="text" name="name" value="${movement.name}" class="form-control" style="width: 100%; padding: 8px;" required>
@@ -7013,17 +7130,12 @@
                             <label style="font-weight: 500;">Proveedor</label>
                             <input type="text" name="supplier" value="${movement.supplier || ''}" class="form-control" style="width: 100%; padding: 8px;">
                         </div>
-                        <input type="hidden" name="id" value="${movement.id}">
+                        <input type="hidden" name="originalId" value="${movement.id}">
                     `;
                     break;
                 case 'restocks':
                     // Convertir fecha de surtido
-                    let restockDate = '';
-                    try {
-                        restockDate = new Date(movement.date).toISOString().split('T')[0];
-                    } catch(e) {
-                         restockDate = movement.date ? movement.date.split(' ')[0] : '';
-                    }
+                    let restockDate = (movement.date || '').split(' ')[0];
 
                     formContent = `
                         <div style="margin-bottom: 1rem;">
@@ -7373,6 +7485,7 @@
 
                             // Guardar en sessionStorage para persistencia de pestaña
                             sessionStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
+                            sessionStorage.setItem('destelloOroTabActive', 'true'); // Marcar esta pestaña como activa para auto-login
 
                             await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
                             showApp();
@@ -7952,7 +8065,26 @@
                 showBtn.addEventListener('click', function() {
                     console.log('Clic en Cambiar Contraseña');
                     modal.style.display = 'flex';
-                    loadUsersForPasswordChange();
+                    // Resetear selectores
+                    document.getElementById('roleToChange').value = '';
+                    const userSelect = document.getElementById('userToChange');
+                    userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
+                    userSelect.disabled = true;
+                });
+            }
+
+            // NUEVO: Listener para el cambio de rol en el modal de contraseña
+            const roleSelect = document.getElementById('roleToChange');
+            if (roleSelect) {
+                roleSelect.addEventListener('change', function() {
+                    const role = this.value;
+                    if (role) {
+                        loadUsersForPasswordChange(role);
+                    } else {
+                        const userSelect = document.getElementById('userToChange');
+                        userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
+                        userSelect.disabled = true;
+                    }
                 });
             }
 
@@ -7960,7 +8092,11 @@
                 forgotBtn.addEventListener('click', function() {
                     console.log('Clic en Olvidé mi contraseña');
                     modal.style.display = 'flex';
-                    loadUsersForPasswordChange();
+                    // Resetear selectores
+                    document.getElementById('roleToChange').value = '';
+                    const userSelect = document.getElementById('userToChange');
+                    userSelect.innerHTML = '<option value="">Primero seleccione un rol</option>';
+                    userSelect.disabled = true;
                 });
             }
 
@@ -7987,6 +8123,7 @@
                     const adminUsername = document.getElementById('adminUsername').value;
                     const adminPassword = document.getElementById('adminPassword').value;
                     const userToChange = document.getElementById('userToChange').value;
+                    const newEmail = document.getElementById('newEmail').value;
                     const newPassword = document.getElementById('newPassword').value;
                     const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -8011,6 +8148,7 @@
                                 adminUsername: adminUsername,
                                 adminPassword: adminPassword,
                                 userToChange: userToChange,
+                                newEmail: newEmail,
                                 newPassword: newPassword
                             })
                         });
@@ -8018,11 +8156,13 @@
                         const data = await response.json();
 
                         if (data.success) {
-                            await showDialog('Éxito', 'Contraseña cambiada exitosamente.', 'success');
+                            // Primero cerramos el modal y reseteamos el formulario
                             modal.style.display = 'none';
                             form.reset();
+                            // Luego mostramos el mensaje de éxito para que sea visible
+                            await showDialog('Éxito', data.message || 'Contraseña cambiada exitosamente.', 'success');
                         } else {
-                            await showDialog('Error', data.message || 'Error al cambiar la contraseña.', 'error');
+                            await showDialog('Error', data.message || data.error || 'Error al cambiar la contraseña.', 'error');
                         }
                     } catch (error) {
                         console.error('Error:', error);
@@ -8106,25 +8246,153 @@
             }
         }
 
-        // Cargar usuarios disponibles para cambio de contraseña
-        async function loadUsersForPasswordChange() {
+        // NUEVO: Eventos para Olvidaste tu contraseña
+        function setupForgotPasswordEvents() {
+            const modal = document.getElementById('forgotPasswordModal');
+            const showBtn = document.getElementById('showForgotPassword');
+            const closeBtn = document.getElementById('closeForgotPassword');
+            const cancelBtn = document.getElementById('cancelForgotPassword');
+            const form = document.getElementById('forgotPasswordForm');
+            
+            // Gestión de roles dentro del modal de olvido
+            const adminRole = document.getElementById('forgotAdminRole');
+            const workerRole = document.getElementById('forgotWorkerRole');
+            let selectedRole = 'admin';
+
+            if (adminRole && workerRole) {
+                adminRole.addEventListener('click', () => {
+                    adminRole.classList.add('active');
+                    workerRole.classList.remove('active');
+                    selectedRole = 'admin';
+                });
+                workerRole.addEventListener('click', () => {
+                    workerRole.classList.add('active');
+                    adminRole.classList.remove('active');
+                    selectedRole = 'worker';
+                });
+            }
+
+            if (showBtn) {
+                showBtn.addEventListener('click', function() {
+                    modal.style.display = 'flex';
+                });
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    if (form) form.reset();
+                });
+            }
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    if (form) form.reset();
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('recoveryEmail').value;
+                    const sendBtn = document.getElementById('sendRecoveryBtn');
+                    
+                    // Bloquear botón para evitar doble clic
+                    const originalText = sendBtn.innerHTML;
+                    sendBtn.disabled = true;
+                    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+                    try {
+                        const response = await fetch('api/forgot_password.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                role: selectedRole,
+                                email: email
+                            })
+                        });
+
+                        const text = await response.text();
+                        let result;
+                        try {
+                            result = JSON.parse(text);
+                        } catch (e) {
+                            console.error('La respuesta no es JSON:', text);
+                            await showDialog('Error', 'El servidor respondió de forma inesperada. Por favor, intenta de nuevo más tarde.', 'error');
+                            return;
+                        }
+
+                        if (result.success) {
+                            // Resetear botón y cerrar modal ANTES del diálogo para que no se vea el "cargando" de fondo
+                            sendBtn.disabled = false;
+                            sendBtn.innerHTML = originalText;
+                            modal.style.display = 'none';
+                            form.reset();
+                            
+                            await showDialog('Éxito', result.message, 'success');
+                        } else {
+                            // Si hay error, solo habilitamos el botón para reintentar
+                            sendBtn.disabled = false;
+                            sendBtn.innerHTML = originalText;
+                            await showDialog('Error', result.message || 'Error al procesar la solicitud', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error al recuperar contraseña:', error);
+                        sendBtn.disabled = false;
+                        sendBtn.innerHTML = originalText;
+                        await showDialog('Error', 'Error de conexión: ' + error.message, 'error');
+                    }
+                });
+            }
+        }
+
+        // Cargar usuarios disponibles para cambio de contraseña (Filtrado por rol opcional)
+        async function loadUsersForPasswordChange(roleFilter = '') {
             try {
                 const response = await fetch('api/users.php');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error del servidor:', errorText);
+                    throw new Error('El servidor devolvió un error (Status ' + response.status + ')');
+                }
+
                 const data = await response.json();
 
                 const select = document.getElementById('userToChange');
+                if (!select) return;
+
                 select.innerHTML = '<option value="">Seleccione un usuario</option>';
+                select.disabled = false;
 
                 if (data.success && data.users) {
-                    data.users.forEach(user => {
-                        const option = document.createElement('option');
-                        option.value = user.username;
-                        option.textContent = `${user.name} (${user.role === 'admin' ? 'Administrador' : 'Trabajador'})`;
-                        select.appendChild(option);
-                    });
+                    let filteredUsers = data.users;
+                    if (roleFilter) {
+                        filteredUsers = data.users.filter(u => u.role === roleFilter);
+                    }
+
+                    if (filteredUsers.length === 0) {
+                        select.innerHTML = '<option value="">No hay usuarios con este rol</option>';
+                    } else {
+                        filteredUsers.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.username;
+                            const roleDisplay = user.role === 'admin' ? 'Administrador' : 'Trabajador';
+                            option.textContent = `${user.name} ${user.lastname || ''} (${roleDisplay})`;
+                            select.appendChild(option);
+                        });
+                    }
+                } else if (data.error) {
+                    throw new Error(data.error);
                 }
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
+                const select = document.getElementById('userToChange');
+                if (select) {
+                    select.innerHTML = `<option value="">Error: ${error.message}</option>`;
+                }
             }
         }
 
@@ -9003,6 +9271,7 @@
 
                     row.innerHTML = `
                         <td>${formatDate(sale.date || sale.sale_date)}</td>
+                        <td><strong>${sale.invoice_number || 'N/A'}</strong></td>
                         <td><strong>${sale.id}</strong></td>
                         <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
                         <td>
@@ -9276,6 +9545,11 @@
         // Nueva función para formato de fecha simple
         function formatDateSimple(dateString) {
             if (!dateString) return '---';
+            // Evitar problemas de zona horaria con strings YYYY-MM-DD
+            if (dateString.length === 10) {
+                const parts = dateString.split('-');
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
@@ -9297,7 +9571,13 @@
 
         function formatDate(dateString) {
             if (!dateString) return '---';
-            const date = new Date(dateString);
+            // Si es solo fecha YYYY-MM-DD
+            if (dateString.length === 10) {
+                const parts = dateString.split('-');
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            // Si tiene hora, intentamos parsear cuidando el desfase
+            const date = new Date(dateString.replace(/-/g, '/'));
             if (isNaN(date.getTime())) return '---';
             return date.toLocaleDateString('es-CO', {
                 day: '2-digit',
@@ -9430,6 +9710,15 @@
 
         // Verificar sesión con el servidor
         async function checkSession() {
+            // SEGURIDAD: Solo intentar auto-login si esta pestaña ya ha sido marcada como activa
+            // Esto evita que al abrir el link en una pestaña nueva se use una sesión previa del navegador
+            // sin haber pasado por el login en esta pestaña específica.
+            if (!sessionStorage.getItem('destelloOroTabActive')) {
+                console.log('Nueva entrada detectada: Se requiere login');
+                initLoginSteps();
+                return;
+            }
+
             try {
                 const response = await fetch('api/check_auth.php', { cache: 'no-cache' });
                 const data = await response.json();
@@ -9452,7 +9741,8 @@
                     console.log('Sesión activa:', currentUser);
                     showApp();
                 } else {
-                    console.log('No hay sesión activa');
+                    console.log('No hay sesión activa o ha expirado');
+                    sessionStorage.removeItem('destelloOroTabActive');
                     initLoginSteps();
                 }
             } catch (error) {
@@ -9496,6 +9786,7 @@
             setupCustomDialog();
             setupPasswordChange();
             setupResetRecordsEvents();
+            setupForgotPasswordEvents();
             setupWarrantyEvents();
             setupHistoryEvents();
             setupViewMovementModalEvents();

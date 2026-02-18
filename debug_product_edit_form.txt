@@ -1,0 +1,32 @@
+6994:                     break;
+6995:                 case 'product':
+6996:                     // Convert date for input
+6997:                     let productDate = '';
+6998:                     try {
+6999:                         if (movement.date || movement.created_at) {
+7000:                             const dateStr = movement.date || movement.created_at;
+7001:                             productDate = new Date(dateStr).toISOString().split('T')[0];
+7002:                         }
+7003:                     } catch(e) {
+7004:                         productDate = movement.date ? movement.date.split(' ')[0] : '';
+7005:                     }
+7006: 
+7007:                     formContent = `
+7008:                         <div style="margin-bottom: 1rem;">
+7009:                             <label style="font-weight: 500;"><i class="fas fa-calendar"></i> Fecha</label>
+7010:                             <input type="date" name="date" value="${productDate}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+7011:                         </div>
+7012:                         <div style="margin-bottom: 1rem;">
+7013:                             <label style="font-weight: 500;"><i class="fas fa-barcode"></i> Referencia</label>
+7014:                             <input type="text" name="reference" value="${movement.id || movement.reference}" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+7015:                         </div>
+7016:                         <div style="margin-bottom: 1rem;">
+7017:                             <label style="font-weight: 500;">Nombre del Producto</label>
+7018:                             <input type="text" name="name" value="${movement.name}" class="form-control" style="width: 100%; padding: 8px;" required>
+7019:                         </div>
+7020:                         <div style="margin-bottom: 1rem;">
+7021:                             <label style="font-weight: 500;">Cantidad</label>
+7022:                             <input type="number" name="quantity" value="${movement.quantity}" class="form-control" style="width: 100%; padding: 8px;" required>
+7023:                         </div>
+7024:                         <div style="margin-bottom: 1rem;">
+7025:                             <label style="font-weight: 500;">Precio Compra</label>

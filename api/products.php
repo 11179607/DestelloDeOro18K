@@ -34,36 +34,78 @@ if ($method === 'GET') {
 
     $data = json_decode(file_get_contents("php://input"));
     
-    // Validación básica
-    if (!isset($data->id) || !isset($data->name)) { // JS envía 'id' como referencia
+    // Validaci?n b?sica
+    if (!isset($data->id) || !isset($data->name)) { // JS env?a 'id' como referencia
         http_response_code(400);
         echo json_encode(['error' => 'Datos incompletos']);
         exit;
     }
 
+    $originalId = (isset($data->originalId) && $data->originalId) ? $data->originalId : $data->id;
+
     try {
-        // Asegurar que la columna existe (opcional, para mayor robustez en esta actualización)
+        // Asegurar que la columna existe (opcional, para mayor robustez en esta actualizaci?n)
         $conn->exec("ALTER TABLE products ADD COLUMN IF NOT EXISTS entry_date DATE AFTER reference");
         
-        // Verificar si existe para UPDATE o INSERT
-        // Para simplificar, asumimos INSERT o UPDATE ON DUPLICATE
-        $sql = "INSERT INTO products (reference, entry_date, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
-                VALUES (:ref, :entry_date, :name, :qty, :pp, :wp, :rp, :sup, :user)
-                ON DUPLICATE KEY UPDATE 
-                entry_date = :entry_date, name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([
-            ':ref' => $data->id,
-            ':entry_date' => $data->date,
-            ':name' => $data->name,
-            ':qty' => $data->quantity,
-            ':pp' => $data->purchasePrice,
-            ':wp' => $data->wholesalePrice,
-            ':rp' => $data->retailPrice,
-            ':sup' => $data->supplier,
-            ':user' => $_SESSION['username']
-        ]);
+        // Si se cambia la referencia, validar que la nueva no exista y actualizar PK
+        if ($originalId !== $data->id) {
+            $check = $conn->prepare("SELECT reference FROM products WHERE reference = :ref");
+            $check->execute([':ref' => $data->id]);
+            if ($check->fetch()) {
+                http_response_code(409);
+                echo json_encode(['error' => 'La nueva referencia ya existe.']);
+                exit;
+            }
+
+            $update = $conn->prepare("UPDATE products SET reference = :ref, entry_date = :entry_date, name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup, updated_at = NOW() WHERE reference = :original");
+            $update->execute([
+                ':ref' => $data->id,
+                ':entry_date' => $data->date,
+                ':name' => $data->name,
+                ':qty' => $data->quantity,
+                ':pp' => $data->purchasePrice,
+                ':wp' => $data->wholesalePrice,
+                ':rp' => $data->retailPrice,
+                ':sup' => $data->supplier,
+                ':original' => $originalId
+            ]);
+
+            // Si no exist?a el registro anterior, crear uno nuevo
+            if ($update->rowCount() === 0) {
+                $insert = $conn->prepare("INSERT INTO products (reference, entry_date, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
+                        VALUES (:ref, :entry_date, :name, :qty, :pp, :wp, :rp, :sup, :user)");
+                $insert->execute([
+                    ':ref' => $data->id,
+                    ':entry_date' => $data->date,
+                    ':name' => $data->name,
+                    ':qty' => $data->quantity,
+                    ':pp' => $data->purchasePrice,
+                    ':wp' => $data->wholesalePrice,
+                    ':rp' => $data->retailPrice,
+                    ':sup' => $data->supplier,
+                    ':user' => $_SESSION['username']
+                ]);
+            }
+        } else {
+            // Actualizar/insertar cuando la referencia no cambia
+            $sql = "INSERT INTO products (reference, entry_date, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
+                    VALUES (:ref, :entry_date, :name, :qty, :pp, :wp, :rp, :sup, :user)
+                    ON DUPLICATE KEY UPDATE 
+                    entry_date = :entry_date, name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                ':ref' => $data->id,
+                ':entry_date' => $data->date,
+                ':name' => $data->name,
+                ':qty' => $data->quantity,
+                ':pp' => $data->purchasePrice,
+                ':wp' => $data->wholesalePrice,
+                ':rp' => $data->retailPrice,
+                ':sup' => $data->supplier,
+                ':user' => $_SESSION['username']
+            ]);
+        }
 
         echo json_encode(['success' => true, 'message' => 'Producto guardado correctamente']);
 

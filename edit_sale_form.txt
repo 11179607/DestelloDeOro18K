@@ -1,0 +1,90 @@
+                    let saleDate = '';
+                    try {
+                        saleDate = new Date(movement.date).toISOString().split('T')[0];
+                    } catch(e) {
+                         saleDate = movement.date ? movement.date.split(' ')[0] : '';
+                    }
+
+                    formContent = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-calendar"></i> Fecha de Venta
+                                </label>
+                                <input type="date" name="date" value="${saleDate}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-hashtag"></i> Número de Factura
+                                </label>
+                                <input type="text" name="invoiceNumber" value="${movement.id}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-user"></i> Nombre del Cliente
+                            </label>
+                            <input type="text" name="customerName" value="${movement.customerInfo?.name || movement.customer_name || ''}" 
+                                   class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-id-card"></i> Cédula
+                                </label>
+                                <input type="text" name="customerId" value="${movement.customerInfo?.id || movement.customer_id || ''}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-phone"></i> Teléfono
+                                </label>
+                                <input type="text" name="customerPhone" value="${movement.customerInfo?.phone || movement.customer_phone || ''}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-money-bill"></i> Subtotal
+                                </label>
+                                <input type="number" name="subtotal" value="${movement.subtotal || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-truck"></i> Envío
+                                </label>
+                                <input type="number" name="deliveryCost" value="${movement.deliveryCost || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-tag"></i> Descuento
+                                </label>
+                                <input type="number" name="discount" value="${movement.discount || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-shield-alt"></i> Inc. Garantía
+                                </label>
+                                <input type="number" name="warrantyIncrement" value="${movement.warrantyIncrement || 0}" 
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                                       min="0" step="0.01">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-credit-card"></i> Pago
+                                </label>
+                                <select name="paymentMethod" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    ${Object.entries(paymentMethods).map(([key, method]) => `
+                                        <option value="${key}" ${movement.paymentMethod === key ? 'selected' : ''}>${method.name}</option>

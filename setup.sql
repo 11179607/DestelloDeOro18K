@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL, -- Will store plain text for now to match current app, but hashing is recommended later
     role ENUM('admin', 'worker') NOT NULL,
+    email VARCHAR(150),
+    reset_token VARCHAR(255) DEFAULT NULL,
+    reset_token_expiry DATETIME DEFAULT NULL,
     name VARCHAR(100) NOT NULL,
     lastname VARCHAR(100),
     phone VARCHAR(20),
@@ -118,9 +121,9 @@ CREATE TABLE IF NOT EXISTS app_settings (
 );
 
 -- Insert Default Users
-INSERT INTO users (username, password, role, name, lastname, phone) VALUES 
-('admin', 'admin123', 'admin', 'Administrador', 'Principal', '3001234567'),
-('trabajador', 'trabajador123', 'worker', 'Vendedor', 'Principal', '3009876543');
+INSERT INTO users (username, password, role, email, name, lastname, phone) VALUES 
+('admin', 'admin123', 'admin', 'marloncdela@gmail.com', 'Administrador', 'Principal', '3001234567'),
+('trabajador', 'trabajador123', 'worker', 'marloncdela@gmail.com', 'Vendedor', 'Principal', '3009876543');
 
 -- Insert Default Settings
 INSERT INTO app_settings (setting_key, setting_value) VALUES 
