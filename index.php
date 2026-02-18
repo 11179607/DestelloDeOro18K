@@ -167,7 +167,7 @@
             align-items: center;
             pointer-events: none;
             width: 100%;
-            top: 50%;
+            top: 72%; /* Bajado para que no lo tapen las manecillas en el centro */
             transform: translateY(-50%);
         }
 
