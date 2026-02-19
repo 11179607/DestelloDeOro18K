@@ -4258,9 +4258,9 @@
                     `;
                 }
 
-                /* if (currentHistoryType !== 'investment') {
-                     loadMonthlySummary();
-                } */
+                if (currentHistoryType !== 'investment') {
+                    loadMonthlySummary();
+                }
 
 
             } catch (error) {
@@ -5496,6 +5496,10 @@
                     return sum + itemsCost;
                 }, 0);
 
+                // Calcular incrementos de garantías y costos de envío (para mostrar en las tarjetas)
+                const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warranty_increment || sale.warrantyIncrement) || 0), 0);
+                const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shipping_value || warranty.shippingValue) || 0), 0);
+
                 // Ganancia = Ventas (incluye warranty_increment) - Gastos (incluye envíos de garantías) - Costo de productos
                 const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
@@ -5534,7 +5538,7 @@
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
-                        <div class="stat-label">Ganancia Real</div>
+                        <div class="stat-label">Ganancias Totales</div>
                         <small>Ventas - Gastos - Costo Inv - Envíos Garantías</small>
                     </div>
                 `;
@@ -5603,7 +5607,8 @@
             // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
+            // CORRECCIÓN: totalExpenses ya incluye totalWarrantyShippingCosts (se registran en la tabla expenses)
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
             let title = '';
             let detailsHTML = '';
@@ -5998,7 +6003,7 @@
                         </div>
                         <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
                             <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
-                            <small>Ganancia Neta del Mes</small>
+                            <small>Ganancias Totales</small>
                         </div>
                     </div>
                 </div>
@@ -8498,6 +8503,7 @@
 
                     if (data.success) {
                         loadExpensesTable();
+                        loadHistoryCards(); // Actualiza caché y resumen mensual
                         this.reset();
                         document.getElementById('addExpenseForm').style.display = 'none';
                         await showDialog('Éxito', 'Gasto registrado exitosamente.', 'success');
