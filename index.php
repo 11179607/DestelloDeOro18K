@@ -9391,8 +9391,56 @@
             });
         }
 
+        // ===== FUNCIONES DE SONIDO =====
+        function playAppSound(type) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const audioCtx = new AudioContext();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'success') {
+                    // Sonido de éxito: Dos tonos ascendentes brillantes (E5 -> A5)
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(659.25, now); // E5
+                    oscillator.frequency.exponentialRampToValueAtTime(880.00, now + 0.1); // A5
+                    
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+                    
+                    oscillator.start(now);
+                    oscillator.stop(now + 0.4);
+                } else if (type === 'error') {
+                    // Sonido de error: Un tono bajo y "pesado" (D3 -> Bb2)
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(146.83, now); // D3
+                    oscillator.frequency.linearRampToValueAtTime(116.54, now + 0.2); // Bb2
+                    
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.2, now + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
+                    
+                    oscillator.start(now);
+                    oscillator.stop(now + 0.5);
+                }
+            } catch (e) {
+                console.warn('Audio feedback blocked by browser or not supported:', e);
+            }
+        }
+
         // ===== FUNCIÓN DE DESTELLOS DORADOS =====
         function triggerGoldSparkles() {
+            // Reproducir sonido de éxito
+            playAppSound('success');
+
             // Crear overlay si no existe
             let overlay = document.getElementById('goldSparkleOverlay');
             if (!overlay) {
@@ -9482,6 +9530,11 @@
 
         // Mostrar diálogo personalizado con efectos
         function showDialog(title, message, type = 'info', showCancel = false) {
+            // Reproducir sonido según el tipo
+            if (type === 'success' || type === 'error') {
+                playAppSound(type);
+            }
+
             return new Promise((resolve) => {
                 const dialog = document.getElementById('customDialog');
                 const content = dialog.querySelector('.dialog-content');
