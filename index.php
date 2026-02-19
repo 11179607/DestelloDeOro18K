@@ -7400,14 +7400,31 @@
                             </div>
                         </div>
                         
-                        <div style="margin-bottom: 1rem;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                <i class="fas fa-check-circle"></i> Estado
-                            </label>
-                            <select name="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                <option value="pending" ${!movement.confirmed && movement.status !== 'completed' ? 'selected' : ''}>Pendiente</option>
-                                <option value="completed" ${movement.confirmed || movement.status === 'completed' ? 'selected' : ''}>Completada</option>
-                            </select>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-truck-loading"></i> Tipo Entrega
+                                </label>
+                                <select name="deliveryType" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" onchange="
+                                    const costInput = this.closest('.dialog-message').querySelector('input[name=\'deliveryCost\']');
+                                    if(this.value === 'delivery') costInput.value = 10000;
+                                    else if(this.value === 'national') costInput.value = 18000;
+                                    else costInput.value = 0;
+                                ">
+                                    <option value="store" ${movement.deliveryType === 'store' ? 'selected' : ''}>Recoge en tienda</option>
+                                    <option value="delivery" ${movement.deliveryType === 'delivery' ? 'selected' : ''}>Domicilio</option>
+                                    <option value="national" ${movement.deliveryType === 'national' ? 'selected' : ''}>Envío nacional</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <i class="fas fa-check-circle"></i> Estado
+                                </label>
+                                <select name="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="pending" ${!movement.confirmed && movement.status !== 'completed' ? 'selected' : ''}>Pendiente</option>
+                                    <option value="completed" ${movement.confirmed || movement.status === 'completed' ? 'selected' : ''}>Completada</option>
+                                </select>
+                            </div>
                         </div>
                     `;
                     break;
@@ -8333,7 +8350,17 @@
             // Actualizar resumen de venta al cambiar costo de envío, toggle de envío gratis o tipo de entrega
             document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
             document.getElementById('freeShippingToggle').addEventListener('change', updateSaleSummary);
-            document.getElementById('deliveryType').addEventListener('change', updateSaleSummary);
+            document.getElementById('deliveryType').addEventListener('change', function() {
+                const deliveryCostInput = document.getElementById('deliveryCost');
+                if (this.value === 'delivery') {
+                    deliveryCostInput.value = 10000;
+                } else if (this.value === 'national') {
+                    deliveryCostInput.value = 18000;
+                } else {
+                    deliveryCostInput.value = 0;
+                }
+                updateSaleSummary();
+            });
 
             // Formulario de producto (solo para admin)
             document.getElementById('productForm').addEventListener('submit', async function (e) {
@@ -10190,9 +10217,9 @@
             return new Intl.NumberFormat('es-CO', {
                 style: 'currency',
                 currency: 'COP',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(safeNum(amount));
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(Math.round(safeNum(amount)));
         }
 
         function formatDate(dateString) {

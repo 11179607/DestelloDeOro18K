@@ -100,6 +100,26 @@ if ($method === 'GET') {
             
             $saleId = $conn->lastInsertId();
             
+            // --- LÓGICA DE GASTO POR ENVÍO GRATIS ---
+            $isFreeShipping = isset($data->isFreeShipping) ? (bool)$data->isFreeShipping : false;
+            $originalDeliveryCost = 0;
+            if (isset($data->originalDeliveryCost)) {
+                $originalDeliveryCost = (float)$data->originalDeliveryCost;
+            }
+
+            if ($isFreeShipping && $originalDeliveryCost > 0) {
+                $expenseDesc = "Costo envío gratis - Venta #" . $data->id;
+                $expenseSql = "INSERT INTO expenses (description, amount, expense_date, user_id, username) VALUES (:desc, :amt, :date, :uid, :uname)";
+                $expenseStmt = $conn->prepare($expenseSql);
+                $expenseStmt->execute([
+                    ':desc' => $expenseDesc,
+                    ':amt' => $originalDeliveryCost,
+                    ':date' => $saleDate,
+                    ':uid' => $_SESSION['user_id'],
+                    ':uname' => $_SESSION['username']
+                ]);
+            }
+            
             // 2. Items y Apartado de Inventario
             $itemSql = "INSERT INTO sale_items (sale_id, product_ref, product_name, quantity, unit_price, subtotal, sale_type) VALUES (:sid, :ref, :pname, :qty, :price, :sub, :type)";
             $stockSql = "UPDATE products SET quantity = quantity - :qty WHERE reference = :ref";
