@@ -5086,13 +5086,13 @@
                                 <th>Cliente</th>
                                 <th>Productos</th>
                                 <th>Referencia</th>
-                                <th>Precio</th>
                                 <th>Tipo de Venta</th>
-                                <th>Estado</th>
+                                <th>Precio</th>
                                 <th>Método Pago</th>
-                                <th>Total</th>
                                 <th>Envío</th>
                                 <th>Incremental</th>
+                                <th>Total</th>
+                                <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5147,11 +5147,13 @@
                                 <th>Cliente</th>
                                 <th>Productos</th>
                                 <th>Referencia</th>
-                                <th>Precio</th>
                                 <th>Tipo de Venta</th>
-                                <th>Estado</th>
+                                <th>Precio</th>
                                 <th>Método Pago</th>
+                                <th>Envío</th>
+                                <th>Incremental</th>
                                 <th>Total</th>
+                                <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5218,28 +5220,28 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 0.75rem;">
-                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
-                                        </div>
-                                    </td>
-                                    <td>
                                         <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : item.saleType === 'mixed' ? 'badge-warning' : 'badge-success'}">
                                             ${item.saleType === 'wholesale' ? 'Mayorista' : item.saleType === 'mixed' ? 'Mixta' : 'Detal'}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : item.status === 'confirmed' ? 'badge-info' : 'badge-warning'}">
-                                            ${item.status === 'completed' ? 'Completada' : item.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
-                                        </span>
+                                        <div style="font-size: 0.75rem;">
+                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
+                                        </div>
                                     </td>
                                     <td>
                                         <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
                                             ${getPaymentMethodName(item.paymentMethod)}
                                         </span>
                                     </td>
-                                    <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
                                     <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
+                                    <td>
+                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : item.status === 'confirmed' ? 'badge-info' : 'badge-warning'}">
+                                            ${item.status === 'completed' ? 'Completada' : item.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                                        </span>
+                                    </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
@@ -5407,24 +5409,26 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 0.75rem;">
-                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
-                                        </div>
-                                    </td>
-                                    <td>
                                         <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : item.saleType === 'mixed' ? 'badge-warning' : 'badge-success'}">
                                             ${item.saleType === 'wholesale' ? 'Mayorista' : item.saleType === 'mixed' ? 'Mixta' : 'Detal'}
                                         </span>
                                     </td>
                                     <td>
-                                        ${statusBadge}
+                                        <div style="font-size: 0.75rem;">
+                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
+                                        </div>
                                     </td>
                                     <td>
                                         <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
                                             ${getPaymentMethodName(item.paymentMethod)}
                                         </span>
                                     </td>
+                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
+                                    <td>
+                                        ${statusBadge}
+                                    </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
