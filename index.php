@@ -7405,12 +7405,7 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-truck-loading"></i> Tipo Entrega
                                 </label>
-                                <select name="deliveryType" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" onchange="
-                                    const costInput = this.closest('.dialog-message').querySelector('input[name=\'deliveryCost\']');
-                                    if(this.value === 'delivery') costInput.value = 10000;
-                                    else if(this.value === 'national') costInput.value = 18000;
-                                    else costInput.value = 0;
-                                ">
+                                <select name="deliveryType" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                                     <option value="store" ${movement.deliveryType === 'store' ? 'selected' : ''}>Recoge en tienda</option>
                                     <option value="delivery" ${movement.deliveryType === 'delivery' ? 'selected' : ''}>Domicilio</option>
                                     <option value="national" ${movement.deliveryType === 'national' ? 'selected' : ''}>Envío nacional</option>
@@ -8350,17 +8345,7 @@
             // Actualizar resumen de venta al cambiar costo de envío, toggle de envío gratis o tipo de entrega
             document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
             document.getElementById('freeShippingToggle').addEventListener('change', updateSaleSummary);
-            document.getElementById('deliveryType').addEventListener('change', function() {
-                const deliveryCostInput = document.getElementById('deliveryCost');
-                if (this.value === 'delivery') {
-                    deliveryCostInput.value = 10000;
-                } else if (this.value === 'national') {
-                    deliveryCostInput.value = 18000;
-                } else {
-                    deliveryCostInput.value = 0;
-                }
-                updateSaleSummary();
-            });
+            document.getElementById('deliveryType').addEventListener('change', updateSaleSummary);
 
             // Formulario de producto (solo para admin)
             document.getElementById('productForm').addEventListener('submit', async function (e) {
