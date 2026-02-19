@@ -5090,7 +5090,7 @@
                                 <th>Precio</th>
                                 <th>Método Pago</th>
                                 <th>Envío</th>
-                                <th>Incremental</th>
+                                <th>Incremento Garantia</th>
                                 <th>Total</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
@@ -5151,7 +5151,7 @@
                                 <th>Precio</th>
                                 <th>Método Pago</th>
                                 <th>Envío</th>
-                                <th>Incremental</th>
+                                <th>Incremento Garantía</th>
                                 <th>Total</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
