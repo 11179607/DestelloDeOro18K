@@ -243,7 +243,10 @@ if ($method === 'GET') {
         // 4. Registrar valor de envío como gasto (NUEVA LÓGICA)
         $shippingValue = (float)($data->shippingValue ?? 0);
         if ($shippingValue > 0) {
-            $expenseDesc = "Gasto de Envío por Garantía #" . $warrantyId . " - Cliente: " . ($data->customerName ?? 'N/A');
+            $productName = $data->originalProductName ?? 'Producto';
+            $invoiceNumber = $data->originalSaleId ?? 'N/A';
+            $expenseDesc = "Envío por garantía producto $productName con factura de venta #$invoiceNumber";
+            
             $expStmt = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
             $expStmt->execute([
                 ':desc' => $expenseDesc,
@@ -409,7 +412,9 @@ if ($method === 'GET') {
         $existingExpense = $checkExpStmt->fetch();
         
         if ($shippingValue > 0) {
-            $expenseDesc = "Gasto de Envío por Garantía #" . $warrantyId . " - Cliente: " . ($data->customerName ?? 'N/A');
+            $productName = $data->originalProductName ?? ($currentWarranty['product_name'] ?? 'Producto');
+            $invoiceNumber = $data->originalSaleId ?? ($currentWarranty['original_invoice_id'] ?? 'N/A');
+            $expenseDesc = "Envío por garantía producto $productName con factura de venta #$invoiceNumber";
             if ($existingExpense) {
                 // Actualizar gasto existente
                 $upExpStmt = $conn->prepare("UPDATE expenses SET description = :desc, amount = :amt, expense_date = :date WHERE id = :eid");

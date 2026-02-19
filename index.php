@@ -3044,8 +3044,8 @@
                                     <th>Producto Original</th>
                                     <th>Producto Garantía</th>
                                     <th>Motivo</th>
-                                    <th>Incremento</th>
-                                    <th>Costo Envío</th>
+                                    <th>Incremento Garantía</th>
+                                    <th>Costos</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -6929,8 +6929,8 @@
                         <i class="fas fa-coins" style="color: var(--gold-dark);"></i>
                     </div>
                     <div class="stat-value">${formatCurrency(cost)}</div>
-                    <div class="stat-label">Costo Total</div>
-                    <small>Incluye envíos y adicionales</small>
+                    <div class="stat-label">Costos (Envíos)</div>
+                    <small>Total gastos por envíos de garantía</small>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">
@@ -7172,9 +7172,9 @@
                                 <i class="fas fa-calculator"></i> Costos y Estado
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                <div><strong>Valor adicional:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
+                                <div><strong>Incremento Garantía:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
                                 <div><strong>Valor envío:</strong> ${formatCurrency(movement.shippingValue || 0)}</div>
-                                <div><strong>Costo total:</strong> ${formatCurrency(movement.totalCost || 0)}</div>
+                                <div><strong>Costos:</strong> ${formatCurrency(movement.totalCost || 0)}</div>
                                 <div><strong>Estado:</strong> ${getWarrantyStatusText(movement.status)}</div>
                                 ${statusMessage ? `<div><strong>Tiempo:</strong> ${statusMessage}</div>` : ''}
                             </div>
