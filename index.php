@@ -2178,6 +2178,39 @@
         </div>
     </div>
 
+    <!-- ===== SPLASH SCREEN DE BIENVENIDA ===== -->
+    <div id="splashScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; overflow:hidden;">
+        <div id="splashBg" style="position:absolute; top:0; left:0; width:100%; height:100%; background-image:url('fondo.jpeg'); background-size:cover; background-position:center; filter:brightness(0.45);"></div>
+        <div id="splashContent" style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; pointer-events:none;">
+            <div id="splashTitle" style="
+                font-family:'Poppins',sans-serif;
+                font-size:clamp(2.5rem, 8vw, 6rem);
+                font-weight:900;
+                color:#D4AF37;
+                text-shadow: 0 0 30px rgba(212,175,55,0.9), 0 0 60px rgba(212,175,55,0.5), 4px 4px 0px #7a5a00;
+                letter-spacing:4px;
+                text-align:center;
+                transform: translateY(-120vh);
+                opacity:0;
+                transition: transform 1.2s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
+                padding: 0 20px;
+                line-height: 1.2;
+            ">✨ DESTELLO DE ORO 18K ✨</div>
+            <div id="splashSubtitle" style="
+                font-family:'Poppins',sans-serif;
+                font-size:clamp(1rem, 3vw, 1.6rem);
+                color:rgba(255,215,0,0.9);
+                letter-spacing:8px;
+                margin-top:20px;
+                text-transform:uppercase;
+                opacity:0;
+                transition: opacity 1s ease 1.5s;
+            ">SISTEMAS DE GESTI&Oacute;N</div>
+        </div>
+        <!-- Overlay de partículas doradas -->
+        <div id="splashSparkleOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:3;"></div>
+    </div>
+
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
@@ -8132,10 +8165,120 @@
             }
         }
 
+        // ===== SPLASH SCREEN DE BIENVENIDA =====
+        function showSplashScreen(callback) {
+            const splash = document.getElementById('splashScreen');
+            const title = document.getElementById('splashTitle');
+            const subtitle = document.getElementById('splashSubtitle');
+            const sparkleOverlay = document.getElementById('splashSparkleOverlay');
+
+            // Mostrar splash
+            splash.style.display = 'block';
+
+            // Después de 2 segundos, soltar el título
+            setTimeout(() => {
+                title.style.transform = 'translateY(0)';
+                title.style.opacity = '1';
+                subtitle.style.opacity = '1';
+
+                // Cuando llega a la mitad (1.2s de animación), activar efectos
+                setTimeout(() => {
+                    // Destellos dorados en el splash
+                    launchSplashSparkles(sparkleOverlay);
+
+                    // Voz masculina: Web Speech API
+                    try {
+                        const synth = window.speechSynthesis;
+                        if (synth) {
+                            synth.cancel(); // cancelar cualquier voz anterior
+                            const utter = new SpeechSynthesisUtterance('Destello de Oro, dieciocho quilates');
+                            utter.lang = 'es-CO';
+                            utter.pitch = 0.6;  // voz grave
+                            utter.rate = 0.85;  // ritmo dramático
+                            utter.volume = 1;
+
+                            // Buscar voz masculina española si está disponible
+                            const voices = synth.getVoices();
+                            const maleVoice = voices.find(v =>
+                                (v.lang.startsWith('es') && v.name.toLowerCase().includes('male')) ||
+                                (v.lang.startsWith('es') && (v.name.includes('Jorge') || v.name.includes('Diego') || v.name.includes('Carlos') || v.name.includes('Miguel')))
+                            ) || voices.find(v => v.lang.startsWith('es'));
+
+                            if (maleVoice) utter.voice = maleVoice;
+                            synth.speak(utter);
+                        }
+                    } catch (e) {
+                        console.warn('Speech synthesis no disponible:', e);
+                    }
+
+                }, 1200); // se activa cuando el título llega al centro
+
+                // Desvanecer y pasar a la app después de 4.5 segundos totales
+                setTimeout(() => {
+                    splash.style.transition = 'opacity 0.8s ease';
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        splash.style.opacity = '1';
+                        // Limpiar partículas
+                        sparkleOverlay.innerHTML = '';
+                        // Resetear título para la próxima vez
+                        title.style.transition = 'none';
+                        title.style.transform = 'translateY(-120vh)';
+                        title.style.opacity = '0';
+                        subtitle.style.opacity = '0';
+                        setTimeout(() => {
+                            title.style.transition = 'transform 1.2s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease';
+                        }, 50);
+                        if (callback) callback();
+                    }, 800);
+                }, 4500);
+
+            }, 2000);
+        }
+
+        // Lanzar partículas doradas dentro del splash
+        function launchSplashSparkles(container) {
+            const colors = ['#FFD700', '#D4AF37', '#FFF8DC', '#B8860B', '#FFFACD', '#FFD700'];
+            const totalParticles = 150;
+            for (let i = 0; i < totalParticles; i++) {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    const size = Math.random() * 14 + 5;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const x = Math.random() * 100;
+                    const fallDuration = Math.random() * 3 + 2;
+                    const delay = Math.random() * 0.5;
+
+                    p.style.cssText = `
+                        position: absolute;
+                        top: -20px;
+                        left: ${x}%;
+                        width: ${size}px;
+                        height: ${size}px;
+                        background: ${color};
+                        border-radius: 50%;
+                        animation: goldFall ${fallDuration}s ease-in forwards;
+                        animation-delay: ${delay}s;
+                        box-shadow: 0 0 ${size}px ${color}, 0 0 ${size * 2}px rgba(255,215,0,0.4);
+                        pointer-events: none;
+                    `;
+                    container.appendChild(p);
+
+                    setTimeout(() => {
+                        if (p.parentNode) p.parentNode.removeChild(p);
+                    }, (fallDuration + delay + 0.5) * 1000);
+                }, (i / totalParticles) * 2500);
+            }
+        }
+
         // Mostrar la aplicación después del login
         function showApp() {
             document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'block';
+
+            // Mostrar splash primero, luego la app
+            showSplashScreen(() => {
+                document.getElementById('appScreen').style.display = 'block';
 
             // Asegurarse de que currentUser esté cargado
             const savedUser = sessionStorage.getItem('destelloOroCurrentUser');
@@ -8198,6 +8341,7 @@
                     }
                 }
             }, 60000);
+            }); // cierre showSplashScreen callback
         }
 
         // Función para actualizar el reloj del header (Analógico y Digital)
