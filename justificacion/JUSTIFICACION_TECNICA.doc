@@ -1,0 +1,38 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+{\colortbl;\red0\green0\blue0;\red184\green134\blue11;}
+\f0\fs24
+{\pard\qc\fs36\b PROYECTO: SISTEMA DE GESTI\'D3N PROFESIONAL "DESTELLO DE ORO 18K"\par}
+{\pard\qc\fs28 MODALIDAD: Emprendimiento / Pr\'e1ctica Profesional\par}
+{\pard\qc FECHA: Febrero 20, 2026\par}
+\par
+\fs28\b\cf2 1. INTRODUCCI\'D3N\par
+\cf1\b0\fs24
+El presente documento detalla la justificaci\'f3n t\'e9cnica y funcional del sistema de gesti\'f3n desarrollado para la empresa \b Destello de Oro 18K\b0. Este software ha sido dise\'f1ado como una Single Page Application (SPA) robusta, orientada a optimizar el control de inventarios, la gesti\'f3n de ventas, el seguimiento de garant\'edas y el an\'e1lisis financiero en tiempo real.\par
+\par
+El objetivo principal es proporcionar una herramienta tecnol\'f3gica que permita al administrador y a sus trabajadores llevar un registro exacto de cada movimiento econ\'f3mico, asegurando la trazabilidad de los productos y la rentabilidad del negocio.\par
+\par
+\fs28\b\cf2 2. ARQUITECTURA DEL SISTEMA\par
+\cf1\b0\fs24
+El sistema utiliza una arquitectura basada en tecnolog\'edas web modernas:\par
+- \b Frontend:\b0 HTML5, CSS3 (Vanilla) y JavaScript (ES6+).\par
+- \b Backend:\b0 PHP 8.x con APIs REST.\par
+- \b Base de Datos:\b0 MySQL/MariaDB.\par
+\par
+\fs28\b\cf2 3. DESCRIPCI\'D3N DE ARCHIVOS\par
+\cf1\b0\fs24
+\b 3.1. index.php:\b0 N\'facleo del sistema (Frontend + L\'f3gica).\par
+\b 3.2. config/db.php:\b0 Conexi\'f3n segura a base de datos.\par
+\b 3.3. setup.sql:\b0 Estructura de tablas e \'edndices.\par
+\b 3.4. /api:\b0 Carpeta que contiene los procesos de ventas, inventario, gastos y garant\'edas.\par
+\par
+\fs28\b\cf2 4. FUNCIONALIDADES CLAVE\par
+\cf1\b0\fs24
+- \b Control Financiero:\b0 Panel de ganancias netas autom\'e1tico.\par
+- \b Gesti\'f3n de Garant\'edas:\b0 Control de fletes y excedentes.\par
+- \b Seguridad:\b0 Manejo de sesiones y roles de usuario.\par
+\par
+\fs28\b\cf2 5. CONCLUSI\'D3N\par
+\cf1\b0\fs24
+El software constituye una soluci\'f3n integral para la gesti\'f3n empresarial en la modalidad de emprendimiento.\par
+}

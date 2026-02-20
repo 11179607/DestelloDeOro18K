@@ -1,0 +1,57 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}{\f1 Times New Roman;}}
+{\colortbl;\red0\green0\blue0;\red212\green175\blue55;\red184\green134\blue11;\red128\green128\blue128;}
+\f0\fs24
+{\pard\qc\fs44\b\cf2 PROYECTO DE EMPRENDIMIENTO\par}
+{\pard\qc\fs48\b\cf3 DESTELLO DE ORO 18K\par}
+{\pard\qc\fs24\b\cf1 SISTEMA INTEGRAL DE GESTI\'D3N EMPRESARIAL\par}
+\par\par
+{\pard\qc\fs28\b MANUAL T\'C9CNICO Y DESCRIPCI\'D3N DE PROCESOS\par}
+\par\par\par
+
+\fs28\b\cf2 1. INTRODUCCI\'D3N\par
+\cf1\b0\fs24
+El sistema "Destello de Oro 18K" representa la integraci\'f3n de tecnolog\'edas modernas para la optimizaci\'f3n de procesos en el sector joyero. Este manual detalla la estructura del software, sus archivos y la l\'f3gica interna que permite el control de inventario, ventas y finanzas.\par
+\par
+
+\fs28\b\cf2 2. DESCRIPCI\'D3N DE ARCHIVOS DEL SISTEMA\par
+\cf1\fs24
+\b 2.1. Ra\'edz del Proyecto:\b0\par
+- \b index.php:\b0 El archivo m\'e1s importante. Contiene toda la interfaz de usuario (HTML), los estilos visuales (CSS) y la l\'f3gica de interacci\'f3n del cliente (JavaScript). Es una aplicaci\'f3n de una sola p\'e1gina (SPA).\par
+- \b setup.sql:\b0 Contiene el dise\'f1o de la base de datos. Define tablas como 'users', 'products', 'sales' y 'warranties'.\par
+- \b favicon.png:\b0 Icono profesional para la identidad visual de la marca.\par
+\par
+\b 2.2. Directorio /config:\b0\par
+- \b db.php:\b0 Establece la conexi\'f3n segura entre PHP y MySQL usando el est\'e1ndar PDO.\par
+\par
+\b 2.3. Directorio /api (Servicios Backend):\b0\par
+- \b login.php:\b0 Procesa el acceso seguro de administradores y trabajadores.\par
+- \b sales.php:\b0 El motor de ventas. Realiza la resta de stock y genera los registros contables.\par
+- \b products.php:\b0 Gestiona el inventario de joyas, sus precios de compra y venta.\par
+- \b warranties.php:\b0 Administra el servicio post-venta y cambios de producto.\par
+- \b expenses.php:\b0 Controla los gastos administrativos mensuales.\par
+- \b pending_sales.php:\b0 Monitorea ventas a cr\'e9dito o con pago pendiente.\par
+\par
+
+\fs28\b\cf2 3. AN\'C1LISIS DE FUNCIONES EN INDEX.PHP\par
+\cf1\fs24
+A continuaci\'f3n se detallan las funciones m\'e1s importantes con sus respectivos rangos de l\'edneas:\par
+\par
+\b - L\'edneas 22 - 1980 (Dise\'f1o y Estilo):\b0 Define la est\'e9tica dorada, las animaciones del avi\'f3n y los efectos visuales premium.\par
+\b - L\'edneas 2182 - 3497 (Estructura HTML):\b0 Contiene los modales de factura, formularios y la estructura de las tablas.\par
+\b - L\'edneas 4004 - 4058 (addToCart):\b0 Funci\'f3n que gestiona la selecci\'f3n de productos por el trabajador.\par
+\b - L\'edneas 4070 - 4196 (processCompleteSale):\b0 Aqu\'ed se liquida la venta, se aplican descuentos y se emite la factura.\par
+\b - L\'edneas 4271 - 4371 (loadHistoryCards):\b0 Genera las tarjetas de resumen financiero que ve el administrador.\par
+\b - L\'edneas 5593 - 5676 (loadMonthlySummary):\b0 Funci\'f3n que calcula la "Ganancia Real" descontando gastos e inversión.\par
+\par
+
+\fs28\b\cf2 4. JUSTIFICACI\'D3N DEL PROYECTO\par
+\cf1\b0\fs24
+Este software se justifica bajo la modalidad de emprendimiento al resolver tres problemas cr\'edticos:\par
+1. \b Centralizaci\'f3n de Datos:\b0 Elimina el uso de cuadernos manuales donde la informaci\'f3n se pierde.\par
+2. \b Transparencia Financiera:\b0 El c\'e1lculo autom\'e1tico de utilidades previene desfases en caja.\par
+3. \b Imagen Corporativa:\b0 La generaci\'f3n de facturas profesionales y animaciones eleva el prestigio de "Destello de Oro 18K".\par
+\par
+--- \par
+{\pard\qc\fs20 Generado autom\'e1ticamente para la Modalidad Emprendimiento\par}
+}
