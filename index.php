@@ -2204,8 +2204,9 @@
                     </div>
                 </div>
 
+                <!-- Botón removido para flujo automático -->
                 <button id="nextToUserInfo" class="btn btn-primary"
-                    style="width: 100%; margin-top: 1rem; padding: 10px;">
+                    style="width: 100%; margin-top: 1rem; padding: 10px; display: none;">
                     <i class="fas fa-arrow-right"></i> Continuar
                 </button>
 
@@ -7964,31 +7965,13 @@
                 return;
             }
 
-            // Alternar entre roles
-            adminRoleBtn.addEventListener('click', function () {
-                console.log('Rol seleccionado: admin');
-                adminRoleBtn.classList.add('active');
-                workerRoleBtn.classList.remove('active');
-                selectedRole = 'admin';
-                window.selectedRole = 'admin'; // Forzar global
-            });
-
-            workerRoleBtn.addEventListener('click', function () {
-                console.log('Rol seleccionado: worker');
-                workerRoleBtn.classList.add('active');
-                adminRoleBtn.classList.remove('active');
-                selectedRole = 'worker';
-                window.selectedRole = 'worker'; // Forzar global
-            });
-
-            // Paso 1: Continuar a información personal
-            nextToUserInfoBtn.addEventListener('click', function () {
-                console.log('Avanzando a userInfoForm');
+            // Función auxiliar para avanzar al siguiente paso
+            const proceedToUserInfo = () => {
+                console.log('Avanzando automáticamente a userInfoForm');
                 showLoginStep('userInfoForm');
 
                 // Pre-llenar formulario si ya hay información guardada
                 const sessionInfo = JSON.parse(sessionStorage.getItem('destelloOroSessionInfo') || '{}');
-                // Asegurar que usemos la global
                 const currentRole = window.selectedRole || selectedRole;
                 const userKey = `${currentRole}_info`;
 
@@ -7997,7 +7980,29 @@
                     document.getElementById('userLastName').value = sessionInfo[userKey].lastName || '';
                     document.getElementById('userPhone').value = sessionInfo[userKey].phone || '';
                 }
+            };
+
+            // Alternar entre roles y avanzar automáticamente
+            adminRoleBtn.addEventListener('click', function () {
+                console.log('Rol seleccionado: admin');
+                adminRoleBtn.classList.add('active');
+                workerRoleBtn.classList.remove('active');
+                selectedRole = 'admin';
+                window.selectedRole = 'admin';
+                proceedToUserInfo(); // Avance automático
             });
+
+            workerRoleBtn.addEventListener('click', function () {
+                console.log('Rol seleccionado: worker');
+                workerRoleBtn.classList.add('active');
+                adminRoleBtn.classList.remove('active');
+                selectedRole = 'worker';
+                window.selectedRole = 'worker';
+                proceedToUserInfo(); // Avance automático
+            });
+
+            // Paso 1: Ir a información personal (ahora manejado automáticamente por los roles)
+            // se mantiene solo la definición por si acaso, pero el listener ya no es necesario
 
             // Volver a selección de rol
             if (backToRoleSelectionBtn) {
