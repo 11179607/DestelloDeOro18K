@@ -1898,6 +1898,74 @@
         }
 
         /* Animaciones */
+        @keyframes planeFly {
+            0% { 
+                transform: translate(-150%, -50%) rotate(0deg); 
+                left: 0;
+            }
+            10% {
+                transform: translate(0, -50%) rotate(5deg);
+            }
+            90% {
+                transform: translate(0, -50%) rotate(-5deg);
+            }
+            100% { 
+                transform: translate(150%, -50%) rotate(0deg); 
+                left: 100%;
+            }
+        }
+
+        .airplane-container {
+            position: absolute;
+            top: 50%;
+            left: -500px;
+            display: flex;
+            align-items: center;
+            z-index: 1001;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+        }
+
+        .airplane-container.active {
+            animation: planeFly 10s linear forwards;
+        }
+
+        .airplane-icon {
+            font-size: 2.5rem;
+            color: #f5f5f5;
+            transform: rotate(45deg);
+            margin-right: -5px;
+            z-index: 2;
+        }
+
+        .airplane-banner {
+            background: #ffffff;
+            color: var(--gold-primary);
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 1rem;
+            white-space: nowrap;
+            border: 2px solid var(--gold-primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            margin-right: 10px;
+            font-family: 'Playfair Display', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Hilo de la pancarta */
+        .airplane-banner::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background: #999;
+            transform: translateY(-50%);
+        }
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -2232,6 +2300,11 @@
     <div id="appScreen">
         <!-- Header -->
         <header class="main-header">
+            <!-- Contenedor del avión animado -->
+            <div id="airplaneAnimation" class="airplane-container">
+                <div class="airplane-banner">Destello de Oro 18K</div>
+                <i class="fas fa-plane airplane-icon"></i>
+            </div>
             <div class="header-content">
                 <div class="brand">
                     <i class="fas fa-gem brand-icon"></i>
@@ -8050,6 +8123,12 @@
             if (window.clockInterval) clearInterval(window.clockInterval);
             window.clockInterval = setInterval(updateHeaderClock, 1000);
 
+            // Iniciar Animación del Avión cada 40 segundos
+            if (window.airplaneInterval) clearInterval(window.airplaneInterval);
+            window.airplaneInterval = setInterval(triggerAirplaneAnimation, 40000);
+            // Lanzar la primera vez a los 5 segundos de entrar
+            setTimeout(triggerAirplaneAnimation, 5000);
+
             // Configurar refresco automático solo para la sección activa
             if (window.syncInterval) clearInterval(window.syncInterval);
             window.syncInterval = setInterval(() => {
@@ -8120,6 +8199,19 @@
                     month: 'short' 
                 });
             }
+        }
+
+        // Función para disparar la animación del avión
+        function triggerAirplaneAnimation() {
+            const airplane = document.getElementById('airplaneAnimation');
+            if (!airplane) return;
+
+            // Reiniciar animación
+            airplane.classList.remove('active');
+            void airplane.offsetWidth; // Force reflow
+            airplane.classList.add('active');
+            
+            console.log('✈️ Avión despegando...');
         }
 
         // Actualizar interfaz según rol del usuario
