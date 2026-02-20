@@ -1931,11 +1931,18 @@
         }
 
         .airplane-icon {
-            font-size: 2.5rem;
-            color: #f5f5f5;
-            transform: rotate(45deg);
-            margin-right: -5px;
+            width: 120px;
+            height: 45px;
+            margin-left: -5px;
             z-index: 2;
+            display: flex;
+            align-items: center;
+        }
+
+        .airplane-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
         }
 
         .airplane-banner {
@@ -2303,7 +2310,28 @@
             <!-- Contenedor del avión animado -->
             <div id="airplaneAnimation" class="airplane-container">
                 <div class="airplane-banner">Destello de Oro 18K</div>
-                <i class="fas fa-plane airplane-icon"></i>
+                <div class="airplane-icon">
+                    <svg viewBox="0 0 100 40" class="airplane-svg" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Cuerpo del avión (Estilo Propeller Real) -->
+                        <path d="M10,20 C10,15 25,10 55,10 L85,15 C95,17 100,20 100,20 C100,20 95,23 85,25 L55,30 C25,30 10,25 10,20 Z" fill="url(#goldGrad)" />
+                        <!-- Ventana de cabina -->
+                        <path d="M65,13 L78,15 L78,18 L63,18 Z" fill="rgba(255,255,255,0.7)" />
+                        <!-- Cola -->
+                        <path d="M15,18 L0,5 L8,5 L25,18 Z" fill="#B8860B" />
+                        <path d="M15,22 L0,35 L8,35 L25,22 Z" fill="#B8860B" />
+                        <!-- Hélice -->
+                        <rect x="97" y="10" width="2" height="20" fill="#333" rx="1">
+                            <animateTransform attributeName="transform" type="rotate" from="0 98 20" to="360 98 20" dur="0.1s" repeatCount="indefinite" />
+                        </rect>
+                        <defs>
+                            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#B8860B;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
             </div>
             <div class="header-content">
                 <div class="brand">
