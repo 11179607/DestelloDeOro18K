@@ -7,7 +7,7 @@
     <title>Destello de Oro 18K | Sistema de Gestión</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&family=Orbitron:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&family=Orbitron:wght@400;700&family=Great+Vibes&display=swap"
         rel="stylesheet">
 
     <!-- QR Code Generator Library -->
@@ -2183,19 +2183,24 @@
         <div id="splashBg" style="position:absolute; top:0; left:0; width:100%; height:100%; background-image:url('fondo.jpeg'); background-size:cover; background-position:center; filter:brightness(0.45);"></div>
         <div id="splashContent" style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; pointer-events:none;">
             <div id="splashTitle" style="
-                font-family:'Poppins',sans-serif;
-                font-size:clamp(2.5rem, 8vw, 6rem);
-                font-weight:900;
+                font-family:'Great Vibes', cursive;
+                font-size:clamp(5rem, 12vw, 9rem);
+                font-weight:400;
                 color:#D4AF37;
-                text-shadow: 0 0 30px rgba(212,175,55,0.9), 0 0 60px rgba(212,175,55,0.5), 4px 4px 0px #7a5a00;
-                letter-spacing:4px;
+                text-shadow: 0 0 30px rgba(212,175,55,0.9), 0 0 60px rgba(212,175,55,0.5), 3px 3px 0px #7a5a00;
                 text-align:center;
-                transform: translateY(-120vh);
-                opacity:0;
-                transition: transform 1.2s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
                 padding: 0 20px;
-                line-height: 1.2;
-            "> DESTELLO DE ORO 18K </div>
+                line-height: 1;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px; /* espacio entre las palabras */
+            ">
+                <span class="domino-word" style="opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">Destello</span>
+                <span class="domino-word" style="opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">de</span>
+                <span class="domino-word" style="opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">Oro</span>
+                <span class="domino-word" style="font-family:'Poppins', sans-serif; font-weight:700; font-size:clamp(3rem, 8vw, 6rem); align-self:center; opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">18K</span>
+            </div>
             <div id="splashSubtitle" style="
                 font-family:'Poppins',sans-serif;
                 font-size:clamp(1rem, 3vw, 1.6rem);
@@ -8182,10 +8187,19 @@
 
             // Después de 2 segundos, soltar el título Y hablar al mismo tiempo
             setTimeout(() => {
-                // === ANIMACIÓN DEL TÍTULO ===
-                title.style.transform = 'translateY(0)';
-                title.style.opacity = '1';
-                subtitle.style.opacity = '1';
+                // === ANIMACIÓN DEL TÍTULO TIPO DOMINO ===
+                const words = document.querySelectorAll('.domino-word');
+                words.forEach((word, index) => {
+                    setTimeout(() => {
+                        word.style.transform = 'translateY(0) rotate(0deg)';
+                        word.style.opacity = '1';
+                    }, index * 200); // 200ms de diferencia entre cada palabra (efecto dominó)
+                });
+                
+                // Mostrar subtitulo con retraso
+                setTimeout(() => {
+                    subtitle.style.opacity = '1';
+                }, 1000);
 
                 // === VOZ: suena AL MISMO TIEMPO que cae el título ===
                 try {
@@ -8259,17 +8273,19 @@
                         splash.style.opacity = '1';
                         // Limpiar partículas
                         sparkleOverlay.innerHTML = '';
-                        // Resetear título para la próxima vez
-                        title.style.transition = 'none';
-                        title.style.transform = 'translateY(-120vh)';
-                        title.style.opacity = '0';
+                        // Resetear palabras tipo dominó para la próxima vez
+                        words.forEach(word => {
+                            word.style.transition = 'none';
+                            word.style.transform = 'translateY(-120vh) rotate(-20deg)';
+                            word.style.opacity = '0';
+                            setTimeout(() => {
+                                word.style.transition = 'transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s';
+                            }, 50);
+                        });
                         subtitle.style.opacity = '0';
-                        setTimeout(() => {
-                            title.style.transition = 'transform 1.2s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease';
-                        }, 50);
                         if (callback) callback();
                     }, 800);
-                }, 4500);
+                }, 4800);
 
             }, 2000);
         }
