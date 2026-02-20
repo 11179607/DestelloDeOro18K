@@ -8186,26 +8186,56 @@
                     // Destellos dorados en el splash
                     launchSplashSparkles(sparkleOverlay);
 
-                    // Voz masculina: Web Speech API
+                    // Voz masculina: Web Speech API con espera de voces
                     try {
                         const synth = window.speechSynthesis;
                         if (synth) {
-                            synth.cancel(); // cancelar cualquier voz anterior
-                            const utter = new SpeechSynthesisUtterance('Destello de Oro, dieciocho quilates');
-                            utter.lang = 'es-CO';
-                            utter.pitch = 0.6;  // voz grave
-                            utter.rate = 0.85;  // ritmo dramático
-                            utter.volume = 1;
+                            synth.cancel();
 
-                            // Buscar voz masculina española si está disponible
+                            const speakNow = (voices) => {
+                                const utter = new SpeechSynthesisUtterance('Destello de Oro, dieciocho quilates');
+                                utter.lang = 'es-CO';
+                                utter.pitch = 0.55;   // muy grave
+                                utter.rate = 0.82;    // ritmo dramático
+                                utter.volume = 1;
+
+                                // Priorizar voz masculina en español
+                                const maleVoice = voices.find(v =>
+                                    v.lang.startsWith('es') && (
+                                        v.name.toLowerCase().includes('male') ||
+                                        v.name.includes('Jorge') ||
+                                        v.name.includes('Diego') ||
+                                        v.name.includes('Carlos') ||
+                                        v.name.includes('Miguel') ||
+                                        v.name.includes('Pablo')
+                                    )
+                                ) || voices.find(v => v.lang.startsWith('es'))
+                                  || voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male'))
+                                  || (voices.length > 0 ? voices[0] : null);
+
+                                if (maleVoice) utter.voice = maleVoice;
+                                synth.speak(utter);
+                            };
+
+                            // getVoices() puede estar vacío la primera vez (carga asíncrona)
                             const voices = synth.getVoices();
-                            const maleVoice = voices.find(v =>
-                                (v.lang.startsWith('es') && v.name.toLowerCase().includes('male')) ||
-                                (v.lang.startsWith('es') && (v.name.includes('Jorge') || v.name.includes('Diego') || v.name.includes('Carlos') || v.name.includes('Miguel')))
-                            ) || voices.find(v => v.lang.startsWith('es'));
+                            if (voices && voices.length > 0) {
+                                speakNow(voices);
+                            } else {
+                                // Esperar el evento voiceschanged
+                                const onVoicesReady = () => {
+                                    const v2 = synth.getVoices();
+                                    speakNow(v2);
+                                    synth.removeEventListener('voiceschanged', onVoicesReady);
+                                };
+                                synth.addEventListener('voiceschanged', onVoicesReady);
 
-                            if (maleVoice) utter.voice = maleVoice;
-                            synth.speak(utter);
+                                // Fallback: si el evento nunca llega (algunos navegadores), hablar en 500ms
+                                setTimeout(() => {
+                                    if (synth.speaking || synth.pending) return;
+                                    speakNow(synth.getVoices());
+                                }, 500);
+                            }
                         }
                     } catch (e) {
                         console.warn('Speech synthesis no disponible:', e);
