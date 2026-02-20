@@ -2195,7 +2195,7 @@
                 transition: transform 1.2s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease;
                 padding: 0 20px;
                 line-height: 1.2;
-            ">✨ DESTELLO DE ORO 18K ✨</div>
+            "> DESTELLO DE ORO 18K </div>
             <div id="splashSubtitle" style="
                 font-family:'Poppins',sans-serif;
                 font-size:clamp(1rem, 3vw, 1.6rem);
@@ -8175,73 +8175,80 @@
             // Mostrar splash
             splash.style.display = 'block';
 
-            // Después de 2 segundos, soltar el título
+            // ---- Pre-cargar voces al aparecer el splash ----
+            const synth = window.speechSynthesis;
+            // Forzar carga de voces en Chrome/Edge (bug conocido)
+            if (synth) { synth.getVoices(); }
+
+            // Después de 2 segundos, soltar el título Y hablar al mismo tiempo
             setTimeout(() => {
+                // === ANIMACIÓN DEL TÍTULO ===
                 title.style.transform = 'translateY(0)';
                 title.style.opacity = '1';
                 subtitle.style.opacity = '1';
 
-                // Cuando llega a la mitad (1.2s de animación), activar efectos
-                setTimeout(() => {
-                    // Destellos dorados en el splash
-                    launchSplashSparkles(sparkleOverlay);
+                // === VOZ: suena AL MISMO TIEMPO que cae el título ===
+                try {
+                    if (synth) {
+                        synth.cancel();
 
-                    // Voz masculina: Web Speech API con espera de voces
-                    try {
-                        const synth = window.speechSynthesis;
-                        if (synth) {
-                            synth.cancel();
+                        const speakNow = (voices) => {
+                            const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho quilates');
+                            utter.lang = 'es-ES';
+                            utter.pitch = 0.4;   // muy grave / masculino
+                            utter.rate = 0.78;   // ritmo dramático lento
+                            utter.volume = 1;
 
-                            const speakNow = (voices) => {
-                                const utter = new SpeechSynthesisUtterance('Destello de Oro, dieciocho quilates');
-                                utter.lang = 'es-CO';
-                                utter.pitch = 0.55;   // muy grave
-                                utter.rate = 0.82;    // ritmo dramático
-                                utter.volume = 1;
+                            // Nombres femeninos a EXCLUIR
+                            const femaleNames = ['sabina','helena','laura','rosa','maria','sofía','sofia','paulina','valeria','isabel','lucia','lucía','ana','camila','claudia'];
 
-                                // Priorizar voz masculina en español
-                                const maleVoice = voices.find(v =>
-                                    v.lang.startsWith('es') && (
-                                        v.name.toLowerCase().includes('male') ||
-                                        v.name.includes('Jorge') ||
-                                        v.name.includes('Diego') ||
-                                        v.name.includes('Carlos') ||
-                                        v.name.includes('Miguel') ||
-                                        v.name.includes('Pablo')
-                                    )
-                                ) || voices.find(v => v.lang.startsWith('es'))
-                                  || voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male'))
-                                  || (voices.length > 0 ? voices[0] : null);
+                            // Buscar voz masculina en español
+                            const maleVoice = voices.find(v => {
+                                const n = v.name.toLowerCase();
+                                const isSpanish = v.lang.startsWith('es');
+                                const isFemale = femaleNames.some(f => n.includes(f));
+                                const isMale = n.includes('pablo') || n.includes('jorge') || n.includes('diego') || n.includes('carlos') || n.includes('miguel') || n.includes('male') || n.includes('hombre') || n.includes('man');
+                                return isSpanish && !isFemale && (isMale || !isFemale);
+                            }) || voices.find(v => {
+                                const n = v.name.toLowerCase();
+                                const isFemale = femaleNames.some(f => n.includes(f));
+                                return v.lang.startsWith('es') && !isFemale;
+                            }) || voices.find(v => v.lang.startsWith('es'))
+                              || voices[0];
 
-                                if (maleVoice) utter.voice = maleVoice;
-                                synth.speak(utter);
-                            };
-
-                            // getVoices() puede estar vacío la primera vez (carga asíncrona)
-                            const voices = synth.getVoices();
-                            if (voices && voices.length > 0) {
-                                speakNow(voices);
-                            } else {
-                                // Esperar el evento voiceschanged
-                                const onVoicesReady = () => {
-                                    const v2 = synth.getVoices();
-                                    speakNow(v2);
-                                    synth.removeEventListener('voiceschanged', onVoicesReady);
-                                };
-                                synth.addEventListener('voiceschanged', onVoicesReady);
-
-                                // Fallback: si el evento nunca llega (algunos navegadores), hablar en 500ms
-                                setTimeout(() => {
-                                    if (synth.speaking || synth.pending) return;
-                                    speakNow(synth.getVoices());
-                                }, 500);
+                            if (maleVoice) {
+                                utter.voice = maleVoice;
+                                console.log('🎤 Voz seleccionada:', maleVoice.name, maleVoice.lang);
                             }
-                        }
-                    } catch (e) {
-                        console.warn('Speech synthesis no disponible:', e);
-                    }
+                            synth.speak(utter);
+                        };
 
-                }, 1200); // se activa cuando el título llega al centro
+                        // getVoices() puede estar vacío la primera vez
+                        const voices = synth.getVoices();
+                        if (voices && voices.length > 0) {
+                            speakNow(voices);
+                        } else {
+                            const onVoicesReady = () => {
+                                speakNow(synth.getVoices());
+                                synth.removeEventListener('voiceschanged', onVoicesReady);
+                            };
+                            synth.addEventListener('voiceschanged', onVoicesReady);
+                            // Fallback 400ms
+                            setTimeout(() => {
+                                if (!synth.speaking && !synth.pending) speakNow(synth.getVoices());
+                            }, 400);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Speech synthesis no disponible:', e);
+                }
+
+                // Destellos cuando llega al centro (1.2s después de soltar)
+                setTimeout(() => {
+                    launchSplashSparkles(sparkleOverlay);
+                }, 1200);
+
+
 
                 // Desvanecer y pasar a la app después de 4.5 segundos totales
                 setTimeout(() => {
