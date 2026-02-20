@@ -4828,7 +4828,7 @@
                             <small>Costo: ${formatCurrency(wholesaleCOGS)}</small>
                         </div>
                         <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--gold-primary);">
-                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancias (Historial)</strong><br>
+                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancias Totales</strong><br>
                             <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
                                 ${formatCurrency(totalProfit)}
                             </div>
