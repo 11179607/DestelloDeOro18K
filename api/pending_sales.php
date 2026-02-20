@@ -16,6 +16,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     // Listar pendientes - MODIFICADO: Mostrar todas las ventas con métodos de pago diferentes a efectivo
     // sin importar su estado (pending, completed, cancelled) para mantener el historial completo
+    try {
         $month = $_GET['month'] ?? null;
         $year = $_GET['year'] ?? null;
         
