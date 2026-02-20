@@ -23,11 +23,16 @@ if ($method === 'GET') {
         $params = [];
         
         if ($month !== null && $year !== null) {
-            $month = intval($month) + 1;
-            // Usar alias r para restocks
-            $sql = "SELECT r.*, p.purchase_price FROM restocks r LEFT JOIN products p ON r.product_ref = p.reference WHERE MONTH(r.restock_date) = :month AND YEAR(r.restock_date) = :year";
-            $params[':month'] = $month;
-            $params[':year'] = $year;
+            if ($month === 'all') {
+                $sql = "SELECT r.*, p.purchase_price FROM restocks r LEFT JOIN products p ON r.product_ref = p.reference WHERE YEAR(r.restock_date) = :year";
+                $params[':year'] = $year;
+            } else {
+                $month = intval($month) + 1;
+                // Usar alias r para restocks
+                $sql = "SELECT r.*, p.purchase_price FROM restocks r LEFT JOIN products p ON r.product_ref = p.reference WHERE MONTH(r.restock_date) = :month AND YEAR(r.restock_date) = :year";
+                $params[':month'] = $month;
+                $params[':year'] = $year;
+            }
         } else {
              $sql = "SELECT r.*, p.purchase_price FROM restocks r LEFT JOIN products p ON r.product_ref = p.reference";
         }

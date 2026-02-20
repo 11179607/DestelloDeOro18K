@@ -23,10 +23,15 @@ if ($method === 'GET') {
         $params = [];
         
         if ($month !== null && $year !== null) {
-            $month = intval($month) + 1; // JS 0-11 to SQL 1-12
-            $sql .= " WHERE MONTH(expense_date) = :month AND YEAR(expense_date) = :year";
-            $params[':month'] = $month;
-            $params[':year'] = $year;
+            if ($month === 'all') {
+                $sql .= " WHERE YEAR(expense_date) = :year";
+                $params[':year'] = $year;
+            } else {
+                $month = intval($month) + 1; // JS 0-11 to SQL 1-12
+                $sql .= " WHERE MONTH(expense_date) = :month AND YEAR(expense_date) = :year";
+                $params[':month'] = $month;
+                $params[':year'] = $year;
+            }
         }
         
         $sql .= " ORDER BY expense_date DESC";

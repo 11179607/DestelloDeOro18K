@@ -4302,9 +4302,10 @@
             // Si products tienen 'date' (entry_date).
             const filteredProducts = products.filter(p => {
                 const pDate = new Date(p.date || p.created_at);
-                 // Si p.date es null, asumimos hoy? No, ignoremos o asumimos viejo.
-                 if (!p.date) return false;
-                 return pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear;
+                if (!p.date && !p.created_at) return false;
+                const matchesYear = pDate.getFullYear() === currentYear;
+                const matchesMonth = currentMonth === 'all' || pDate.getMonth() === currentMonth;
+                return matchesYear && matchesMonth;
             });
 
             // Calculamos inversión inicial: quantity * purchasePrice
@@ -4358,7 +4359,7 @@
                     </div>
                      <div class="history-card-date">
                         <i class="fas fa-calendar history-card-date-icon"></i>
-                        <span>Mes Actual</span>
+                        <span>${currentMonth === 'all' ? 'Todo el Año' : 'Mes Actual'}</span>
                     </div>
                 </div>
             `;
@@ -4547,7 +4548,7 @@
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-chart-line"></i> <span>Consolidado</span></div>
-                    <div class="history-card-date"><span>Mes ${new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
+                    <div class="history-card-date"><span>Año ${currentYear} ${currentMonth === 'all' ? '(Todos los meses)' : 'Mes ' + new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short'})}</span></div>
                 </div>
             `;
             totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses));
@@ -4667,7 +4668,7 @@
             document.getElementById('historyDetailsView').style.display = 'block';
 
             const content = document.getElementById('monthlyDetailsContent');
-            const title = `Análisis de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+            const title = `Análisis de Ganancias - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
 
             const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses);
 
@@ -5003,10 +5004,12 @@
                  const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                  
                  // Filtro de productos
-                 const fProducts = products.filter(p => {
-                    const d = new Date(p.date || p.created_at);
-                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-                 });
+                  const fProducts = products.filter(p => {
+                     const d = new Date(p.date || p.created_at);
+                     const matchesYear = d.getFullYear() === currentYear;
+                     const matchesMonth = currentMonth === 'all' || d.getMonth() === currentMonth;
+                     return matchesYear && matchesMonth;
+                  });
  
                  // Combinación normalizada
                  data = [
@@ -5515,7 +5518,8 @@
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
-                    console.log(`Debug: No se encontraron datos para el mes ${currentMonth + 1}/${currentYear}`);
+                    const monthLabel = currentMonth === 'all' ? 'Todos los meses' : (currentMonth + 1);
+                    console.log(`Debug: No se encontraron datos para ${monthLabel}/${currentYear}`);
                 }
 
                 // Actualizar resumen mensual
@@ -5576,27 +5580,31 @@
 
             const monthlySales = sales.filter(sale => {
                 const saleDate = new Date(sale.date || sale.sale_date);
-                return (saleDate.getMonth() === currentMonth &&
-                    saleDate.getFullYear() === currentYear &&
+                const matchesYear = saleDate.getFullYear() === currentYear;
+                const matchesMonth = currentMonth === 'all' || saleDate.getMonth() === currentMonth;
+                return (matchesYear && matchesMonth &&
                     (sale.status === 'completed' || sale.status === 'pending'));
             });
 
             const monthlyExpenses = expenses.filter(expense => {
                 const expenseDate = new Date(expense.date);
-                return expenseDate.getMonth() === currentMonth &&
-                    expenseDate.getFullYear() === currentYear;
+                const matchesYear = expenseDate.getFullYear() === currentYear;
+                const matchesMonth = currentMonth === 'all' || expenseDate.getMonth() === currentMonth;
+                return matchesYear && matchesMonth;
             });
 
             const monthlyRestocks = restocks.filter(restock => {
                 const restockDate = new Date(restock.date);
-                return restockDate.getMonth() === currentMonth &&
-                    restockDate.getFullYear() === currentYear;
+                const matchesYear = restockDate.getFullYear() === currentYear;
+                const matchesMonth = currentMonth === 'all' || restockDate.getMonth() === currentMonth;
+                return matchesYear && matchesMonth;
             });
 
             const monthlyWarranties = warranties.filter(warranty => {
                 const warrantyDate = new Date(warranty.createdAt || warranty.created_at);
-                return warrantyDate.getMonth() === currentMonth &&
-                    warrantyDate.getFullYear() === currentYear;
+                const matchesYear = warrantyDate.getFullYear() === currentYear;
+                const matchesMonth = currentMonth === 'all' || warrantyDate.getMonth() === currentMonth;
+                return matchesYear && matchesMonth;
             });
 
             // Calcular totales
@@ -5625,23 +5633,23 @@
 
             switch (type) {
                 case 'sales':
-                    title = `Detalles de Ventas - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Ventas - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateSalesDetailsHTML(monthlySales, totalSales, totalWarrantyIncrement);
                     break;
                 case 'expenses':
-                    title = `Detalles de Gastos - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Gastos - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateExpensesDetailsHTML(monthlyExpenses, totalExpenses);
                     break;
                 case 'restocks':
-                    title = `Detalles de Costo de Inventario - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Costo de Inventario - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateCostOfGoodsSoldHTML(monthlySales, costOfGoodsSold, products);
                     break;
                 case 'warranties':
-                    title = `Detalles de Garantías - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Garantías - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyShippingCosts, totalWarrantyIncrement);
                     break;
                 case 'profit':
-                    title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Resumen de Ganancias - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
@@ -9662,6 +9670,15 @@
                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
             ];
 
+            // Opción para todos los meses
+            const allMonthsOption = document.createElement('option');
+            allMonthsOption.value = 'all';
+            allMonthsOption.textContent = 'Todos los Meses';
+            if (currentMonth === 'all') {
+                allMonthsOption.selected = true;
+            }
+            monthSelect.appendChild(allMonthsOption);
+
             monthNames.forEach((month, index) => {
                 const option = document.createElement('option');
                 option.value = index;
@@ -9685,7 +9702,7 @@
 
             // Agregar eventos
             monthSelect.addEventListener('change', function () {
-                currentMonth = parseInt(this.value);
+                currentMonth = this.value === 'all' ? 'all' : parseInt(this.value);
                 loadHistoryCards();
                 // loadMonthlySummary(); // Recargar resumen mensual
             });

@@ -45,11 +45,16 @@ if ($method === 'GET') {
             $params = [];
 
             if ($month !== null && $year !== null) {
-                // JS envía month 0-11; SQL 1-12
-                $month = intval($month) + 1;
-                $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
-                $params[':month'] = $month;
-                $params[':year']  = $year;
+                if ($month === 'all') {
+                    $sql .= " AND YEAR(sale_date) = :year";
+                    $params[':year']  = $year;
+                } else {
+                    // JS envía month 0-11; SQL 1-12
+                    $month = intval($month) + 1;
+                    $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
+                    $params[':month'] = $month;
+                    $params[':year']  = $year;
+                }
             }
 
             $sql .= " ORDER BY sale_date DESC";
