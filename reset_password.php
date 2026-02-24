@@ -232,6 +232,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             margin-right: 8px;
             font-size: 0.9rem;
         }
+
+        .match-status {
+            margin-top: 5px;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .match-status.valid {
+            display: block;
+            color: #28a745;
+        }
+
+        .match-status.invalid {
+            display: block;
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -280,6 +296,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
                     <div class="password-wrapper">
                         <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
                         <i class="fas fa-eye eye-icon" onclick="togglePassword('confirm_password', this)"></i>
+                    </div>
+                    <div id="match-status" class="match-status">
+                        <i class="fas fa-times-circle"></i> Las contraseñas no coinciden
                     </div>
                 </div>
                 <button type="submit" class="btn">Actualizar Contraseña</button>
@@ -334,7 +353,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
                     icon.classList.add('fa-times-circle');
                 }
             }
+            
+            checkPasswordsMatch();
         });
+
+        document.getElementById('confirm_password')?.addEventListener('input', checkPasswordsMatch);
+
+        function checkPasswordsMatch() {
+            const pass1 = document.getElementById('new_password').value;
+            const pass2 = document.getElementById('confirm_password').value;
+            const statusEl = document.getElementById('match-status');
+            
+            if (!statusEl) return;
+
+            if (pass2.length === 0) {
+                statusEl.className = 'match-status'; // Ocultar si está vacío
+                return;
+            }
+
+            const icon = statusEl.querySelector('i');
+            
+            if (pass1 === pass2) {
+                statusEl.className = 'match-status valid';
+                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Las contraseñas coinciden';
+            } else {
+                statusEl.className = 'match-status invalid';
+                statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Las contraseñas no coinciden';
+            }
+        }
     </script>
 </body>
 </html>
