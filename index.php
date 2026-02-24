@@ -2030,7 +2030,7 @@
     </div>
 
     <!-- Diálogo Autorización Administrador -->
-    <div id="adminPasswordPromptDialog" class="password-change-container" style="z-index: 9999;">
+    <div id="adminPasswordPromptDialog" class="password-change-container" style="z-index: 11000;">
         <div class="password-change-box" style="max-width: 350px;">
             <div class="password-change-header" style="margin-bottom: 1rem;">
                 <i class="fas fa-shield-alt" style="color: var(--danger);"></i>
@@ -3704,7 +3704,7 @@
 
                 // Actualizar el movimiento según su tipo
                 let success = false;
-                switch (currentMovementTypeForEdit) {
+                switch (typeToRefresh) {
                     case 'sales':
                         success = await updateSale(formData);
                         break;
@@ -3721,7 +3721,7 @@
                         success = await updateRestock(formData);
                         break;
                     default:
-                        console.error('Tipo no soportado:', currentMovementTypeForEdit);
+                        console.error('Tipo no soportado:', typeToRefresh);
                         await showDialog('Error', 'Tipo de movimiento no soportado para edición.', 'error');
                         return;
                 }
