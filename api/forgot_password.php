@@ -60,19 +60,43 @@ try {
     // 4. Enviar correo con PHPMailer
     $mail = new PHPMailer(true);
 
+    // Credenciales SMTP (puedes sobreescribirlas con variables de entorno)
+    $smtpHost       = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+    $smtpPort       = getenv('SMTP_PORT') ?: 587;
+    $smtpUser       = getenv('SMTP_USER') ?: 'marloncdela@gmail.com'; // tu cuenta emisora
+    $smtpPass       = getenv('SMTP_PASS');
+    if (!$smtpPass) {
+        // Gmail muestra el password de aplicación con espacios; deben eliminarse
+        $defaultAppPassword = 'gkkwjbnzjkierpet';
+        $smtpPass = str_replace(' ', '', $defaultAppPassword);
+    }
+    $smtpSecure     = getenv('SMTP_SECURE') ?: PHPMailer::ENCRYPTION_STARTTLS;
+    $smtpFrom       = getenv('SMTP_FROM') ?: $smtpUser; // Gmail exige que coincida con la cuenta o un alias verificado
+    $smtpFromName   = getenv('SMTP_FROM_NAME') ?: 'Destello de Oro 18K';
+    $smtpDebugLevel = (int)(getenv('SMTP_DEBUG') ?: 0); // 0 en producción
+
+    if (empty($smtpUser) || empty($smtpPass)) {
+        echo json_encode(['success' => false, 'message' => 'Faltan credenciales SMTP (usuario o contraseña).']);
+        exit;
+    }
+
     try {
-        // Configuración del servidor SMTP - EL USUARIO DEBE COMPLETAR ESTO
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com'; // Servidor SMTP (ej: smtp.gmail.com)
+        $mail->Host       = $smtpHost;
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'marloncdela@gmail.com'; // Correo emisor
-        $mail->Password   = 'gkkw jbnz jkie rpet'; // Contraseña de aplicación
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Username   = $smtpUser;
+        $mail->Password   = $smtpPass;
+        $mail->SMTPSecure = $smtpSecure;
+        $mail->Port       = $smtpPort;
         $mail->CharSet    = 'UTF-8';
+        $mail->SMTPDebug  = $smtpDebugLevel;
+        if ($smtpDebugLevel > 0) {
+            // Evitar romper el JSON de la API; manda el debug al log del servidor
+            $mail->Debugoutput = 'error_log';
+        }
 
         // Emisor y receptor
-        $mail->setFrom('no-reply@destellodeoro.com', 'Destello de Oro 18K');
+        $mail->setFrom($smtpFrom, $smtpFromName);
         $mail->addAddress($email, $user['name']);
 
         // Contenido del correo
