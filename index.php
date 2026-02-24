@@ -2303,7 +2303,7 @@
 
             <!-- Paso 3: Credenciales de login -->
             <div id="loginCredentials" class="user-info-form">
-                <h3 style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
+                <h3 id="loginCredentialsTitle" style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
                     <i class="fas fa-sign-in-alt"></i> Credenciales de Acceso
                 </h3>
 
@@ -8035,6 +8035,7 @@
                 workerRoleBtn.classList.remove('active');
                 selectedRole = 'admin';
                 window.selectedRole = 'admin';
+                updateLoginCredentialsTitle('Administrador');
                 proceedToUserInfo(); // Avance automático
             });
 
@@ -8044,8 +8045,17 @@
                 adminRoleBtn.classList.remove('active');
                 selectedRole = 'worker';
                 window.selectedRole = 'worker';
+                updateLoginCredentialsTitle('Trabajador');
                 proceedToUserInfo(); // Avance automático
             });
+
+            // Función para actualizar el título
+            function updateLoginCredentialsTitle(roleName) {
+                const titleEl = document.getElementById('loginCredentialsTitle');
+                if (titleEl) {
+                    titleEl.innerHTML = `<i class="fas fa-sign-in-alt"></i> Credenciales de Acceso para ${roleName}`;
+                }
+            }
 
             // Paso 1: Ir a información personal (ahora manejado automáticamente por los roles)
             // se mantiene solo la definición por si acaso, pero el listener ya no es necesario
