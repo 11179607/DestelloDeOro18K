@@ -32,16 +32,20 @@ $userId = $_SESSION['user_id'];
 
 try {
     // Buscar usuario admin en base de datos
-    $stmt = $conn->prepare("SELECT password_hash FROM users WHERE id = :id AND role = 'admin'");
+    $stmt = $conn->prepare("SELECT password FROM users WHERE id = :id AND role = 'admin'");
     $stmt->execute(['id' => $userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user || !password_verify($password, $user['password_hash'])) {
-        // Contraseña incorrecta
-        // Opcional: registrar intento fallido si se desea, pero para la solicitud estándar no es estrictamente necesario, 
-        // a menos que queramos replicar toda la lógica de seguridad del login, aquí basta con rechazarlo.
-        echo json_encode(['success' => false, 'error' => 'Contraseña de administrador incorrecta.']);
-        exit;
+    // En tu login.php dice "// En el futuro: password_verify($password, $user['password'])"
+    // Y hace una comparación en texto plano "if ($user && $password === $user['password'])"
+    // Así que lo mantendremos igual aquí para que coincida.
+    
+    if (!$user || $password !== $user['password']) {
+        // Falló en texto plano. (Si ya estuvieran encriptadas, usarías password_verify)
+        if (!password_verify($password, $user['password']) && $password !== $user['password']) {
+            echo json_encode(['success' => false, 'error' => 'Contraseña de administrador incorrecta.']);
+            exit;
+        }
     }
 
     // Contraseña correcta
