@@ -67,7 +67,7 @@ try {
     $smtpPass       = getenv('SMTP_PASS');
     if (!$smtpPass) {
         // Gmail muestra el password de aplicación con espacios; deben eliminarse
-        $defaultAppPassword = 'gkkwjbnzjkierpet';
+        $defaultAppPassword = 'rbadivlrudndxmfa';
         $smtpPass = str_replace(' ', '', $defaultAppPassword);
     }
     $smtpSecure     = getenv('SMTP_SECURE') ?: PHPMailer::ENCRYPTION_STARTTLS;
