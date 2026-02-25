@@ -4771,6 +4771,7 @@
                                 <th>Cant.</th>
                                 <th>Precio Unit.</th>
                                 <th>Tipo</th>
+                                <th>Incremento G.</th>
                                 <th>Total</th>
                                 <th>Pago</th>
                                 <th>Estado</th>
@@ -4897,6 +4898,11 @@
                                         <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}">
                                             ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.9em; text-align: right; color: var(--warning);">
+                                            ${(parseFloat(item.warrantyIncrement || item.warranty_increment) || 0) > 0 ? formatCurrency(item.warrantyIncrement || item.warranty_increment || 0) : '-'}
+                                        </div>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td>
