@@ -13,6 +13,74 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Helper function para formatear dinero en logs
+function formatMoney($value) {
+    return '$' . number_format((float)$value, 0, ',', '.');
+}
+
+/**
+ * Sincroniza el cambio de producto de una garantía con los items de la venta original.
+ * Esto permite que el historial de ganancias refleje el costo del nuevo producto.
+ */
+function syncWarrantyWithSaleItems($conn, $saleId, $oldProductRef, $newProductRef, $quantity, $newProductName = null) {
+    if (!$saleId || !$oldProductRef || !$newProductRef || $oldProductRef === $newProductRef) {
+        return;
+    }
+
+    try {
+        $stmt = $conn->prepare("SELECT * FROM sale_items WHERE sale_id = :sid AND product_ref = :ref LIMIT 1");
+        $stmt->execute([':sid' => $saleId, ':ref' => $oldProductRef]);
+        $item = $stmt->fetch();
+
+        if ($item) {
+            $oldId = $item['id'];
+            $oldQty = (int)$item['quantity'];
+            $qtyToMove = (int)$quantity;
+
+            if ($oldQty > $qtyToMove) {
+                // Caso parcial: reducir cantidad del original e insertar nuevo
+                $updateQtyStmt = $conn->prepare("UPDATE sale_items SET quantity = quantity - :moveQty, subtotal = (quantity - :moveQty) * unit_price WHERE id = :id");
+                $updateQtyStmt->execute([':moveQty' => $qtyToMove, ':id' => $oldId]);
+
+                // Obtener nombre del nuevo producto si no viene
+                if (!$newProductName) {
+                    $pStmt = $conn->prepare("SELECT name FROM products WHERE reference = :ref");
+                    $pStmt->execute([':ref' => $newProductRef]);
+                    $newProductName = $pStmt->fetchColumn() ?: "Producto de Reemplazo";
+                }
+
+                $insertStmt = $conn->prepare("INSERT INTO sale_items (sale_id, product_ref, product_name, quantity, unit_price, subtotal, sale_type) 
+                                              VALUES (:sid, :ref, :name, :qty, :price, :sub, :type)");
+                $insertStmt->execute([
+                    ':sid' => $saleId,
+                    ':ref' => $newProductRef,
+                    ':name' => $newProductName,
+                    ':qty' => $qtyToMove,
+                    ':price' => $item['unit_price'],
+                    ':sub' => $qtyToMove * $item['unit_price'],
+                    ':type' => $item['sale_type']
+                ]);
+            } else {
+                // Caso total: simplemente actualizar referencia y nombre
+                if (!$newProductName) {
+                    $pStmt = $conn->prepare("SELECT name FROM products WHERE reference = :ref");
+                    $pStmt->execute([':ref' => $newProductRef]);
+                    $newProductName = $pStmt->fetchColumn() ?: "Producto de Reemplazo";
+                }
+
+                $updateStmt = $conn->prepare("UPDATE sale_items SET product_ref = :newRef, product_name = :newName WHERE id = :id");
+                $updateStmt->execute([
+                    ':newRef' => $newProductRef,
+                    ':newName' => $newProductName,
+                    ':id' => $oldId
+                ]);
+            }
+        }
+    } catch (PDOException $e) {
+        error_log("Error syncing warranty with sale items: " . $e->getMessage());
+    }
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
@@ -199,15 +267,14 @@ if ($method === 'GET') {
                     logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED_COMPLETED', 'WARRANTY', $warrantyId, "Garantía creada como completada. Stock descontado ($qtyToDeduct unidades) para REF: $productRef");
                 }
             }
+
+            // Sincronizar referencia en la venta si el producto es diferente
+            if (isset($data->productType) && $data->productType === 'different' && $saleIdInt) {
+                syncWarrantyWithSaleItems($conn, $saleIdInt, $data->originalProductId, $data->newProductRef, $data->quantity ?? 1, $data->newProductName ?? null);
+            }
         } else {
             logAction($conn, $_SESSION['username'], 'WARRANTY_CREATED', 'WARRANTY', $warrantyId, "Garantía registrada para Factura: " . ($data->originalSaleId ?? 'N/A'));
         }
-        
-        // Helper function para formatear dinero en logs
-        function formatMoney($value) {
-            return '$' . number_format($value, 0, ',', '.');
-        }
-        
         echo json_encode(['success' => true, 'message' => 'Garantía registrada', 'id' => $warrantyId]);
 
     } catch (PDOException $e) {
@@ -324,12 +391,6 @@ if ($method === 'GET') {
                     ':id' => $saleIdInt
                 ]);
                 
-                if (!function_exists('formatMoney')) {
-                    function formatMoney($value) {
-                        return '$' . number_format($value, 0, ',', '.');
-                    }
-                }
-                
                 $changeText = $incrementDifference > 0 ? "+" . formatMoney($incrementDifference) : formatMoney($incrementDifference);
                 logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_UPDATED', 'SALE', $saleIdInt, "Incremento por garantía actualizado: {$changeText}. Nuevo total: " . formatMoney($newTotal));
             }
@@ -354,6 +415,18 @@ if ($method === 'GET') {
                     // Si no hay stock, registrar advertencia
                     logAction($conn, $_SESSION['username'], 'WARRANTY_WARNING', 'WARRANTY', $data->id, "Garantía completada PERO NO HABÍA STOCK SUFICIENTE ($qtyToDeduct requeridas) para REF: $productRef");
                 }
+            }
+
+            // Sincronizar referencia en la venta si el producto es diferente
+            if (($currentWarranty['product_type'] ?? null) === 'different' && ($currentWarranty['sale_id'] ?? null)) {
+                syncWarrantyWithSaleItems(
+                    $conn,
+                    $currentWarranty['sale_id'],
+                    $currentWarranty['product_ref'],
+                    $currentWarranty['new_product_ref'],
+                    $currentWarranty['quantity'],
+                    $data->newProductName ?? $currentWarranty['new_product_name']
+                );
             }
         }
 
@@ -410,12 +483,6 @@ if ($method === 'GET') {
                     ':total' => $newTotal,
                     ':id' => $saleIdInt
                 ]);
-                
-                if (!function_exists('formatMoney')) {
-                    function formatMoney($value) {
-                        return '$' . number_format($value, 0, ',', '.');
-                    }
-                }
                 
                 logAction($conn, $_SESSION['username'], 'WARRANTY_INCREMENT_REMOVED', 'SALE', $saleIdInt, "Incremento por garantía eliminado: -" . formatMoney($additionalValue) . ". Nuevo total: " . formatMoney($newTotal));
             }
