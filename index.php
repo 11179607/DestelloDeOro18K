@@ -4047,19 +4047,67 @@
             let wholesaleCount = 0;
 
             sales.forEach(sale => {
-                const isRetail = sale.saleType !== 'wholesale'; // Por defecto es detal a menos que sea explícitamente mayorista
-                const saleTotal = parseFloat(sale.total) || 0;
-                const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
+                let saleRetailTotal = 0;
+                let saleWholesaleTotal = 0;
+                let saleRetailCOGS = 0;
+                let saleWholesaleCOGS = 0;
+                let hasWholesaleItems = false;
+                let hasRetailItems = false;
+                let rawSubtotal = 0;
 
-                if (isRetail) {
-                    retailSales += saleTotal;
-                    retailCOGS += saleCOGS;
-                    retailCount++;
+                if (sale.products && Array.isArray(sale.products)) {
+                    sale.products.forEach(p => {
+                        const qty = parseInt(p.quantity) || 0;
+                        const subtotal = parseFloat(p.subtotal) || 0;
+                        const cost = (parseFloat(p.purchasePrice || p.purchase_price) || 0) * qty;
+                        const type = p.saleType || p.sale_type || 'retail';
+
+                        if (type === 'wholesale') {
+                            saleWholesaleTotal += subtotal;
+                            saleWholesaleCOGS += cost;
+                            hasWholesaleItems = true;
+                        } else {
+                            saleRetailTotal += subtotal;
+                            saleRetailCOGS += cost;
+                            hasRetailItems = true;
+                        }
+                        rawSubtotal += subtotal;
+                    });
                 } else {
-                    wholesaleSales += saleTotal;
-                    wholesaleCOGS += saleCOGS;
-                    wholesaleCount++;
+                    // Fallback si no vienen productos
+                    const total = parseFloat(sale.total) || 0;
+                    if ((sale.saleType || sale.sale_type || 'retail') === 'wholesale') {
+                        saleWholesaleTotal = total;
+                        hasWholesaleItems = true;
+                    } else {
+                        saleRetailTotal = total;
+                        hasRetailItems = true;
+                    }
+                    rawSubtotal = total;
                 }
+
+                // Ajustar proporcionalmente descuentos, envíos y garantías para cuadrar con el Total de Factura
+                if (rawSubtotal > 0) {
+                    const retailRatio = saleRetailTotal / rawSubtotal;
+                    const wholesaleRatio = saleWholesaleTotal / rawSubtotal;
+                    
+                    const discount = parseFloat(sale.discount) || 0;
+                    const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost) || 0;
+                    const warranty = parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0;
+
+                    const adjustments = delivery + warranty - discount;
+                    
+                    saleRetailTotal += (adjustments * retailRatio);
+                    saleWholesaleTotal += (adjustments * wholesaleRatio);
+                }
+
+                retailSales += saleRetailTotal;
+                wholesaleSales += saleWholesaleTotal;
+                retailCOGS += saleRetailCOGS;
+                wholesaleCOGS += saleWholesaleCOGS;
+
+                if (hasRetailItems) retailCount++;
+                if (hasWholesaleItems) wholesaleCount++;
             });
 
             const retailProfit = retailSales - retailCOGS;
