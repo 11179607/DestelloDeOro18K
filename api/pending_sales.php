@@ -149,18 +149,45 @@ if ($method === 'GET') {
             $stockStmt = $conn->prepare($stockSql);
             
             foreach ($data->products as $item) {
+                $itemArr = (array)$item;
+                $productRef = $item->id
+                    ?? ($itemArr['id'] ?? null)
+                    ?? $item->productId
+                    ?? ($itemArr['productId'] ?? null)
+                    ?? $item->product_ref
+                    ?? ($itemArr['product_ref'] ?? null)
+                    ?? $item->reference
+                    ?? ($itemArr['reference'] ?? null);
+                $productName = $item->name
+                    ?? ($itemArr['name'] ?? null)
+                    ?? $item->productName
+                    ?? ($itemArr['productName'] ?? null)
+                    ?? $item->product_name
+                    ?? ($itemArr['product_name'] ?? null);
+                $qty = (int)($item->count ?? $itemArr['count'] ?? $item->quantity ?? $itemArr['quantity'] ?? 0);
+                $unitPrice = (float)($item->price ?? $itemArr['price'] ?? $item->unitPrice ?? $itemArr['unitPrice'] ?? 0);
+                $subtotal = (float)($item->total ?? $itemArr['total'] ?? $item->subtotal ?? $itemArr['subtotal'] ?? ($qty * $unitPrice));
+                $saleType = $item->saleType ?? $itemArr['saleType'] ?? 'retail';
+
+                if (!$productRef || !$productName || $qty <= 0) {
+                    throw new Exception("Datos de producto incompletos en venta pendiente (ref/nombre/cantidad).");
+                }
+
+                $productRef = trim((string)$productRef);
+                $productName = trim((string)$productName);
+
                 $itemStmt->execute([
                     ':sid' => $saleId,
-                    ':ref' => $item->id,
-                    ':pname' => $item->name ?? $item->productName,
-                    ':qty' => $item->count,
-                    ':price' => $item->price,
-                    ':sub' => $item->total,
-                    ':type' => $item->saleType ?? 'retail'
+                    ':ref' => $productRef,
+                    ':pname' => $productName,
+                    ':qty' => $qty,
+                    ':price' => $unitPrice,
+                    ':sub' => $subtotal,
+                    ':type' => $saleType
                 ]);
                 $stockStmt->execute([
-                    ':qty' => $item->count,
-                    ':ref' => $item->id
+                    ':qty' => $qty,
+                    ':ref' => $productRef
                 ]);
             }
             
@@ -170,6 +197,10 @@ if ($method === 'GET') {
         } catch (PDOException $e) {
             $conn->rollBack();
             http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        } catch (Exception $e) {
+            $conn->rollBack();
+            http_response_code(400);
             echo json_encode(['error' => $e->getMessage()]);
         }
         

@@ -4188,7 +4188,11 @@
                 id: invoiceId,
                 products: shoppingCart.map(item => ({
                     productId: item.productId,
+                    id: item.productId,                 // redundancia para backend que espera 'id'
+                    product_ref: item.productId,        // redundancia para backend que espera 'product_ref'
+                    reference: item.productId,          // redundancia para esquemas alternos
                     productName: item.productName,
+                    name: item.productName,             // redundancia para backend
                     quantity: item.quantity,
                     saleType: item.saleType,
                     unitPrice: item.unitPrice,
