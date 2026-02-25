@@ -1719,27 +1719,31 @@
             }
         }
 
-        /* Efecto de rayo en el diálogo */
-        .success-lightning {
-            animation: successLightning 0.8s ease-out;
-        }
-
-        .error-lightning {
-            animation: errorLightning 0.8s ease-out;
-        }
-
+        /* Lightning Effects for Dialog - Estilo Relámpago Real */
         @keyframes successLightning {
-            0% { box-shadow: 0 0 0 rgba(76, 175, 80, 0); transform: scale(1); }
-            20% { box-shadow: 0 0 18px rgba(76, 175, 80, 0.4); transform: scale(1.02); }
-            60% { box-shadow: 0 0 24px rgba(76, 175, 80, 0.6); transform: scale(0.99); }
-            100% { box-shadow: 0 0 0 rgba(76, 175, 80, 0); transform: scale(1); }
+            0%   { box-shadow: 0 0 0 rgba(46, 139, 87, 0); filter: brightness(1); }
+            10%  { box-shadow: 0 0 60px #2ecc71; filter: brightness(2); background: rgba(255,255,255,0.3); }
+            15%  { box-shadow: 0 0 20px #2ecc71; filter: brightness(1.2); }
+            25%  { box-shadow: 0 0 100px #2ecc71; filter: brightness(2.5); background: rgba(255,255,255,0.5); }
+            30%  { box-shadow: 0 0 30px #2ecc71; filter: brightness(1); }
+            100% { box-shadow: 0 0 0 rgba(46, 139, 87, 0); filter: brightness(1); }
         }
 
         @keyframes errorLightning {
-            0% { box-shadow: 0 0 0 rgba(244, 67, 54, 0); transform: scale(1); }
-            20% { box-shadow: 0 0 18px rgba(244, 67, 54, 0.45); transform: scale(1.02); }
-            60% { box-shadow: 0 0 24px rgba(244, 67, 54, 0.65); transform: scale(0.99); }
-            100% { box-shadow: 0 0 0 rgba(244, 67, 54, 0); transform: scale(1); }
+            0%   { box-shadow: 0 0 0 rgba(220, 20, 60, 0); filter: brightness(1); }
+            10%  { box-shadow: 0 0 60px #ff4d4d; filter: brightness(2); background: rgba(255,255,255,0.3); }
+            15%  { box-shadow: 0 0 20px #ff4d4d; filter: brightness(1.2); }
+            25%  { box-shadow: 0 0 100px #ff4d4d; filter: brightness(2.5); background: rgba(255,255,255,0.5); }
+            30%  { box-shadow: 0 0 30px #ff4d4d; filter: brightness(1); }
+            100% { box-shadow: 0 0 0 rgba(220, 20, 60, 0); filter: brightness(1); }
+        }
+
+        .dialog-content.success-lightning-active {
+            animation: successLightning 0.6s ease-out forwards;
+        }
+
+        .dialog-content.error-lightning-active {
+            animation: errorLightning 0.6s ease-out forwards;
         }
 
         /* Estilo para campo de ID de venta en garantías */
@@ -9450,6 +9454,10 @@
                 const confirmBtn = document.getElementById('dialogConfirm');
                 const cancelBtn = document.getElementById('dialogCancel');
                 const content = dialog.querySelector('.dialog-content');
+                
+                // Limpieza total previa
+                content.classList.remove('success-lightning', 'error-lightning', 'success-lightning-active', 'error-lightning-active');
+                window.dialogCallback = null;
 
                 // Configurar icono según tipo
                 icon.innerHTML = getDialogIcon(type);
@@ -9462,36 +9470,28 @@
                 // Configurar botones
                 cancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
 
-                let settled = false;
-                const finish = (result) => {
-                    if (settled) return;
-                    settled = true;
-                    dialog.style.display = 'none';
-                    content.classList.remove('success-lightning', 'error-lightning');
-                    resolve(result);
-                    delete window.dialogCallback;
-                };
-
-                // Guardar callback con lógica de efecto al confirmar
-                window.dialogCallback = (result) => {
-                    if (result && (type === 'success' || type === 'error')) {
-                        content.classList.add(type + '-lightning');
-                        setTimeout(() => finish(result), 800);
+                // Listeners directos por llamada
+                confirmBtn.onclick = () => {
+                    if (type === 'success' || type === 'error') {
+                        content.classList.add(type + '-lightning-active');
+                        setTimeout(() => {
+                            dialog.style.display = 'none';
+                            content.classList.remove('success-lightning-active', 'error-lightning-active');
+                            resolve(true);
+                        }, 700);
                     } else {
-                        finish(result);
+                        dialog.style.display = 'none';
+                        resolve(true);
                     }
                 };
 
-                // Mostrar diálogo
-                dialog.style.display = 'flex';
+                cancelBtn.onclick = () => {
+                    dialog.style.display = 'none';
+                    resolve(false);
+                };
 
-                // Aplicar efecto de rayo al mostrar
-                if (type === 'success' || type === 'error') {
-                    content.classList.add(type + '-lightning');
-                    setTimeout(() => {
-                        content.classList.remove('success-lightning', 'error-lightning');
-                    }, 1000);
-                }
+                // Mostrar diálogo (sin relámpago inicial)
+                dialog.style.display = 'flex';
             });
         }
 
