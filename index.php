@@ -4979,6 +4979,7 @@
                                 <th>Cant.</th>
                                 <th>Precio Unit.</th>
                                 <th>Tipo</th>
+                                <th>Envío</th>
                                 <th>Incremento G.</th>
                                 <th>Total</th>
                                 <th>Pago</th>
@@ -5097,9 +5098,8 @@
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
-                                    <td><strong>${item.invoice_number || item.id || 'N/A'}</strong></td>
-                                    <td><strong>${item.id || 'N/A'}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
+                                    <td><div style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${productRefs}">${productRefs || 'N/A'}</div></td>
                                     <td>
                                         <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
                                             ${item.products ? item.products.map(p => 
@@ -5107,7 +5107,7 @@
                                             ).join('<br>') : (item.productName || 'N/A')}
                                         </div>
                                     </td>
-                                    <td><div style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${productRefs}">${productRefs || 'N/A'}</div></td>
+                                    <td><div style="font-size: 0.9em; text-align: center;">${productQtys}</div></td>
                                     <td><div style="font-size: 0.9em; text-align: right;">${productUnitPrices}</div></td>
                                     <td>
                                         <div style="font-size: 0.9em; text-align: center;">
@@ -5127,20 +5127,18 @@
                                                 : ''}
                                         </div>
                                     </td>
-                                    <td>
-                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : 'badge-warning'}">
-                                            ${item.status === 'completed' ? 'Completada' : 'Pendiente'}
-                                        </span>
-                                    </td>
+                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td>
                                         <span class="badge ${getPaymentMethodClass(item.paymentMethod)}">
                                             ${getPaymentMethodName(item.paymentMethod)}
                                         </span>
                                     </td>
-                                    <td><strong>${formatCurrency(item.total)}</strong></td>
-                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
+                                    <td>
+                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : 'badge-warning'}">
+                                            ${item.status === 'completed' ? 'Completada' : 'Pendiente'}
+                                        </span>
                                     </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
