@@ -4973,19 +4973,16 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID de Venta</th>
-                                <th>ID Venta</th>
                                 <th>Cliente</th>
+                                <th>Referencias</th>
                                 <th>Productos</th>
-                                <th>Referencia</th>
-                                <th>Precio</th>
-                                <th>Tipo de Venta</th>
-                                <th>Estado</th>
-                                <th>Método Pago</th>
+                                <th>Cant.</th>
+                                <th>Precio Unit.</th>
+                                <th>Tipo</th>
+                                <th>Incremento G.</th>
                                 <th>Total</th>
-                                <th>Envío</th>
-                                <th>Incremento Garantía</th>
-                                <th>Incremental</th>
+                                <th>Pago</th>
+                                <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
