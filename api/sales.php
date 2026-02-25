@@ -267,23 +267,36 @@ if ($method === 'GET') {
 
         foreach ($data->products as $item) {
             // Normalizar nombres de campos en productos y validar obligatorios
+            $itemArr = (array)$item; // Soporta objetos stdClass y arrays
+
             $productRef = $item->productId
+                ?? ($itemArr['productId'] ?? null)
                 ?? $item->id
+                ?? ($itemArr['id'] ?? null)
                 ?? $item->product_ref
+                ?? ($itemArr['product_ref'] ?? null)
                 ?? $item->reference
-                ?? null;
+                ?? ($itemArr['reference'] ?? null);
+
             $productName = $item->productName
+                ?? ($itemArr['productName'] ?? null)
                 ?? $item->name
+                ?? ($itemArr['name'] ?? null)
                 ?? $item->product_name
-                ?? null;
-            $quantity   = (int)($item->quantity ?? $item->count ?? 0);
-            $unitPrice  = (float)($item->unitPrice ?? $item->unit_price ?? $item->price ?? 0);
-            $subtotal   = (float)($item->subtotal ?? $item->total ?? ($quantity * $unitPrice));
-            $saleType   = $item->saleType ?? $item->sale_type ?? 'retail';
+                ?? ($itemArr['product_name'] ?? null);
+
+            $quantity   = (int)($item->quantity ?? $itemArr['quantity'] ?? $item->count ?? $itemArr['count'] ?? 0);
+            $unitPrice  = (float)($item->unitPrice ?? $itemArr['unitPrice'] ?? $item->unit_price ?? $itemArr['unit_price'] ?? $item->price ?? $itemArr['price'] ?? 0);
+            $subtotal   = (float)($item->subtotal ?? $itemArr['subtotal'] ?? $item->total ?? $itemArr['total'] ?? ($quantity * $unitPrice));
+            $saleType   = $item->saleType ?? $itemArr['saleType'] ?? $item->sale_type ?? $itemArr['sale_type'] ?? 'retail';
 
             if (!$productRef || !$productName || $quantity <= 0) {
                 throw new Exception("Datos de producto incompletos en la venta (ref/nombre/cantidad).");
             }
+
+            // Normalizar tipos/espacios
+            $productRef = trim((string)$productRef);
+            $productName = trim((string)$productName);
 
             // Verificar stock antes de procesar
             $checkStockStmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
