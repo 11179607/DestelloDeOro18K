@@ -1719,6 +1719,29 @@
             }
         }
 
+        /* Efecto de rayo en el diálogo */
+        .success-lightning {
+            animation: successLightning 0.8s ease-out;
+        }
+
+        .error-lightning {
+            animation: errorLightning 0.8s ease-out;
+        }
+
+        @keyframes successLightning {
+            0% { box-shadow: 0 0 0 rgba(76, 175, 80, 0); transform: scale(1); }
+            20% { box-shadow: 0 0 18px rgba(76, 175, 80, 0.4); transform: scale(1.02); }
+            60% { box-shadow: 0 0 24px rgba(76, 175, 80, 0.6); transform: scale(0.99); }
+            100% { box-shadow: 0 0 0 rgba(76, 175, 80, 0); transform: scale(1); }
+        }
+
+        @keyframes errorLightning {
+            0% { box-shadow: 0 0 0 rgba(244, 67, 54, 0); transform: scale(1); }
+            20% { box-shadow: 0 0 18px rgba(244, 67, 54, 0.45); transform: scale(1.02); }
+            60% { box-shadow: 0 0 24px rgba(244, 67, 54, 0.65); transform: scale(0.99); }
+            100% { box-shadow: 0 0 0 rgba(244, 67, 54, 0); transform: scale(1); }
+        }
+
         /* Estilo para campo de ID de venta en garantías */
         #warrantySaleId {
             background-color: #f8f9fa !important;
@@ -9403,7 +9426,7 @@
             const cancelBtn = document.getElementById('dialogCancel');
 
             confirmBtn.addEventListener('click', function () {
-                dialog.style.display = 'none';
+                // Ya no cerramos aquí, dejamos que el callback maneje el efecto y el cierre
                 if (typeof window.dialogCallback === 'function') {
                     window.dialogCallback(true);
                 }
@@ -9426,6 +9449,7 @@
                 const dialogMessage = document.getElementById('dialogMessage');
                 const confirmBtn = document.getElementById('dialogConfirm');
                 const cancelBtn = document.getElementById('dialogCancel');
+                const content = dialog.querySelector('.dialog-content');
 
                 // Configurar icono según tipo
                 icon.innerHTML = getDialogIcon(type);
@@ -9438,14 +9462,36 @@
                 // Configurar botones
                 cancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
 
-                // Guardar callback
-                window.dialogCallback = (result) => {
+                let settled = false;
+                const finish = (result) => {
+                    if (settled) return;
+                    settled = true;
+                    dialog.style.display = 'none';
+                    content.classList.remove('success-lightning', 'error-lightning');
                     resolve(result);
                     delete window.dialogCallback;
                 };
 
+                // Guardar callback con lógica de efecto al confirmar
+                window.dialogCallback = (result) => {
+                    if (result && (type === 'success' || type === 'error')) {
+                        content.classList.add(type + '-lightning');
+                        setTimeout(() => finish(result), 800);
+                    } else {
+                        finish(result);
+                    }
+                };
+
                 // Mostrar diálogo
                 dialog.style.display = 'flex';
+
+                // Aplicar efecto de rayo al mostrar
+                if (type === 'success' || type === 'error') {
+                    content.classList.add(type + '-lightning');
+                    setTimeout(() => {
+                        content.classList.remove('success-lightning', 'error-lightning');
+                    }, 1000);
+                }
             });
         }
 
