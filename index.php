@@ -2745,6 +2745,8 @@
                                     <th>Producto Garantía</th>
                                     <th>Motivo</th>
                                     <th>Costo Total</th>
+                                    <th>Valor Adicional</th>
+                                    <th>Valor Envío</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -4247,7 +4249,7 @@
                 } else if (type === 'restocks') {
                     totalValue += parseFloat(item.totalValue) || 0;
                 } else if (type === 'warranties') {
-                    totalValue += parseFloat(item.totalCost) || 0;
+                    totalValue += (parseFloat(item.totalCost) || 0) + (parseFloat(item.shippingValue || item.shipping_value) || 0);
                 } else if (type === 'pending') {
                     totalValue += parseFloat(item.total) || 0;
                 }
@@ -4581,17 +4583,17 @@
                 if (data && Array.isArray(data)) {
                     data.forEach(item => {
                         // Calcular valor total asegurando conversión a número para evitar concatenación o NaN
-                        if (type === 'sales') {
-                            totalValue += parseFloat(item.total) || 0;
-                        } else if (type === 'expenses') {
-                            totalValue += parseFloat(item.amount) || 0;
-                        } else if (type === 'restocks') {
-                            totalValue += parseFloat(item.totalValue) || 0;
-                        } else if (type === 'warranties') {
-                            totalValue += parseFloat(item.totalCost) || 0;
-                        } else if (type === 'pending') {
-                            totalValue += parseFloat(item.total) || 0;
-                        }
+                    if (type === 'sales') {
+                        totalValue += parseFloat(item.total) || 0;
+                    } else if (type === 'expenses') {
+                        totalValue += parseFloat(item.amount) || 0;
+                    } else if (type === 'restocks') {
+                        totalValue += parseFloat(item.totalValue) || 0;
+                    } else if (type === 'warranties') {
+                        totalValue += (parseFloat(item.totalCost) || 0) + (parseFloat(item.shippingValue || item.shipping_value) || 0);
+                    } else if (type === 'pending') {
+                        totalValue += parseFloat(item.total) || 0;
+                    }
                     });
                 } else {
                     data = [];
@@ -4767,9 +4769,13 @@
                                 <th>ID de Venta</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
+                                <th>Referencias</th>
+                                <th>Tipo</th>
                                 <th>Total</th>
                                 <th>Envío</th>
                                 <th>Incremento Garantía</th>
+                                <th>Pago</th>
+                                <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -4805,7 +4811,9 @@
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
                                 <th>Motivo</th>
-                                <th>Costo</th>
+                                <th>Costo Total</th>
+                                <th>Valor Adicional</th>
+                                <th>Valor Envío</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
@@ -4881,10 +4889,28 @@
                                     <td>
                                         <strong>${productCount} producto(s)</strong><br>
                                         <small>${productNames}</small>
+                                        <div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.products ? item.products.map(p => p.productId).join(', ') : ''}">
+                                            ${item.products ? item.products.map(p => p.productId).join(', ') : 'N/A'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}">
+                                            ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
+                                        </span>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
                                     <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
+                                    <td>
+                                        <span class="badge ${getPaymentMethodClass(item.paymentMethod)}">
+                                            ${getPaymentMethodName(item.paymentMethod)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : 'badge-warning'}">
+                                            ${item.status === 'completed' ? 'Confirmada' : 'Pendiente'}
+                                        </span>
+                                    </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
@@ -4967,26 +4993,28 @@
                             `;
                             break;
 
-                        case 'warranties':
-                            row = `
-                                <tr>
-                                    <td>${formatDate(itemDate)}</td>
-                                    <td><strong>${item.originalSaleId}</strong></td>
-                                    <td>${item.customerName}</td>
-                                    <td>${item.warrantyReasonText || item.warrantyReason}</td>
-                                    <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
-                                    <td>
-                                        <span class="badge ${item.status === 'completed' ? 'badge-success' :
-                                    item.status === 'pending' ? 'badge-warning' :
-                                        item.status === 'in_process' ? 'badge-info' : 'badge-danger'}">
-                                            ${getWarrantyStatusText(item.status)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
-                                            ${getUserName(user)}
-                                        </span>
-                                    </td>
+                    case 'warranties':
+                        row = `
+                            <tr>
+                                <td>${formatDate(itemDate)}</td>
+                                <td><strong>${item.originalSaleId}</strong></td>
+                                <td>${item.customerName}</td>
+                                <td>${item.warrantyReasonText || item.warrantyReason}</td>
+                                <td><strong>${formatCurrency((parseFloat(item.totalCost) || 0) + (parseFloat(item.shippingValue || item.shipping_value) || 0))}</strong></td>
+                                <td><strong>${formatCurrency(item.additionalValue || item.additional_value || 0)}</strong></td>
+                                <td>${formatCurrency(item.shippingValue || item.shipping_value || 0)}</td>
+                                <td>
+                                    <span class="badge ${item.status === 'completed' ? 'badge-success' :
+                                item.status === 'pending' ? 'badge-warning' :
+                                    item.status === 'in_process' ? 'badge-info' : 'badge-danger'}">
+                                        ${getWarrantyStatusText(item.status)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
+                                        ${getUserName(user)}
+                                    </span>
+                                </td>
                                     <td>
                                         <div style="display: flex; gap: 5px;">
                                             <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'warranties')" title="Ver">
@@ -5108,8 +5136,9 @@
                 const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
                 const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
                 
-                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos de garantías
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
+                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos
+                // Nota: los gastos ya incluyen los envíos de garantías
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -5147,7 +5176,7 @@
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
                         <div class="stat-label">Ganancia Real</div>
-                        <small>Ventas - Gastos - Costo Inv - Envíos Garantías</small>
+                        <small>Ventas - Gastos - Costo Inv (gastos incluyen envíos)</small>
                     </div>
                 `;
             } catch (error) {
@@ -5218,7 +5247,8 @@
             // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold;
+            const expensesWithoutShipping = totalExpenses - totalWarrantyShippingCosts;
 
             let title = '';
             let detailsHTML = '';
@@ -5242,7 +5272,7 @@
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
+                    detailsHTML = generateProfitDetailsHTML(totalSales, expensesWithoutShipping, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -5498,13 +5528,14 @@
             `;
 
             warranties.forEach(warranty => {
+                const wTotal = (parseFloat(warranty.totalCost) || 0) + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0);
                 html += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px;">${formatDate(warranty.createdAt || warranty.created_at)}</td>
                         <td style="padding: 10px;">${warranty.originalSaleId || warranty.sale_id || 'N/A'}</td>
                         <td style="padding: 10px;">${warranty.customerName || 'N/A'}</td>
                         <td style="padding: 10px;">${getWarrantyReasonText(warranty.reason || warranty.warrantyReason)}</td>
-                        <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(warranty.totalCost || 0)}</td>
+                        <td style="padding: 10px; text-align: right; font-weight: bold;">${formatCurrency(wTotal)}</td>
                         <td style="padding: 10px;">${getWarrantyStatusText(warranty.status || 'pending')}</td>
                     </tr>
                 `;
@@ -5601,7 +5632,7 @@
                         </div>
                         <div style="background: #ffebee; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--danger);">
                             <strong style="font-size: 1.2em; color: var(--danger);">${formatCurrency(expensesTotal)}</strong><br>
-                            <small>Gastos Operativos</small>
+                            <small>Gastos Operativos (sin envíos de garantía)</small>
                         </div>
                         <div style="background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--warning);">
                             <strong style="font-size: 1.2em; color: var(--warning);">${formatCurrency(costOfGoodsSoldTotal)}</strong><br>
@@ -5628,7 +5659,7 @@
                             <strong style="color: var(--success);">+${formatCurrency(salesTotal)}</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Gastos Operativos:</span>
+                            <span>Gastos Operativos (sin envíos de garantía):</span>
                             <strong style="color: var(--danger);">-(${formatCurrency(expensesTotal)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
@@ -5820,14 +5851,17 @@
         function generateWarrantiesPDFContent(warranties) {
             let content = `REPORTE DETALLADO DE GARANTÍAS\n\n`;
             content += `Total de garantías: ${warranties.length}\n`;
-            content += `Costo total: ${formatCurrency(warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0))}\n\n`;
+            content += `Costo total: ${formatCurrency(warranties.reduce((sum, warranty) => {
+                return sum + ((parseFloat(warranty.totalCost) || 0) + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0));
+            }, 0))}\n\n`;
 
             content += `DETALLE DE GARANTÍAS:\n`;
             content += `Fecha\t\tVenta ID\t\tCliente\t\tMotivo\t\tCosto\t\tEstado\n`;
             content += `--------------------------------------------------------------------------------\n`;
 
             warranties.forEach(warranty => {
-                content += `${formatDate(warranty.createdAt)}\t${warranty.saleId || 'N/A'}\t${(warranty.customerName || 'N/A').substring(0, 15)}\t${getWarrantyReasonText(warranty.reason).substring(0, 15)}\t${formatCurrency(warranty.totalCost || 0)}\t${getWarrantyStatusText(warranty.status || 'pending')}\n`;
+                const wTotal = (parseFloat(warranty.totalCost) || 0) + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0);
+                content += `${formatDate(warranty.createdAt)}\t${warranty.saleId || 'N/A'}\t${(warranty.customerName || 'N/A').substring(0, 15)}\t${getWarrantyReasonText(warranty.reason).substring(0, 15)}\t${formatCurrency(wTotal)}\t${getWarrantyStatusText(warranty.status || 'pending')}\n`;
             });
 
             return content;
@@ -5850,16 +5884,16 @@
                 return sum + saleCost;
             }, 0);
 
-            const warrantiesTotal = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
-            const netProfit = salesTotal - expensesTotal - costOfGoodsSold - warrantiesTotal;
+            const warrantyShippingCosts = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
+            const netProfit = salesTotal - expensesTotal - costOfGoodsSold;
 
             let content = `ANÁLISIS DE GANANCIAS DEL MES\n\n`;
             content += `RESUMEN FINANCIERO:\n`;
             content += `--------------------------------------------------------------------------------\n`;
             content += `Ingresos por Ventas:     +${formatCurrency(salesTotal)}\n`;
-            content += `Gastos Operativos:       -${formatCurrency(expensesTotal)}\n`;
+            content += `Gastos Operativos (incluyen envíos de garantía): -${formatCurrency(expensesTotal)}\n`;
             content += `Costo de lo Vendido:     -${formatCurrency(costOfGoodsSold)}\n`;
-            content += `Costos de Garantías:     -${formatCurrency(warrantiesTotal)}\n`;
+            content += `Envíos de Garantías (informativo): ${formatCurrency(warrantyShippingCosts)}\n`;
             content += `--------------------------------------------------------------------------------\n`;
             content += `GANANCIA NETA:           ${formatCurrency(netProfit)}\n\n`;
 
@@ -6434,6 +6468,10 @@
             let totalIncrement = 0; // Nuevo: para calcular el incremento total por garantías
 
             warranties.forEach(warranty => {
+                const additionalVal = parseFloat(warranty.additionalValue || warranty.additional_value) || 0;
+                const shippingVal = parseFloat(warranty.shippingValue || warranty.shipping_value) || 0;
+                const warrantyTotal = (parseFloat(warranty.totalCost) || 0) + shippingVal;
+
                 // Calcular días restantes
                 let daysRemaining = -1;
                 if (warranty.endDate) {
@@ -6473,8 +6511,8 @@
                 }
 
                 // Sumar al costo total
-                totalCost += warranty.totalCost || 0;
-                totalIncrement += warranty.additionalValue || 0; // Sumar incremento
+                totalCost += warrantyTotal;
+                totalIncrement += additionalVal; // Sumar incremento
 
                 // Determinar producto de garantía
                 let warrantyProduct = warranty.newProductName || warranty.originalProductName;
@@ -6490,7 +6528,9 @@
                     <td>${warranty.originalProductName} (${warranty.originalProductId})</td>
                     <td>${warrantyProduct}</td>
                     <td>${warranty.warrantyReasonText || warranty.warrantyReason}</td>
-                    <td><strong>${formatCurrency(warranty.totalCost || 0)}</strong></td>
+                    <td><strong>${formatCurrency(warrantyTotal)}</strong></td>
+                    <td><strong>${formatCurrency(additionalVal)}</strong></td>
+                    <td>${formatCurrency(shippingVal)}</td>
                     <td>
                         <span class="badge ${statusBadge}">
                             ${statusText}
@@ -6770,6 +6810,8 @@
                         }
                     }
 
+                    const warrantyTotal = (parseFloat(movement.totalCost) || 0) + (parseFloat(movement.shippingValue || movement.shipping_value) || 0);
+
                     content = `
                         <div style="margin-bottom: 1.5rem;">
                             <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
@@ -6802,8 +6844,8 @@
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
                                 <div><strong>Valor adicional:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
-                                <div><strong>Valor envío:</strong> ${formatCurrency(movement.shippingValue || 0)}</div>
-                                <div><strong>Costo total:</strong> ${formatCurrency(movement.totalCost || 0)}</div>
+                                <div><strong>Valor envío:</strong> ${formatCurrency(movement.shippingValue || movement.shipping_value || 0)}</div>
+                                <div><strong>Costo total:</strong> ${formatCurrency(warrantyTotal)}</div>
                                 <div><strong>Estado:</strong> ${getWarrantyStatusText(movement.status)}</div>
                                 ${statusMessage ? `<div><strong>Tiempo:</strong> ${statusMessage}</div>` : ''}
                             </div>
@@ -7143,7 +7185,7 @@
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-truck"></i> Valor Envío
                                 </label>
-                                <input type="number" name="shippingValue" value="${movement.shippingValue || 0}" 
+                                <input type="number" name="shippingValue" value="${movement.shippingValue || movement.shipping_value || 0}" 
                                        class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
                                        min="0" step="0.01">
                             </div>
