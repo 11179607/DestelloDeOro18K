@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // reset_password.php
 require_once 'config/db.php';
 
@@ -31,10 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 
     if (strlen($new_password) < 6) {
         $error = 'La contraseña debe tener al menos 6 caracteres.';
-    } elseif (!preg_match('/[A-Z]/', $new_password) || 
-              !preg_match('/[0-9]/', $new_password) || 
-              !preg_match('/[^A-Za-z0-9]/', $new_password)) {
-        $error = 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial.';
+    } elseif (!preg_match('/[a-z]/', $new_password)) {
+        $error = 'La contraseña debe tener al menos una letra minúscula.';
+    } elseif (!preg_match('/[A-Z]/', $new_password)) {
+        $error = 'La contraseña debe tener al menos una letra mayúscula.';
+    } elseif (!preg_match('/[0-9]/', $new_password)) {
+        $error = 'La contraseña debe tener al menos un número.';
+    } elseif (!preg_match('/[\\W_]/', $new_password)) {
+        $error = 'La contraseña debe tener al menos un carácter especial.';
     } elseif ($new_password !== $confirm_password) {
         $error = 'Las contraseñas no coinciden.';
     } else {
@@ -57,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -130,6 +133,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
         .form-control:focus {
             border-color: var(--gold-primary);
             outline: none;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 1.1rem;
+            z-index: 10;
+        }
+
+        .password-strength {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            text-align: left;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+
+        .password-strength ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .password-strength li {
+            color: #dc3545;
+            margin-bottom: 5px;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .password-strength li.valid {
+            color: #28a745;
+        }
+
+        .password-strength li i {
+            margin-right: 8px;
+            font-size: 0.9rem;
         }
 
         .btn {
@@ -209,11 +260,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             <form method="POST">
                 <div class="form-group">
                     <label for="new_password">Nueva Contraseña</label>
-                    <input type="password" name="new_password" id="new_password" class="form-control" required minlength="6">
+                    <div class="password-wrapper">
+                        <input type="password" name="new_password" id="new_password" class="form-control" required minlength="6">
+                        <i class="fas fa-eye eye-icon" onclick="togglePassword('new_password', this)"></i>
+                    </div>
+                    <div class="password-strength">
+                        <ul>
+                            <li id="req-length" class="invalid"><i class="fas fa-times-circle"></i> Mínimo 6 caracteres</li>
+                            <li id="req-lower" class="invalid"><i class="fas fa-times-circle"></i> Al menos una letra minúscula</li>
+                            <li id="req-upper" class="invalid"><i class="fas fa-times-circle"></i> Al menos una letra mayúscula</li>
+                            <li id="req-number" class="invalid"><i class="fas fa-times-circle"></i> Al menos un número</li>
+                            <li id="req-special" class="invalid"><i class="fas fa-times-circle"></i> Al menos un carácter especial</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="confirm_password">Confirmar Contraseña</label>
-                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                    <div class="password-wrapper">
+                        <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                        <i class="fas fa-eye eye-icon" onclick="togglePassword('confirm_password', this)"></i>
+                    </div>
                 </div>
                 <button type="submit" class="btn">Actualizar Contraseña</button>
             </form>
@@ -223,5 +289,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             <a href="index.php" class="back-link">Ir al Inicio</a>
         <?php endif; ?>
     </div>
+
+    <script>
+        function togglePassword(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconElement.classList.remove('fa-eye');
+                iconElement.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                iconElement.classList.remove('fa-eye-slash');
+                iconElement.classList.add('fa-eye');
+            }
+        }
+
+        document.getElementById('new_password')?.addEventListener('input', function() {
+            const val = this.value;
+            
+            const reqs = {
+                'req-length': val.length >= 6,
+                'req-lower': /[a-z]/.test(val),
+                'req-upper': /[A-Z]/.test(val),
+                'req-number': /[0-9]/.test(val),
+                'req-special': /[\W_]/.test(val)
+            };
+
+            for (const id in reqs) {
+                const el = document.getElementById(id);
+                if (!el) continue;
+                const icon = el.querySelector('i');
+                if (reqs[id]) {
+                    el.classList.add('valid');
+                    el.classList.remove('invalid');
+                    icon.classList.remove('fa-times-circle');
+                    icon.classList.add('fa-check-circle');
+                } else {
+                    el.classList.add('invalid');
+                    el.classList.remove('valid');
+                    icon.classList.remove('fa-check-circle');
+                    icon.classList.add('fa-times-circle');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
