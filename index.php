@@ -4100,9 +4100,9 @@
                     `;
                 }
 
-                /* if (currentHistoryType !== 'investment') {
-                     loadMonthlySummary();
-                } */
+                if (currentHistoryType !== 'investment') {
+                    loadMonthlySummary();
+                }
 
 
             } catch (error) {
@@ -5409,7 +5409,7 @@
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
-                        <div class="stat-label">Ganancia Real</div>
+                        <div class="stat-label">Ganancias Totales</div>
                         <small>Ventas - Gastos - Costo Inv (gastos incluyen envíos)</small>
                     </div>
                 `;
