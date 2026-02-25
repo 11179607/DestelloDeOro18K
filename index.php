@@ -4391,7 +4391,7 @@
                         <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses)}</span>
                     </div>
                     <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
-                        <span style="font-weight: bold;">GANANCIA NETA:</span>
+                        <span style="font-weight: bold;">GANANCIAS TOTALES:</span>
                         <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(netProfit)}</span>
                     </div>
                 </div>
@@ -4562,7 +4562,7 @@
                             <small>Costo: ${formatCurrency(wholesaleCOGS)}</small>
                         </div>
                         <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--gold-primary);">
-                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancia Neta</strong><br>
+                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancias Totales</strong><br>
                             <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
                                 ${formatCurrency(netProfit)}
                             </div>
