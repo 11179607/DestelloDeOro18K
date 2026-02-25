@@ -2092,8 +2092,13 @@
                                 <input type="text" id="supplier" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label>Ganancia Estimada</label>
+                                <label>Ganancia Detal Estimada</label>
                                 <input type="text" id="profitEstimate" class="form-control" readonly
+                                    style="background-color: var(--light-gray); font-size: 0.9rem;">
+                            </div>
+                            <div class="form-group">
+                                <label>Ganancia Mayorista Estimada</label>
+                                <input type="text" id="profitWholesaleEstimate" class="form-control" readonly
                                     style="background-color: var(--light-gray); font-size: 0.9rem;">
                             </div>
                         </div>
@@ -2137,6 +2142,8 @@
                                     <th>Precio Mayorista</th>
                                     <th>Precio Detal</th>
                                     <th>Ganancia</th>
+                                    <th>Ganancia Detal</th>
+                                    <th>Ganancia Mayorista</th>
                                     <th>Proveedor</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -7334,15 +7341,27 @@
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Precio Compra</label>
-                            <input type="number" name="purchasePrice" value="${movement.purchasePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                            <input type="number" name="purchasePrice" id="editPurchasePrice" value="${movement.purchasePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Precio Mayorista</label>
-                            <input type="number" name="wholesalePrice" value="${movement.wholesalePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                            <input type="number" name="wholesalePrice" id="editWholesalePrice" value="${movement.wholesalePrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Precio Detal</label>
-                            <input type="number" name="retailPrice" value="${movement.retailPrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                            <input type="number" name="retailPrice" id="editRetailPrice" value="${movement.retailPrice}" class="form-control" style="width: 100%; padding: 8px;" step="0.01" required>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">Ganancia Detal</label>
+                                <input type="text" id="editProfitRetail" class="form-control" readonly style="background-color: #f5f5f5; font-size: 0.85rem;" 
+                                    value="${formatCurrency(parseFloat(movement.retailPrice) - parseFloat(movement.purchasePrice))} (${((parseFloat(movement.retailPrice) - parseFloat(movement.purchasePrice)) / parseFloat(movement.purchasePrice) * 100).toFixed(2)}%)">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.85rem; color: #666;">Ganancia Mayorista</label>
+                                <input type="text" id="editProfitWholesale" class="form-control" readonly style="background-color: #f5f5f5; font-size: 0.85rem;" 
+                                    value="${formatCurrency(parseFloat(movement.wholesalePrice) - parseFloat(movement.purchasePrice))} (${((parseFloat(movement.wholesalePrice) - parseFloat(movement.purchasePrice)) / parseFloat(movement.purchasePrice) * 100).toFixed(2)}%)">
+                            </div>
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-weight: 500;">Proveedor</label>
@@ -9236,14 +9255,33 @@
         function calculateProfit() {
             const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
             const retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0;
+            const wholesalePrice = parseFloat(document.getElementById('wholesalePrice').value) || 0;
 
-            if (purchasePrice > 0 && retailPrice > 0) {
-                const profit = retailPrice - purchasePrice;
-                const profitPercentage = (profit / purchasePrice * 100).toFixed(2);
-                document.getElementById('profitEstimate').value =
-                    `${formatCurrency(profit)} (${profitPercentage}%)`;
+            if (purchasePrice > 0) {
+                // Ganancia Detal
+                if (retailPrice > 0) {
+                    const profitRetail = retailPrice - purchasePrice;
+                    const profitRetailPct = (profitRetail / purchasePrice * 100).toFixed(2);
+                    document.getElementById('profitEstimate').value =
+                        `${formatCurrency(profitRetail)} (${profitRetailPct}%)`;
+                } else {
+                    document.getElementById('profitEstimate').value = '';
+                }
+
+                // Ganancia Mayorista
+                if (wholesalePrice > 0) {
+                    const profitWholesale = wholesalePrice - purchasePrice;
+                    const profitWholesalePct = (profitWholesale / purchasePrice * 100).toFixed(2);
+                    document.getElementById('profitWholesaleEstimate').value =
+                        `${formatCurrency(profitWholesale)} (${profitWholesalePct}%)`;
+                } else {
+                    document.getElementById('profitWholesaleEstimate').value = '';
+                }
             } else {
                 document.getElementById('profitEstimate').value = '';
+                if (document.getElementById('profitWholesaleEstimate')) {
+                    document.getElementById('profitWholesaleEstimate').value = '';
+                }
             }
         }
 
@@ -9340,14 +9378,16 @@
 
                 if (filteredProducts.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="10" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
+                    row.innerHTML = `<td colspan="12" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
                     tableBody.appendChild(row);
                     return;
                 }
 
                 filteredProducts.forEach(product => {
-                    const profit = (parseFloat(product.retailPrice) || 0) - (parseFloat(product.purchasePrice) || 0);
-                    const profitPercentage = (parseFloat(product.purchasePrice) > 0) ? (profit / parseFloat(product.purchasePrice) * 100).toFixed(2) : '0';
+                    const profitRetail = (parseFloat(product.retailPrice) || 0) - (parseFloat(product.purchasePrice) || 0);
+                    const profitRetailPercentage = (parseFloat(product.purchasePrice) > 0) ? (profitRetail / parseFloat(product.purchasePrice) * 100).toFixed(2) : '0';
+                    const profitWholesale = (parseFloat(product.wholesalePrice) || 0) - (parseFloat(product.purchasePrice) || 0);
+                    const profitWholesalePercentage = (parseFloat(product.purchasePrice) > 0) ? (profitWholesale / parseFloat(product.purchasePrice) * 100).toFixed(2) : '0';
                     const row = document.createElement('tr');
 
                     // Determinar si mostrar botón de eliminar (solo para admin)
@@ -9370,8 +9410,16 @@
                         <td>${formatCurrency(product.wholesalePrice)}</td>
                         <td>${formatCurrency(product.retailPrice)}</td>
                         <td>
-                            ${formatCurrency(profit)}<br>
-                            <small>(${profitPercentage}%)</small>
+                            ${formatCurrency(profitRetail)}<br>
+                            <small>(${profitRetailPercentage}%)</small>
+                        </td>
+                        <td>
+                            ${formatCurrency(profitRetail)}<br>
+                            <small>(${profitRetailPercentage}%)</small>
+                        </td>
+                        <td>
+                            ${formatCurrency(profitWholesale)}<br>
+                            <small>(${profitWholesalePercentage}%)</small>
                         </td>
                         <td>${product.supplier}</td>
                         <td>
