@@ -266,13 +266,24 @@ if ($method === 'GET') {
         $stockStmt = $conn->prepare($stockSql);
 
         foreach ($data->products as $item) {
-            // Normalizar nombres de campos en productos
-            $productRef = $item->productId ?? $item->product_ref ?? $item->id ?? '';
-            $productName = $item->productName ?? $item->product_name ?? $item->name ?? '';
-            $quantity = $item->quantity ?? 0;
-            $unitPrice = $item->unitPrice ?? $item->unit_price ?? 0;
-            $subtotal = $item->subtotal ?? 0;
-            $saleType = $item->saleType ?? $item->sale_type ?? 'retail';
+            // Normalizar nombres de campos en productos y validar obligatorios
+            $productRef = $item->productId
+                ?? $item->id
+                ?? $item->product_ref
+                ?? $item->reference
+                ?? null;
+            $productName = $item->productName
+                ?? $item->name
+                ?? $item->product_name
+                ?? null;
+            $quantity   = (int)($item->quantity ?? $item->count ?? 0);
+            $unitPrice  = (float)($item->unitPrice ?? $item->unit_price ?? $item->price ?? 0);
+            $subtotal   = (float)($item->subtotal ?? $item->total ?? ($quantity * $unitPrice));
+            $saleType   = $item->saleType ?? $item->sale_type ?? 'retail';
+
+            if (!$productRef || !$productName || $quantity <= 0) {
+                throw new Exception("Datos de producto incompletos en la venta (ref/nombre/cantidad).");
+            }
 
             // Verificar stock antes de procesar
             $checkStockStmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
@@ -308,6 +319,11 @@ if ($method === 'GET') {
         $conn->rollBack();
         http_response_code(500);
         echo json_encode(['error' => 'Error al procesar la venta: ' . $e->getMessage()]);
+    } catch (Exception $e) {
+        // Cualquier error no-PDO (datos incompletos, validaciones)
+        $conn->rollBack();
+        http_response_code(400);
+        echo json_encode(['error' => $e->getMessage()]);
     }
 
 } elseif ($method === 'DELETE') {
