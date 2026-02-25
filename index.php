@@ -7,7 +7,7 @@
     <title>Destello de Oro 18K | Sistema de Gestión</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&family=Orbitron:wght@400;700&family=Great+Vibes&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap"
         rel="stylesheet">
 
     <!-- QR Code Generator Library -->
@@ -131,129 +131,6 @@
             }
         }
 
-        .clock-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            padding: 0;
-            border: none;
-            margin-left: 15px; /* Espacio con el botón de logout */
-            box-shadow: none;
-        }
-
-        .analog-clock {
-            width: 125px; /* Ampliado para ocupar el espacio del cuadro */
-            height: 125px;
-            border: 3px solid var(--gold-primary); /* Borde dorado un poco más grueso */
-            border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle, #000000 0%, #1a1a1a 100%);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3), 0 0 40px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        /* Información Digital DENTRO del círculo */
-        .digital-inside {
-            position: absolute;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            pointer-events: none;
-            width: 100%;
-            top: 65%; /* Ajustado un pelín para que juegue bien con los números */
-            transform: translateY(-50%);
-        }
-
-        /* Números del Reloj */
-        .clock-number {
-            position: absolute;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--gold-secondary);
-            pointer-events: none;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-        }
-
-        .num-12 { top: 8px; left: 50%; transform: translateX(-50%); }
-        .num-3  { right: 10px; top: 50%; transform: translateY(-50%); }
-        .num-6  { bottom: 8px; left: 50%; transform: translateX(-50%); }
-        .num-9  { left: 10px; top: 50%; transform: translateY(-50%); }
-
-        #header-time {
-            font-family: 'Orbitron', sans-serif; /* Estilo calculadora */
-            font-size: 0.95rem; /* Tamaño reducido como pediste */
-            font-weight: 700;
-            color: #00ff00; /* Color verde digital clásico o blanco */
-            color: var(--white);
-            line-height: 1;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-            margin-bottom: 2px;
-            letter-spacing: 1px;
-        }
-
-        #header-date {
-            font-size: 0.6rem;
-            color: var(--gold-secondary);
-            text-transform: uppercase;
-            font-weight: 700;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
-            text-align: center;
-            max-width: 85%;
-        }
-
-        .analog-clock .hand {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            transform-origin: bottom;
-            border-radius: 10px;
-            z-index: 10;
-        }
-
-        .analog-clock .hour-hand {
-            width: 5px;
-            height: 30px;
-            background: var(--gold-primary); /* DORADA */
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-        }
-
-        .analog-clock .min-hand {
-            width: 4px;
-            height: 45px;
-            background: #007bff; /* AZUL */
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-        }
-
-        .analog-clock .sec-hand {
-            width: 2px;
-            height: 52px;
-            background: var(--danger); /* ROJA */
-            z-index: 11;
-        }
-
-        .analog-clock .center-dot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: var(--gold-primary);
-            border-radius: 50%;
-            z-index: 12;
-            border: 1px solid rgba(0,0,0,0.5);
-        }
-
-
-
         /* Pantalla de Login */
         .login-container {
             display: flex;
@@ -340,91 +217,6 @@
             font-size: 1rem; /* Un poco más grande para leer mejor */
         }
 
-        /* Lightning Effects for Dialog - Estilo Relámpago Real */
-        @keyframes successLightning {
-            0% { box-shadow: 0 0 0 rgba(46, 139, 87, 0); filter: brightness(1); }
-            10% { box-shadow: 0 0 60px #2ecc71; filter: brightness(2); background: rgba(255,255,255,0.3); }
-            15% { box-shadow: 0 0 20px #2ecc71; filter: brightness(1.2); }
-            25% { box-shadow: 0 0 100px #2ecc71; filter: brightness(2.5); background: rgba(255,255,255,0.5); }
-            30% { box-shadow: 0 0 30px #2ecc71; filter: brightness(1); }
-            100% { box-shadow: 0 0 0 rgba(46, 139, 87, 0); filter: brightness(1); }
-        }
-
-        @keyframes errorLightning {
-            0% { box-shadow: 0 0 0 rgba(220, 20, 60, 0); filter: brightness(1); }
-            10% { box-shadow: 0 0 60px #ff4d4d; filter: brightness(2); background: rgba(255,255,255,0.3); }
-            15% { box-shadow: 0 0 20px #ff4d4d; filter: brightness(1.2); }
-            25% { box-shadow: 0 0 100px #ff4d4d; filter: brightness(2.5); background: rgba(255,255,255,0.5); }
-            30% { box-shadow: 0 0 30px #ff4d4d; filter: brightness(1); }
-            100% { box-shadow: 0 0 0 rgba(220, 20, 60, 0); filter: brightness(1); }
-        }
-
-        .dialog-content.success-lightning-active {
-            animation: successLightning 0.6s ease-out forwards;
-        }
-
-        .dialog-content.error-lightning-active {
-            animation: errorLightning 0.6s ease-out forwards;
-        }
-
-        /* ===== DESTELLOS DORADOS DE VENTA EXITOSA ===== */
-        #goldSparkleOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 99999;
-            overflow: hidden;
-        }
-
-        .gold-particle {
-            position: absolute;
-            top: -20px;
-            border-radius: 50%;
-            animation: goldFall linear forwards;
-            pointer-events: none;
-        }
-
-        @keyframes goldFall {
-            0% {
-                transform: translateY(0) rotate(0deg) scale(1);
-                opacity: 1;
-            }
-            70% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(110vh) rotate(720deg) scale(0.3);
-                opacity: 0;
-            }
-        }
-
-        @keyframes goldFlash {
-            0%   { opacity: 0; }
-            10%  { opacity: 0.35; }
-            20%  { opacity: 0; }
-            35%  { opacity: 0.25; }
-            50%  { opacity: 0; }
-            65%  { opacity: 0.15; }
-            80%  { opacity: 0; }
-            100% { opacity: 0; }
-        }
-
-        #goldFlashScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.6) 0%, rgba(212, 175, 55, 0.3) 50%, transparent 80%);
-            pointer-events: none;
-            z-index: 99998;
-            display: none;
-            animation: goldFlash 1.2s ease-out forwards;
-        }
-
         .login-box small, .login-box p, .login-box .form-text {
             color: var(--dark-gray) !important;
             text-shadow: none !important;
@@ -440,31 +232,6 @@
             padding: 12px 15px;
             color: var(--text-dark) !important;
             text-shadow: none;
-        }
-
-        /* Estilos para el Switch de Envío Gratis */
-        .custom-switch {
-            display: flex;
-            align-items: center;
-        }
-
-        .custom-control-input {
-            display: none;
-        }
-
-        .custom-control-label {
-            cursor: pointer;
-            padding: 5px;
-            transition: var(--transition);
-        }
-
-        .custom-control-label:hover {
-            transform: scale(1.1);
-        }
-
-        #freeShippingToggle:checked + .custom-control-label i {
-            color: #2e7d32 !important;
-            transform: scale(1.2);
         }
         
         .login-box .form-control::placeholder {
@@ -566,18 +333,6 @@
             outline: none;
             border-color: var(--gold-primary);
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
-        }
-
-        /* Imagen de fondo para Modales y Popups */
-        .dialog-content, 
-        .invoice-container, 
-        .password-change-box,
-        .detail-view-container,
-        #movement-details-modal .modal-content {
-            background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.98)),
-                        url('fondo.jpeg') no-repeat center center !important;
-            background-size: cover !important;
-            position: relative;
         }
 
         .btn {
@@ -718,7 +473,7 @@
         }
 
         .brand-icon {
-            font-size: 2.5rem; /* Aumentado de 1.8rem */
+            font-size: 1.8rem;
             color: var(--gold-primary);
             animation: pulse 2s infinite;
         }
@@ -739,10 +494,9 @@
 
         .brand-text h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem; /* Aumentado de 1.5rem */
-            font-weight: 700;
-            letter-spacing: 1px;
-            line-height: 1.1;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         @media (max-width: 480px) {
@@ -752,11 +506,9 @@
         }
 
         .brand-text span {
-            font-size: 1.2rem; /* Aumentado de 0.8rem para que combine con el nombre principal */
-            opacity: 0.9;
-            font-weight: 400;
-            display: block;
-            margin-top: -5px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            font-weight: 300;
         }
 
         .user-controls {
@@ -776,14 +528,14 @@
 
         .user-badge {
             background: rgba(255, 255, 255, 0.1);
-            padding: 12px 22px; /* Aumentado padding */
+            padding: 8px 15px;
             border-radius: 50px;
-            font-weight: 600;
+            font-weight: 500;
             border: 1px solid rgba(212, 175, 55, 0.3);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.1rem; /* Aumentado de 0.9rem */
+            gap: 8px;
+            font-size: 0.9rem;
         }
 
         .user-badge.admin {
@@ -798,15 +550,15 @@
             background: rgba(220, 20, 60, 0.1);
             border: 1px solid rgba(220, 20, 60, 0.3);
             color: var(--danger);
-            padding: 12px 22px; /* Aumentado padding */
+            padding: 8px 15px;
             border-radius: var(--radius-md);
             cursor: pointer;
             transition: var(--transition);
-            font-weight: 600;
-            font-size: 1.1rem; /* Aumentado de 0.9rem */
+            font-weight: 500;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .logout-btn:hover {
@@ -1180,38 +932,33 @@
         }
 
         .badge-admin {
-            background: linear-gradient(135deg, var(--gold-dark) 0%, #8b6b06 100%);
-            color: var(--white);
-            border: 1px solid var(--gold-primary);
-            font-weight: 600;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);
+            color: var(--gold-dark);
+            border: 1px solid rgba(212, 175, 55, 0.3);
         }
 
         .badge-worker {
-            background: linear-gradient(135deg, var(--info) 0%, #1e4bb5 100%);
-            color: var(--white);
-            border: 1px solid #4169E1;
-            font-weight: 600;
+            background: linear-gradient(135deg, rgba(65, 105, 225, 0.15) 0%, rgba(30, 144, 255, 0.1) 100%);
+            color: var(--info);
+            border: 1px solid rgba(65, 105, 225, 0.3);
         }
 
         .badge-success {
-            background: linear-gradient(135deg, var(--success) 0%, #228b22 100%);
-            color: var(--white);
-            border: 1px solid #2E8B57;
-            font-weight: 600;
+            background: linear-gradient(135deg, rgba(46, 139, 87, 0.15) 0%, rgba(50, 205, 50, 0.1) 100%);
+            color: var(--success);
+            border: 1px solid rgba(46, 139, 87, 0.3);
         }
 
         .badge-warning {
-            background: linear-gradient(135deg, var(--warning) 0%, #e69500 100%);
-            color: var(--text-dark);
-            border: 1px solid #FFA500;
-            font-weight: 600;
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.15) 0%, rgba(255, 215, 0, 0.1) 100%);
+            color: var(--warning);
+            border: 1px solid rgba(255, 165, 0, 0.3);
         }
 
         .badge-danger {
-            background: linear-gradient(135deg, var(--danger) 0%, #b2102f 100%);
-            color: var(--white);
-            border: 1px solid #DC143C;
-            font-weight: 600;
+            background: linear-gradient(135deg, rgba(220, 20, 60, 0.15) 0%, rgba(255, 99, 71, 0.1) 100%);
+            color: var(--danger);
+            border: 1px solid rgba(220, 20, 60, 0.3);
         }
 
         /* Botones */
@@ -1898,81 +1645,6 @@
         }
 
         /* Animaciones */
-        @keyframes planeFly {
-            0% { 
-                transform: translate(-150%, -50%) rotate(0deg); 
-                left: 0;
-            }
-            10% {
-                transform: translate(0, -50%) rotate(5deg);
-            }
-            90% {
-                transform: translate(0, -50%) rotate(-5deg);
-            }
-            100% { 
-                transform: translate(150%, -50%) rotate(0deg); 
-                left: 100%;
-            }
-        }
-
-        .airplane-container {
-            position: absolute;
-            top: 50%;
-            left: -500px;
-            display: flex;
-            align-items: center;
-            z-index: 1001;
-            pointer-events: none;
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
-        }
-
-        .airplane-container.active {
-            animation: planeFly 10s linear forwards;
-        }
-
-        .airplane-icon {
-            width: 120px;
-            height: 45px;
-            margin-left: -5px;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-        }
-
-        .airplane-svg {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-        }
-
-        .airplane-banner {
-            background: #ffffff;
-            color: var(--gold-primary);
-            padding: 8px 15px;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 1rem;
-            white-space: nowrap;
-            border: 2px solid var(--gold-primary);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            position: relative;
-            margin-right: 10px;
-            font-family: 'Playfair Display', serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Hilo de la pancarta */
-        .airplane-banner::after {
-            content: '';
-            position: absolute;
-            left: 100%;
-            top: 50%;
-            width: 20px;
-            height: 2px;
-            background: #999;
-            transform: translateY(-50%);
-        }
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -2025,24 +1697,6 @@
             <div class="dialog-buttons">
                 <button id="dialogConfirm" class="btn btn-primary">Aceptar</button>
                 <button id="dialogCancel" class="btn btn-danger" style="display: none;">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Diálogo Autorización Administrador -->
-    <div id="adminPasswordPromptDialog" class="password-change-container" style="z-index: 11000;">
-        <div class="password-change-box" style="max-width: 350px;">
-            <div class="password-change-header" style="margin-bottom: 1rem;">
-                <i class="fas fa-shield-alt" style="color: var(--danger);"></i>
-                <h2 style="font-size: 1.2rem;">Autorización Requerida</h2>
-                <p>Ingrese clave de administrador para continuar</p>
-            </div>
-            <div class="form-group">
-                <input type="password" id="adminAuthPasswordInput" class="form-control" placeholder="Clave administrador" required>
-            </div>
-            <div class="dialog-buttons" style="display: flex; gap: 10px; justify-content: center; margin-top: 1rem;">
-                <button id="adminAuthConfirmBtn" class="btn btn-primary" style="flex: 1;">Aceptar</button>
-                <button id="adminAuthCancelBtn" class="btn btn-danger" style="flex: 1;">Cancelar</button>
             </div>
         </div>
     </div>
@@ -2196,44 +1850,6 @@
         </div>
     </div>
 
-    <!-- ===== SPLASH SCREEN DE BIENVENIDA ===== -->
-    <div id="splashScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; overflow:hidden;">
-        <div id="splashBg" style="position:absolute; top:0; left:0; width:100%; height:100%; background-image:url('fondo.jpeg'); background-size:cover; background-position:center; filter:brightness(0.45);"></div>
-        <div id="splashContent" style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; pointer-events:none;">
-            <div id="splashTitle" style="
-                font-family:'Great Vibes', cursive;
-                font-size:clamp(5rem, 12vw, 9rem);
-                font-weight:400;
-                color:#D4AF37;
-                text-shadow: 0 0 30px rgba(212,175,55,0.9), 0 0 60px rgba(212,175,55,0.5), 3px 3px 0px #7a5a00;
-                text-align:center;
-                padding: 0 20px;
-                line-height: 1;
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 20px; /* espacio entre las palabras */
-            ">
-                <span class="domino-word" style="opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">Destello</span>
-                <span class="domino-word" style="opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">de</span>
-                <span class="domino-word" style="opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">Oro</span>
-                <span class="domino-word" style="font-family:'Poppins', sans-serif; font-weight:700; font-size:clamp(3rem, 8vw, 6rem); align-self:center; opacity:0; transform: translateY(-120vh) rotate(-20deg); display:inline-block; transition: transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s;">18K</span>
-            </div>
-            <div id="splashSubtitle" style="
-                font-family:'Poppins',sans-serif;
-                font-size:clamp(1rem, 3vw, 1.6rem);
-                color:rgba(255,215,0,0.9);
-                letter-spacing:8px;
-                margin-top:20px;
-                text-transform:uppercase;
-                opacity:0;
-                transition: opacity 1s ease 1.5s;
-            ">SISTEMAS DE GESTI&Oacute;N</div>
-        </div>
-        <!-- Overlay de partículas doradas -->
-        <div id="splashSparkleOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:3;"></div>
-    </div>
-
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
@@ -2260,9 +1876,8 @@
                     </div>
                 </div>
 
-                <!-- Botón removido para flujo automático -->
                 <button id="nextToUserInfo" class="btn btn-primary"
-                    style="width: 100%; margin-top: 1rem; padding: 10px; display: none;">
+                    style="width: 100%; margin-top: 1rem; padding: 10px;">
                     <i class="fas fa-arrow-right"></i> Continuar
                 </button>
 
@@ -2321,7 +1936,7 @@
 
             <!-- Paso 3: Credenciales de login -->
             <div id="loginCredentials" class="user-info-form">
-                <h3 id="loginCredentialsTitle" style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
+                <h3 style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
                     <i class="fas fa-sign-in-alt"></i> Credenciales de Acceso
                 </h3>
 
@@ -2364,32 +1979,6 @@
     <div id="appScreen">
         <!-- Header -->
         <header class="main-header">
-            <!-- Contenedor del avión animado -->
-            <div id="airplaneAnimation" class="airplane-container">
-                <div class="airplane-banner">Destello de Oro 18K</div>
-                <div class="airplane-icon">
-                    <svg viewBox="0 0 100 40" class="airplane-svg" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Cuerpo del avión (Estilo Propeller Real) -->
-                        <path d="M10,20 C10,15 25,10 55,10 L85,15 C95,17 100,20 100,20 C100,20 95,23 85,25 L55,30 C25,30 10,25 10,20 Z" fill="url(#goldGrad)" />
-                        <!-- Ventana de cabina -->
-                        <path d="M65,13 L78,15 L78,18 L63,18 Z" fill="rgba(255,255,255,0.7)" />
-                        <!-- Cola -->
-                        <path d="M15,18 L0,5 L8,5 L25,18 Z" fill="#B8860B" />
-                        <path d="M15,22 L0,35 L8,35 L25,22 Z" fill="#B8860B" />
-                        <!-- Hélice -->
-                        <rect x="97" y="10" width="2" height="20" fill="#333" rx="1">
-                            <animateTransform attributeName="transform" type="rotate" from="0 98 20" to="360 98 20" dur="0.1s" repeatCount="indefinite" />
-                        </rect>
-                        <defs>
-                            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" style="stop-color:#B8860B;stop-opacity:1" />
-                                <stop offset="50%" style="stop-color:#D4AF37;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-            </div>
             <div class="header-content">
                 <div class="brand">
                     <i class="fas fa-gem brand-icon"></i>
@@ -2400,7 +1989,6 @@
                 </div>
 
                 <div class="user-controls">
-                    <!-- Reloj en Header -->
                     <div id="currentUserRole" class="user-badge admin">
                         <i class="fas fa-user-shield"></i>
                         <span>Administrador</span>
@@ -2408,26 +1996,6 @@
                     <button id="logoutButton" class="logout-btn">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </button>
-
-                    <!-- Reloj en la Esquina Final -->
-                    <div class="clock-container">
-                        <div class="analog-clock">
-                            <div class="digital-inside">
-                                <span id="header-time">00:00:00</span>
-                                <span id="header-date">Cargando...</span>
-                            </div>
-                            <!-- Marcadores Horarios -->
-                            <div class="clock-number num-12">12</div>
-                            <div class="clock-number num-3">3</div>
-                            <div class="clock-number num-6">6</div>
-                            <div class="clock-number num-9">9</div>
-
-                            <div class="hand hour-hand" id="hourHand"></div>
-                            <div class="hand min-hand" id="minHand"></div>
-                            <div class="hand sec-hand" id="secHand"></div>
-                            <div class="center-dot"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </header>
@@ -2500,26 +2068,21 @@
                             </div>
                             <div class="form-group">
                                 <label for="productQuantity">Cantidad Inicial *</label>
-                                <input type="number" id="productQuantity" class="form-control" min="0" required
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <input type="number" id="productQuantity" class="form-control" min="0" required>
                             </div>
                             <div class="form-group">
                                 <label for="purchasePrice">Precio de Compra *</label>
                                 <input type="number" id="purchasePrice" class="form-control" min="0" step="0.01"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="wholesalePrice">Precio Mayorista *</label>
                                 <input type="number" id="wholesalePrice" class="form-control" min="0" step="0.01"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="retailPrice">Precio al Detal *</label>
-                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
-                                    required>
+                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01" required>
                             </div>
                             <div class="form-group">
                                 <label for="supplier">Proveedor *</label>
@@ -2627,17 +2190,17 @@
                             <div class="form-group">
                                 <label for="customerId">Cédula *</label>
                                 <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890"
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label for="customerPhone">Teléfono *</label>
                                 <input type="tel" id="customerPhone" class="form-control" placeholder="Ej: 3001234567"
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                    required>
                             </div>
                             <div class="form-group">
-                                <label for="customerEmail">Correo Electrónico *</label>
+                                <label for="customerEmail">Correo Electrónico</label>
                                 <input type="email" id="customerEmail" class="form-control"
-                                    placeholder="Ej: cliente@email.com" required>
+                                    placeholder="Ej: cliente@email.com">
                             </div>
                             <div class="form-group">
                                 <label for="customerAddress">Dirección *</label>
@@ -2668,8 +2231,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="saleQuantity">Cantidad *</label>
-                                <input type="number" id="saleQuantity" class="form-control" min="1" required
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <input type="number" id="saleQuantity" class="form-control" min="1" required>
                             </div>
                             <div class="form-group">
                                 <label for="saleType">Tipo de Venta *</label>
@@ -2680,8 +2242,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="discount">Descuento (%)</label>
-                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0"
-                                    oninput="if(parseFloat(this.value)>100) this.value=100; this.value=this.value.replace(/[^0-9.]/g,'');">
+                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0">
                                 <small class="form-text" style="font-size: 0.8rem;">Entre 0 y 100%</small>
                             </div>
                         </div>
@@ -2768,26 +2329,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="deliveryCost">Costo de Envío</label>
-                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
-                            </div>
-
-                            <!-- Campo de Envío Gratis (Condicional) -->
-                            <div id="freeShippingContainer" style="display: none; margin-top: -5px; margin-bottom: 15px;">
-                                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
-                                    <div style="flex-grow: 1;">
-                                        <div style="font-weight: bold; color: #2e7d32; font-size: 0.9rem;">
-                                            <i class="fas fa-truck"></i> ¡Aplica Envío Gratis!
-                                        </div>
-                                        <div style="font-size: 0.75rem; color: #43a047;">Venta superior a 250,000</div>
-                                    </div>
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="freeShippingToggle">
-                                        <label class="custom-control-label" for="freeShippingToggle" id="freeShippingLabel">
-                                            <i class="fas fa-times-circle" style="color: #666; font-size: 1.2rem;"></i>
-                                        </label>
-                                    </div>
-                                </div>
+                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
                             </div>
                         </div>
                     </div>
@@ -2858,8 +2400,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="restockQuantity">Cantidad a Surtir *</label>
-                                <input type="number" id="restockQuantity" class="form-control" min="1" required
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <input type="number" id="restockQuantity" class="form-control" min="1" required>
                             </div>
                         </div>
                         <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -2903,7 +2444,6 @@
                             <div class="form-group">
                                 <label for="expenseAmount">Valor *</label>
                                 <input type="number" id="expenseAmount" class="form-control" min="0" step="0.01"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
                                     required>
                             </div>
                         </div>
@@ -3071,8 +2611,7 @@
 
                             <div class="form-group">
                                 <label for="warrantyQuantity">Cantidad para Garantía *</label>
-                                <input type="number" id="warrantyQuantity" class="form-control" min="1" value="1" required
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <input type="number" id="warrantyQuantity" class="form-control" min="1" value="1" required>
                                 <small class="form-text" style="font-size: 0.8rem;">Cantidad de unidades que entran en garantía</small>
                             </div>
 
@@ -3106,23 +2645,23 @@
                                         <input type="text" id="newProductName" class="form-control"
                                             placeholder="Nombre del nuevo producto">
                                     </div>
+
+                                    <div class="form-group">
+                                        <label for="additionalValue">Valor Adicional *</label>
+                                        <input type="number" id="additionalValue" class="form-control" min="0" value="0"
+                                            required>
+                                        <small class="form-text" style="font-size: 0.8rem;">Valor adicional si el
+                                            producto es diferente</small>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Valores Extra (Siempre visibles) -->
-                            <div class="form-group">
-                                <label for="additionalValue">Valor Adicional *</label>
-                                <input type="number" id="additionalValue" class="form-control" min="0" value="0"
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); updateWarrantyCostSummary();"
-                                    required>
-                                <small class="form-text" style="font-size: 0.8rem;">Cargo extra por la garantía</small>
-                            </div>
-
+                            <!-- Valor de envío -->
                             <div class="form-group">
                                 <label for="shippingValue">Valor Envío *</label>
-                                <input type="number" id="shippingValue" class="form-control" min="0" value="0" required
-                                    oninput="this.value = this.value.replace(/[^0-9.]/g, ''); updateWarrantyCostSummary();">
-                                <small class="form-text" style="font-size: 0.8rem;">Este valor se agregará a los gastos mensuales</small>
+                                <input type="number" id="shippingValue" class="form-control" min="0" value="0" required>
+                                <small class="form-text" style="font-size: 0.8rem;">Este valor se agregará a los gastos
+                                    mensuales</small>
                             </div>
 
                             <div class="form-group">
@@ -3202,8 +2741,7 @@
                                     <th>Producto Original</th>
                                     <th>Producto Garantía</th>
                                     <th>Motivo</th>
-                                    <th>Incremento Garantía</th>
-                                    <th>Costos</th>
+                                    <th>Costo Total</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -3684,10 +3222,6 @@
                 return;
             }
 
-            // Requerir clave de administrador
-            const isAuthorized = await promptAdminPassword();
-            if (!isAuthorized) return;
-
             try {
                 // Obtener valores del formulario
                 const formData = getEditFormData();
@@ -3704,7 +3238,7 @@
 
                 // Actualizar el movimiento según su tipo
                 let success = false;
-                switch (typeToRefresh) {
+                switch (currentMovementTypeForEdit) {
                     case 'sales':
                         success = await updateSale(formData);
                         break;
@@ -3721,7 +3255,7 @@
                         success = await updateRestock(formData);
                         break;
                     default:
-                        console.error('Tipo no soportado:', typeToRefresh);
+                        console.error('Tipo no soportado:', currentMovementTypeForEdit);
                         await showDialog('Error', 'Tipo de movimiento no soportado para edición.', 'error');
                         return;
                 }
@@ -4071,15 +3605,9 @@
                 return;
             }
 
-            // Verificar stock acumulativo en el carrito
-            const existingQuantity = shoppingCart
-                .filter(item => item.productId === productRef)
-                .reduce((sum, item) => sum + item.quantity, 0);
-            
-            const totalRequested = existingQuantity + quantity;
-
-            if (totalRequested > product.quantity) {
-                showDialog('Stock Insuficiente', `No hay suficiente stock. Disponible: ${product.quantity}. Ya tienes ${existingQuantity} en el carrito y estás intentando agregar ${quantity} más.`, 'error');
+            // Verificar stock
+            if (quantity > product.quantity) {
+                showDialog('Error', `No hay suficiente stock. Solo hay ${product.quantity} unidades disponibles.`, 'error');
                 return;
             }
 
@@ -4164,12 +3692,7 @@
             // Calcular totales
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            
-            // Lógica de Envío Gratis
-            const freeShippingToggle = document.getElementById('freeShippingToggle');
-            const isFreeShipping = freeShippingToggle && freeShippingToggle.checked;
-            const finalDeliveryCost = isFreeShipping ? 0 : deliveryCost;
-            const total = subtotal + finalDeliveryCost;
+            const total = subtotal + deliveryCost;
 
             // Generar u obtener ID de factura manual
             const manualInvoiceField = document.getElementById('manualInvoiceId');
@@ -4188,11 +3711,7 @@
                 id: invoiceId,
                 products: shoppingCart.map(item => ({
                     productId: item.productId,
-                    id: item.productId,                 // redundancia para backend que espera 'id'
-                    product_ref: item.productId,        // redundancia para backend que espera 'product_ref'
-                    reference: item.productId,          // redundancia para esquemas alternos
                     productName: item.productName,
-                    name: item.productName,             // redundancia para backend
                     quantity: item.quantity,
                     saleType: item.saleType,
                     unitPrice: item.unitPrice,
@@ -4202,10 +3721,8 @@
                 })),
                 subtotal: subtotal,
                 discount: totalDiscount,
-                deliveryCost: finalDeliveryCost,
+                deliveryCost: deliveryCost,
                 total: total,
-                isFreeShipping: isFreeShipping,
-                originalDeliveryCost: deliveryCost,
                 paymentMethod: paymentMethod,
                 deliveryType: deliveryType,
                 customerInfo: customerInfo,
@@ -4228,7 +3745,6 @@
                         'warning'
                     );
                 } else {
-                    triggerGoldSparkles();
                     await showDialog('¡Venta Exitosa!', 'La venta ha sido procesada correctamente.', 'success');
                 }
 
@@ -4264,35 +3780,12 @@
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
             const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
-
-            // Lógica de Envío Gratis
-            const freeShippingContainer = document.getElementById('freeShippingContainer');
-            const freeShippingToggle = document.getElementById('freeShippingToggle');
-            const freeShippingLabel = document.getElementById('freeShippingLabel');
-
-            const deliveryType = document.getElementById('deliveryType').value;
-            if (subtotal >= 250000 && deliveryType !== 'store') {
-                freeShippingContainer.style.display = 'block';
-            } else {
-                freeShippingContainer.style.display = 'none';
-                freeShippingToggle.checked = false;
-            }
-
-            // Actualizar icono de la etiqueta
-            if (freeShippingToggle.checked) {
-                freeShippingLabel.innerHTML = '<i class="fas fa-check-circle" style="color: #2e7d32; font-size: 1.2rem;"></i>';
-            } else {
-                freeShippingLabel.innerHTML = '<i class="fas fa-times-circle" style="color: #666; font-size: 1.2rem;"></i>';
-            }
-
-            const isFreeShipping = freeShippingToggle.checked;
-            const finalDeliveryCost = isFreeShipping ? 0 : deliveryCost;
-            const total = subtotal + finalDeliveryCost;
+            const total = subtotal + deliveryCost;
 
             // Actualizar UI
             document.getElementById('subtotalAmount').textContent = formatCurrency(subtotal);
             document.getElementById('discountAmount').textContent = formatCurrency(totalDiscount);
-            document.getElementById('deliveryAmount').textContent = formatCurrency(finalDeliveryCost);
+            document.getElementById('deliveryAmount').textContent = formatCurrency(deliveryCost);
             document.getElementById('totalAmount').textContent = formatCurrency(total);
         }
 
@@ -4410,7 +3903,7 @@
 
                     // Tarjeta de ganancias solo si estamos en 'all' o explícitamente 'profit' o 'sales'
                     if (currentHistoryType === 'all' || currentHistoryType === 'profit' || currentHistoryType === 'sales') {
-                        if (sales.length > 0) createProfitHistoryCard(sales, expenses);
+                        if (sales.length > 0) createProfitHistoryCard(sales);
                     }
                 }
 
@@ -4424,9 +3917,9 @@
                     `;
                 }
 
-                if (currentHistoryType !== 'investment') {
-                    loadMonthlySummary();
-                }
+                /* if (currentHistoryType !== 'investment') {
+                     loadMonthlySummary();
+                } */
 
 
             } catch (error) {
@@ -4468,10 +3961,9 @@
             // Si products tienen 'date' (entry_date).
             const filteredProducts = products.filter(p => {
                 const pDate = new Date(p.date || p.created_at);
-                if (!p.date && !p.created_at) return false;
-                const matchesYear = pDate.getFullYear() === currentYear;
-                const matchesMonth = currentMonth === 'all' || pDate.getMonth() === currentMonth;
-                return matchesYear && matchesMonth;
+                 // Si p.date es null, asumimos hoy? No, ignoremos o asumimos viejo.
+                 if (!p.date) return false;
+                 return pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear;
             });
 
             // Calculamos inversión inicial: quantity * purchasePrice
@@ -4525,7 +4017,7 @@
                     </div>
                      <div class="history-card-date">
                         <i class="fas fa-calendar history-card-date-icon"></i>
-                        <span>${currentMonth === 'all' ? 'Todo el Año' : 'Mes Actual'}</span>
+                        <span>Mes Actual</span>
                     </div>
                 </div>
             `;
@@ -4539,7 +4031,7 @@
         }
 
         // Crear tarjetas de ganancias desglosadas (detal, mayorista, total)
-        function createProfitHistoryCard(sales, expenses = []) {
+        function createProfitHistoryCard(sales) {
             const cardsContainer = document.getElementById('historyCardsView');
 
             // Calcular ganancias por tipo de venta
@@ -4549,76 +4041,26 @@
             let wholesaleCOGS = 0;
             let retailCount = 0;
             let wholesaleCount = 0;
-            let totalDeliveryCost = 0;
 
             sales.forEach(sale => {
+                const isRetail = sale.saleType !== 'wholesale'; // Por defecto es detal a menos que sea explícitamente mayorista
                 const saleTotal = parseFloat(sale.total) || 0;
-                const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost || 0);
-                const discount = parseFloat(sale.discount || 0);
-                const warranty = parseFloat(sale.warrantyIncrement || sale.warranty_increment || 0);
-                const otherCharges = delivery - discount + warranty;
+                const saleCOGS = (sale.products || []).reduce((pSum, p) => pSum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
 
-                let saleRetailSubtotal = 0;
-                let saleWholesaleSubtotal = 0;
-                let saleRetailCOGS = 0;
-                let saleWholesaleCOGS = 0;
-
-                (sale.products || []).forEach(p => {
-                    const pQty = parseInt(p.quantity) || 0;
-                    const pPrice = parseFloat(p.unit_price || p.unitPrice) || 0;
-                    const pPurchase = parseFloat(p.purchase_price || p.purchasePrice) || 0;
-                    const pType = p.sale_type || p.saleType || 'retail';
-                    const pSubtotal = pQty * pPrice;
-                    const pCOGS = pQty * pPurchase;
-
-                    if (pType === 'wholesale') {
-                        saleWholesaleSubtotal += pSubtotal;
-                        saleWholesaleCOGS += pCOGS;
-                    } else {
-                        saleRetailSubtotal += pSubtotal;
-                        saleRetailCOGS += pCOGS;
-                    }
-                });
-
-                const totalItemsSubtotal = saleRetailSubtotal + saleWholesaleSubtotal;
-
-                if (totalItemsSubtotal > 0) {
-                    const ratioRetail = saleRetailSubtotal / totalItemsSubtotal;
-                    const ratioWholesale = saleWholesaleSubtotal / totalItemsSubtotal;
-
-                    retailSales += saleRetailSubtotal + (otherCharges * ratioRetail);
-                    wholesaleSales += saleWholesaleSubtotal + (otherCharges * ratioWholesale);
-                } else {
-                    // Fallback si no hay items (ventas viejas o con errores)
-                    if (sale.saleType === 'wholesale') {
-                        wholesaleSales += saleTotal;
-                    } else {
-                        retailSales += saleTotal;
-                    }
-                }
-
-                retailCOGS += saleRetailCOGS;
-                wholesaleCOGS += saleWholesaleCOGS;
-                totalDeliveryCost += delivery;
-
-                // Contar para el resumen
-                if (sale.saleType === 'mixed') {
+                if (isRetail) {
+                    retailSales += saleTotal;
+                    retailCOGS += saleCOGS;
                     retailCount++;
-                    wholesaleCount++;
-                } else if (sale.saleType === 'wholesale') {
-                    wholesaleCount++;
                 } else {
-                    retailCount++;
+                    wholesaleSales += saleTotal;
+                    wholesaleCOGS += saleCOGS;
+                    wholesaleCount++;
                 }
             });
 
             const retailProfit = retailSales - retailCOGS;
             const wholesaleProfit = wholesaleSales - wholesaleCOGS;
-            
-            // Lógica de gastos (manualmente registrados)
-            const totalExpenses = (expenses || []).reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
-            // MODIFICADO: No descontar envíos de la ganancia en historial (solo para ver movimiento)
-            const totalProfit = retailProfit + wholesaleProfit - totalExpenses;
+            const totalProfit = retailProfit + wholesaleProfit;
 
             // 1. TARJETA GANANCIAS AL DETAL
             const retailCard = document.createElement('div');
@@ -4650,7 +4092,7 @@
                     <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
                 </div>
             `;
-            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses));
+            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
             cardsContainer.appendChild(retailCard);
 
             // 2. TARJETA GANANCIAS MAYORISTA
@@ -4683,7 +4125,7 @@
                     <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
                 </div>
             `;
-            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses));
+            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
             cardsContainer.appendChild(wholesaleCard);
 
             // 3. TARJETA GANANCIA TOTAL
@@ -4706,25 +4148,17 @@
                         <span>Costo Total:</span>
                         <span class="history-card-detail-value">${formatCurrency(retailCOGS + wholesaleCOGS)}</span>
                     </div>
-                    <div class="history-card-detail">
-                        <span>Gastos Registrados:</span>
-                        <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses)}</span>
-                    </div>
-                    <div class="history-card-detail">
-                        <span>Envíos (Informativo):</span>
-                        <span class="history-card-detail-value" style="color: #607d8b;">${formatCurrency(totalDeliveryCost)}</span>
-                    </div>
                     <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
-                        <span style="font-weight: bold;">GANANCIAS NETAS:</span>
+                        <span style="font-weight: bold;">GANANCIA NETA:</span>
                         <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(totalProfit)}</span>
                     </div>
                 </div>
                 <div class="history-card-footer">
                     <div class="history-card-user"><i class="fas fa-chart-line"></i> <span>Consolidado</span></div>
-                    <div class="history-card-date"><span>Año ${currentYear} ${currentMonth === 'all' ? '(Todos los meses)' : 'Mes ' + new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short'})}</span></div>
+                    <div class="history-card-date"><span>Mes ${new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses));
+            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
             cardsContainer.appendChild(totalCard);
         }
 
@@ -4755,7 +4189,7 @@
                 } else if (type === 'restocks') {
                     totalValue += parseFloat(item.totalValue) || 0;
                 } else if (type === 'warranties') {
-                    totalValue += parseFloat(item.shippingValue || item.shipping_value) || 0;
+                    totalValue += parseFloat(item.totalCost) || 0;
                 } else if (type === 'pending') {
                     totalValue += parseFloat(item.total) || 0;
                 }
@@ -4835,19 +4269,15 @@
         }
 
         // Mostrar detalles de ganancias
-        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses = 0) {
-            const totalDeliveryCosts = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
+        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
             document.getElementById('historyDetailsView').style.display = 'block';
 
             const content = document.getElementById('monthlyDetailsContent');
-            const title = `Análisis de Ganancias - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+            const title = `Análisis de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
 
-            // MODIFICADO: En el historial no descontamos envíos de la ganancia total
-            const historyProfit = retailProfit + wholesaleProfit - totalExpenses;
-
-            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, historyProfit, sales, totalExpenses, totalDeliveryCosts);
+            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales);
 
             content.innerHTML = `
                 <div class="dialog-icon" style="color: var(--gold-primary);">
@@ -4862,13 +4292,7 @@
         }
 
         // Generar HTML del desglose de ganancias
-        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses = 0, deliveryCosts = 0) {
-            const adjustedRetailSales = retailSales; // Ya se ajustaron en createProfitHistoryCard? 
-            // Espera, en createProfitHistoryCard resté el delivery de retailSales/wholesaleSales.
-            // Si lo resté ahí, entonces retailProfit y wholesaleProfit ya están correctos.
-            // PERO el "Net Profit" que pasamos como totalProfit ya lo restó.
-            
-            // Vamos a asegurar consistencia.
+        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
             return `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -4892,16 +4316,12 @@
                             <small>Costo: ${formatCurrency(wholesaleCOGS)}</small>
                         </div>
                         <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--gold-primary);">
-                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancias Totales</strong><br>
+                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancia Total</strong><br>
                             <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
                                 ${formatCurrency(totalProfit)}
                             </div>
-                            <div style="display: flex; flex-direction: column; font-size: 0.85em; color: #666;">
-                                <span>Ventas Brutas: ${formatCurrency(retailSales + wholesaleSales + deliveryCosts)}</span>
-                                <span>Costo Inv: -${formatCurrency(retailCOGS + wholesaleCOGS)}</span>
-                                <span style="color: var(--danger);">Gastos: -${formatCurrency(totalExpenses)}</span>
-                                <span style="color: #607d8b; font-style: italic;">Envíos (Informativo): ${formatCurrency(deliveryCosts)}</span>
-                            </div>
+                            <small>Total Ventas: ${formatCurrency(retailSales + wholesaleSales)}</small><br>
+                            <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small>
                         </div>
                     </div>
                 </div>
@@ -4923,17 +4343,18 @@
                             </thead>
                             <tbody>
                                 ${sales.map(sale => {
-                const saleType = sale.saleType || 'retail';
-                const isRetail = saleType !== 'wholesale';
-                const typeLabel = saleType === 'mixed' ? 'Mixta' : (isRetail ? 'Al Detal' : 'Mayorista');
-                const typeColor = saleType === 'mixed' ? '#9C27B0' : (isRetail ? '#4CAF50' : '#2196F3');
-                const saleTotal = parseFloat(sale.total) || 0;
+                const isRetail = sale.saleType !== 'wholesale';
+                const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                 const saleCOGS = (sale.products || []).reduce((sum, product) => {
-                    const pPurchase = parseFloat(product.purchase_price || product.purchasePrice) || 0;
-                    const pQty = parseInt(product.quantity) || 0;
-                    return sum + (pPurchase * pQty);
+                    const prod = products.find(p => p.id === product.productId);
+                    if (prod) {
+                        return sum + (prod.purchasePrice * product.quantity);
+                    }
+                    return sum;
                 }, 0);
-                const profit = saleTotal - saleCOGS;
+                const profit = sale.total - saleCOGS;
+                const typeLabel = isRetail ? 'Al Detal' : 'Mayorista';
+                const typeColor = isRetail ? '#4CAF50' : '#2196F3';
 
                 return `
                                         <tr style="border-bottom: 1px solid #eee;">
@@ -4943,7 +4364,7 @@
                                                     ${typeLabel}
                                                 </span>
                                             </td>
-                                            <td style="padding: 10px; text-align: right;">${formatCurrency(saleTotal)}</td>
+                                            <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
                                             <td style="padding: 10px; text-align: right; font-weight: bold; color: ${profit >= 0 ? '#4CAF50' : '#F44336'};">
                                                 ${formatCurrency(profit)}
@@ -5188,12 +4609,10 @@
                  const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                  
                  // Filtro de productos
-                  const fProducts = products.filter(p => {
-                     const d = new Date(p.date || p.created_at);
-                     const matchesYear = d.getFullYear() === currentYear;
-                     const matchesMonth = currentMonth === 'all' || d.getMonth() === currentMonth;
-                     return matchesYear && matchesMonth;
-                  });
+                 const fProducts = products.filter(p => {
+                    const d = new Date(p.date || p.created_at);
+                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                 });
  
                  // Combinación normalizada
                  data = [
@@ -5279,17 +4698,12 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID Venta</th>
+                                <th>ID de Venta</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
-                                <th>Referencia</th>
-                                <th>Tipo de Venta</th>
-                                <th>Precio</th>
-                                <th>Método Pago</th>
-                                <th>Envío</th>
-                                <th>Incremento Garantia</th>
                                 <th>Total</th>
-                                <th>Estado</th>
+                                <th>Envío</th>
+                                <th>Incremento Garantía</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5324,11 +4738,8 @@
                                 <th>Fecha</th>
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
-                                <th>Producto Original</th>
-                                <th>Producto Garantía</th>
                                 <th>Motivo</th>
-                                <th>Incremento</th>
-                                <th>Costo Envío</th>
+                                <th>Costo</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
@@ -5340,17 +4751,10 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID Venta</th>
+                                <th>ID de Venta</th>
                                 <th>Cliente</th>
-                                <th>Productos</th>
-                                <th>Referencia</th>
-                                <th>Tipo de Venta</th>
-                                <th>Precio</th>
-                                <th>Método Pago</th>
-                                <th>Envío</th>
-                                <th>Incremento Garantía</th>
                                 <th>Total</th>
-                                <th>Estado</th>
+                                <th>Método Pago</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5404,41 +4808,12 @@
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
                                     <td>
-                                        <strong>${productCount} producto(s):</strong><br>
-                                        <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
-                                            ${item.products ? item.products.map(p => 
-                                                `• ${p.productName || p.productId || 'Producto'} (x${parseInt(p.quantity)||1})`
-                                            ).join('<br>') : (item.productName || 'N/A')}
-                                        </div>
+                                        <strong>${productCount} producto(s)</strong><br>
+                                        <small>${productNames}</small>
                                     </td>
-                                    <td>
-                                        <div style="font-size: 0.75rem; color: #666;">
-                                            ${item.products ? item.products.map(p => p.productId || p.reference || 'N/R').join('<br>') : 'N/R'}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : item.saleType === 'mixed' ? 'badge-warning' : 'badge-success'}">
-                                            ${item.saleType === 'wholesale' ? 'Mayorista' : item.saleType === 'mixed' ? 'Mixta' : 'Detal'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.75rem;">
-                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
-                                            ${getPaymentMethodName(item.paymentMethod)}
-                                        </span>
-                                    </td>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
                                     <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.total)}</strong></td>
-                                    <td>
-                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : item.status === 'confirmed' ? 'badge-info' : 'badge-warning'}">
-                                            ${item.status === 'completed' ? 'Completada' : item.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
-                                        </span>
-                                    </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
                                             ${getUserName(user)}
@@ -5527,21 +4902,8 @@
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.originalSaleId}</strong></td>
                                     <td>${item.customerName}</td>
-                                    <td>
-                                        <div style="font-size: 0.85rem;">
-                                            <strong>${item.productName || item.originalProductName || 'N/A'}</strong><br>
-                                            <small>${item.product_ref || item.originalProductId || ''}</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.85rem;">
-                                            <strong>${item.newProductName || 'Mismo Producto'}</strong><br>
-                                            <small>${item.newProductRef || item.product_ref || ''}</small>
-                                        </div>
-                                    </td>
                                     <td>${item.warrantyReasonText || item.warrantyReason}</td>
-                                    <td><strong>${formatCurrency(item.additionalValue || item.additional_value || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.shippingValue || item.shipping_value || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.totalCost || 0)}</strong></td>
                                     <td>
                                         <span class="badge ${item.status === 'completed' ? 'badge-success' :
                                     item.status === 'pending' ? 'badge-warning' :
@@ -5592,39 +4954,11 @@
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
-                                    <td>
-                                        <strong>${productCount} producto(s):</strong><br>
-                                        <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
-                                            ${item.products ? item.products.map(p => 
-                                                `• ${p.productName || p.productId || 'Producto'} (x${parseInt(p.quantity)||1})`
-                                            ).join('<br>') : (item.productName || 'N/A')}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.75rem; color: #666;">
-                                            ${item.products ? item.products.map(p => p.productId || p.reference || 'N/R').join('<br>') : 'N/R'}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : item.saleType === 'mixed' ? 'badge-warning' : 'badge-success'}">
-                                            ${item.saleType === 'wholesale' ? 'Mayorista' : item.saleType === 'mixed' ? 'Mixta' : 'Detal'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div style="font-size: 0.75rem;">
-                                            ${item.products ? item.products.map(p => formatCurrency(parseFloat(p.unitPrice || p.unit_price) || 0)).join('<br>') : 'N/A'}
-                                        </div>
-                                    </td>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td>
                                         <span class="badge ${paymentMethods[item.paymentMethod]?.class || 'badge-warning'}">
                                             ${getPaymentMethodName(item.paymentMethod)}
                                         </span>
-                                    </td>
-                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.total)}</strong></td>
-                                    <td>
-                                        ${statusBadge}
                                     </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
@@ -5632,10 +4966,11 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
                                             <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </button>
+                                            ${statusBadge}
                                         </div>
                                     </td>
                                 </tr>
@@ -5693,18 +5028,17 @@
                     return sum + itemsCost;
                 }, 0);
 
-                // Calcular incrementos de garantías y costos de envío (para mostrar en las tarjetas)
-                const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warranty_increment || sale.warrantyIncrement) || 0), 0);
-                const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shipping_value || warranty.shippingValue) || 0), 0);
-                const totalDeliveryCosts = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
-
-                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos cobrados
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalDeliveryCosts;
+                // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
+                // porque el additionalValue ya está incluido en totalSales (warranty_increment)
+                const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
+                const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
+                
+                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos de garantías
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
-                    const monthLabel = currentMonth === 'all' ? 'Todos los meses' : (currentMonth + 1);
-                    console.log(`Debug: No se encontraron datos para ${monthLabel}/${currentYear}`);
+                    console.log(`Debug: No se encontraron datos para el mes ${currentMonth + 1}/${currentYear}`);
                 }
 
                 // Actualizar resumen mensual
@@ -5737,8 +5071,8 @@
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
-                        <div class="stat-label">Ganancias Reales</div>
-                        <small>Ventas - Gastos - Costo Inv - Envíos</small>
+                        <div class="stat-label">Ganancia Real</div>
+                        <small>Ventas - Gastos - Costo Inv - Envíos Garantías</small>
                     </div>
                 `;
             } catch (error) {
@@ -5765,31 +5099,27 @@
 
             const monthlySales = sales.filter(sale => {
                 const saleDate = new Date(sale.date || sale.sale_date);
-                const matchesYear = saleDate.getFullYear() === currentYear;
-                const matchesMonth = currentMonth === 'all' || saleDate.getMonth() === currentMonth;
-                return (matchesYear && matchesMonth &&
+                return (saleDate.getMonth() === currentMonth &&
+                    saleDate.getFullYear() === currentYear &&
                     (sale.status === 'completed' || sale.status === 'pending'));
             });
 
             const monthlyExpenses = expenses.filter(expense => {
                 const expenseDate = new Date(expense.date);
-                const matchesYear = expenseDate.getFullYear() === currentYear;
-                const matchesMonth = currentMonth === 'all' || expenseDate.getMonth() === currentMonth;
-                return matchesYear && matchesMonth;
+                return expenseDate.getMonth() === currentMonth &&
+                    expenseDate.getFullYear() === currentYear;
             });
 
             const monthlyRestocks = restocks.filter(restock => {
                 const restockDate = new Date(restock.date);
-                const matchesYear = restockDate.getFullYear() === currentYear;
-                const matchesMonth = currentMonth === 'all' || restockDate.getMonth() === currentMonth;
-                return matchesYear && matchesMonth;
+                return restockDate.getMonth() === currentMonth &&
+                    restockDate.getFullYear() === currentYear;
             });
 
             const monthlyWarranties = warranties.filter(warranty => {
                 const warrantyDate = new Date(warranty.createdAt || warranty.created_at);
-                const matchesYear = warrantyDate.getFullYear() === currentYear;
-                const matchesMonth = currentMonth === 'all' || warrantyDate.getMonth() === currentMonth;
-                return matchesYear && matchesMonth;
+                return warrantyDate.getMonth() === currentMonth &&
+                    warrantyDate.getFullYear() === currentYear;
             });
 
             // Calcular totales
@@ -5810,33 +5140,31 @@
             // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const totalDeliveryCosts = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
-            // CORRECCIÓN: totalExpenses ya incluye totalWarrantyShippingCosts (se registran en la tabla expenses)
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalDeliveryCosts;
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalWarrantyShippingCosts;
 
             let title = '';
             let detailsHTML = '';
 
             switch (type) {
                 case 'sales':
-                    title = `Detalles de Ventas - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Ventas - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateSalesDetailsHTML(monthlySales, totalSales, totalWarrantyIncrement);
                     break;
                 case 'expenses':
-                    title = `Detalles de Gastos - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Gastos - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateExpensesDetailsHTML(monthlyExpenses, totalExpenses);
                     break;
                 case 'restocks':
-                    title = `Detalles de Costo de Inventario - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Costo de Inventario - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateCostOfGoodsSoldHTML(monthlySales, costOfGoodsSold, products);
                     break;
                 case 'warranties':
-                    title = `Detalles de Garantías - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    title = `Detalles de Garantías - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
                     detailsHTML = generateWarrantiesDetailsHTML(monthlyWarranties, totalWarrantyShippingCosts, totalWarrantyIncrement);
                     break;
                 case 'profit':
-                    title = `Resumen de Ganancias - ${currentMonth === 'all' ? 'Todo el Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit, totalDeliveryCosts);
+                    title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -6181,7 +5509,7 @@
         }
 
         // Generar HTML para resumen de ganancias
-        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit, deliveryCosts = 0) {
+        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -6201,17 +5529,13 @@
                             <strong style="font-size: 1.2em; color: var(--warning);">${formatCurrency(costOfGoodsSoldTotal)}</strong><br>
                             <small>Costo de lo Vendido</small>
                         </div>
-                        <div class="stat-card" style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #9c27b0;">
+                        <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #9c27b0;">
                             <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong><br>
                             <small>Envíos de Garantías</small>
                         </div>
-                        <div class="stat-card" style="background: #eceff1; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #607d8b;">
-                            <strong style="font-size: 1.2em; color: #607d8b;">${formatCurrency(deliveryCosts)}</strong><br>
-                            <small>Cobros por Envío</small>
-                        </div>
                         <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
                             <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
-                            <small>Ganancias Totales</small>
+                            <small>Ganancia Neta del Mes</small>
                         </div>
                     </div>
                 </div>
@@ -6234,12 +5558,8 @@
                             <strong style="color: var(--warning);">-(${formatCurrency(costOfGoodsSoldTotal)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Envíos de Garantías (Ya incluidos en Gastos):</span>
-                            <strong style="color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Cobros por Envío (Deducción):</span>
-                            <strong style="color: #607d8b;">-(${formatCurrency(deliveryCosts)})</strong>
+                            <span>Envíos de Garantías:</span>
+                            <strong style="color: #9c27b0;">-(${formatCurrency(warrantyShippingCosts)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
                             <span><strong>Ganancia Neta:</strong></span>
@@ -6446,8 +5766,8 @@
                 return sum + saleCost;
             }, 0);
 
-            // Ganancia = Ventas (incluye warranty_increment) - Gastos (incluye envíos de garantías) - Costo de productos
-            const netProfit = salesTotal - expensesTotal - costOfGoodsSold;
+            const warrantiesTotal = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.totalCost) || 0), 0);
+            const netProfit = salesTotal - expensesTotal - costOfGoodsSold - warrantiesTotal;
 
             let content = `ANÁLISIS DE GANANCIAS DEL MES\n\n`;
             content += `RESUMEN FINANCIERO:\n`;
@@ -6455,6 +5775,7 @@
             content += `Ingresos por Ventas:     +${formatCurrency(salesTotal)}\n`;
             content += `Gastos Operativos:       -${formatCurrency(expensesTotal)}\n`;
             content += `Costo de lo Vendido:     -${formatCurrency(costOfGoodsSold)}\n`;
+            content += `Costos de Garantías:     -${formatCurrency(warrantiesTotal)}\n`;
             content += `--------------------------------------------------------------------------------\n`;
             content += `GANANCIA NETA:           ${formatCurrency(netProfit)}\n\n`;
 
@@ -6690,11 +6011,15 @@
             // Cambiar visibilidad de sección de producto diferente
             productTypeSelect.addEventListener('change', function () {
                 const differentSection = document.getElementById('differentProductSection');
+                const additionalValueInput = document.getElementById('additionalValue');
 
                 if (this.value === 'different') {
                     differentSection.style.display = 'block';
+                    additionalValueInput.required = true;
                 } else {
                     differentSection.style.display = 'none';
+                    additionalValueInput.required = false;
+                    additionalValueInput.value = 0;
                 }
 
                 updateWarrantyCostSummary();
@@ -7081,8 +6406,7 @@
                     <td>${warranty.originalProductName} (${warranty.originalProductId})</td>
                     <td>${warrantyProduct}</td>
                     <td>${warranty.warrantyReasonText || warranty.warrantyReason}</td>
-                    <td><strong>${formatCurrency(warranty.additionalValue || 0)}</strong></td>
-                    <td><strong>${formatCurrency(warranty.shippingValue || 0)}</strong></td>
+                    <td><strong>${formatCurrency(warranty.totalCost || 0)}</strong></td>
                     <td>
                         <span class="badge ${statusBadge}">
                             ${statusText}
@@ -7150,8 +6474,8 @@
                         <i class="fas fa-coins" style="color: var(--gold-dark);"></i>
                     </div>
                     <div class="stat-value">${formatCurrency(cost)}</div>
-                    <div class="stat-label">Costos (Envíos)</div>
-                    <small>Total gastos por envíos de garantía</small>
+                    <div class="stat-label">Costo Total</div>
+                    <small>Incluye envíos y adicionales</small>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">
@@ -7393,9 +6717,9 @@
                                 <i class="fas fa-calculator"></i> Costos y Estado
                             </h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
-                                <div><strong>Incremento Garantía:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
+                                <div><strong>Valor adicional:</strong> ${formatCurrency(movement.additionalValue || 0)}</div>
                                 <div><strong>Valor envío:</strong> ${formatCurrency(movement.shippingValue || 0)}</div>
-                                <div><strong>Costos:</strong> ${formatCurrency(movement.totalCost || 0)}</div>
+                                <div><strong>Costo total:</strong> ${formatCurrency(movement.totalCost || 0)}</div>
                                 <div><strong>Estado:</strong> ${getWarrantyStatusText(movement.status)}</div>
                                 ${statusMessage ? `<div><strong>Tiempo:</strong> ${statusMessage}</div>` : ''}
                             </div>
@@ -7424,10 +6748,8 @@
                     `;
                     break;
                 case 'product':
-                    const profit = safeNum(movement.retailPrice) - safeNum(movement.purchasePrice);
-                    const profitPercent = safeNum(movement.purchasePrice) > 0 
-                        ? ((profit / safeNum(movement.purchasePrice)) * 100).toFixed(2)
-                        : '0.00';
+                    const profit = (movement.retailPrice - movement.purchasePrice);
+                    const profitPercent = ((profit / movement.purchasePrice) * 100).toFixed(2);
                     content = `
                         <div style="margin-bottom: 1.5rem;">
                             <h3 style="color: var(--gold-dark); margin-bottom: 0.5rem; font-size: 1.1rem;">
@@ -7563,16 +6885,14 @@
                                     <i class="fas fa-id-card"></i> Cédula
                                 </label>
                                 <input type="text" name="customerId" value="${movement.customerInfo?.id || movement.customer_id || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
                                     <i class="fas fa-phone"></i> Teléfono
                                 </label>
                                 <input type="text" name="customerPhone" value="${movement.customerInfo?.phone || movement.customer_phone || ''}" 
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
                         </div>
 
@@ -7621,26 +6941,14 @@
                             </div>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-truck-loading"></i> Tipo Entrega
-                                </label>
-                                <select name="deliveryType" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                    <option value="store" ${movement.deliveryType === 'store' ? 'selected' : ''}>Recoge en tienda</option>
-                                    <option value="delivery" ${movement.deliveryType === 'delivery' ? 'selected' : ''}>Domicilio</option>
-                                    <option value="national" ${movement.deliveryType === 'national' ? 'selected' : ''}>Envío nacional</option>
-                                </select>
-                            </div>
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <i class="fas fa-check-circle"></i> Estado
-                                </label>
-                                <select name="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                    <option value="pending" ${!movement.confirmed && movement.status !== 'completed' ? 'selected' : ''}>Pendiente</option>
-                                    <option value="completed" ${movement.confirmed || movement.status === 'completed' ? 'selected' : ''}>Completada</option>
-                                </select>
-                            </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                <i class="fas fa-check-circle"></i> Estado
+                            </label>
+                            <select name="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="pending" ${!movement.confirmed && movement.status !== 'completed' ? 'selected' : ''}>Pendiente</option>
+                                <option value="completed" ${movement.confirmed || movement.status === 'completed' ? 'selected' : ''}>Completada</option>
+                            </select>
                         </div>
                     `;
                     break;
@@ -7916,10 +7224,6 @@
 
             if (!confirmed) return;
 
-            // Requerir clave de administrador
-            const isAuthorized = await promptAdminPassword();
-            if (!isAuthorized) return;
-
             try {
                 let success = false;
                 let endpoint = '';
@@ -7966,7 +7270,7 @@
 
             } catch (error) {
                 console.error('Error al eliminar movimiento:', error);
-                await showDialog('Error', 'Ocurrió un error al intentar eliminar el movimiento. Verifique su conexión.', 'error');
+                await showDialog('Éxito', 'Venta eliminada exitosamente', 'success');
             }
         };
 
@@ -8041,13 +7345,31 @@
                 return;
             }
 
-            // Función auxiliar para avanzar al siguiente paso
-            const proceedToUserInfo = () => {
-                console.log('Avanzando automáticamente a userInfoForm');
+            // Alternar entre roles
+            adminRoleBtn.addEventListener('click', function () {
+                console.log('Rol seleccionado: admin');
+                adminRoleBtn.classList.add('active');
+                workerRoleBtn.classList.remove('active');
+                selectedRole = 'admin';
+                window.selectedRole = 'admin'; // Forzar global
+            });
+
+            workerRoleBtn.addEventListener('click', function () {
+                console.log('Rol seleccionado: worker');
+                workerRoleBtn.classList.add('active');
+                adminRoleBtn.classList.remove('active');
+                selectedRole = 'worker';
+                window.selectedRole = 'worker'; // Forzar global
+            });
+
+            // Paso 1: Continuar a información personal
+            nextToUserInfoBtn.addEventListener('click', function () {
+                console.log('Avanzando a userInfoForm');
                 showLoginStep('userInfoForm');
 
                 // Pre-llenar formulario si ya hay información guardada
                 const sessionInfo = JSON.parse(sessionStorage.getItem('destelloOroSessionInfo') || '{}');
+                // Asegurar que usemos la global
                 const currentRole = window.selectedRole || selectedRole;
                 const userKey = `${currentRole}_info`;
 
@@ -8056,39 +7378,7 @@
                     document.getElementById('userLastName').value = sessionInfo[userKey].lastName || '';
                     document.getElementById('userPhone').value = sessionInfo[userKey].phone || '';
                 }
-            };
-
-            // Alternar entre roles y avanzar automáticamente
-            adminRoleBtn.addEventListener('click', function () {
-                console.log('Rol seleccionado: admin');
-                adminRoleBtn.classList.add('active');
-                workerRoleBtn.classList.remove('active');
-                selectedRole = 'admin';
-                window.selectedRole = 'admin';
-                updateLoginCredentialsTitle('Administrador');
-                proceedToUserInfo(); // Avance automático
             });
-
-            workerRoleBtn.addEventListener('click', function () {
-                console.log('Rol seleccionado: worker');
-                workerRoleBtn.classList.add('active');
-                adminRoleBtn.classList.remove('active');
-                selectedRole = 'worker';
-                window.selectedRole = 'worker';
-                updateLoginCredentialsTitle('Trabajador');
-                proceedToUserInfo(); // Avance automático
-            });
-
-            // Función para actualizar el título
-            function updateLoginCredentialsTitle(roleName) {
-                const titleEl = document.getElementById('loginCredentialsTitle');
-                if (titleEl) {
-                    titleEl.innerHTML = `<i class="fas fa-sign-in-alt"></i> Credenciales de Acceso para ${roleName}`;
-                }
-            }
-
-            // Paso 1: Ir a información personal (ahora manejado automáticamente por los roles)
-            // se mantiene solo la definición por si acaso, pero el listener ya no es necesario
 
             // Volver a selección de rol
             if (backToRoleSelectionBtn) {
@@ -8210,168 +7500,10 @@
             }
         }
 
-        // ===== SPLASH SCREEN DE BIENVENIDA =====
-        function showSplashScreen(callback) {
-            const splash = document.getElementById('splashScreen');
-            const title = document.getElementById('splashTitle');
-            const subtitle = document.getElementById('splashSubtitle');
-            const sparkleOverlay = document.getElementById('splashSparkleOverlay');
-
-            // Mostrar splash
-            splash.style.display = 'block';
-
-            // ---- Pre-cargar voces al aparecer el splash ----
-            const synth = window.speechSynthesis;
-            // Forzar carga de voces en Chrome/Edge (bug conocido)
-            if (synth) { synth.getVoices(); }
-
-            // Después de 2 segundos, soltar el título Y hablar al mismo tiempo
-            setTimeout(() => {
-                // === ANIMACIÓN DEL TÍTULO TIPO DOMINO ===
-                const words = document.querySelectorAll('.domino-word');
-                words.forEach((word, index) => {
-                    setTimeout(() => {
-                        word.style.transform = 'translateY(0) rotate(0deg)';
-                        word.style.opacity = '1';
-                    }, index * 200); // 200ms de diferencia entre cada palabra (efecto dominó)
-                });
-                
-                // Mostrar subtitulo con retraso
-                setTimeout(() => {
-                    subtitle.style.opacity = '1';
-                }, 1000);
-
-                // === VOZ: suena AL MISMO TIEMPO que cae el título ===
-                try {
-                    if (synth) {
-                        synth.cancel();
-
-                        const speakNow = (voices) => {
-                            const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho quilates');
-                            utter.lang = 'es-ES';
-                            utter.pitch = 0.4;   // muy grave / masculino
-                            utter.rate = 0.78;   // ritmo dramático lento
-                            utter.volume = 1;
-
-                            // Nombres femeninos a EXCLUIR
-                            const femaleNames = ['sabina','helena','laura','rosa','maria','sofía','sofia','paulina','valeria','isabel','lucia','lucía','ana','camila','claudia'];
-
-                            // Buscar voz masculina en español
-                            const maleVoice = voices.find(v => {
-                                const n = v.name.toLowerCase();
-                                const isSpanish = v.lang.startsWith('es');
-                                const isFemale = femaleNames.some(f => n.includes(f));
-                                const isMale = n.includes('pablo') || n.includes('jorge') || n.includes('diego') || n.includes('carlos') || n.includes('miguel') || n.includes('male') || n.includes('hombre') || n.includes('man');
-                                return isSpanish && !isFemale && (isMale || !isFemale);
-                            }) || voices.find(v => {
-                                const n = v.name.toLowerCase();
-                                const isFemale = femaleNames.some(f => n.includes(f));
-                                return v.lang.startsWith('es') && !isFemale;
-                            }) || voices.find(v => v.lang.startsWith('es'))
-                              || voices[0];
-
-                            if (maleVoice) {
-                                utter.voice = maleVoice;
-                                console.log('🎤 Voz seleccionada:', maleVoice.name, maleVoice.lang);
-                            }
-                            synth.speak(utter);
-                        };
-
-                        // getVoices() puede estar vacío la primera vez
-                        const voices = synth.getVoices();
-                        if (voices && voices.length > 0) {
-                            speakNow(voices);
-                        } else {
-                            const onVoicesReady = () => {
-                                speakNow(synth.getVoices());
-                                synth.removeEventListener('voiceschanged', onVoicesReady);
-                            };
-                            synth.addEventListener('voiceschanged', onVoicesReady);
-                            // Fallback 400ms
-                            setTimeout(() => {
-                                if (!synth.speaking && !synth.pending) speakNow(synth.getVoices());
-                            }, 400);
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Speech synthesis no disponible:', e);
-                }
-
-                // Destellos cuando llega al centro (1.2s después de soltar)
-                setTimeout(() => {
-                    launchSplashSparkles(sparkleOverlay);
-                }, 1200);
-
-
-
-                // Desvanecer y pasar a la app después de 4.5 segundos totales
-                setTimeout(() => {
-                    splash.style.transition = 'opacity 0.8s ease';
-                    splash.style.opacity = '0';
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                        splash.style.opacity = '1';
-                        // Limpiar partículas
-                        sparkleOverlay.innerHTML = '';
-                        // Resetear palabras tipo dominó para la próxima vez
-                        words.forEach(word => {
-                            word.style.transition = 'none';
-                            word.style.transform = 'translateY(-120vh) rotate(-20deg)';
-                            word.style.opacity = '0';
-                            setTimeout(() => {
-                                word.style.transition = 'transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s';
-                            }, 50);
-                        });
-                        subtitle.style.opacity = '0';
-                        if (callback) callback();
-                    }, 800);
-                }, 4800);
-
-            }, 2000);
-        }
-
-        // Lanzar partículas doradas dentro del splash
-        function launchSplashSparkles(container) {
-            const colors = ['#FFD700', '#D4AF37', '#FFF8DC', '#B8860B', '#FFFACD', '#FFD700'];
-            const totalParticles = 150;
-            for (let i = 0; i < totalParticles; i++) {
-                setTimeout(() => {
-                    const p = document.createElement('div');
-                    const size = Math.random() * 14 + 5;
-                    const color = colors[Math.floor(Math.random() * colors.length)];
-                    const x = Math.random() * 100;
-                    const fallDuration = Math.random() * 3 + 2;
-                    const delay = Math.random() * 0.5;
-
-                    p.style.cssText = `
-                        position: absolute;
-                        top: -20px;
-                        left: ${x}%;
-                        width: ${size}px;
-                        height: ${size}px;
-                        background: ${color};
-                        border-radius: 50%;
-                        animation: goldFall ${fallDuration}s ease-in forwards;
-                        animation-delay: ${delay}s;
-                        box-shadow: 0 0 ${size}px ${color}, 0 0 ${size * 2}px rgba(255,215,0,0.4);
-                        pointer-events: none;
-                    `;
-                    container.appendChild(p);
-
-                    setTimeout(() => {
-                        if (p.parentNode) p.parentNode.removeChild(p);
-                    }, (fallDuration + delay + 0.5) * 1000);
-                }, (i / totalParticles) * 2500);
-            }
-        }
-
         // Mostrar la aplicación después del login
         function showApp() {
             document.getElementById('loginScreen').style.display = 'none';
-
-            // Mostrar splash primero, luego la app
-            showSplashScreen(() => {
-                document.getElementById('appScreen').style.display = 'block';
+            document.getElementById('appScreen').style.display = 'block';
 
             // Asegurarse de que currentUser esté cargado
             const savedUser = sessionStorage.getItem('destelloOroCurrentUser');
@@ -8394,17 +7526,6 @@
             // Las demás secciones cargarán sus datos cuando el usuario navegue a ellas
             console.log('Cargando datos de la sección activa (inventario)...');
             loadInventoryTable();
-
-            // Iniciar Reloj del Header
-            updateHeaderClock();
-            if (window.clockInterval) clearInterval(window.clockInterval);
-            window.clockInterval = setInterval(updateHeaderClock, 1000);
-
-            // Iniciar Animación del Avión cada 40 segundos
-            if (window.airplaneInterval) clearInterval(window.airplaneInterval);
-            window.airplaneInterval = setInterval(triggerAirplaneAnimation, 40000);
-            // Lanzar la primera vez a los 5 segundos de entrar
-            setTimeout(triggerAirplaneAnimation, 5000);
 
             // Configurar refresco automático solo para la sección activa
             if (window.syncInterval) clearInterval(window.syncInterval);
@@ -8434,62 +7555,6 @@
                     }
                 }
             }, 60000);
-            }); // cierre showSplashScreen callback
-        }
-
-        // Función para actualizar el reloj del header (Analógico y Digital)
-        function updateHeaderClock() {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            const seconds = now.getSeconds();
-
-            // Actualizar Reloj Analógico
-            const hourDeg = (hours % 12) * 30 + minutes / 2;
-            const minDeg = minutes * 6;
-            const secDeg = seconds * 6;
-
-            const hourHand = document.getElementById('hourHand');
-            const minHand = document.getElementById('minHand');
-            const secHand = document.getElementById('secHand');
-
-            if (hourHand) hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
-            if (minHand) minHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
-            if (secHand) secHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
-
-            // Actualizar Info Digital
-            const timeEl = document.getElementById('header-time');
-            const dateEl = document.getElementById('header-date');
-
-            if (timeEl) {
-                // Formato 12h con AM/PM, sin segundos para que no sea muy largo
-                let timeStr = now.toLocaleTimeString('es-CO', { 
-                    hour: 'numeric', 
-                    minute: '2-digit', 
-                    hour12: true 
-                });
-                timeEl.textContent = timeStr.toLowerCase();
-            }
-
-            if (dateEl) {
-                dateEl.textContent = now.toLocaleDateString('es-CO', { 
-                    day: 'numeric', 
-                    month: 'short' 
-                });
-            }
-        }
-
-        // Función para disparar la animación del avión
-        function triggerAirplaneAnimation() {
-            const airplane = document.getElementById('airplaneAnimation');
-            if (!airplane) return;
-
-            // Reiniciar animación
-            airplane.classList.remove('active');
-            void airplane.offsetWidth; // Force reflow
-            airplane.classList.add('active');
-            
-            console.log('✈️ Avión despegando...');
         }
 
         // Actualizar interfaz según rol del usuario
@@ -8759,11 +7824,6 @@
             document.getElementById('retailPrice').addEventListener('input', calculateProfit);
             document.getElementById('purchasePrice').addEventListener('input', calculateProfit);
 
-            // Actualizar resumen de venta al cambiar costo de envío, toggle de envío gratis o tipo de entrega
-            document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
-            document.getElementById('freeShippingToggle').addEventListener('change', updateSaleSummary);
-            document.getElementById('deliveryType').addEventListener('change', updateSaleSummary);
-
             // Formulario de producto (solo para admin)
             document.getElementById('productForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
@@ -8911,7 +7971,6 @@
 
                     if (data.success) {
                         loadExpensesTable();
-                        loadHistoryCards(); // Actualiza caché y resumen mensual
                         this.reset();
                         document.getElementById('addExpenseForm').style.display = 'none';
                         await showDialog('Éxito', 'Gasto registrado exitosamente.', 'success');
@@ -9775,7 +8834,7 @@
             const cancelBtn = document.getElementById('dialogCancel');
 
             confirmBtn.addEventListener('click', function () {
-                // Ya no cerramos aquí, dejamos que el callback maneje el efecto y el cierre
+                dialog.style.display = 'none';
                 if (typeof window.dialogCallback === 'function') {
                     window.dialogCallback(true);
                 }
@@ -9789,193 +8848,34 @@
             });
         }
 
-        // ===== FUNCIONES DE SONIDO =====
-        function playAppSound(type) {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                
-                const audioCtx = new AudioContext();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                const now = audioCtx.currentTime;
-
-                if (type === 'success') {
-                    // Sonido de éxito: Dos tonos ascendentes brillantes (E5 -> A5)
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(659.25, now); // E5
-                    oscillator.frequency.exponentialRampToValueAtTime(880.00, now + 0.1); // A5
-                    
-                    gainNode.gain.setValueAtTime(0, now);
-                    gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
-                    gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
-                    
-                    oscillator.start(now);
-                    oscillator.stop(now + 0.4);
-                } else if (type === 'error' || type === 'warning') {
-                    // Sonido de error/aviso: Tono descendente más perceptible (A3 -> A2)
-                    oscillator.type = 'sawtooth';
-                    oscillator.frequency.setValueAtTime(220, now); // A3
-                    oscillator.frequency.exponentialRampToValueAtTime(110, now + 0.25); // A2
-                    
-                    gainNode.gain.setValueAtTime(0, now);
-                    gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05);
-                    gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
-                    
-                    oscillator.start(now);
-                    oscillator.stop(now + 0.5);
-                }
-            } catch (e) {
-                console.warn('Audio feedback blocked by browser or not supported:', e);
-            }
-        }
-
-        // ===== FUNCIÓN DE DESTELLOS DORADOS =====
-        function triggerGoldSparkles() {
-            // Reproducir sonido de éxito
-            playAppSound('success');
-
-            // Crear overlay si no existe
-            let overlay = document.getElementById('goldSparkleOverlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'goldSparkleOverlay';
-                document.body.appendChild(overlay);
-            }
-
-            // Flash dorado de fondo
-            let flash = document.getElementById('goldFlashScreen');
-            if (!flash) {
-                flash = document.createElement('div');
-                flash.id = 'goldFlashScreen';
-                document.body.appendChild(flash);
-            }
-            flash.style.display = 'block';
-            flash.style.animation = 'none';
-            flash.offsetHeight; // reflow
-            flash.style.animation = 'goldFlash 1.2s ease-out forwards';
-            setTimeout(() => { flash.style.display = 'none'; }, 1300);
-
-            // Limpiar partículas anteriores
-            overlay.innerHTML = '';
-
-            // Colores dorados
-            const goldColors = [
-                '#FFD700', '#D4AF37', '#FFC200', '#FFEC8B',
-                '#DAA520', '#F5C518', '#FFB700', '#FFF8DC',
-                '#B8860B', '#FFFACD', '#FFD700', '#EEC900'
-            ];
-
-            // Formas de partículas
-            const shapes = ['circle', 'star', 'diamond', 'circle', 'circle'];
-
-            const totalParticles = 120;
-            const duration = 5000; // 5 segundos
-
-            for (let i = 0; i < totalParticles; i++) {
-                setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'gold-particle';
-
-                    // Posición horizontal aleatoria
-                    const x = Math.random() * 100;
-                    const size = Math.random() * 14 + 4; // 4px a 18px
-                    const fallDuration = Math.random() * 3 + 2; // 2s a 5s
-                    const color = goldColors[Math.floor(Math.random() * goldColors.length)];
-                    const shape = shapes[Math.floor(Math.random() * shapes.length)];
-                    const delay = Math.random() * 0.5;
-
-                    particle.style.left = x + '%';
-                    particle.style.width = size + 'px';
-                    particle.style.height = size + 'px';
-                    particle.style.background = color;
-                    particle.style.animationDuration = fallDuration + 's';
-                    particle.style.animationDelay = delay + 's';
-                    particle.style.boxShadow = `0 0 ${size/2}px ${color}, 0 0 ${size}px rgba(255,215,0,0.5)`;
-
-                    if (shape === 'star') {
-                        particle.style.borderRadius = '0';
-                        particle.style.background = 'transparent';
-                        particle.style.width = '0';
-                        particle.style.height = '0';
-                        particle.style.boxShadow = 'none';
-                        particle.innerHTML = `<span style="color:${color};font-size:${size+6}px;text-shadow:0 0 8px ${color},0 0 16px rgba(255,215,0,0.8);">★</span>`;
-                    } else if (shape === 'diamond') {
-                        particle.style.borderRadius = '2px';
-                        particle.style.transform = 'rotate(45deg)';
-                        particle.style.background = color;
-                    }
-
-                    overlay.appendChild(particle);
-
-                    // Eliminar partícula al terminar
-                    setTimeout(() => {
-                        if (particle.parentNode) particle.parentNode.removeChild(particle);
-                    }, (fallDuration + delay + 0.5) * 1000);
-
-                }, (i / totalParticles) * duration * 0.7); // Distribuir lanzamiento en 70% del tiempo
-            }
-
-            // Limpiar overlay al terminar
-            setTimeout(() => {
-                if (overlay) overlay.innerHTML = '';
-            }, duration + 1000);
-        }
-
-        // Mostrar diálogo personalizado con efectos
+        // Mostrar diálogo personalizado
         function showDialog(title, message, type = 'info', showCancel = false) {
-            // Reproducir sonido según el tipo
-            if (type === 'success' || type === 'error' || type === 'warning') {
-                playAppSound(type);
-            }
-
             return new Promise((resolve) => {
                 const dialog = document.getElementById('customDialog');
-                const content = dialog.querySelector('.dialog-content');
                 const icon = document.getElementById('dialogIcon');
                 const dialogTitle = document.getElementById('dialogTitle');
                 const dialogMessage = document.getElementById('dialogMessage');
                 const confirmBtn = document.getElementById('dialogConfirm');
                 const cancelBtn = document.getElementById('dialogCancel');
 
-                // Asegurar limpieza total antes de mostrar
-                content.classList.remove('success-lightning-active', 'error-lightning-active');
-
-                // Configurar contenido
+                // Configurar icono según tipo
                 icon.innerHTML = getDialogIcon(type);
                 icon.style.color = getDialogColor(type);
+
+                // Configurar texto
                 dialogTitle.textContent = title;
                 dialogMessage.innerHTML = message;
+
+                // Configurar botones
                 cancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
 
-                // Configurar event listeners DIRECTOS para esta llamada
-                confirmBtn.onclick = () => {
-                    if (type === 'success' || type === 'error') {
-                        // DISPARAR EL RELÁMPAGO JUSTO AHORA
-                        content.classList.add(type + '-lightning-active');
-                        
-                        // Esperar el efecto antes de cerrar
-                        setTimeout(() => {
-                            dialog.style.display = 'none';
-                            content.classList.remove('success-lightning-active', 'error-lightning-active');
-                            resolve(true);
-                        }, 700);
-                    } else {
-                        dialog.style.display = 'none';
-                        resolve(true);
-                    }
+                // Guardar callback
+                window.dialogCallback = (result) => {
+                    resolve(result);
+                    delete window.dialogCallback;
                 };
 
-                cancelBtn.onclick = () => {
-                    dialog.style.display = 'none';
-                    resolve(false);
-                };
-
-                // Mostrar el diálogo (sin rayos todavía)
+                // Mostrar diálogo
                 dialog.style.display = 'flex';
             });
         }
@@ -10002,70 +8902,6 @@
                 case 'question': return 'var(--gold-primary)';
                 default: return 'var(--info)';
             }
-        }
-
-        // Solicitar clave de administrador
-        function promptAdminPassword() {
-            return new Promise((resolve) => {
-                const dialog = document.getElementById('adminPasswordPromptDialog');
-                const input = document.getElementById('adminAuthPasswordInput');
-                const confirmBtn = document.getElementById('adminAuthConfirmBtn');
-                const cancelBtn = document.getElementById('adminAuthCancelBtn');
-                
-                input.value = '';
-                dialog.style.display = 'flex';
-                input.focus();
-
-                const cleanup = () => {
-                    dialog.style.display = 'none';
-                    confirmBtn.onclick = null;
-                    cancelBtn.onclick = null;
-                    input.onkeyup = null;
-                };
-
-                const executeVerification = async () => {
-                    const pass = input.value;
-                    if (!pass) return;
-                    
-                    confirmBtn.disabled = true;
-                    try {
-                        const response = await fetch('api/verify_admin_password.php', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ password: pass })
-                        });
-                        const data = await response.json();
-                        confirmBtn.disabled = false;
-                        
-                        if(data.success) {
-                            cleanup();
-                            resolve(true);
-                        } else {
-                            await showDialog('Error', data.error || 'Clave incorrecta', 'error');
-                            input.value = '';
-                            input.focus();
-                        }
-                    } catch (e) {
-                        confirmBtn.disabled = false;
-                        await showDialog('Error', 'Error de conexión', 'error');
-                    }
-                };
-
-                confirmBtn.onclick = () => {
-                    executeVerification();
-                };
-
-                cancelBtn.onclick = () => {
-                    cleanup();
-                    resolve(false);
-                };
-
-                input.onkeyup = (e) => {
-                    if (e.key === 'Enter') {
-                        executeVerification();
-                    }
-                };
-            });
         }
 
         // Cargar usuarios para cambio de contraseña (se usa la versión asíncrona definida anteriormente)
@@ -10124,15 +8960,6 @@
                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
             ];
 
-            // Opción para todos los meses
-            const allMonthsOption = document.createElement('option');
-            allMonthsOption.value = 'all';
-            allMonthsOption.textContent = 'Todos los Meses';
-            if (currentMonth === 'all') {
-                allMonthsOption.selected = true;
-            }
-            monthSelect.appendChild(allMonthsOption);
-
             monthNames.forEach((month, index) => {
                 const option = document.createElement('option');
                 option.value = index;
@@ -10156,7 +8983,7 @@
 
             // Agregar eventos
             monthSelect.addEventListener('change', function () {
-                currentMonth = this.value === 'all' ? 'all' : parseInt(this.value);
+                currentMonth = parseInt(this.value);
                 loadHistoryCards();
                 // loadMonthlySummary(); // Recargar resumen mensual
             });
@@ -10501,10 +9328,6 @@
             );
 
             if (confirmed) {
-                // Requerir clave de administrador
-                const isAuthorized = await promptAdminPassword();
-                if (!isAuthorized) return;
-
                 try {
                     const response = await fetch(`api/products.php?id=${productId}`, {
                         method: 'DELETE'
@@ -10539,10 +9362,6 @@
             );
 
             if (confirmed) {
-                // Requerir clave de administrador
-                const isAuthorized = await promptAdminPassword();
-                if (!isAuthorized) return;
-
                 try {
                     const response = await fetch(`api/expenses.php?id=${expenseId}`, {
                         method: 'DELETE'
@@ -10572,10 +9391,6 @@
             );
 
             if (confirmed) {
-                // Requerir clave de administrador
-                const isAuthorized = await promptAdminPassword();
-                if (!isAuthorized) return;
-
                 try {
                     const response = await fetch('api/pending_sales.php', {
                         method: 'POST',
@@ -10591,7 +9406,6 @@
                         await loadPendingSalesTable();
                         await loadInventoryTable();
                         await loadHistoryCards();
-                        triggerGoldSparkles();
                         await showDialog('Éxito', 'Pago confirmado y venta procesada exitosamente.', 'success');
                     } else {
                         await showDialog('Error', data.message || 'Error al procesar la venta.', 'error');
@@ -10618,10 +9432,6 @@
             );
 
             if (confirmed) {
-                // Requerir clave de administrador
-                const isAuthorized = await promptAdminPassword();
-                if (!isAuthorized) return;
-
                 try {
                     const response = await fetch('api/pending_sales.php', {
                         method: 'POST',
@@ -10663,10 +9473,6 @@
             );
 
             if (confirmed) {
-                // Requerir clave de administrador
-                const isAuthorized = await promptAdminPassword();
-                if (!isAuthorized) return;
-
                 try {
                     const response = await fetch('api/warranties.php', {
                         method: 'PUT',
@@ -10754,21 +9560,13 @@
         }
 
         // Funciones de utilidad
-        // Helper: convierte cualquier valor a número seguro (nunca NaN)
-        function safeNum(val) {
-            if (val === null || val === undefined || val === '') return 0;
-            if (typeof val === 'string') val = val.replace(/[^\d.-]/g, '');
-            const n = parseFloat(val);
-            return isNaN(n) ? 0 : n;
-        }
-
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-CO', {
                 style: 'currency',
                 currency: 'COP',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-            }).format(Math.round(safeNum(amount)));
+            }).format(amount);
         }
 
         function formatDate(dateString) {

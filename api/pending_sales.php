@@ -17,28 +17,7 @@ if ($method === 'GET') {
     // Listar pendientes - MODIFICADO: Mostrar todas las ventas con métodos de pago diferentes a efectivo
     // sin importar su estado (pending, completed, cancelled) para mantener el historial completo
     try {
-        $month = $_GET['month'] ?? null;
-        $year = $_GET['year'] ?? null;
-        
-        $sql = "SELECT * FROM sales WHERE payment_method != 'cash'";
-        $params = [];
-        
-        if ($month !== null && $year !== null) {
-            if ($month === 'all') {
-                $sql .= " AND YEAR(sale_date) = :year";
-                $params[':year'] = $year;
-            } else {
-                $month = intval($month) + 1;
-                $sql .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
-                $params[':month'] = $month;
-                $params[':year'] = $year;
-            }
-        }
-        
-        $sql .= " ORDER BY sale_date DESC";
-        
-        $stmt = $conn->prepare($sql);
-        $stmt->execute($params);
+        $stmt = $conn->query("SELECT * FROM sales WHERE payment_method != 'cash' ORDER BY sale_date DESC");
         $pending = $stmt->fetchAll();
         
         // Para cada venta, obtener breve info de productos para mostrar en tabla
@@ -121,26 +100,6 @@ if ($method === 'GET') {
             
             $saleId = $conn->lastInsertId();
             
-            // --- LÓGICA DE GASTO POR ENVÍO GRATIS ---
-            $isFreeShipping = isset($data->isFreeShipping) ? (bool)$data->isFreeShipping : false;
-            $originalDeliveryCost = 0;
-            if (isset($data->originalDeliveryCost)) {
-                $originalDeliveryCost = (float)$data->originalDeliveryCost;
-            }
-
-            if ($isFreeShipping && $originalDeliveryCost > 0) {
-                $expenseDesc = "Costo envío gratis - Venta #" . $data->id;
-                $expenseSql = "INSERT INTO expenses (description, amount, expense_date, user_id, username) VALUES (:desc, :amt, :date, :uid, :uname)";
-                $expenseStmt = $conn->prepare($expenseSql);
-                $expenseStmt->execute([
-                    ':desc' => $expenseDesc,
-                    ':amt' => $originalDeliveryCost,
-                    ':date' => $saleDate,
-                    ':uid' => $_SESSION['user_id'],
-                    ':uname' => $_SESSION['username']
-                ]);
-            }
-            
             // 2. Items y Apartado de Inventario
             $itemSql = "INSERT INTO sale_items (sale_id, product_ref, product_name, quantity, unit_price, subtotal, sale_type) VALUES (:sid, :ref, :pname, :qty, :price, :sub, :type)";
             $stockSql = "UPDATE products SET quantity = quantity - :qty WHERE reference = :ref";
@@ -149,45 +108,18 @@ if ($method === 'GET') {
             $stockStmt = $conn->prepare($stockSql);
             
             foreach ($data->products as $item) {
-                $itemArr = (array)$item;
-                $productRef = $item->id
-                    ?? ($itemArr['id'] ?? null)
-                    ?? $item->productId
-                    ?? ($itemArr['productId'] ?? null)
-                    ?? $item->product_ref
-                    ?? ($itemArr['product_ref'] ?? null)
-                    ?? $item->reference
-                    ?? ($itemArr['reference'] ?? null);
-                $productName = $item->name
-                    ?? ($itemArr['name'] ?? null)
-                    ?? $item->productName
-                    ?? ($itemArr['productName'] ?? null)
-                    ?? $item->product_name
-                    ?? ($itemArr['product_name'] ?? null);
-                $qty = (int)($item->count ?? $itemArr['count'] ?? $item->quantity ?? $itemArr['quantity'] ?? 0);
-                $unitPrice = (float)($item->price ?? $itemArr['price'] ?? $item->unitPrice ?? $itemArr['unitPrice'] ?? 0);
-                $subtotal = (float)($item->total ?? $itemArr['total'] ?? $item->subtotal ?? $itemArr['subtotal'] ?? ($qty * $unitPrice));
-                $saleType = $item->saleType ?? $itemArr['saleType'] ?? 'retail';
-
-                if (!$productRef || !$productName || $qty <= 0) {
-                    throw new Exception("Datos de producto incompletos en venta pendiente (ref/nombre/cantidad).");
-                }
-
-                $productRef = trim((string)$productRef);
-                $productName = trim((string)$productName);
-
                 $itemStmt->execute([
                     ':sid' => $saleId,
-                    ':ref' => $productRef,
-                    ':pname' => $productName,
-                    ':qty' => $qty,
-                    ':price' => $unitPrice,
-                    ':sub' => $subtotal,
-                    ':type' => $saleType
+                    ':ref' => $item->id,
+                    ':pname' => $item->name ?? $item->productName,
+                    ':qty' => $item->count,
+                    ':price' => $item->price,
+                    ':sub' => $item->total,
+                    ':type' => $item->saleType ?? 'retail'
                 ]);
                 $stockStmt->execute([
-                    ':qty' => $qty,
-                    ':ref' => $productRef
+                    ':qty' => $item->count,
+                    ':ref' => $item->id
                 ]);
             }
             
@@ -197,10 +129,6 @@ if ($method === 'GET') {
         } catch (PDOException $e) {
             $conn->rollBack();
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
-        } catch (Exception $e) {
-            $conn->rollBack();
-            http_response_code(400);
             echo json_encode(['error' => $e->getMessage()]);
         }
         

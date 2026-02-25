@@ -2,7 +2,7 @@
 // config/db.php
 
 $host = 'sql308.infinityfree.com';
-$db_name = 'if0_40983741_destellodeoro18k1';
+$db_name = 'if0_40983741_destellodeoro18k';
 $username = 'if0_40983741';
 $password = 'SdT2vqAaxmr'; // Por defecto en XAMPP es vacío
 

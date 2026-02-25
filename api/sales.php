@@ -6,11 +6,6 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 require_once '../config/db.php';
 require_once 'logger.php';
 
-// Inicializar tabla de logs fuera de cualquier transacción para evitar "Implicit Commit"
-try {
-    ensureLogsTableExists($conn);
-} catch (Exception $e) {}
-
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -45,16 +40,11 @@ if ($method === 'GET') {
             $params = [];
 
             if ($month !== null && $year !== null) {
-                if ($month === 'all') {
-                    $sql .= " AND YEAR(sale_date) = :year";
-                    $params[':year']  = $year;
-                } else {
-                    // JS envía month 0-11; SQL 1-12
-                    $month = intval($month) + 1;
-                    $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
-                    $params[':month'] = $month;
-                    $params[':year']  = $year;
-                }
+                // JS envía month 0-11; SQL 1-12
+                $month = intval($month) + 1;
+                $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
+                $params[':month'] = $month;
+                $params[':year']  = $year;
             }
 
             $sql .= " ORDER BY sale_date DESC";
@@ -99,21 +89,7 @@ if ($method === 'GET') {
                 $sale['deliveryCost']    = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user']            = $sale['username'];
-                // Determinar tipo de venta (mixed, wholesale, retail)
-                $hasRetail = false;
-                $hasWholesale = false;
-                foreach ($sale['products'] as $item) {
-                    if (($item['saleType'] ?? 'retail') === 'retail') $hasRetail = true;
-                    if (($item['saleType'] ?? 'retail') === 'wholesale') $hasWholesale = true;
-                }
-
-                if ($hasRetail && $hasWholesale) {
-                    $sale['saleType'] = 'mixed';
-                } elseif ($hasWholesale) {
-                    $sale['saleType'] = 'wholesale';
-                } else {
-                    $sale['saleType'] = 'retail';
-                }
+                $sale['saleType']        = (!empty($sale['products'])) ? $sale['products'][0]['saleType'] : 'retail';
             }
 
             echo json_encode($sales);
@@ -163,73 +139,21 @@ if ($method === 'GET') {
             $saleDate = date('Y-m-d H:i:s');
         }
 
-        // --- NORMALIZACIÓN DE DATOS ---
-        // Cliente: soporta tanto customerInfo (frontend) como campos directos (backend)
-        $customerName = '';
-        $customerId = '';
-        $customerPhone = '';
-        $customerEmail = '';
-        $customerAddress = '';
-        $customerCity = '';
-
-        if (isset($data->customerInfo)) {
-            // Formato frontend: customerInfo es un objeto
-            $customerName    = $data->customerInfo->name ?? '';
-            $customerId      = $data->customerInfo->id ?? '';
-            $customerPhone   = $data->customerInfo->phone ?? '';
-            $customerEmail   = $data->customerInfo->email ?? '';
-            $customerAddress = $data->customerInfo->address ?? '';
-            $customerCity    = $data->customerInfo->city ?? '';
-        } else {
-            // Formato backend: campos directos
-            $customerName    = $data->customer_name ?? '';
-            $customerId      = $data->customer_id ?? '';
-            $customerPhone   = $data->customer_phone ?? '';
-            $customerEmail   = $data->customer_email ?? '';
-            $customerAddress = $data->customer_address ?? '';
-            $customerCity    = $data->customer_city ?? '';
-        }
-
-        // Normalizar otros campos
-        $deliveryCost = 0;
-        if (isset($data->deliveryCost)) {
-            $deliveryCost = (float)$data->deliveryCost;
-        } elseif (isset($data->delivery_cost)) {
-            $deliveryCost = (float)$data->delivery_cost;
-        }
-
-        $warrantyIncrement = 0;
-        if (isset($data->warrantyIncrement)) {
-            $warrantyIncrement = (float)$data->warrantyIncrement;
-        } elseif (isset($data->warranty_increment)) {
-            $warrantyIncrement = (float)$data->warranty_increment;
-        }
-
-        $discount = 0;
-        if (isset($data->discount)) {
-            $discount = (float)$data->discount;
-        } elseif (isset($data->totalDiscount)) {
-            $discount = (float)$data->totalDiscount;
-        }
-
-        $paymentMethod = $data->paymentMethod ?? $data->payment_method ?? '';
-        $deliveryType = $data->deliveryType ?? $data->delivery_type ?? '';
-
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':inv'      => $invoiceNumber,
-            ':name'     => $customerName,
-            ':cid'      => $customerId,
-            ':phone'    => $customerPhone,
-            ':email'    => $customerEmail,
-            ':addr'     => $customerAddress,
-            ':city'     => $customerCity,
+            ':name'     => $data->customerInfo->name,
+            ':cid'      => $data->customerInfo->id,
+            ':phone'    => $data->customerInfo->phone,
+            ':email'    => $data->customerInfo->email ?? '',
+            ':addr'     => $data->customerInfo->address,
+            ':city'     => $data->customerInfo->city,
             ':total'    => $data->total,
-            ':disc'     => $discount,
-            ':del'      => $deliveryCost,
-            ':war'      => $warrantyIncrement,
-            ':pay'      => $paymentMethod,
-            ':del_type' => $deliveryType,
+            ':disc'     => $data->discount ?? 0,
+            ':del'      => $data->deliveryCost ?? 0,
+            ':war'      => $data->warrantyIncrement ?? 0,
+            ':pay'      => $data->paymentMethod,
+            ':del_type' => $data->deliveryType,
             ':sale_date'=> $saleDate,
             ':uid'      => $_SESSION['user_id'],
             ':uname'    => $_SESSION['username'],
@@ -237,26 +161,6 @@ if ($method === 'GET') {
         ]);
 
         $saleId = $conn->lastInsertId();
-
-        // --- LÓGICA DE GASTO POR ENVÍO GRATIS ---
-        $isFreeShipping = isset($data->isFreeShipping) ? (bool)$data->isFreeShipping : false;
-        $originalDeliveryCost = 0;
-        if (isset($data->originalDeliveryCost)) {
-            $originalDeliveryCost = (float)$data->originalDeliveryCost;
-        }
-
-        if ($isFreeShipping && $originalDeliveryCost > 0) {
-            $expenseDesc = "Costo envío gratis - Venta #$invoiceNumber";
-            $expenseSql = "INSERT INTO expenses (description, amount, expense_date, user_id, username) VALUES (:desc, :amt, :date, :uid, :uname)";
-            $expenseStmt = $conn->prepare($expenseSql);
-            $expenseStmt->execute([
-                ':desc' => $expenseDesc,
-                ':amt' => $originalDeliveryCost,
-                ':date' => $saleDate,
-                ':uid' => $_SESSION['user_id'],
-                ':uname' => $_SESSION['username']
-            ]);
-        }
 
         // 2. Insertar items y actualizar inventario
         $itemSql  = "INSERT INTO sale_items (sale_id, product_ref, product_name, quantity, unit_price, subtotal, sale_type) VALUES (:sid, :ref, :pname, :qty, :price, :sub, :type)";
@@ -266,62 +170,20 @@ if ($method === 'GET') {
         $stockStmt = $conn->prepare($stockSql);
 
         foreach ($data->products as $item) {
-            // Normalizar nombres de campos en productos y validar obligatorios
-            $itemArr = (array)$item; // Soporta objetos stdClass y arrays
-
-            $productRef = $item->productId
-                ?? ($itemArr['productId'] ?? null)
-                ?? $item->id
-                ?? ($itemArr['id'] ?? null)
-                ?? $item->product_ref
-                ?? ($itemArr['product_ref'] ?? null)
-                ?? $item->reference
-                ?? ($itemArr['reference'] ?? null);
-
-            $productName = $item->productName
-                ?? ($itemArr['productName'] ?? null)
-                ?? $item->name
-                ?? ($itemArr['name'] ?? null)
-                ?? $item->product_name
-                ?? ($itemArr['product_name'] ?? null);
-
-            $quantity   = (int)($item->quantity ?? $itemArr['quantity'] ?? $item->count ?? $itemArr['count'] ?? 0);
-            $unitPrice  = (float)($item->unitPrice ?? $itemArr['unitPrice'] ?? $item->unit_price ?? $itemArr['unit_price'] ?? $item->price ?? $itemArr['price'] ?? 0);
-            $subtotal   = (float)($item->subtotal ?? $itemArr['subtotal'] ?? $item->total ?? $itemArr['total'] ?? ($quantity * $unitPrice));
-            $saleType   = $item->saleType ?? $itemArr['saleType'] ?? $item->sale_type ?? $itemArr['sale_type'] ?? 'retail';
-
-            if (!$productRef || !$productName || $quantity <= 0) {
-                throw new Exception("Datos de producto incompletos en la venta (ref/nombre/cantidad).");
-            }
-
-            // Normalizar tipos/espacios
-            $productRef = trim((string)$productRef);
-            $productName = trim((string)$productName);
-
-            // Verificar stock antes de procesar
-            $checkStockStmt = $conn->prepare("SELECT quantity, name FROM products WHERE reference = :ref");
-            $checkStockStmt->execute([':ref' => $productRef]);
-            $pData = $checkStockStmt->fetch();
-            
-            if (!$pData || $pData['quantity'] < $quantity) {
-                $pName = $pData['name'] ?? $productName;
-                throw new Exception("Stock insuficiente para: $pName. Disponible: " . ($pData['quantity'] ?? 0));
-            }
-
             $itemStmt->execute([
                 ':sid'   => $saleId,
-                ':ref'   => $productRef,
-                ':pname' => $productName,
-                ':qty'   => $quantity,
-                ':price' => $unitPrice,
-                ':sub'   => $subtotal,
-                ':type'  => $saleType
+                ':ref'   => $item->productId,
+                ':pname' => $item->productName,
+                ':qty'   => $item->quantity,
+                ':price' => $item->unitPrice,
+                ':sub'   => $item->subtotal,
+                ':type'  => $item->saleType ?? 'retail'
             ]);
 
             // Descontar inventario
             $stockStmt->execute([
-                ':qty' => $quantity,
-                ':ref' => $productRef
+                ':qty' => $item->quantity,
+                ':ref' => $item->productId
             ]);
         }
 
@@ -332,11 +194,6 @@ if ($method === 'GET') {
         $conn->rollBack();
         http_response_code(500);
         echo json_encode(['error' => 'Error al procesar la venta: ' . $e->getMessage()]);
-    } catch (Exception $e) {
-        // Cualquier error no-PDO (datos incompletos, validaciones)
-        $conn->rollBack();
-        http_response_code(400);
-        echo json_encode(['error' => $e->getMessage()]);
     }
 
 } elseif ($method === 'DELETE') {
@@ -426,68 +283,25 @@ if ($method === 'GET') {
         $dbId     = $sale['id'];
         $oldStatus = $sale['status'];
 
-        // Normalizar datos para edición
-        $invoiceNumber   = $data->invoiceNumber ?? $data->invoice_number ?? $data->id ?? $sale['invoice_number'];
-        
-        // Cliente - soportar múltiples formatos
-        $customerName = '';
-        $customerId = '';
-        $customerPhone = '';
-        $customerEmail = '';
-        $customerAddress = '';
-        $customerCity = '';
-
-        if (isset($data->customerInfo)) {
-            $customerName    = $data->customerInfo->name ?? $sale['customer_name'];
-            $customerId      = $data->customerInfo->id ?? $sale['customer_id'];
-            $customerPhone   = $data->customerInfo->phone ?? $sale['customer_phone'];
-            $customerEmail   = $data->customerInfo->email ?? $sale['customer_email'];
-            $customerAddress = $data->customerInfo->address ?? $sale['customer_address'];
-            $customerCity    = $data->customerInfo->city ?? $sale['customer_city'];
-        } else {
-            $customerName    = $data->customerName ?? $data->customer_name ?? $sale['customer_name'];
-            $customerId      = $data->customerId ?? $data->customer_id ?? $sale['customer_id'];
-            $customerPhone   = $data->customerPhone ?? $data->customer_phone ?? $sale['customer_phone'];
-            $customerEmail   = $data->customerEmail ?? $data->customer_email ?? $sale['customer_email'];
-            $customerAddress = $data->customerAddress ?? $data->customer_address ?? $sale['customer_address'];
-            $customerCity    = $data->customerCity ?? $data->customer_city ?? $sale['customer_city'];
-        }
-
-        $paymentMethod   = $data->paymentMethod ?? $data->payment_method ?? $sale['payment_method'];
-        
-        $incomingDate    = $data->saleDate ?? $data->date ?? $data->sale_date ?? null;
+        // Fallback a valores actuales
+        $invoiceNumber   = $data->invoiceNumber ?? $data->id ?? $sale['invoice_number'];
+        $customerName    = $data->customerName   ?? $sale['customer_name'];
+        $customerId      = $data->customerId     ?? $sale['customer_id'];
+        $customerPhone   = $data->customerPhone  ?? $sale['customer_phone'];
+        $customerEmail   = $data->customerEmail  ?? $sale['customer_email'];
+        $customerAddress = $data->customerAddress?? $sale['customer_address'];
+        $customerCity    = $data->customerCity   ?? $sale['customer_city'];
+        $paymentMethod   = $data->paymentMethod  ?? $sale['payment_method'];
+        $incomingDate    = $data->saleDate ?? $data->date ?? null;
         if ($incomingDate) {
             $saleDate = (strlen($incomingDate) === 10) ? ($incomingDate . ' ' . date('H:i:s')) : $incomingDate;
         } else {
             $saleDate = $sale['sale_date'];
         }
 
-        $deliveryCost = 0;
-        if (isset($data->deliveryCost)) {
-            $deliveryCost = (float)$data->deliveryCost;
-        } elseif (isset($data->delivery_cost)) {
-            $deliveryCost = (float)$data->delivery_cost;
-        } else {
-            $deliveryCost = (float)$sale['delivery_cost'];
-        }
-
-        $discount = 0;
-        if (isset($data->discount)) {
-            $discount = (float)$data->discount;
-        } elseif (isset($data->totalDiscount)) {
-            $discount = (float)$data->totalDiscount;
-        } else {
-            $discount = (float)$sale['discount'];
-        }
-
-        $warrantyIncrement = 0;
-        if (isset($data->warrantyIncrement)) {
-            $warrantyIncrement = (float)$data->warrantyIncrement;
-        } elseif (isset($data->warranty_increment)) {
-            $warrantyIncrement = (float)$data->warranty_increment;
-        } else {
-            $warrantyIncrement = (float)($sale['warranty_increment'] ?? 0);
-        }
+        $deliveryCost      = isset($data->deliveryCost)      ? (float)$data->deliveryCost      : (float)$sale['delivery_cost'];
+        $discount          = isset($data->discount)          ? (float)$data->discount          : (float)$sale['discount'];
+        $warrantyIncrement = isset($data->warrantyIncrement) ? (float)$data->warrantyIncrement : (float)($sale['warranty_increment'] ?? 0);
 
         $currentSubtotal  = (float)$sale['total'] - (float)$sale['delivery_cost'] + (float)$sale['discount'] - (float)($sale['warranty_increment'] ?? 0);
         $incomingSubtotal = isset($data->subtotal) ? (float)$data->subtotal : $currentSubtotal;
