@@ -2316,7 +2316,25 @@
                         </div>
                     </div>
 
-                    <!-- Formulario para agregar productos a la venta -->
+    <!-- Diálogo Autorización Administrador -->
+    <div id="adminPasswordPromptDialog" class="password-change-container" style="z-index: 9999;">
+        <div class="password-change-box" style="max-width: 350px;">
+            <div class="password-change-header" style="margin-bottom: 1rem;">
+                <i class="fas fa-shield-alt" style="color: var(--danger);"></i>
+                <h2 style="font-size: 1.2rem;">Autorización Requerida</h2>
+                <p>Ingrese clave de administrador para continuar</p>
+            </div>
+            <div class="form-group">
+                <input type="password" id="adminAuthPasswordInput" class="form-control" placeholder="Clave administrador" required>
+            </div>
+            <div class="dialog-buttons" style="display: flex; gap: 10px; justify-content: center; margin-top: 1rem;">
+                <button id="adminAuthConfirmBtn" class="btn btn-primary" style="flex: 1;">Aceptar</button>
+                <button id="adminAuthCancelBtn" class="btn btn-danger" style="flex: 1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario para agregar productos a la venta -->
                     <h3
                         style="margin-bottom: 1rem; color: var(--gold-dark); display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
                         <i class="fas fa-box-open"></i> Agregar Productos a la Venta
@@ -9612,7 +9630,70 @@
             }
         }
 
-        // Cargar usuarios para cambio de contraseña (se usa la versión asíncrona definida anteriormente)
+        // Solicitar clave de administrador
+        function promptAdminPassword() {
+            return new Promise((resolve) => {
+                const dialog = document.getElementById('adminPasswordPromptDialog');
+                const input = document.getElementById('adminAuthPasswordInput');
+                const confirmBtn = document.getElementById('adminAuthConfirmBtn');
+                const cancelBtn = document.getElementById('adminAuthCancelBtn');
+                
+                input.value = '';
+                dialog.style.display = 'flex';
+                input.focus();
+
+                const cleanup = () => {
+                    dialog.style.display = 'none';
+                    confirmBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                    input.onkeyup = null;
+                };
+
+                const executeVerification = async () => {
+                    const pass = input.value;
+                    if (!pass) return;
+                    
+                    confirmBtn.disabled = true;
+                    try {
+                        const response = await fetch('api/verify_admin_password.php', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ password: pass })
+                        });
+                        const data = await response.json();
+                        confirmBtn.disabled = false;
+                        
+                        if (data.success) {
+                            cleanup();
+                            resolve(true);
+                        } else {
+                            await showDialog('Error', data.error || 'Clave incorrecta', 'error');
+                            input.value = '';
+                            input.focus();
+                        }
+                    } catch (e) {
+                        confirmBtn.disabled = false;
+                        await showDialog('Error', 'Error de conexión', 'error');
+                    }
+                };
+
+                confirmBtn.onclick = () => {
+                    executeVerification();
+                };
+
+                cancelBtn.onclick = () => {
+                    cleanup();
+                    resolve(false);
+                };
+
+                input.onkeyup = (e) => {
+                    if (e.key === 'Enter') {
+                        executeVerification();
+                    }
+                };
+            });
+        }
+// Cargar usuarios para cambio de contraseña (se usa la versión asíncrona definida anteriormente)
 
         // Inicializar pasos del login
         function initLoginSteps() {
@@ -10648,3 +10729,4 @@
 </body>
 
 </html>
+
