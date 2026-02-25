@@ -2781,6 +2781,7 @@
                             <thead>
                                 <tr>
                                     <th>Fecha</th>
+                                    <th>ID Venta</th>
                                     <th>Factura</th>
                                     <th>ID de Venta</th>
                                     <th>Cliente</th>
@@ -4696,6 +4697,7 @@
                     case 'sales':
                         headers = `
                             <tr>
+                                <th>ID Venta</th>
                                 <th>Fecha</th>
                                 <th>Factura</th>
                                 <th>ID de Venta</th>
@@ -4749,6 +4751,7 @@
                     case 'pending':
                         headers = `
                             <tr>
+                                <th>ID Venta</th>
                                 <th>Fecha</th>
                                 <th>Factura</th>
                                 <th>ID de Venta</th>
@@ -4803,6 +4806,10 @@
 
                             row = `
                                 <tr>
+                                    <td>
+                                        <strong>${item.invoice_number || item.invoiceNumber || item.id}</strong>
+                                        ${(item.invoice_number && item.invoice_number !== item.id) ? '<br><small style="color:#666; font-size:0.75rem;">Ref: ' + item.id + '</small>' : ''}
+                                    </td>
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
@@ -4950,6 +4957,10 @@
 
                             row = `
                                 <tr>
+                                    <td>
+                                        <strong>${item.invoice_number || item.invoiceNumber || item.id}</strong>
+                                        ${(item.invoice_number && item.invoice_number !== item.id) ? '<br><small style="color:#666; font-size:0.75rem;">Ref: ' + item.id + '</small>' : ''}
+                                    </td>
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
                                     <td><strong>${item.id}</strong></td>
@@ -4986,7 +4997,7 @@
             if (tableBody.innerHTML === '') {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 2rem; color: #666;">
+                        <td colspan="11" style="text-align: center; padding: 2rem; color: #666;">
                             <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; color: var(--medium-gray);"></i>
                             <h4>No hay datos disponibles</h4>
                             <p>No se encontraron registros de este tipo.</p>
@@ -9271,6 +9282,10 @@
 
                     row.innerHTML = `
                         <td>${formatDate(sale.date || sale.sale_date)}</td>
+                        <td>
+                            <strong>${sale.invoice_number || sale.invoiceNumber || sale.id}</strong>
+                            ${(sale.invoice_number && sale.invoice_number !== sale.id) ? '<br><small style="color:#666; font-size:0.75rem;">Ref: ' + sale.id + '</small>' : ''}
+                        </td>
                         <td><strong>${sale.invoice_number || 'N/A'}</strong></td>
                         <td><strong>${sale.id}</strong></td>
                         <td>${sale.customerInfo ? sale.customerInfo.name : (sale.customer_name || 'Cliente de mostrador')}</td>
