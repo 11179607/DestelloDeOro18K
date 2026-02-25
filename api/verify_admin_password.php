@@ -36,7 +36,14 @@ try {
     $stmt->execute(['id' => $userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$user || !password_verify($password, $user['password'])) {
+    // Compatibilidad: acepta hash o texto plano (igual que login.php)
+    if (
+        !$user ||
+        (
+            !password_verify($password, $user['password'])  // hash
+            && $password !== $user['password']              // texto plano legacy
+        )
+    ) {
         echo json_encode(['success' => false, 'error' => 'Contraseña de administrador incorrecta.']);
         exit;
     }
