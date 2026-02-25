@@ -6926,7 +6926,19 @@
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
                                 <div><strong>Subtotal:</strong> ${formatCurrency(movement.subtotal)}</div>
                                 <div><strong>Descuento:</strong> ${formatCurrency(movement.discount || 0)}</div>
-                                <div><strong>Costo envío:</strong> ${formatCurrency(movement.deliveryCost || 0)}</div>
+                                <div><strong>Costo envío:</strong> 
+                                    ${(function() {
+                                        if (movement.isFreeShipping) return `<span style="color: #2e7d32; font-weight: bold;">¡GRATIS!</span> (Asumido)`;
+                                        
+                                        // Intento de detección por gasto si no está en el objeto de venta
+                                        const expenses = JSON.parse(localStorage.getItem('destelloOroHistoryExpenses') || '[]');
+                                        const hasShippingExpense = expenses.some(e => (e.description || '').includes('Envío Gratis') && ((e.description || '').includes(movement.id) || (e.description || '').includes(movement.invoice_number)));
+                                        
+                                        if (hasShippingExpense) return `<span style="color: #2e7d32; font-weight: bold;">¡GRATIS!</span> (Asumido)`;
+                                        
+                                        return formatCurrency(movement.deliveryCost || 0);
+                                    })()}
+                                </div>
                                 <div><strong>Incremento garantía:</strong> ${formatCurrency(movement.warrantyIncrement || 0)}</div>
                                 <div><strong>Total:</strong> ${formatCurrency(movement.total)}</div>
                                 <div><strong>Método de pago:</strong> ${getPaymentMethodName(movement.paymentMethod)}</div>
