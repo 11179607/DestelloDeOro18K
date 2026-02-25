@@ -2077,21 +2077,21 @@
                             </div>
                             <div class="form-group">
                                 <label for="productQuantity">Cantidad Inicial *</label>
-                                <input type="number" id="productQuantity" class="form-control" min="0" required>
+                                <input type="number" id="productQuantity" class="form-control numeric-only" min="0" required>
                             </div>
                             <div class="form-group">
                                 <label for="purchasePrice">Precio de Compra *</label>
-                                <input type="number" id="purchasePrice" class="form-control" min="0" step="0.01"
+                                <input type="number" id="purchasePrice" class="form-control numeric-decimal" min="0" step="0.01"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="wholesalePrice">Precio Mayorista *</label>
-                                <input type="number" id="wholesalePrice" class="form-control" min="0" step="0.01"
+                                <input type="number" id="wholesalePrice" class="form-control numeric-decimal" min="0" step="0.01"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="retailPrice">Precio al Detal *</label>
-                                <input type="number" id="retailPrice" class="form-control" min="0" step="0.01" required>
+                                <input type="number" id="retailPrice" class="form-control numeric-decimal" min="0" step="0.01" required>
                             </div>
                             <div class="form-group">
                                 <label for="supplier">Proveedor *</label>
@@ -2182,7 +2182,7 @@
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <label for="manualSalesCounter" style="font-weight: 500;">Cantidad</label>
-                                <input type="number" id="manualSalesCounter" class="form-control"
+                                <input type="number" id="manualSalesCounter" class="form-control numeric-only"
                                     style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
                             </div>
                         </div>
@@ -2205,12 +2205,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="customerId">Cédula *</label>
-                                <input type="text" id="customerId" class="form-control" placeholder="Ej: 1234567890"
+                                <input type="text" id="customerId" class="form-control numeric-only" placeholder="Ej: 1234567890"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="customerPhone">Teléfono *</label>
-                                <input type="tel" id="customerPhone" class="form-control" placeholder="Ej: 3001234567"
+                                <input type="tel" id="customerPhone" class="form-control numeric-only" placeholder="Ej: 3001234567"
                                     required>
                             </div>
                             <div class="form-group">
@@ -2247,7 +2247,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="saleQuantity">Cantidad *</label>
-                                <input type="number" id="saleQuantity" class="form-control" min="1" required>
+                                <input type="number" id="saleQuantity" class="form-control numeric-only" min="1" required>
                             </div>
                             <div class="form-group">
                                 <label for="saleType">Tipo de Venta *</label>
@@ -2258,7 +2258,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="discount">Descuento (%)</label>
-                                <input type="number" id="discount" class="form-control" min="0" max="100" value="0">
+                                <input type="number" id="discount" class="form-control numeric-decimal" min="0" max="100" value="0">
                                 <small class="form-text" style="font-size: 0.8rem;">Entre 0 y 100%</small>
                             </div>
                         </div>
@@ -2345,7 +2345,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="deliveryCost">Costo de Envío</label>
-                                <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
+                                <input type="number" id="deliveryCost" class="form-control numeric-decimal" min="0" value="0">
                             </div>
 
                             <!-- Campo de Envío Gratis (Condicional) -->
@@ -2434,7 +2434,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="restockQuantity">Cantidad a Surtir *</label>
-                                <input type="number" id="restockQuantity" class="form-control" min="1" required>
+                                <input type="number" id="restockQuantity" class="form-control numeric-only" min="1" required>
                             </div>
                         </div>
                         <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -2477,7 +2477,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="expenseAmount">Valor *</label>
-                                <input type="number" id="expenseAmount" class="form-control" min="0" step="0.01"
+                                <input type="number" id="expenseAmount" class="form-control numeric-decimal" min="0" step="0.01"
                                     required>
                             </div>
                         </div>
@@ -2542,7 +2542,7 @@
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <label for="manualWarrantyCounter" style="font-weight: 500;">Cantidad</label>
-                                <input type="number" id="manualWarrantyCounter" class="form-control"
+                                <input type="number" id="manualWarrantyCounter" class="form-control numeric-only"
                                     style="width: 80px; text-align: center; font-weight: bold;" min="0" value="0">
                             </div>
                         </div>
