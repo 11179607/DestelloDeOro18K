@@ -2030,7 +2030,7 @@
 
             <!-- Paso 3: Credenciales de login -->
             <div id="loginCredentials" class="user-info-form">
-                <h3 style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
+                <h3 id="loginCredentialsTitle" style="text-align: center; margin-bottom: 1rem; color: var(--gold-dark); font-size: 1.1rem;">
                     <i class="fas fa-sign-in-alt"></i> Credenciales de Acceso
                 </h3>
 
@@ -7880,6 +7880,14 @@
                 }
             };
 
+            // Actualizar título dinámico del paso de credenciales
+            function updateLoginCredentialsTitle(roleName) {
+                const titleEl = document.getElementById('loginCredentialsTitle');
+                if (titleEl) {
+                    titleEl.innerHTML = `<i class="fas fa-sign-in-alt"></i> Credenciales de Acceso para ${roleName}`;
+                }
+            }
+
             // Alternar entre roles
             adminRoleBtn.addEventListener('click', function () {
                 console.log('Rol seleccionado: admin');
@@ -7887,6 +7895,7 @@
                 workerRoleBtn.classList.remove('active');
                 selectedRole = 'admin';
                 window.selectedRole = 'admin'; // Forzar global
+                updateLoginCredentialsTitle('Administrador');
                 proceedToUserInfo();
             });
 
@@ -7896,6 +7905,7 @@
                 adminRoleBtn.classList.remove('active');
                 selectedRole = 'worker';
                 window.selectedRole = 'worker'; // Forzar global
+                updateLoginCredentialsTitle('Trabajador');
                 proceedToUserInfo();
             });
 
