@@ -4227,6 +4227,7 @@
             let wholesaleCOGS = 0;
             let retailCount = 0;
             let wholesaleCount = 0;
+            let totalDeliveryCost = 0;
 
             sales.forEach(sale => {
                 let saleRetailTotal = 0;
@@ -4281,6 +4282,7 @@
                     
                     saleRetailTotal += (adjustments * retailRatio);
                     saleWholesaleTotal += (adjustments * wholesaleRatio);
+                    totalDeliveryCost += delivery;
                 }
 
                 retailSales += saleRetailTotal;
@@ -4294,9 +4296,9 @@
 
             const retailProfit = retailSales - retailCOGS;
             const wholesaleProfit = wholesaleSales - wholesaleCOGS;
-            const totalProfit = retailProfit + wholesaleProfit;
             const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            const netProfit = totalProfit - totalExpenses;
+            const totalProfitGross = retailProfit + wholesaleProfit;
+            const netProfit = totalProfitGross - totalExpenses - totalDeliveryCost;
 
             // 1. TARJETA GANANCIAS AL DETAL
             const retailCard = document.createElement('div');
@@ -4329,7 +4331,7 @@
                     <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses));
+            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, totalExpenses));
             cardsContainer.appendChild(retailCard);
 
             // 2. TARJETA GANANCIAS MAYORISTA
@@ -4363,7 +4365,7 @@
                     <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses));
+            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, totalExpenses));
             cardsContainer.appendChild(wholesaleCard);
 
             // 3. TARJETA GANANCIA TOTAL
@@ -4387,11 +4389,11 @@
                         <span class="history-card-detail-value">${formatCurrency(retailCOGS + wholesaleCOGS)}</span>
                     </div>
                     <div class="history-card-detail">
-                        <span>Gastos Totales:</span>
-                        <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses)}</span>
+                        <span>Gastos + Envíos:</span>
+                        <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses + totalDeliveryCost)}</span>
                     </div>
                     <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
-                        <span style="font-weight: bold;">GANANCIAS TOTALES:</span>
+                        <span style="font-weight: bold;">GANANCIAS NETAS:</span>
                         <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(netProfit)}</span>
                     </div>
                 </div>
@@ -4401,7 +4403,7 @@
                     <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
                 </div>
             `;
-            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses));
+            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, totalExpenses));
             cardsContainer.appendChild(totalCard);
         }
 
@@ -4512,7 +4514,8 @@
         }
 
         // Mostrar detalles de ganancias
-        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
+        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses = 0) {
+            const totalDeliveryCosts = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
             document.getElementById('historyDetailsView').style.display = 'block';
@@ -4521,7 +4524,7 @@
             const dateStr = currentMonth === -1 ? `Año ${currentYear}` : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
             const title = `Análisis de Ganancias - ${dateStr}`;
 
-            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses);
+            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses, totalDeliveryCosts);
 
             content.innerHTML = `
                 <div class="dialog-icon" style="color: var(--gold-primary);">
@@ -4536,9 +4539,9 @@
         }
 
         // Generar HTML del desglose de ganancias
-        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
+        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = [], deliveryCosts = 0) {
             const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            const netProfit = totalProfit - totalExpenses;
+            const netProfit = totalProfit - totalExpenses - deliveryCosts;
             return `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -4566,10 +4569,11 @@
                             <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
                                 ${formatCurrency(netProfit)}
                             </div>
-                            <small>Total Ventas: ${formatCurrency(retailSales + wholesaleSales)}</small><br>
+                            <small>Ventas Brutas: ${formatCurrency(retailSales + wholesaleSales + deliveryCosts)}</small><br>
                             <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small>
-                            <small>Ganancia Operativa: ${formatCurrency(totalProfit)}</small><br>
-                            <small style="color: var(--danger);">Gastos Totales: -${formatCurrency(totalExpenses)}</small>
+                            <small>Ganancia Operativa: ${formatCurrency(totalProfit + totalExpenses + deliveryCosts)}</small><br>
+                            <small style="color: var(--danger);">Gastos: -${formatCurrency(totalExpenses)}</small><br>
+                            <small style="color: #607d8b;">Envíos cobrados: -${formatCurrency(deliveryCosts)}</small>
                         </div>
                     </div>
                 </div>
@@ -5369,10 +5373,11 @@
                 // porque el additionalValue ya está incluido en totalSales (warranty_increment)
                 const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
                 const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
+                const totalDeliveryCosts = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
                 
-                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos
+                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos cobrados
                 // Nota: los gastos ya incluyen los envíos de garantías
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold;
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalDeliveryCosts;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -5409,8 +5414,8 @@
                     <div class="stat-card clickable" onclick="showMonthlyDetails('profit')">
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
-                        <div class="stat-label">Ganancias Totales</div>
-                        <small>Ventas - Gastos - Costo Inv (gastos incluyen envíos)</small>
+                        <div class="stat-label">Ganancias Reales</div>
+                        <small>Ventas - Gastos - Costo Inv - Envíos</small>
                     </div>
                 `;
             } catch (error) {
@@ -5481,7 +5486,8 @@
             // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold;
+            const totalDeliveryCosts = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalDeliveryCosts;
             const expensesWithoutShipping = totalExpenses - totalWarrantyShippingCosts;
 
             let title = '';
@@ -5506,7 +5512,7 @@
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, expensesWithoutShipping, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
+                    detailsHTML = generateProfitDetailsHTML(totalSales, expensesWithoutShipping, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit, totalDeliveryCosts);
                     break;
             }
 
@@ -5888,7 +5894,7 @@
         }
 
         // Generar HTML para resumen de ganancias
-        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit) {
+        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit, deliveryCosts = 0) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5912,9 +5918,19 @@
                             <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong><br>
                             <small>Envíos de Garantías</small>
                         </div>
+                        <div style="background: #eceff1; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #607d8b;">
+                            <strong style="font-size: 1.2em; color: #607d8b;">${formatCurrency(deliveryCosts)}</strong><br>
+                            <small>Cobros por Envío</small>
+                        </div>
                         <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
                             <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
-                            <small>Ganancia Neta del Mes</small>
+                            <small>Ganancias Totales</small>
+                            <div style="font-size: 0.85em; color: #666; margin-top: 8px;">
+                                <span>Ventas Brutas: ${formatCurrency(salesTotal + deliveryCosts)}</span><br>
+                                <span>Gastos: ${formatCurrency(expensesTotal)}</span><br>
+                                <span>Costo: ${formatCurrency(costOfGoodsSoldTotal)}</span><br>
+                                <span>Cobros Envío: ${formatCurrency(deliveryCosts)}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -5939,6 +5955,10 @@
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
                             <span>Envíos de Garantías:</span>
                             <strong style="color: #9c27b0;">-(${formatCurrency(warrantyShippingCosts)})</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                            <span>Cobros por Envío (Deducción):</span>
+                            <strong style="color: #607d8b;">-(${formatCurrency(deliveryCosts)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
                             <span><strong>Ganancia Neta:</strong></span>
