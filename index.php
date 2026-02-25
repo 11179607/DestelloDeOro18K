@@ -3999,9 +3999,9 @@
                     if (fPending.length > 0) createHistoryCard('pending', fPending);
 
                     // Tarjeta de ganancias solo si estamos en 'all' o explícitamente 'profit' o 'sales'
-                    if (currentHistoryType === 'all' || currentHistoryType === 'profit' || currentHistoryType === 'sales') {
-                        if (sales.length > 0) createProfitHistoryCard(sales);
-                    }
+                if (currentHistoryType === 'all' || currentHistoryType === 'profit' || currentHistoryType === 'sales') {
+                    if (sales.length > 0) createProfitHistoryCard(sales, expenses);
+                }
                 }
 
                 if (cardsContainer.innerHTML === '') {
@@ -4131,7 +4131,7 @@
         }
 
         // Crear tarjetas de ganancias desglosadas (detal, mayorista, total)
-        function createProfitHistoryCard(sales) {
+        function createProfitHistoryCard(sales, expenses = []) {
             const cardsContainer = document.getElementById('historyCardsView');
 
             // Calcular ganancias por tipo de venta
@@ -4209,6 +4209,8 @@
             const retailProfit = retailSales - retailCOGS;
             const wholesaleProfit = wholesaleSales - wholesaleCOGS;
             const totalProfit = retailProfit + wholesaleProfit;
+            const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            const netProfit = totalProfit - totalExpenses;
 
             // 1. TARJETA GANANCIAS AL DETAL
             const retailCard = document.createElement('div');
@@ -4241,7 +4243,7 @@
                     <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
+            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses));
             cardsContainer.appendChild(retailCard);
 
             // 2. TARJETA GANANCIAS MAYORISTA
@@ -4275,7 +4277,7 @@
                     <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
+            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses));
             cardsContainer.appendChild(wholesaleCard);
 
             // 3. TARJETA GANANCIA TOTAL
@@ -4298,9 +4300,13 @@
                         <span>Costo Total:</span>
                         <span class="history-card-detail-value">${formatCurrency(retailCOGS + wholesaleCOGS)}</span>
                     </div>
+                    <div class="history-card-detail">
+                        <span>Gastos Totales:</span>
+                        <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses)}</span>
+                    </div>
                     <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
                         <span style="font-weight: bold;">GANANCIA NETA:</span>
-                        <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(totalProfit)}</span>
+                        <span class="history-card-detail-value" style="color: var(--gold-primary); font-weight: bold;">${formatCurrency(netProfit)}</span>
                     </div>
                 </div>
                 <div class="history-card-footer">
@@ -4309,7 +4315,7 @@
                     <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
                 </div>
             `;
-            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales));
+            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses));
             cardsContainer.appendChild(totalCard);
         }
 
@@ -4420,7 +4426,7 @@
         }
 
         // Mostrar detalles de ganancias
-        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
+        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
             document.getElementById('historyDetailsView').style.display = 'block';
@@ -4429,7 +4435,7 @@
             const dateStr = currentMonth === -1 ? `Año ${currentYear}` : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
             const title = `Análisis de Ganancias - ${dateStr}`;
 
-            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales);
+            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses);
 
             content.innerHTML = `
                 <div class="dialog-icon" style="color: var(--gold-primary);">
@@ -4444,7 +4450,9 @@
         }
 
         // Generar HTML del desglose de ganancias
-        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales) {
+        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
+            const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            const netProfit = totalProfit - totalExpenses;
             return `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -4468,12 +4476,14 @@
                             <small>Costo: ${formatCurrency(wholesaleCOGS)}</small>
                         </div>
                         <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid var(--gold-primary);">
-                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancia Total</strong><br>
+                            <strong style="font-size: 1.2em; color: var(--gold-dark);">⭐ Ganancia Neta</strong><br>
                             <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
-                                ${formatCurrency(totalProfit)}
+                                ${formatCurrency(netProfit)}
                             </div>
                             <small>Total Ventas: ${formatCurrency(retailSales + wholesaleSales)}</small><br>
                             <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small>
+                            <small>Ganancia Operativa: ${formatCurrency(totalProfit)}</small><br>
+                            <small style="color: var(--danger);">Gastos Totales: -${formatCurrency(totalExpenses)}</small>
                         </div>
                     </div>
                 </div>
