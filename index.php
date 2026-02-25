@@ -4763,17 +4763,15 @@
                     case 'sales':
                         headers = `
                             <tr>
-                                <th>ID Venta</th>
                                 <th>Fecha</th>
                                 <th>Factura</th>
-                                <th>ID de Venta</th>
                                 <th>Cliente</th>
-                                <th>Productos</th>
                                 <th>Referencias</th>
+                                <th>Productos</th>
+                                <th>Cant.</th>
+                                <th>Precio Unit.</th>
                                 <th>Tipo</th>
                                 <th>Total</th>
-                                <th>Envío</th>
-                                <th>Incremento Garantía</th>
                                 <th>Pago</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
@@ -4810,10 +4808,11 @@
                                 <th>Fecha</th>
                                 <th>ID Venta</th>
                                 <th>Cliente</th>
+                                <th>Producto Original</th>
+                                <th>Producto Garantía</th>
                                 <th>Motivo</th>
-                                <th>Costo Total</th>
-                                <th>Valor Adicional</th>
-                                <th>Valor Envío</th>
+                                <th>Incremento</th>
+                                <th>Envío</th>
                                 <th>Estado</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
@@ -4873,34 +4872,33 @@
                         case 'sales':
                             const productCount = item.products ? item.products.length : 1;
                             const productNames = item.products ?
-                                item.products.map(p => p.productName).join(', ') :
-                                (item.productName || 'Producto');
+                                item.products.map(p => p.productName || p.product_name || 'Producto').join(', ') :
+                                (item.productName || item.product_name || 'Producto');
+                            const productRefs = item.products ?
+                                item.products.map(p => p.productId || p.product_ref || '').join(', ') :
+                                (item.productId || item.product_ref || 'N/A');
+                            const productQtys = item.products ?
+                                item.products.map(p => `<div>${p.quantity}</div>`).join('') :
+                                `<div>${item.quantity || 1}</div>`;
+                            const productUnitPrices = item.products ?
+                                item.products.map(p => `<div>${formatCurrency(p.unitPrice || p.unit_price || 0)}</div>`).join('') :
+                                `<div>${formatCurrency(item.unitPrice || item.unit_price || 0)}</div>`;
 
                             row = `
                                 <tr>
-                                    <td>
-                                        <strong>${item.invoice_number || item.invoiceNumber || item.id}</strong>
-                                        ${(item.invoice_number && item.invoice_number !== item.id) ? '<br><small style="color:#666; font-size:0.75rem;">Ref: ' + item.id + '</small>' : ''}
-                                    </td>
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
-                                    <td><strong>${item.id}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
-                                    <td>
-                                        <strong>${productCount} producto(s)</strong><br>
-                                        <small>${productNames}</small>
-                                        <div style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.products ? item.products.map(p => p.productId).join(', ') : ''}">
-                                            ${item.products ? item.products.map(p => p.productId).join(', ') : 'N/A'}
-                                        </div>
-                                    </td>
+                                    <td><div style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${productRefs}">${productRefs || 'N/A'}</div></td>
+                                    <td><div style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${productNames}">${productNames}</div></td>
+                                    <td><div style="font-size: 0.9em; text-align: center;">${productQtys}</div></td>
+                                    <td><div style="font-size: 0.9em; text-align: right;">${productUnitPrices}</div></td>
                                     <td>
                                         <span class="badge ${item.saleType === 'wholesale' ? 'badge-info' : 'badge-success'}">
                                             ${item.saleType === 'wholesale' ? 'Mayorista' : 'Detal'}
                                         </span>
                                     </td>
                                     <td><strong>${formatCurrency(item.total)}</strong></td>
-                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
-                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
                                     <td>
                                         <span class="badge ${getPaymentMethodClass(item.paymentMethod)}">
                                             ${getPaymentMethodName(item.paymentMethod)}
@@ -4994,13 +4992,18 @@
                             break;
 
                     case 'warranties':
+                        const originalProd = `${item.originalProductName || 'N/A'} <small>(${item.originalProductId || 'N/A'})</small>`;
+                        const warrantyProd = item.productType === 'different'
+                            ? `${item.newProductName || 'Producto diferente'} <small>(${item.newProductRef || item.product_ref || 'N/A'})</small>`
+                            : `Mismo producto <small>(${item.originalProductId || item.product_ref || 'N/A'})</small>`;
                         row = `
                             <tr>
                                 <td>${formatDate(itemDate)}</td>
                                 <td><strong>${item.originalSaleId}</strong></td>
                                 <td>${item.customerName}</td>
+                                <td>${originalProd}</td>
+                                <td>${warrantyProd}</td>
                                 <td>${item.warrantyReasonText || item.warrantyReason}</td>
-                                <td><strong>${formatCurrency((parseFloat(item.totalCost) || 0) + (parseFloat(item.shippingValue || item.shipping_value) || 0))}</strong></td>
                                 <td><strong>${formatCurrency(item.additionalValue || item.additional_value || 0)}</strong></td>
                                 <td>${formatCurrency(item.shippingValue || item.shipping_value || 0)}</td>
                                 <td>
