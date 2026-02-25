@@ -27,9 +27,14 @@ try {
         // Buscar el usuario admin en la DB para verificar su contraseña actual
         $stmt = $conn->prepare("SELECT password FROM users WHERE username = 'admin' LIMIT 1");
         $stmt->execute();
-        $admin = $stmt->fetch();
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$admin || $data->password !== $admin['password']) {
+        $authOk = false;
+        if ($admin && (password_verify($data->password, $admin['password']) || $data->password === $admin['password'])) {
+            $authOk = true;
+        }
+
+        if (!$authOk) {
             http_response_code(401);
             echo json_encode(['success' => false, 'message' => 'Contraseña de administrador incorrecta.']);
             exit;
@@ -64,16 +69,19 @@ try {
         // Podríamos restringir esto también si se desea, pero por ahora lo dejamos similar
         
         // 1. Asegurar que los usuarios existan (si no existen, los crea)
+        $adminHash = password_hash('admin123', PASSWORD_DEFAULT);
+        $workerHash = password_hash('trabajador123', PASSWORD_DEFAULT);
+
         $conn->exec("INSERT IGNORE INTO users (username, password, role, name, lastname, phone) VALUES 
-            ('admin', 'admin123', 'admin', 'Administrador', 'Principal', '3001234567'),
-            ('trabajador', 'trabajador123', 'worker', 'Vendedor', 'Principal', '3009876543')");
+            ('admin', '$adminHash', 'admin', 'Administrador', 'Principal', '3001234567'),
+            ('trabajador', '$workerHash', 'worker', 'Vendedor', 'Principal', '3009876543')");
 
         // 2. Resetear contraseñas
-        $stmt1 = $conn->prepare("UPDATE users SET password = 'admin123' WHERE username = 'admin'");
-        $stmt1->execute();
+        $stmt1 = $conn->prepare("UPDATE users SET password = :pw WHERE username = 'admin'");
+        $stmt1->execute([':pw' => $adminHash]);
 
-        $stmt2 = $conn->prepare("UPDATE users SET password = 'trabajador123' WHERE username = 'trabajador'");
-        $stmt2->execute();
+        $stmt2 = $conn->prepare("UPDATE users SET password = :pw WHERE username = 'trabajador'");
+        $stmt2->execute([':pw' => $workerHash]);
 
         // 3. Limpiar variables de sesión de PHP
         session_destroy();

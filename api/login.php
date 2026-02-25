@@ -22,11 +22,18 @@ try {
     $stmt->bindParam(':username', $username);
     $stmt->execute();
     
-    $user = $stmt->fetch();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Verificar contraseña (Texto plano por ahora según setup.sql)
-    // En el futuro: password_verify($password, $user['password'])
-    if ($user && $password === $user['password']) {
+    // Verificar contraseña: aceptar hash (nuevo) o texto plano (legacy)
+    $isValid = false;
+    if ($user) {
+        $stored = $user['password'];
+        if (password_verify($password, $stored) || $password === $stored) {
+            $isValid = true;
+        }
+    }
+
+    if ($isValid) {
         
         // Guardar sesión
         $_SESSION['user_id'] = $user['id'];

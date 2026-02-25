@@ -1752,6 +1752,9 @@
                     <label for="newPassword">Nueva Contraseña *</label>
                     <input type="password" id="newPassword" class="form-control" placeholder="Nueva contraseña" required
                         minlength="6">
+                    <small class="form-text" style="color: #666; font-size: 0.8rem;">
+                        <i class="fas fa-info-circle"></i> Debe tener al menos una mayúscula, un número y un carácter especial.
+                    </small>
                 </div>
 
                 <div class="form-group">
@@ -8217,6 +8220,16 @@
                     // Validar longitud mínima
                     if (newPassword.length < 6) {
                         await showDialog('Error', 'La contraseña debe tener al menos 6 caracteres.', 'error');
+                        return;
+                    }
+                    
+                    // Validar seguridad: una mayúscula, un número y un carácter especial
+                    const hasUpper = /[A-Z]/.test(newPassword);
+                    const hasNumber = /[0-9]/.test(newPassword);
+                    const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+
+                    if (!hasUpper || !hasNumber || !hasSpecial) {
+                        await showDialog('Error', 'La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial.', 'error');
                         return;
                     }
 

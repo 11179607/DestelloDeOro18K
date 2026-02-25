@@ -40,11 +40,17 @@ try {
             $adminUsername = $data->adminUsername ?? '';
             $adminPassword = $data->adminPassword ?? '';
             
-            // Validar credenciales de admin dadas en el body
-            $stmt = $conn->prepare("SELECT id FROM users WHERE username = :username AND password = :password AND role = 'admin'");
-            $stmt->execute([':username' => $adminUsername, ':password' => $adminPassword]);
+            // Validar credenciales de admin dadas en el body (acepta hash o plano)
+            $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = :username AND role = 'admin'");
+            $stmt->execute([':username' => $adminUsername]);
+            $adminRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $authOk = false;
+            if ($adminRow && (password_verify($adminPassword, $adminRow['password']) || $adminPassword === $adminRow['password'])) {
+                $authOk = true;
+            }
             
-            if (!$stmt->fetch()) {
+            if (!$authOk) {
                 http_response_code(401);
                 echo json_encode(['success' => false, 'message' => 'Credenciales de administrador incorrectas']);
                 exit;
@@ -59,12 +65,21 @@ try {
                 throw new Exception("Datos de usuario o contraseña incompletos.");
             }
 
+            // Validar seguridad de la contraseña: una mayúscula, un número y un carácter especial
+            if (!preg_match('/[A-Z]/', $newPassword) ||
+                !preg_match('/[0-9]/', $newPassword) ||
+                !preg_match('/[^A-Za-z0-9]/', $newPassword)) {
+                throw new Exception("La contraseña debe tener al menos una letra mayúscula, un número y un carácter especial.");
+            }
+
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
             if (!empty($newEmail)) {
                 $updateStmt = $conn->prepare("UPDATE users SET password = :password, email = :email WHERE username = :username");
-                $updateStmt->execute([':password' => $newPassword, ':email' => $newEmail, ':username' => $targetUser]);
+                $updateStmt->execute([':password' => $hashedPassword, ':email' => $newEmail, ':username' => $targetUser]);
             } else {
                 $updateStmt = $conn->prepare("UPDATE users SET password = :password WHERE username = :username");
-                $updateStmt->execute([':password' => $newPassword, ':username' => $targetUser]);
+                $updateStmt->execute([':password' => $hashedPassword, ':username' => $targetUser]);
             }
 
             echo json_encode(['success' => true, 'message' => 'Contraseña actualizada correctamente']);
