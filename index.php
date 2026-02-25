@@ -9365,14 +9365,15 @@
                     
                     oscillator.start(now);
                     oscillator.stop(now + 0.4);
-                } else if (type === 'error') {
-                    // Sonido de error: Un tono bajo y "pesado" (D3 -> Bb2)
-                    oscillator.type = 'triangle';
-                    oscillator.frequency.setValueAtTime(146.83, now); // D3
-                    oscillator.frequency.linearRampToValueAtTime(116.54, now + 0.2); // Bb2
+                } else if (type === 'error' || type === 'warning') {
+                    // Sonido de error/aviso: tono descendente (A3 -> A2)
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(220, now); // A3
+                    oscillator.frequency.exponentialRampToValueAtTime(110, now + 0.25); // A2
                     
                     gainNode.gain.setValueAtTime(0, now);
                     gainNode.gain.linearRampToValueAtTime(0.2, now + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05);
                     gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
                     
                     oscillator.start(now);
@@ -9499,7 +9500,7 @@
         // Mostrar diálogo personalizado
         function showDialog(title, message, type = 'info', showCancel = false) {
             // Reproducir sonido según el tipo
-            if (type === 'success' || type === 'error') {
+            if (type === 'success' || type === 'error' || type === 'warning') {
                 playAppSound(type);
             }
             return new Promise((resolve) => {
