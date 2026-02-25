@@ -94,6 +94,9 @@ if ($method === 'GET') {
                 $sale['deliveryCost']    = (float)($sale['delivery_cost'] ?? 0);
                 $sale['warrantyIncrement'] = (float)($sale['warranty_increment'] ?? 0);
                 $sale['user']            = $sale['username'];
+                $sale['discount']        = (float)($sale['discount'] ?? 0);
+                // Subtotal estimado: total - envío + descuento - incremento garantía
+                $sale['subtotal']        = (float)$sale['total'] - $sale['deliveryCost'] + $sale['discount'] - $sale['warrantyIncrement'];
                 // Determinar tipo de venta (retail, wholesale o mixed)
                 $types = [];
                 foreach ($sale['products'] as $p) {
