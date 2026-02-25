@@ -4973,16 +4973,19 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Factura</th>
+                                <th>ID de Venta</th>
+                                <th>ID Venta</th>
                                 <th>Cliente</th>
-                                <th>Referencias</th>
                                 <th>Productos</th>
-                                <th>Cant.</th>
-                                <th>Precio Unit.</th>
-                                <th>Tipo</th>
-                                <th>Incremento G.</th>
-                                <th>Total</th>
-                                <th>Pago</th>
+                                <th>Referencia</th>
+                                <th>Precio</th>
+                                <th>Tipo de Venta</th>
                                 <th>Estado</th>
+                                <th>Método Pago</th>
+                                <th>Total</th>
+                                <th>Envío</th>
+                                <th>Incremento Garantía</th>
+                                <th>Incremental</th>
                                 <th>Usuario</th>
                                 <th>Acciones</th>
                             </tr>
@@ -5097,10 +5100,17 @@
                                 <tr>
                                     <td>${formatDate(itemDate)}</td>
                                     <td><strong>${item.invoice_number || 'N/A'}</strong></td>
+                                    <td><strong>${item.invoice_number || item.id || 'N/A'}</strong></td>
+                                    <td><strong>${item.id || 'N/A'}</strong></td>
                                     <td>${item.customerInfo?.name || item.customer_name || 'Cliente de mostrador'}</td>
+                                    <td>
+                                        <div style="font-size: 0.75rem; line-height: 1.2; max-height: 60px; overflow-y: auto; padding: 2px;">
+                                            ${item.products ? item.products.map(p => 
+                                                `• ${p.productName || p.productId || 'Producto'} (x${parseInt(p.quantity)||1})`
+                                            ).join('<br>') : (item.productName || 'N/A')}
+                                        </div>
+                                    </td>
                                     <td><div style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${productRefs}">${productRefs || 'N/A'}</div></td>
-                                    <td><div style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${productNames}">${productNames}</div></td>
-                                    <td><div style="font-size: 0.9em; text-align: center;">${productQtys}</div></td>
                                     <td><div style="font-size: 0.9em; text-align: right;">${productUnitPrices}</div></td>
                                     <td>
                                         <div style="font-size: 0.9em; text-align: center;">
@@ -5121,20 +5131,19 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size: 0.9em; text-align: right; color: var(--warning);">
-                                            ${(parseFloat(item.warrantyIncrement || item.warranty_increment) || 0) > 0 ? formatCurrency(item.warrantyIncrement || item.warranty_increment || 0) : '-'}
-                                        </div>
+                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : 'badge-warning'}">
+                                            ${item.status === 'completed' ? 'Completada' : 'Pendiente'}
+                                        </span>
                                     </td>
-                                    <td><strong>${formatCurrency(item.total)}</strong></td>
                                     <td>
                                         <span class="badge ${getPaymentMethodClass(item.paymentMethod)}">
                                             ${getPaymentMethodName(item.paymentMethod)}
                                         </span>
                                     </td>
-                                    <td>
-                                        <span class="badge ${item.status === 'completed' ? 'badge-success' : 'badge-warning'}">
-                                            ${item.status === 'completed' ? 'Confirmada' : 'Pendiente'}
-                                        </span>
+                                    <td><strong>${formatCurrency(item.total)}</strong></td>
+                                    <td><strong>${formatCurrency(item.deliveryCost || item.delivery_cost || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
+                                    <td><strong>${formatCurrency(item.warrantyIncrement || item.warranty_increment || 0)}</strong></td>
                                     </td>
                                     <td>
                                         <span class="badge ${user === 'admin' ? 'badge-admin' : 'badge-worker'}">
@@ -5142,17 +5151,17 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div style="display: flex; gap: 5px;">
+                                        <div style="display: flex; align-items: center; gap: 5px;">
                                             <button class="btn btn-info btn-sm" onclick="viewMovementDetails('${item.id}', 'sales')" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             ${currentUser && currentUser.role === 'admin' ? `
-                                            <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
-                                                <i class="fas fa-trash"></i>
-                                            </button>` : ''}
+                                                <button class="btn btn-warning btn-sm" onclick="editMovement('${item.id}', 'sales')" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteMovement('${item.id}', 'sales')" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>` : ''}
                                         </div>
                                     </td>
                                 </tr>
