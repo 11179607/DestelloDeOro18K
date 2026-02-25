@@ -1538,6 +1538,12 @@
             opacity: 0.7;
         }
 
+        /* Capas de modales para evitar que se tapen entre sí */
+        #monthlyDetailsModal { z-index: 10000; }
+        #viewMovementModal, #editMovementModal { z-index: 11000; }
+        #invoiceModal { z-index: 11500; }
+        #customDialog { z-index: 12000; }
+
         /* Diálogos personalizados */
         .custom-dialog {
             display: none;
