@@ -2347,6 +2347,24 @@
                                 <label for="deliveryCost">Costo de Envío</label>
                                 <input type="number" id="deliveryCost" class="form-control" min="0" value="0">
                             </div>
+
+                            <!-- Campo de Envío Gratis (Condicional) -->
+                            <div id="freeShippingContainer" style="display: none; margin-top: -5px; margin-bottom: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                    <div style="flex-grow: 1;">
+                                        <div style="font-weight: bold; color: #2e7d32; font-size: 0.9rem;">
+                                            <i class="fas fa-truck"></i> ¡Aplica Envío Gratis!
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: #43a047;">Venta superior a 250,000</div>
+                                    </div>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="freeShippingToggle">
+                                        <label class="custom-control-label" for="freeShippingToggle" id="freeShippingLabel">
+                                            <i class="fas fa-times-circle" style="color: #666;"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -3696,7 +3714,9 @@
             // Obtener información de pago
             const paymentMethod = document.getElementById('paymentMethod').value;
             const deliveryType = document.getElementById('deliveryType').value;
-            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const deliveryCostInput = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const freeShippingEnabled = document.getElementById('freeShippingToggle')?.checked || false;
+            const finalDeliveryCost = freeShippingEnabled ? 0 : deliveryCostInput;
 
             // Información del cliente
             const customerInfo = {
@@ -3711,7 +3731,7 @@
             // Calcular totales
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            const total = subtotal + deliveryCost;
+            const total = subtotal + finalDeliveryCost;
 
             // Generar u obtener ID de factura manual
             const manualInvoiceField = document.getElementById('manualInvoiceId');
@@ -3740,7 +3760,9 @@
                 })),
                 subtotal: subtotal,
                 discount: totalDiscount,
-                deliveryCost: deliveryCost,
+                deliveryCost: finalDeliveryCost,
+                isFreeShipping: freeShippingEnabled,
+                originalDeliveryCost: deliveryCostInput,
                 total: total,
                 paymentMethod: paymentMethod,
                 deliveryType: deliveryType,
@@ -3753,10 +3775,32 @@
                 warrantyIncrement: 0 // Inicializar en 0
             };
 
-            // Procesar venta a nivel de API (ahora maneja status 'pending' o 'completed')
-            const success = await processSale(sale);
+        // Procesar venta a nivel de API (ahora maneja status 'pending' o 'completed')
+        const success = await processSale(sale);
 
-            if (success) {
+        // Si el envío fue gratis, registrarlo como un gasto para el administrador
+        if (success && freeShippingEnabled && deliveryCostInput > 0) {
+            try {
+                const expense = {
+                    description: `Envío Gratis - Factura ${invoiceId} - Cliente ${customerName}`,
+                    date: new Date().toISOString().split('T')[0],
+                    amount: deliveryCostInput,
+                    user: 'admin'
+                };
+                
+                await fetch('api/expenses.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(expense)
+                });
+                
+                console.log('Gasto de envío gratis registrado.');
+            } catch (e) {
+                console.error('Error al registrar gasto de envío gratis:', e);
+            }
+        }
+
+        if (success) {
                 if (paymentMethod !== 'cash') {
                     await showDialog(
                         'Venta Pendiente',
@@ -3799,12 +3843,44 @@
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
             const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
-            const total = subtotal + deliveryCost;
+
+            // Lógica de Envío Gratis
+            const freeShippingContainer = document.getElementById('freeShippingContainer');
+            const freeShippingToggle = document.getElementById('freeShippingToggle');
+            const freeShippingLabel = document.getElementById('freeShippingLabel');
+
+            // Si no existen los elementos (seguridad), usar cálculo normal
+            if (!freeShippingContainer || !freeShippingToggle || !freeShippingLabel) {
+                const totalFallback = subtotal + deliveryCost;
+                document.getElementById('subtotalAmount').textContent = formatCurrency(subtotal);
+                document.getElementById('discountAmount').textContent = formatCurrency(totalDiscount);
+                document.getElementById('deliveryAmount').textContent = formatCurrency(deliveryCost);
+                document.getElementById('totalAmount').textContent = formatCurrency(totalFallback);
+                return;
+            }
+            
+            if (subtotal >= 250000) {
+                freeShippingContainer.style.display = 'block';
+            } else {
+                freeShippingContainer.style.display = 'none';
+                freeShippingToggle.checked = false;
+            }
+            
+            // Actualizar icono de la etiqueta
+            if (freeShippingToggle.checked) {
+                freeShippingLabel.innerHTML = '<i class="fas fa-check-circle" style="color: #2e7d32; font-size: 1.2rem;"></i>';
+            } else {
+                freeShippingLabel.innerHTML = '<i class="fas fa-times-circle" style="color: #666; font-size: 1.2rem;"></i>';
+            }
+            
+            const isFreeShipping = freeShippingToggle.checked;
+            const finalDeliveryCost = isFreeShipping ? 0 : deliveryCost;
+            const total = subtotal + finalDeliveryCost;
 
             // Actualizar UI
             document.getElementById('subtotalAmount').textContent = formatCurrency(subtotal);
             document.getElementById('discountAmount').textContent = formatCurrency(totalDiscount);
-            document.getElementById('deliveryAmount').textContent = formatCurrency(deliveryCost);
+            document.getElementById('deliveryAmount').textContent = formatCurrency(finalDeliveryCost);
             document.getElementById('totalAmount').textContent = formatCurrency(total);
         }
 
@@ -8332,8 +8408,9 @@
                 }
             });
 
-            // Actualizar resumen de venta al cambiar costo de envío
+            // Actualizar resumen de venta al cambiar costo de envío o toggle de envío gratis
             document.getElementById('deliveryCost').addEventListener('input', updateSaleSummary);
+            document.getElementById('freeShippingToggle').addEventListener('change', updateSaleSummary);
         }
 
         // Configurar eventos de la factura (SIN REDES SOCIALES)
