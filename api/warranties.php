@@ -313,7 +313,7 @@ if ($method === 'GET') {
         // 4. Registrar Gasto de Envío si aplica
         $shippingValue = $data->shippingValue ?? 0;
         if ($shippingValue > 0) {
-            $expenseDesc = "Envío por garantía del producto " . ($data->originalProductName ?? '') . " (" . ($data->originalProductId ?? '') . ")";
+            $expenseDesc = "Gasto de Envío por Garantía #{$warrantyId} - Cliente: " . ($data->customerName ?? 'N/A');
             $expenseStmt = $conn->prepare("INSERT INTO expenses (description, amount, expense_date, user_id, username, warranty_id) VALUES (:desc, :amt, :date, :uid, :uname, :wid)");
             $expenseStmt->execute([
                 ':desc' => $expenseDesc,
@@ -323,6 +323,7 @@ if ($method === 'GET') {
                 ':uname' => $_SESSION['username'],
                 ':wid' => $warrantyId
             ]);
+            logAction($conn, $_SESSION['username'], 'WARRANTY_SHIPPING_EXPENSE', 'EXPENSE', $conn->lastInsertId(), "Gasto de envío registrado por garantía #{$warrantyId}: " . formatMoney($shippingValue));
         }
 
         echo json_encode(['success' => true, 'message' => 'Garantía registrada', 'id' => $warrantyId]);
@@ -472,7 +473,7 @@ if ($method === 'GET') {
         $existingExpense = $checkExpense->fetch();
 
         if ($shippingValue > 0) {
-            $expenseDesc = "Envío por garantía del producto " . ($data->originalProductName ?? $currentWarranty['product_name'] ?? '') . " (" . ($data->originalProductId ?? $currentWarranty['product_ref'] ?? '') . ")";
+            $expenseDesc = "Gasto de Envío por Garantía #{$data->id} - Cliente: " . ($data->customerName ?? 'N/A');
             if ($existingExpense) {
                 $updExpense = $conn->prepare("UPDATE expenses SET amount = :amt, description = :desc, expense_date = :date WHERE id = :id");
                 $updExpense->execute([
