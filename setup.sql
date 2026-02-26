@@ -122,8 +122,8 @@ CREATE TABLE IF NOT EXISTS app_settings (
 
 -- Insert Default Users (valores de ejemplo, sustituye en tu entorno real)
 INSERT INTO users (username, password, role, email, name, lastname, phone) VALUES 
-('admin', 'admin123', 'admin', 'admin@example.com', 'Administrador', 'Principal', '0000000000'),
-('trabajador', 'trabajador123', 'worker', 'worker@example.com', 'Vendedor', 'Principal', '0000000000');
+('administrador', 'administrador', 'admin', 'admin@example.com', 'Administrador', 'Principal', '0000000000'),
+('trabajador', 'trabajador', 'worker', 'worker@example.com', 'Vendedor', 'Principal', '0000000000');
 
 -- Insert Default Settings
 INSERT INTO app_settings (setting_key, setting_value) VALUES 
