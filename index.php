@@ -2232,7 +2232,6 @@
                                     <th>Precio Compra</th>
                                     <th>Precio Mayorista</th>
                                     <th>Precio Detal</th>
-                                    <th>Ganancia</th>
                                     <th>Ganancia Detal</th>
                                     <th>Ganancia Mayorista</th>
                                     <th>Proveedor</th>
@@ -9930,7 +9929,7 @@
 
                 if (filteredProducts.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="12" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
+                    row.innerHTML = `<td colspan="11" style="text-align: center; padding: 20px;">No se encontraron productos que coincidan con la búsqueda "${searchTerm}"</td>`;
                     tableBody.appendChild(row);
                     return;
                 }
@@ -9966,10 +9965,6 @@
                             <small>(${profitRetailPercentage}%)</small>
                         </td>
                         <td>
-                            ${formatCurrency(profitRetail)}<br>
-                            <small>(${profitRetailPercentage}%)</small>
-                        </td>
-                        <td>
                             ${formatCurrency(profitWholesale)}<br>
                             <small>(${profitWholesalePercentage}%)</small>
                         </td>
@@ -9997,11 +9992,11 @@
                  /*
                  if (currentUser && currentUser.role === 'worker') {
                     actionCells.forEach(cell => cell.style.display = 'none');
-                    const actionHeader = document.querySelector('#inventoryTable th:nth-child(10)');
+                    const actionHeader = document.querySelector('#inventoryTable th:nth-child(11)');
                     if (actionHeader) actionHeader.style.display = 'none';
                 } else {
                     actionCells.forEach(cell => cell.style.display = '');
-                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(10)');
+                     const actionHeader = document.querySelector('#inventoryTable th:nth-child(11)');
                     if (actionHeader) actionHeader.style.display = '';
                 }
                 */
