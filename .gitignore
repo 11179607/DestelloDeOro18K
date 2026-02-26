@@ -1,0 +1,5 @@
+# Local secrets (no subir claves al repo)
+config/env.php
+.env
+.env.local
+.env.*

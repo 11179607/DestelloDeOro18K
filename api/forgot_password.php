@@ -2,6 +2,7 @@
 // api/forgot_password.php
 header('Content-Type: application/json');
 require_once '../config/db.php';
+@include '../config/env.php'; // Opcional: credenciales locales (gitignored)
 
 // Cargar PHPMailer
 $phpmailer_path = '../libs/PHPMailer/PHPMailer.php';
@@ -63,13 +64,13 @@ try {
     try {
         // Configuración del servidor SMTP - EL USUARIO DEBE COMPLETAR ESTO
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com'; // Servidor SMTP (ej: smtp.gmail.com)
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'marloncdela@gmail.com'; // Correo emisor
-        $mail->Password   = 'olnlhlubvgaddmdz'; // Contraseña de aplicación
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-        $mail->CharSet    = 'UTF-8';
+$mail->Host       = getenv('SMTP_HOST') ?: ($ENV_SMTP_HOST ?? 'smtp.gmail.com'); // Servidor SMTP
+$mail->SMTPAuth   = true;
+$mail->Username   = getenv('SMTP_USER') ?: ($ENV_SMTP_USER ?? '');
+$mail->Password   = getenv('SMTP_PASS') ?: ($ENV_SMTP_PASS ?? ''); // Contraseña de aplicación
+$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+$mail->Port       = getenv('SMTP_PORT') ?: ($ENV_SMTP_PORT ?? 587);
+$mail->CharSet    = 'UTF-8';
 
         // Emisor y receptor
         // Usa el mismo correo autenticado para que Gmail no lo reemplace como "me"
