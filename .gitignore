@@ -3,7 +3,9 @@ config/env.php
 .env
 .env.local
 .env.*
+
+# Bases de datos / dumps (no subir)
 *.sql
 db_backups/
+setup.sql
 setup.local.sql
-!setup.sql
