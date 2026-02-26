@@ -72,7 +72,10 @@ try {
         $mail->CharSet    = 'UTF-8';
 
         // Emisor y receptor
-        $mail->setFrom('no-reply@destellodeoro.com', 'Destello de Oro 18K');
+        // Usa el mismo correo autenticado para que Gmail no lo reemplace como "me"
+        $mail->setFrom($mail->Username, 'Destello de Oro 18K');
+        // Responder a un buzón de la marca (opcional)
+        $mail->addReplyTo('no-reply@destellodeoro.com', 'Destello de Oro 18K');
         $mail->addAddress($email, $user['name']);
 
         // Contenido del correo
