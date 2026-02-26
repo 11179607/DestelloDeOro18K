@@ -4349,7 +4349,7 @@
                     <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, totalExpenses));
+            retailCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, expenses));
             cardsContainer.appendChild(retailCard);
 
             // 2. TARJETA GANANCIAS MAYORISTA
@@ -4383,7 +4383,7 @@
                     <div class="history-card-date"><span>${currentMonth === -1 ? 'Año ' + currentYear : new Date(currentYear, currentMonth).toLocaleDateString(undefined, {month:'short', year:'numeric'})}</span></div>
                 </div>
             `;
-            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, totalExpenses));
+            wholesaleCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, expenses));
             cardsContainer.appendChild(wholesaleCard);
 
             // 3. TARJETA GANANCIA TOTAL
@@ -4421,7 +4421,7 @@
                     <div class="history-card-date"><span>Hoy ${new Date().toLocaleDateString()}</span></div>
                 </div>
             `;
-            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, totalExpenses));
+            totalCard.addEventListener('click', () => showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfitGross, sales, expenses));
             cardsContainer.appendChild(totalCard);
         }
 
@@ -4532,7 +4532,7 @@
         }
 
         // Mostrar detalles de ganancias
-        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses = 0) {
+        function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
             const totalDeliveryCosts = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
@@ -4542,7 +4542,7 @@
             const dateStr = currentMonth === -1 ? `Año ${currentYear}` : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
             const title = `Análisis de Ganancias - ${dateStr}`;
 
-            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, totalExpenses, totalDeliveryCosts);
+            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses, totalDeliveryCosts);
 
             content.innerHTML = `
                 <div class="dialog-icon" style="color: var(--gold-primary);">
@@ -4558,7 +4558,9 @@
 
         // Generar HTML del desglose de ganancias
         function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = [], deliveryCosts = 0) {
-            const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            const totalExpenses = Array.isArray(expenses)
+                ? expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0)
+                : parseFloat(expenses) || 0;
             const netProfit = totalProfit - totalExpenses - deliveryCosts;
             return `
                 <div style="margin-bottom: 20px;">
