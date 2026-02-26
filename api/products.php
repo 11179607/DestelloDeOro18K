@@ -41,11 +41,41 @@ if ($method === 'GET') {
         exit;
     }
 
-    $originalId = (isset($data->originalId) && $data->originalId) ? $data->originalId : $data->id;
+    // Determinar si es creación (no viene originalId) o edición
+    $isEdit = property_exists($data, 'originalId');
+    $originalId = ($isEdit && $data->originalId) ? $data->originalId : $data->id;
 
     try {
         // Asegurar que la columna existe (opcional, para mayor robustez en esta actualizaci?n)
         $conn->exec("ALTER TABLE products ADD COLUMN IF NOT EXISTS entry_date DATE AFTER reference");
+
+        // CREACIÓN: bloquear referencias duplicadas y evitar sobrescribir
+        if (!$isEdit) {
+            $dup = $conn->prepare("SELECT 1 FROM products WHERE reference = :ref LIMIT 1");
+            $dup->execute([':ref' => $data->id]);
+            if ($dup->fetch()) {
+                http_response_code(409);
+                echo json_encode(['error' => 'La referencia ya existe. Usa otra o edita el producto existente.']);
+                exit;
+            }
+
+            $insert = $conn->prepare("INSERT INTO products (reference, entry_date, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
+                    VALUES (:ref, :entry_date, :name, :qty, :pp, :wp, :rp, :sup, :user)");
+            $insert->execute([
+                ':ref' => $data->id,
+                ':entry_date' => $data->date,
+                ':name' => $data->name,
+                ':qty' => $data->quantity,
+                ':pp' => $data->purchasePrice,
+                ':wp' => $data->wholesalePrice,
+                ':rp' => $data->retailPrice,
+                ':sup' => $data->supplier,
+                ':user' => $_SESSION['username']
+            ]);
+
+            echo json_encode(['success' => true, 'message' => 'Producto creado correctamente']);
+            exit;
+        }
         
         // Si se cambia la referencia, validar que la nueva no exista y actualizar PK
         if ($originalId !== $data->id) {
@@ -87,14 +117,9 @@ if ($method === 'GET') {
                 ]);
             }
         } else {
-            // Actualizar/insertar cuando la referencia no cambia
-            $sql = "INSERT INTO products (reference, entry_date, name, quantity, purchase_price, wholesale_price, retail_price, supplier, added_by) 
-                    VALUES (:ref, :entry_date, :name, :qty, :pp, :wp, :rp, :sup, :user)
-                    ON DUPLICATE KEY UPDATE 
-                    entry_date = :entry_date, name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup";
-            
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
+            // Actualizar cuando la referencia no cambia
+            $update = $conn->prepare("UPDATE products SET entry_date = :entry_date, name = :name, quantity = :qty, purchase_price = :pp, wholesale_price = :wp, retail_price = :rp, supplier = :sup, updated_at = NOW() WHERE reference = :ref");
+            $update->execute([
                 ':ref' => $data->id,
                 ':entry_date' => $data->date,
                 ':name' => $data->name,
@@ -102,12 +127,17 @@ if ($method === 'GET') {
                 ':pp' => $data->purchasePrice,
                 ':wp' => $data->wholesalePrice,
                 ':rp' => $data->retailPrice,
-                ':sup' => $data->supplier,
-                ':user' => $_SESSION['username']
+                ':sup' => $data->supplier
             ]);
+
+            if ($update->rowCount() === 0) {
+                http_response_code(404);
+                echo json_encode(['error' => 'Producto no encontrado para actualizar.']);
+                exit;
+            }
         }
 
-        echo json_encode(['success' => true, 'message' => 'Producto guardado correctamente']);
+        echo json_encode(['success' => true, 'message' => 'Producto actualizado correctamente']);
 
     } catch (PDOException $e) {
         http_response_code(500);

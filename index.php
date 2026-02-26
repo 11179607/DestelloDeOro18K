@@ -8402,6 +8402,14 @@
                     addedBy: currentUser.username
                 };
 
+                // Validar duplicados en caché local antes de enviar
+                const cachedProducts = JSON.parse(localStorage.getItem('destelloOroProducts') || '[]');
+                const duplicate = cachedProducts.find(p => (p.id || p.reference) === product.id);
+                if (duplicate) {
+                    await showDialog('Referencia existente', 'Ya existe un producto con esa referencia. Edítalo o usa otra referencia.', 'warning');
+                    return;
+                }
+
                 try {
                     const response = await fetch('api/products.php', {
                         method: 'POST',
@@ -8415,9 +8423,9 @@
                         this.reset();
                         document.getElementById('profitEstimate').value = '';
                         document.getElementById('addProductForm').style.display = 'none';
-                        await showDialog('Éxito', 'Producto agregado exitosamente al inventario.', 'success');
+                        await showDialog('Éxito', data.message || 'Producto agregado exitosamente al inventario.', 'success');
                     } else {
-                        await showDialog('Error', data.message || 'Error al agregar producto', 'error');
+                        await showDialog('Error', data.message || data.error || 'Error al agregar producto', 'error');
                     }
                 } catch (error) {
                     console.error('Error:', error);
