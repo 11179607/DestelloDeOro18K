@@ -2166,17 +2166,17 @@
                             </div>
                             <div class="form-group">
                                 <label for="purchasePrice">Precio de Compra *</label>
-                                <input type="number" id="purchasePrice" class="form-control numeric-decimal" min="0" step="0.01"
+                                <input type="text" id="purchasePrice" class="form-control numeric-decimal money-input" inputmode="numeric"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="wholesalePrice">Precio Mayorista *</label>
-                                <input type="number" id="wholesalePrice" class="form-control numeric-decimal" min="0" step="0.01"
+                                <input type="text" id="wholesalePrice" class="form-control numeric-decimal money-input" inputmode="numeric"
                                     required>
                             </div>
                             <div class="form-group">
                                 <label for="retailPrice">Precio al Detal *</label>
-                                <input type="number" id="retailPrice" class="form-control numeric-decimal" min="0" step="0.01" required>
+                                <input type="text" id="retailPrice" class="form-control numeric-decimal money-input" inputmode="numeric" required>
                             </div>
                             <div class="form-group">
                                 <label for="supplier">Proveedor *</label>
@@ -2447,7 +2447,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="deliveryCost">Costo de Envío</label>
-                                <input type="number" id="deliveryCost" class="form-control numeric-decimal" min="0" value="0">
+                                <input type="text" id="deliveryCost" class="form-control numeric-decimal money-input" inputmode="numeric" value="0">
                             </div>
 
                             <!-- Campo de Envío Gratis (Condicional) -->
@@ -2579,7 +2579,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="expenseAmount">Valor *</label>
-                                <input type="number" id="expenseAmount" class="form-control numeric-decimal" min="0" step="0.01"
+                                <input type="text" id="expenseAmount" class="form-control numeric-decimal money-input" inputmode="numeric"
                                     required>
                             </div>
                         </div>
@@ -3641,7 +3641,7 @@
                     document.getElementById('addProductToSaleForm').reset();
                     document.getElementById('paymentMethod').selectedIndex = 0;
                     document.getElementById('deliveryType').selectedIndex = 0;
-                    document.getElementById('deliveryCost').value = 0;
+                    document.getElementById('deliveryCost').value = '0';
             const manualInvoiceField = document.getElementById("manualInvoiceId");
             if (manualInvoiceField) manualInvoiceField.value = "";
             const manualSaleDateField = document.getElementById("manualSaleDate");
@@ -3816,7 +3816,7 @@
             // Obtener información de pago
             const paymentMethod = document.getElementById('paymentMethod').value;
             const deliveryType = document.getElementById('deliveryType').value;
-            const deliveryCostInput = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const deliveryCostInput = parseMoney(document.getElementById('deliveryCost').value) || 0;
             const freeShippingEnabled = document.getElementById('freeShippingToggle')?.checked || false;
             const finalDeliveryCost = freeShippingEnabled ? 0 : deliveryCostInput;
 
@@ -3928,7 +3928,7 @@
             document.getElementById('addProductToSaleForm').reset();
             document.getElementById('paymentMethod').selectedIndex = 0;
             document.getElementById('deliveryType').selectedIndex = 0;
-            document.getElementById('deliveryCost').value = 0;
+            document.getElementById('deliveryCost').value = '0';
             updateCartDisplay();
             updateSaleSummary();
 
@@ -3945,7 +3945,7 @@
         function updateSaleSummary() {
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            const deliveryCost = parseFloat(document.getElementById('deliveryCost').value) || 0;
+            const deliveryCost = parseMoney(document.getElementById('deliveryCost').value) || 0;
 
             // Lógica de Envío Gratis
             const freeShippingContainer = document.getElementById('freeShippingContainer');
@@ -8374,6 +8374,21 @@
 
         // Configurar eventos de formularios
         function setupFormEvents() {
+            // Formateo en vivo para valores monetarios (puntos de miles, sin decimales)
+            document.querySelectorAll('.money-input').forEach(input => {
+                formatInputWithDots(input);
+                input.addEventListener('input', () => {
+                    formatInputWithDots(input);
+                    // Recalcular ganancias si son precios
+                    if (['purchasePrice', 'wholesalePrice', 'retailPrice'].includes(input.id)) {
+                        calculateProfit();
+                    }
+                    if (input.id === 'deliveryCost') {
+                        updateSaleSummary();
+                    }
+                });
+            });
+
             // Calcular ganancia estimada al cambiar precios
             document.getElementById('retailPrice').addEventListener('input', calculateProfit);
             document.getElementById('purchasePrice').addEventListener('input', calculateProfit);
@@ -8394,9 +8409,9 @@
                     id: document.getElementById('productRef').value.trim().toUpperCase(),
                     name: document.getElementById('productName').value.trim(),
                     quantity: parseInt(document.getElementById('productQuantity').value),
-                    purchasePrice: parseFloat(document.getElementById('purchasePrice').value),
-                    wholesalePrice: parseFloat(document.getElementById('wholesalePrice').value),
-                    retailPrice: parseFloat(document.getElementById('retailPrice').value),
+                    purchasePrice: parseMoney(document.getElementById('purchasePrice').value),
+                    wholesalePrice: parseMoney(document.getElementById('wholesalePrice').value),
+                    retailPrice: parseMoney(document.getElementById('retailPrice').value),
                     supplier: document.getElementById('supplier').value.trim(),
                     addedBy: currentUser.username
                 };
@@ -8513,7 +8528,7 @@
                 const expense = {
                     description: document.getElementById('expenseDescription').value.trim(),
                     date: document.getElementById('expenseDate').value,
-                    amount: parseFloat(document.getElementById('expenseAmount').value),
+                    amount: parseMoney(document.getElementById('expenseAmount').value),
                     user: currentUser.username
                 };
 
@@ -9804,9 +9819,9 @@
 
         // Calcular ganancia estimada
         function calculateProfit() {
-            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
-            const retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0;
-            const wholesalePrice = parseFloat(document.getElementById('wholesalePrice').value) || 0;
+            const purchasePrice = parseMoney(document.getElementById('purchasePrice').value) || 0;
+            const retailPrice = parseMoney(document.getElementById('retailPrice').value) || 0;
+            const wholesalePrice = parseMoney(document.getElementById('wholesalePrice').value) || 0;
 
             if (purchasePrice > 0) {
                 // Ganancia Detal
@@ -10404,6 +10419,27 @@
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }).format(amount);
+        }
+
+        // Convierte strings con puntos de miles/comas a número entero
+        function parseMoney(value) {
+            if (value === null || value === undefined) return 0;
+            const digits = String(value).replace(/\./g, '').replace(/,/g, '');
+            const num = parseInt(digits, 10);
+            return isNaN(num) ? 0 : num;
+        }
+
+        // Formatea mientras se escribe: 1000 -> 1.000 (solo miles, sin decimales)
+        function formatInputWithDots(input) {
+            if (!input) return;
+            const start = input.selectionStart;
+            const raw = input.value.replace(/\D/g, '');
+            const formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            input.value = formatted;
+            // Ajustar el cursor al final tras el formateo
+            if (input === document.activeElement) {
+                input.setSelectionRange(formatted.length, formatted.length);
+            }
         }
 
         function formatDate(dateString) {
