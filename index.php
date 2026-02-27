@@ -8163,7 +8163,7 @@
                     const span = document.createElement('span');
                     span.textContent = char === ' ' ? '\u00A0' : char;
                     span.className = 'intro-letter';
-                    span.style.animationDelay = (idx * 55) + 'ms';
+                    span.style.animationDelay = (idx * 90) + 'ms';
                     // Valores aleatorios para simular astillas de vidrio
                     const dx = (Math.random() * 60 - 30).toFixed(0) + 'px';
                     const dy = (Math.random() * 50 + 20).toFixed(0) + 'px';
@@ -8179,34 +8179,34 @@
                 requestAnimationFrame(() => letters.forEach(l => l.classList.add('drop')));
 
                 // Romper
-                const shatterDelay = 950;
+                const shatterDelay = 1200;
                 setTimeout(() => {
                     letters.forEach((l, i) => {
                         l.classList.add('shatter');
-                        l.style.animationDelay = (i * 35) + 'ms';
+                        l.style.animationDelay = (i * 55) + 'ms';
                         createShards(l);
                     });
                 }, shatterDelay);
 
                 // Reaparecer y locución
-                const revealDelay = shatterDelay + 420;
+                const revealDelay = shatterDelay + 600;
                 setTimeout(() => {
                     textContainer.innerHTML = '';
                     phrase.split('').forEach((char, i) => {
                         const span = document.createElement('span');
                         span.textContent = char === ' ' ? '\u00A0' : char;
                         span.className = 'intro-letter reveal';
-                        span.style.animationDelay = (i * 45) + 'ms';
+                        span.style.animationDelay = (i * 70) + 'ms';
                         textContainer.appendChild(span);
                     });
                     voicePromise = speakDestello(userName);
                 }, revealDelay);
 
                 // Cerrar overlay
-                const totalTime = revealDelay + 750;
+                const totalTime = revealDelay + 1400;
                 Promise.all([
                     new Promise(res => setTimeout(res, totalTime)),
-                    voicePromise
+                    voicePromise.then(() => new Promise(r => setTimeout(r, 300)))
                 ])
                 .finally(() => {
                     overlay.style.display = 'none';
