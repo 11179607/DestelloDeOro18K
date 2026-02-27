@@ -8157,6 +8157,8 @@
                 textContainer.innerHTML = '';
                 overlay.style.display = 'flex';
 
+                let voicePromise = Promise.resolve();
+
                 const letters = phrase.split('').map((char, idx) => {
                     const span = document.createElement('span');
                     span.textContent = char === ' ' ? '\u00A0' : char;
@@ -8197,15 +8199,19 @@
                         span.style.animationDelay = (i * 45) + 'ms';
                         textContainer.appendChild(span);
                     });
-                    speakDestello(userName);
+                    voicePromise = speakDestello(userName);
                 }, revealDelay);
 
                 // Cerrar overlay
                 const totalTime = revealDelay + 750;
-                setTimeout(() => {
+                Promise.all([
+                    new Promise(res => setTimeout(res, totalTime)),
+                    voicePromise
+                ])
+                .finally(() => {
                     overlay.style.display = 'none';
                     resolve();
-                }, totalTime);
+                });
             });
         }
 
@@ -8240,7 +8246,7 @@
 
         function speakDestello(userName = '') {
             if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
-                return;
+                return Promise.resolve();
             }
             const speak = () => {
                 try {
@@ -8278,19 +8284,35 @@
                             utter.lang = 'es-ES';
                         }
                     }
-                    speechSynthesis.speak(utter);
+                    return new Promise(resolve => {
+                        utter.onend = () => resolve();
+                        utter.onerror = () => resolve();
+                        // cancelar cualquier cola previa y hablar
+                        try { speechSynthesis.cancel(); } catch (e) {}
+                        speechSynthesis.speak(utter);
+                        // fallback por si onend no dispara
+                        setTimeout(resolve, 5000);
+                    });
                 } catch (e) {
                     console.warn('Speech synthesis error:', e);
+                    return Promise.resolve();
                 }
             };
             const voices = speechSynthesis.getVoices();
             if (voices.length === 0) {
-                speechSynthesis.onvoiceschanged = () => {
-                    speechSynthesis.onvoiceschanged = null;
-                    speak();
-                };
+                return new Promise(resolve => {
+                    speechSynthesis.onvoiceschanged = () => {
+                        speechSynthesis.onvoiceschanged = null;
+                        speak().then(resolve);
+                    };
+                    // fallback timeout si no carga voces
+                    setTimeout(() => {
+                        speechSynthesis.onvoiceschanged = null;
+                        resolve();
+                    }, 2000);
+                });
             } else {
-                speak();
+                return speak();
             }
         }
 
