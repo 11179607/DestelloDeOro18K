@@ -4586,7 +4586,7 @@
                                 ${formatCurrency(netProfit)}
                             </div>
                             <small>Ventas Brutas: ${formatCurrency(retailSales + wholesaleSales)}</small><br>
-                            <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small>
+                            <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small><br>
                             <small>Ganancia Operativa: ${formatCurrency(totalProfit + totalExpenses)}</small><br>
                             <small style="color: var(--danger);">Gastos: -${formatCurrency(totalExpenses)}</small><br>
                         </div>
