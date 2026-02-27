@@ -500,18 +500,20 @@
             position: fixed;
             inset: 0;
             pointer-events: none;
-            background: radial-gradient(circle at 50% 40%, rgba(46, 204, 113, 0.55), rgba(46, 204, 113, 0.08), transparent 60%);
-            mix-blend-mode: screen;
-            animation: screenGreenFlash 0.9s ease-out forwards;
-            z-index: 9999;
+            background:
+                radial-gradient(circle at 50% 40%, rgba(46, 204, 113, 0.65), rgba(46, 204, 113, 0.22), rgba(46, 204, 113, 0.08), transparent 70%),
+                rgba(46, 204, 113, 0.18);
+            mix-blend-mode: normal;
+            animation: screenGreenFlash 1.2s ease-out forwards;
+            z-index: 99999;
         }
 
         @keyframes screenGreenFlash {
-            0% { opacity: 0; filter: blur(2px); }
-            10% { opacity: 1; filter: blur(0); }
-            40% { opacity: 0.65; filter: blur(1px); }
-            70% { opacity: 0.25; filter: blur(2px); }
-            100% { opacity: 0; filter: blur(3px); }
+            0% { opacity: 0; filter: blur(3px); }
+            12% { opacity: 1; filter: blur(1px); }
+            45% { opacity: 0.75; filter: blur(1px); }
+            70% { opacity: 0.35; filter: blur(2px); }
+            100% { opacity: 0; filter: blur(4px); }
         }
 
         /* Header */
@@ -8156,7 +8158,7 @@
 
         function triggerGreenFlash() {
             document.body.classList.add('green-flash');
-            setTimeout(() => document.body.classList.remove('green-flash'), 1200);
+            setTimeout(() => document.body.classList.remove('green-flash'), 1500);
         }
 
         // Mostrar la aplicación después del login
