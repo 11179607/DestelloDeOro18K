@@ -8245,23 +8245,37 @@
             const speak = () => {
                 try {
                     const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho k');
-                    utter.lang = 'es-ES';
-                    utter.pitch = 0.4; // más grave
-                    utter.rate = 0.85;
+                    // Voz grave intencional
+                    utter.pitch = 0.28;
+                    utter.rate = 0.88;
+
+                    // Buscar voz masculina (español preferente, luego cualquier male)
                     const voices = speechSynthesis.getVoices();
                     const priority = [
-                        /Google español de Estados Unidos.*\(.*Male.*\)/i,
-                        /Google español.*\(.*Male.*\)/i,
-                        /Microsoft (Ra[uú]l|Enrique)/i,
-                        /Juan/i,
-                        /male|hombre/i
+                        {langPrefix: 'es', pattern: /(Google.*español.*Male|Google español de Estados Unidos.*Male)/i},
+                        {langPrefix: 'es', pattern: /(Microsoft (Ra[uú]l|Enrique|Diego|Pablo|Ruben))/i},
+                        {langPrefix: 'es', pattern: /(Juan|Javier|Francisco|Pedro|Gabriel)/i},
+                        {langPrefix: 'en', pattern: /(Google US English.*Male|Microsoft David|Microsoft Guy)/i},
+                        {langPrefix: '',  pattern: /(male|hombre)/i}
                     ];
                     let chosen = null;
-                    for (const pattern of priority) {
-                        chosen = voices.find(v => v.lang.startsWith('es') && pattern.test(v.name));
+                    for (const pref of priority) {
+                        chosen = voices.find(v => (pref.langPrefix === '' || v.lang.toLowerCase().startsWith(pref.langPrefix)) && pref.pattern.test(v.name));
                         if (chosen) break;
                     }
-                    if (chosen) utter.voice = chosen;
+                    if (chosen) {
+                        utter.voice = chosen;
+                        utter.lang = chosen.lang || 'es-ES';
+                    } else {
+                        // Fallback: primera voz en español, si no, cualquier voz
+                        const esVoice = voices.find(v => v.lang && v.lang.startsWith('es'));
+                        if (esVoice) {
+                            utter.voice = esVoice;
+                            utter.lang = esVoice.lang;
+                        } else {
+                            utter.lang = 'es-ES';
+                        }
+                    }
                     speechSynthesis.speak(utter);
                 } catch (e) {
                     console.warn('Speech synthesis error:', e);
