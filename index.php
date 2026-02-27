@@ -494,6 +494,25 @@
             min-height: 100vh;
         }
 
+        /* Flash verde de bienvenida */
+        body.green-flash::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 40%, rgba(46, 204, 113, 0.55), rgba(46, 204, 113, 0.08), transparent 60%);
+            mix-blend-mode: screen;
+            animation: screenGreenFlash 0.9s ease-out forwards;
+            z-index: 9999;
+        }
+
+        @keyframes screenGreenFlash {
+            0% { opacity: 0; filter: blur(2px); }
+            10% { opacity: 1; filter: blur(0); }
+            40% { opacity: 0.65; filter: blur(1px); }
+            70% { opacity: 0.25; filter: blur(2px); }
+            100% { opacity: 0; filter: blur(3px); }
+        }
 
         /* Header */
         .main-header {
@@ -8047,6 +8066,7 @@
 
                             // Pasar directamente a la app sin detenerse en el login
                             showApp();
+                            triggerGreenFlash();
                             // Voz de bienvenida (no bloqueante)
                             speakDestello(currentUser.displayName);
                         } else {
@@ -8132,6 +8152,11 @@
             } else {
                 return speak();
             }
+        }
+
+        function triggerGreenFlash() {
+            document.body.classList.add('green-flash');
+            setTimeout(() => document.body.classList.remove('green-flash'), 1200);
         }
 
         // Mostrar la aplicación después del login
