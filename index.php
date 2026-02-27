@@ -8253,9 +8253,9 @@
                     const nameOnly = (userName || '').split(' ')[0] || '';
                     const phrase = nameOnly ? `Bienvenido ${nameOnly}, a Destello de Oro dieciocho k` : 'Destello de Oro dieciocho k';
                     const utter = new SpeechSynthesisUtterance(phrase);
-                    // Voz grave intencional
+                    // Voz grave pero un poco más rápida
                     utter.pitch = 0.28;
-                    utter.rate = 0.88;
+                    utter.rate = 1.08;
 
                     // Buscar voz masculina (español preferente, luego cualquier male)
                     const voices = speechSynthesis.getVoices();
