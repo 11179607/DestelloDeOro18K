@@ -5487,6 +5487,8 @@
 
             // Calcular totales
             const totalSales = monthlySales.reduce((sum, sale) => sum + sale.total, 0);
+            const totalDeliveryCosts = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
+            const salesWithoutDelivery = totalSales - totalDeliveryCosts;
             const totalExpenses = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
             // CORRECCIÓN: Calcular el COSTO REAL de lo vendido basándose en el purchasePrice de los productos
@@ -5503,9 +5505,7 @@
             // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const totalDeliveryCosts = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
-            const netProfit = (totalSales - totalDeliveryCosts) - totalExpenses - costOfGoodsSold;
-            const expensesWithoutShipping = totalExpenses - totalWarrantyShippingCosts;
+            const netProfit = salesWithoutDelivery - totalExpenses - costOfGoodsSold;
 
             let title = '';
             let detailsHTML = '';
@@ -5529,7 +5529,7 @@
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, expensesWithoutShipping, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
+                    detailsHTML = generateProfitDetailsHTML(salesWithoutDelivery, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -6167,6 +6167,8 @@
 
         function generateProfitPDFContent(sales, expenses, restocks, warranties) {
             const salesTotal = sales.reduce((sum, sale) => sum + (parseFloat(sale.total) || 0), 0);
+            const deliveryTotal = sales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
+            const salesWithoutDelivery = salesTotal - deliveryTotal;
             const expensesTotal = expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
             // CORRECCIÓN: Calcular el COSTO REAL de lo vendido basándose en el purchasePrice de los productos
@@ -6183,12 +6185,12 @@
             }, 0);
 
             const warrantyShippingCosts = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
-            const netProfit = salesTotal - expensesTotal - costOfGoodsSold;
+            const netProfit = salesWithoutDelivery - expensesTotal - costOfGoodsSold;
 
             let content = `ANÁLISIS DE GANANCIAS DEL MES\n\n`;
             content += `RESUMEN FINANCIERO:\n`;
             content += `--------------------------------------------------------------------------------\n`;
-            content += `Ingresos por Ventas:     +${formatCurrency(salesTotal)}\n`;
+            content += `Ingresos por Ventas (sin envíos):     +${formatCurrency(salesWithoutDelivery)}\n`;
             content += `Gastos Operativos (incluyen envíos de garantía): -${formatCurrency(expensesTotal)}\n`;
             content += `Costo de lo Vendido:     -${formatCurrency(costOfGoodsSold)}\n`;
             content += `Envíos de Garantías (informativo): ${formatCurrency(warrantyShippingCosts)}\n`;
