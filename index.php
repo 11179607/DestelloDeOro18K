@@ -521,6 +521,9 @@
         .intro-letter {
             display: inline-block;
             opacity: 0;
+            --sx: 0px;
+            --sy: 18px;
+            --rot: 8deg;
         }
 
         @keyframes glassDrop {
@@ -532,7 +535,11 @@
 
         @keyframes glassShatter {
             0% { opacity: 1; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35)); }
-            100% { opacity: 0; transform: translateY(24px) scale(0.9) rotate(10deg) skewX(6deg); filter: blur(2px) drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+            100% {
+                opacity: 0;
+                transform: translate(var(--sx), var(--sy)) scale(0.55) rotate(var(--rot)) skewX(10deg);
+                filter: blur(2px) drop-shadow(0 6px 10px rgba(0,0,0,0.25));
+            }
         }
 
         @keyframes glassReveal {
@@ -8132,6 +8139,13 @@
                     span.textContent = char === ' ' ? '\u00A0' : char;
                     span.className = 'intro-letter';
                     span.style.animationDelay = (idx * 80) + 'ms';
+                    // Valores aleatorios para simular astillas de vidrio
+                    const dx = (Math.random() * 60 - 30).toFixed(0) + 'px';
+                    const dy = (Math.random() * 50 + 20).toFixed(0) + 'px';
+                    const rot = (Math.random() * 60 - 30).toFixed(0) + 'deg';
+                    span.style.setProperty('--sx', dx);
+                    span.style.setProperty('--sy', dy);
+                    span.style.setProperty('--rot', rot);
                     textContainer.appendChild(span);
                     return span;
                 });
@@ -8172,19 +8186,42 @@
         }
 
         function speakDestello() {
-            try {
-                const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho k');
-                utter.lang = 'es-ES';
-                utter.pitch = 0.8;
-                utter.rate = 0.9;
-                // Intentar escoger voz masculina en español
-                const voices = speechSynthesis.getVoices();
-                const maleEs = voices.find(v => v.lang.startsWith('es') && /Male|Hombre|Google español de Estados Unidos/i.test(v.name));
-                if (maleEs) utter.voice = maleEs;
-                speechSynthesis.cancel();
-                speechSynthesis.speak(utter);
-            } catch (e) {
-                console.warn('Speech synthesis no disponible:', e);
+            if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
+                return;
+            }
+            const speak = () => {
+                try {
+                    const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho k');
+                    utter.lang = 'es-ES';
+                    utter.pitch = 0.65; // tono más grave
+                    utter.rate = 0.92;
+                    const voices = speechSynthesis.getVoices();
+                    const priority = [
+                        /Google español de Estados Unidos/i,
+                        /Google español/i,
+                        /Microsoft (Raul|Enrique)/i,
+                        /Juan/i,
+                        /male|hombre/i
+                    ];
+                    let chosen = null;
+                    for (const pattern of priority) {
+                        chosen = voices.find(v => v.lang.startsWith('es') && pattern.test(v.name));
+                        if (chosen) break;
+                    }
+                    if (chosen) utter.voice = chosen;
+                    speechSynthesis.speak(utter);
+                } catch (e) {
+                    console.warn('Speech synthesis error:', e);
+                }
+            };
+            const voices = speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                speechSynthesis.onvoiceschanged = () => {
+                    speechSynthesis.onvoiceschanged = null;
+                    speak();
+                };
+            } else {
+                speak();
             }
         }
 
