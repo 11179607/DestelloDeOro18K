@@ -8045,9 +8045,10 @@
                             sessionStorage.setItem('destelloOroCurrentUser', JSON.stringify(currentUser));
                             sessionStorage.setItem('destelloOroTabActive', 'true'); // Marcar esta pestaña como activa para auto-login
 
-                            await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
-                            await speakDestello(currentUser.displayName);
+                            // Pasar directamente a la app sin detenerse en el login
                             showApp();
+                            // Voz de bienvenida (no bloqueante)
+                            speakDestello(currentUser.displayName);
                         } else {
                             await showDialog('Error de Acceso', data.message || 'Credenciales incorrectas.', 'error');
                         }
