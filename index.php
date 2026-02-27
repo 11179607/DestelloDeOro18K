@@ -8130,7 +8130,7 @@
                             sessionStorage.setItem('destelloOroTabActive', 'true'); // Marcar esta pestaña como activa para auto-login
 
                             await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
-                            await runDestelloIntro();
+                            await runDestelloIntro(currentUser.displayName);
                             showApp();
                         } else {
                             await showDialog('Error de Acceso', data.message || 'Credenciales incorrectas.', 'error');
@@ -8144,7 +8144,7 @@
         }
 
         // Intro animada "Destello de Oro 18K"
-        async function runDestelloIntro() {
+        async function runDestelloIntro(userName = '') {
             return new Promise(resolve => {
                 const overlay = document.getElementById('introOverlay');
                 const textContainer = document.getElementById('introGlassText');
@@ -8161,7 +8161,7 @@
                     const span = document.createElement('span');
                     span.textContent = char === ' ' ? '\u00A0' : char;
                     span.className = 'intro-letter';
-                    span.style.animationDelay = (idx * 80) + 'ms';
+                    span.style.animationDelay = (idx * 55) + 'ms';
                     // Valores aleatorios para simular astillas de vidrio
                     const dx = (Math.random() * 60 - 30).toFixed(0) + 'px';
                     const dy = (Math.random() * 50 + 20).toFixed(0) + 'px';
@@ -8177,31 +8177,31 @@
                 requestAnimationFrame(() => letters.forEach(l => l.classList.add('drop')));
 
                 // Romper
-                const shatterDelay = 1200;
+                const shatterDelay = 950;
                 setTimeout(() => {
                     letters.forEach((l, i) => {
                         l.classList.add('shatter');
-                        l.style.animationDelay = (i * 40) + 'ms';
+                        l.style.animationDelay = (i * 35) + 'ms';
                         createShards(l);
                     });
                 }, shatterDelay);
 
                 // Reaparecer y locución
-                const revealDelay = shatterDelay + 500;
+                const revealDelay = shatterDelay + 420;
                 setTimeout(() => {
                     textContainer.innerHTML = '';
                     phrase.split('').forEach((char, i) => {
                         const span = document.createElement('span');
                         span.textContent = char === ' ' ? '\u00A0' : char;
                         span.className = 'intro-letter reveal';
-                        span.style.animationDelay = (i * 60) + 'ms';
+                        span.style.animationDelay = (i * 45) + 'ms';
                         textContainer.appendChild(span);
                     });
-                    speakDestello();
+                    speakDestello(userName);
                 }, revealDelay);
 
                 // Cerrar overlay
-                const totalTime = revealDelay + 900;
+                const totalTime = revealDelay + 750;
                 setTimeout(() => {
                     overlay.style.display = 'none';
                     resolve();
@@ -8238,13 +8238,15 @@
             });
         }
 
-        function speakDestello() {
+        function speakDestello(userName = '') {
             if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
                 return;
             }
             const speak = () => {
                 try {
-                    const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho k');
+                    const nameOnly = (userName || '').split(' ')[0] || '';
+                    const phrase = nameOnly ? `Bienvenido ${nameOnly}, a Destello de Oro dieciocho k` : 'Destello de Oro dieciocho k';
+                    const utter = new SpeechSynthesisUtterance(phrase);
                     // Voz grave intencional
                     utter.pitch = 0.28;
                     utter.rate = 0.88;
