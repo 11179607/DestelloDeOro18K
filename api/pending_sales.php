@@ -17,7 +17,29 @@ if ($method === 'GET') {
     // Listar pendientes - MODIFICADO: Mostrar todas las ventas con métodos de pago diferentes a efectivo
     // sin importar su estado (pending, completed, cancelled) para mantener el historial completo
     try {
-        $stmt = $conn->query("SELECT * FROM sales WHERE payment_method != 'cash' ORDER BY sale_date DESC");
+        $month = $_GET['month'] ?? null;
+        $year  = $_GET['year'] ?? null;
+
+        $sql    = "SELECT * FROM sales WHERE payment_method != 'cash'";
+        $params = [];
+
+        if ($month !== null && $year !== null) {
+            $month = intval($month); // JS 0-11 o -1 para todos
+            if ($month === -1) {
+                $sql  .= " AND YEAR(sale_date) = :year";
+                $params[':year']  = $year;
+            } else {
+                $month = $month + 1; // 0-11 -> 1-12
+                $sql  .= " AND MONTH(sale_date) = :month AND YEAR(sale_date) = :year";
+                $params[':month'] = $month;
+                $params[':year']  = $year;
+            }
+        }
+
+        $sql .= " ORDER BY sale_date DESC";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
         $pending = $stmt->fetchAll();
         
         // Para cada venta, obtener breve info de productos para mostrar en tabla
@@ -46,9 +68,11 @@ if ($method === 'GET') {
         }
         
         echo json_encode($pending);
+        exit;
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
 
 
