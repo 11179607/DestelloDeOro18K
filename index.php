@@ -494,85 +494,6 @@
             min-height: 100vh;
         }
 
-        /* Intro overlay - letras de vidrio cayendo */
-        #introOverlay {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 215, 128, 0.12), transparent 35%), rgba(0, 0, 0, 0.88);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            overflow: hidden;
-            backdrop-filter: blur(2px);
-        }
-
-        .intro-glass-text {
-            display: flex;
-            gap: 8px;
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2.8rem, 6vw, 4.5rem);
-            color: #f5e6c8;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            text-shadow: 0 12px 22px rgba(0, 0, 0, 0.35);
-        }
-
-        .intro-letter {
-            display: inline-block;
-            opacity: 0;
-            --sx: 0px;
-            --sy: 18px;
-            --rot: 8deg;
-            position: relative;
-        }
-
-        @keyframes glassDrop {
-            0% { transform: translateY(-120vh) rotate(0deg); opacity: 1; }
-            70% { transform: translateY(0) rotate(3deg); }
-            85% { transform: translateY(10px); }
-            100% { transform: translateY(0) rotate(-2deg); opacity: 1; }
-        }
-
-        @keyframes glassShatter {
-            0% { opacity: 1; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35)); }
-            100% {
-                opacity: 0;
-                transform: translate(var(--sx), var(--sy)) scale(0.55) rotate(var(--rot)) skewX(10deg);
-                filter: blur(2px) drop-shadow(0 6px 10px rgba(0,0,0,0.25));
-            }
-        }
-
-        @keyframes glassReveal {
-            0% { opacity: 0; transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .intro-letter.drop { animation: glassDrop 1.2s forwards ease-in; }
-        .intro-letter.shatter { animation: glassShatter 0.45s forwards ease-out; }
-        .intro-letter.reveal { opacity: 0; animation: glassReveal 0.65s forwards ease-out; }
-
-        /* Shards */
-        .shard {
-            position: absolute;
-            top: 0;
-            left: 0;
-            color: #f5e6c8;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.35);
-            opacity: 0.95;
-            font-family: inherit;
-        }
-        .shard-left { clip-path: polygon(0 0, 55% 0, 40% 100%, 0 100%); }
-        .shard-mid { clip-path: polygon(30% 0, 70% 0, 55% 100%, 25% 100%); }
-        .shard-right { clip-path: polygon(55% 0, 100% 0, 100% 100%, 40% 100%); }
-
-        @keyframes shardFly {
-            to {
-                transform: translate(var(--tx), var(--ty)) rotate(var(--rdeg));
-                opacity: 0;
-                filter: blur(1px);
-            }
-        }
 
         /* Header */
         .main-header {
@@ -2147,11 +2068,6 @@
                 </p>
             </div>
         </div>
-    </div>
-
-    <!-- Intro de vidrio -->
-    <div id="introOverlay">
-        <div class="intro-glass-text" id="introGlassText"></div>
     </div>
 
     <!-- Aplicación principal -->
@@ -8130,7 +8046,7 @@
                             sessionStorage.setItem('destelloOroTabActive', 'true'); // Marcar esta pestaña como activa para auto-login
 
                             await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
-                            await runDestelloIntro(currentUser.displayName);
+                            await speakDestello(currentUser.displayName);
                             showApp();
                         } else {
                             await showDialog('Error de Acceso', data.message || 'Credenciales incorrectas.', 'error');
@@ -8143,106 +8059,7 @@
             }
         }
 
-        // Intro animada "Destello de Oro 18K"
-        async function runDestelloIntro(userName = '') {
-            return new Promise(resolve => {
-                const overlay = document.getElementById('introOverlay');
-                const textContainer = document.getElementById('introGlassText');
-                if (!overlay || !textContainer) {
-                    resolve();
-                    return;
-                }
-
-                const phrase = 'DESTELLO DE ORO 18K';
-                textContainer.innerHTML = '';
-                overlay.style.display = 'flex';
-
-                let voicePromise = Promise.resolve();
-
-                const letters = phrase.split('').map((char, idx) => {
-                    const span = document.createElement('span');
-                    span.textContent = char === ' ' ? '\u00A0' : char;
-                    span.className = 'intro-letter';
-                    span.style.animationDelay = (idx * 90) + 'ms';
-                    // Valores aleatorios para simular astillas de vidrio
-                    const dx = (Math.random() * 60 - 30).toFixed(0) + 'px';
-                    const dy = (Math.random() * 50 + 20).toFixed(0) + 'px';
-                    const rot = (Math.random() * 60 - 30).toFixed(0) + 'deg';
-                    span.style.setProperty('--sx', dx);
-                    span.style.setProperty('--sy', dy);
-                    span.style.setProperty('--rot', rot);
-                    textContainer.appendChild(span);
-                    return span;
-                });
-
-                // Iniciar caída
-                requestAnimationFrame(() => letters.forEach(l => l.classList.add('drop')));
-
-                // Romper
-                const shatterDelay = 1200;
-                setTimeout(() => {
-                    letters.forEach((l, i) => {
-                        l.classList.add('shatter');
-                        l.style.animationDelay = (i * 55) + 'ms';
-                        createShards(l);
-                    });
-                }, shatterDelay);
-
-                // Reaparecer y locución
-                const revealDelay = shatterDelay + 600;
-                setTimeout(() => {
-                    textContainer.innerHTML = '';
-                    phrase.split('').forEach((char, i) => {
-                        const span = document.createElement('span');
-                        span.textContent = char === ' ' ? '\u00A0' : char;
-                        span.className = 'intro-letter reveal';
-                        span.style.animationDelay = (i * 70) + 'ms';
-                        textContainer.appendChild(span);
-                    });
-                    voicePromise = speakDestello(userName);
-                }, revealDelay);
-
-                // Cerrar overlay
-                const totalTime = revealDelay + 1400;
-                Promise.all([
-                    new Promise(res => setTimeout(res, totalTime)),
-                    voicePromise.then(() => new Promise(r => setTimeout(r, 300)))
-                ])
-                .finally(() => {
-                    overlay.style.display = 'none';
-                    resolve();
-                });
-            });
-        }
-
-        function createShards(letterSpan) {
-            if (!letterSpan || letterSpan.textContent.trim() === '') return;
-            const rect = letterSpan.getBoundingClientRect();
-            const parentRect = letterSpan.parentElement.getBoundingClientRect();
-            const baseLeft = rect.left - parentRect.left;
-            const baseTop = rect.top - parentRect.top;
-            const char = letterSpan.textContent;
-
-            const shardsData = [
-                { cls: 'shard-left', tx: -40, ty: 35, rot: -25 },
-                { cls: 'shard-mid',  tx: 0,   ty: 45, rot: 18 },
-                { cls: 'shard-right',tx: 40,  ty: 30, rot: 32 }
-            ];
-
-            shardsData.forEach(data => {
-                const shard = document.createElement('span');
-                shard.className = `shard ${data.cls}`;
-                shard.textContent = char;
-                shard.style.left = `${baseLeft}px`;
-                shard.style.top = `${baseTop}px`;
-                shard.style.setProperty('--tx', `${data.tx + (Math.random()*20-10)}px`);
-                shard.style.setProperty('--ty', `${data.ty + (Math.random()*15-8)}px`);
-                shard.style.setProperty('--rdeg', `${data.rot + (Math.random()*15-7)}deg`);
-                shard.style.animation = 'shardFly 0.6s ease-out forwards';
-                letterSpan.parentElement.appendChild(shard);
-                setTimeout(() => shard.remove(), 650);
-            });
-        }
+        // Intro animada eliminada; se mantiene solo la voz de bienvenida
 
         function speakDestello(userName = '') {
             if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
