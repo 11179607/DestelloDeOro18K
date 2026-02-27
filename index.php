@@ -3816,8 +3816,14 @@
             // Obtener información de pago
             const paymentMethod = document.getElementById('paymentMethod').value;
             const deliveryType = document.getElementById('deliveryType').value;
-            const deliveryCostInput = parseMoney(document.getElementById('deliveryCost').value) || 0;
-            const freeShippingEnabled = document.getElementById('freeShippingToggle')?.checked || false;
+            let deliveryCostInput = parseMoney(document.getElementById('deliveryCost').value) || 0;
+            let freeShippingEnabled = document.getElementById('freeShippingToggle')?.checked || false;
+
+            if (deliveryType === 'store') {
+                deliveryCostInput = 0;
+                freeShippingEnabled = false;
+            }
+
             const finalDeliveryCost = freeShippingEnabled ? 0 : deliveryCostInput;
 
             // Información del cliente
@@ -3945,7 +3951,21 @@
         function updateSaleSummary() {
             const subtotal = shoppingCart.reduce((sum, item) => sum + item.subtotal, 0);
             const totalDiscount = shoppingCart.reduce((sum, item) => sum + item.discount, 0);
-            const deliveryCost = parseMoney(document.getElementById('deliveryCost').value) || 0;
+            
+            const deliveryType = document.getElementById('deliveryType').value;
+            const deliveryCostInput = parseMoney(document.getElementById('deliveryCost').value) || 0;
+            const deliveryCost = (deliveryType === 'store') ? 0 : deliveryCostInput;
+
+            // Ocultar/mostrar campo de envío según tipo
+            const deliveryCostGroup = document.getElementById('deliveryCost')?.closest('.form-group');
+            if (deliveryCostGroup) {
+                if (deliveryType === 'store') {
+                    deliveryCostGroup.style.display = 'none';
+                    document.getElementById('deliveryCost').value = '0';
+                } else {
+                    deliveryCostGroup.style.display = '';
+                }
+            }
 
             // Lógica de Envío Gratis
             const freeShippingContainer = document.getElementById('freeShippingContainer');
@@ -3962,8 +3982,6 @@
                 return;
             }
             
-            const deliveryType = document.getElementById('deliveryType').value;
-
             if (subtotal >= 250000 && deliveryType !== 'store') {
                 freeShippingContainer.style.display = 'block';
             } else {
