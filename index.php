@@ -4274,8 +4274,7 @@
                     });
                 } else {
                     // Fallback si no vienen productos
-                    const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost) || 0;
-                    const total = (parseFloat(sale.total) || 0) - delivery;
+                    const total = parseFloat(sale.total) || 0;
                     if ((sale.saleType || sale.sale_type || 'retail') === 'wholesale') {
                         saleWholesaleTotal = total;
                         hasWholesaleItems = true;
@@ -4286,15 +4285,16 @@
                     rawSubtotal = total;
                 }
 
-                // Ajustar proporcionalmente descuento e incremento de garantía para cuadrar con el Total de Factura (sin envío)
+                // Ajustar proporcionalmente descuento, envío e incremento de garantía para cuadrar con el Total de Factura
                 if (rawSubtotal > 0) {
                     const retailRatio = saleRetailTotal / rawSubtotal;
                     const wholesaleRatio = saleWholesaleTotal / rawSubtotal;
                     
                     const discount = parseFloat(sale.discount) || 0;
+                    const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost) || 0;
                     const warranty = parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0;
 
-                    const adjustments = warranty - discount;
+                    const adjustments = delivery + warranty - discount;
                     
                     saleRetailTotal += (adjustments * retailRatio);
                     saleWholesaleTotal += (adjustments * wholesaleRatio);
@@ -4613,9 +4613,8 @@
                                 ${sales.map(sale => {
                 const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                 const saleCOGS = (sale.products || []).reduce((sum, p) => sum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
-                const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost) || 0;
-                const saleNetTotal = (parseFloat(sale.total) || 0) - delivery;
-                const profit = saleNetTotal - saleCOGS;
+                const saleTotal = (parseFloat(sale.total) || 0);
+                const profit = saleTotal - saleCOGS;
                 const isMixed = sale.saleType === 'mixed';
                 const isRetail = sale.saleType === 'retail' || (!isMixed && sale.saleType !== 'wholesale');
                 
@@ -4649,7 +4648,7 @@
                                                     ` : ''}
                                                 </div>
                                             </td>
-                                            <td style="padding: 10px; text-align: right;">${formatCurrency(saleNetTotal)}</td>
+                                            <td style="padding: 10px; text-align: right;">${formatCurrency(saleTotal)}</td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
                                             <td style="padding: 10px; text-align: right; font-weight: bold; color: ${profit >= 0 ? '#4CAF50' : '#F44336'};">
                                                 ${formatCurrency(profit)}
@@ -5390,11 +5389,10 @@
                 // porque el additionalValue ya está incluido en totalSales (warranty_increment)
                 const totalWarrantyShippingCosts = (warranties || []).reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
                 const totalWarrantyIncrement = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-                const totalDeliveryCosts = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
                 
-                // Ganancia = Ventas (incluye warranty_increment) - Gastos - Costo de productos - Envíos cobrados
+                // Ganancia = Ventas (incluye warranty_increment y envíos cobrados) - Gastos - Costo de productos
                 // Nota: los gastos ya incluyen los envíos de garantías
-                const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalDeliveryCosts;
+                const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
                 // Si todo es 0 y hay datos en localStorage, alertar por consola para depuración
                 if (totalSales === 0 && totalExpenses === 0 && sales.length === 0) {
@@ -5432,7 +5430,7 @@
                         <div class="stat-icon"><i class="fas fa-coins"></i></div>
                         <div class="stat-value" style="color: ${netProfit >= 0 ? '#4CAF50' : '#f44336'};">${formatCurrency(netProfit)}</div>
                         <div class="stat-label">Ganancias Reales</div>
-                        <small>Ventas - Gastos - Costo Inv - Envíos</small>
+                        <small>Ventas - Gastos - Costo Inv</small>
                     </div>
                 `;
             } catch (error) {
@@ -5487,8 +5485,6 @@
 
             // Calcular totales
             const totalSales = monthlySales.reduce((sum, sale) => sum + sale.total, 0);
-            const totalDeliveryCosts = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
-            const salesWithoutDelivery = totalSales - totalDeliveryCosts;
             const totalExpenses = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
             // CORRECCIÓN: Calcular el COSTO REAL de lo vendido basándose en el purchasePrice de los productos
@@ -5505,7 +5501,7 @@
             // IMPORTANTE: Solo restar los costos de envío de garantías, NO el additionalValue
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
-            const netProfit = salesWithoutDelivery - totalExpenses - costOfGoodsSold;
+            const netProfit = totalSales - totalExpenses - costOfGoodsSold;
 
             let title = '';
             let detailsHTML = '';
@@ -5529,7 +5525,7 @@
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(salesWithoutDelivery, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
+                    detailsHTML = generateProfitDetailsHTML(totalSales, totalExpenses, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -6167,8 +6163,6 @@
 
         function generateProfitPDFContent(sales, expenses, restocks, warranties) {
             const salesTotal = sales.reduce((sum, sale) => sum + (parseFloat(sale.total) || 0), 0);
-            const deliveryTotal = sales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
-            const salesWithoutDelivery = salesTotal - deliveryTotal;
             const expensesTotal = expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
             // CORRECCIÓN: Calcular el COSTO REAL de lo vendido basándose en el purchasePrice de los productos
@@ -6185,12 +6179,12 @@
             }, 0);
 
             const warrantyShippingCosts = warranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
-            const netProfit = salesWithoutDelivery - expensesTotal - costOfGoodsSold;
+            const netProfit = salesTotal - expensesTotal - costOfGoodsSold;
 
             let content = `ANÁLISIS DE GANANCIAS DEL MES\n\n`;
             content += `RESUMEN FINANCIERO:\n`;
             content += `--------------------------------------------------------------------------------\n`;
-            content += `Ingresos por Ventas (sin envíos):     +${formatCurrency(salesWithoutDelivery)}\n`;
+            content += `Ingresos por Ventas:     +${formatCurrency(salesTotal)}\n`;
             content += `Gastos Operativos (incluyen envíos de garantía): -${formatCurrency(expensesTotal)}\n`;
             content += `Costo de lo Vendido:     -${formatCurrency(costOfGoodsSold)}\n`;
             content += `Envíos de Garantías (informativo): ${formatCurrency(warrantyShippingCosts)}\n`;
