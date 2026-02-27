@@ -494,6 +494,56 @@
             min-height: 100vh;
         }
 
+        /* Intro overlay - letras de vidrio cayendo */
+        #introOverlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 215, 128, 0.12), transparent 35%), rgba(0, 0, 0, 0.88);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            overflow: hidden;
+            backdrop-filter: blur(2px);
+        }
+
+        .intro-glass-text {
+            display: flex;
+            gap: 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.8rem, 6vw, 4.5rem);
+            color: #f5e6c8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 12px 22px rgba(0, 0, 0, 0.35);
+        }
+
+        .intro-letter {
+            display: inline-block;
+            opacity: 0;
+        }
+
+        @keyframes glassDrop {
+            0% { transform: translateY(-120vh) rotate(0deg); opacity: 1; }
+            70% { transform: translateY(0) rotate(3deg); }
+            85% { transform: translateY(10px); }
+            100% { transform: translateY(0) rotate(-2deg); opacity: 1; }
+        }
+
+        @keyframes glassShatter {
+            0% { opacity: 1; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35)); }
+            100% { opacity: 0; transform: translateY(24px) scale(0.9) rotate(10deg) skewX(6deg); filter: blur(2px) drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+        }
+
+        @keyframes glassReveal {
+            0% { opacity: 0; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .intro-letter.drop { animation: glassDrop 1.2s forwards ease-in; }
+        .intro-letter.shatter { animation: glassShatter 0.45s forwards ease-out; }
+        .intro-letter.reveal { opacity: 0; animation: glassReveal 0.65s forwards ease-out; }
+
         /* Header */
         .main-header {
             background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
@@ -2067,6 +2117,11 @@
                 </p>
             </div>
         </div>
+    </div>
+
+    <!-- Intro de vidrio -->
+    <div id="introOverlay">
+        <div class="intro-glass-text" id="introGlassText"></div>
     </div>
 
     <!-- Aplicación principal -->
@@ -8045,6 +8100,7 @@
                             sessionStorage.setItem('destelloOroTabActive', 'true'); // Marcar esta pestaña como activa para auto-login
 
                             await showDialog('¡Bienvenido!', `Bienvenido ${currentUser.displayName}`, 'success');
+                            await runDestelloIntro();
                             showApp();
                         } else {
                             await showDialog('Error de Acceso', data.message || 'Credenciales incorrectas.', 'error');
@@ -8054,6 +8110,81 @@
                         await showDialog('Error', 'Error de conexión con el servidor.', 'error');
                     }
                 });
+            }
+        }
+
+        // Intro animada "Destello de Oro 18K"
+        async function runDestelloIntro() {
+            return new Promise(resolve => {
+                const overlay = document.getElementById('introOverlay');
+                const textContainer = document.getElementById('introGlassText');
+                if (!overlay || !textContainer) {
+                    resolve();
+                    return;
+                }
+
+                const phrase = 'DESTELLO DE ORO 18K';
+                textContainer.innerHTML = '';
+                overlay.style.display = 'flex';
+
+                const letters = phrase.split('').map((char, idx) => {
+                    const span = document.createElement('span');
+                    span.textContent = char === ' ' ? '\u00A0' : char;
+                    span.className = 'intro-letter';
+                    span.style.animationDelay = (idx * 80) + 'ms';
+                    textContainer.appendChild(span);
+                    return span;
+                });
+
+                // Iniciar caída
+                requestAnimationFrame(() => letters.forEach(l => l.classList.add('drop')));
+
+                // Romper
+                const shatterDelay = 1200;
+                setTimeout(() => {
+                    letters.forEach((l, i) => {
+                        l.classList.add('shatter');
+                        l.style.animationDelay = (i * 40) + 'ms';
+                    });
+                }, shatterDelay);
+
+                // Reaparecer y locución
+                const revealDelay = shatterDelay + 500;
+                setTimeout(() => {
+                    textContainer.innerHTML = '';
+                    phrase.split('').forEach((char, i) => {
+                        const span = document.createElement('span');
+                        span.textContent = char === ' ' ? '\u00A0' : char;
+                        span.className = 'intro-letter reveal';
+                        span.style.animationDelay = (i * 60) + 'ms';
+                        textContainer.appendChild(span);
+                    });
+                    speakDestello();
+                }, revealDelay);
+
+                // Cerrar overlay
+                const totalTime = revealDelay + 900;
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    resolve();
+                }, totalTime);
+            });
+        }
+
+        function speakDestello() {
+            try {
+                const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho k');
+                utter.lang = 'es-ES';
+                utter.pitch = 0.8;
+                utter.rate = 0.9;
+                // Intentar escoger voz masculina en español
+                const voices = speechSynthesis.getVoices();
+                const maleEs = voices.find(v => v.lang.startsWith('es') && /Male|Hombre|Google español de Estados Unidos/i.test(v.name));
+                if (maleEs) utter.voice = maleEs;
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utter);
+            } catch (e) {
+                console.warn('Speech synthesis no disponible:', e);
             }
         }
 
