@@ -4244,7 +4244,6 @@
             let wholesaleCOGS = 0;
             let retailCount = 0;
             let wholesaleCount = 0;
-            let totalDeliveryCost = 0;
 
             sales.forEach(sale => {
                 let saleRetailTotal = 0;
@@ -4275,7 +4274,8 @@
                     });
                 } else {
                     // Fallback si no vienen productos
-                    const total = parseFloat(sale.total) || 0;
+                    const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost) || 0;
+                    const total = (parseFloat(sale.total) || 0) - delivery;
                     if ((sale.saleType || sale.sale_type || 'retail') === 'wholesale') {
                         saleWholesaleTotal = total;
                         hasWholesaleItems = true;
@@ -4286,20 +4286,18 @@
                     rawSubtotal = total;
                 }
 
-                // Ajustar proporcionalmente descuentos, envíos y garantías para cuadrar con el Total de Factura
+                // Ajustar proporcionalmente descuento e incremento de garantía para cuadrar con el Total de Factura (sin envío)
                 if (rawSubtotal > 0) {
                     const retailRatio = saleRetailTotal / rawSubtotal;
                     const wholesaleRatio = saleWholesaleTotal / rawSubtotal;
                     
                     const discount = parseFloat(sale.discount) || 0;
-                    const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost) || 0;
                     const warranty = parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0;
 
-                    const adjustments = delivery + warranty - discount;
+                    const adjustments = warranty - discount;
                     
                     saleRetailTotal += (adjustments * retailRatio);
                     saleWholesaleTotal += (adjustments * wholesaleRatio);
-                    totalDeliveryCost += delivery;
                 }
 
                 retailSales += saleRetailTotal;
@@ -4315,7 +4313,7 @@
             const wholesaleProfit = wholesaleSales - wholesaleCOGS;
             const totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
             const totalProfitGross = retailProfit + wholesaleProfit;
-            const netProfit = totalProfitGross - totalExpenses - totalDeliveryCost;
+            const netProfit = totalProfitGross - totalExpenses;
 
             // 1. TARJETA GANANCIAS AL DETAL
             const retailCard = document.createElement('div');
@@ -4406,8 +4404,8 @@
                         <span class="history-card-detail-value">${formatCurrency(retailCOGS + wholesaleCOGS)}</span>
                     </div>
                     <div class="history-card-detail">
-                        <span>Gastos + Envíos:</span>
-                        <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses + totalDeliveryCost)}</span>
+                        <span>Gastos:</span>
+                        <span class="history-card-detail-value" style="color: var(--danger);">${formatCurrency(totalExpenses)}</span>
                     </div>
                     <div class="history-card-detail" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px;">
                         <span style="font-weight: bold;">GANANCIAS NETAS:</span>
@@ -4532,7 +4530,6 @@
 
         // Mostrar detalles de ganancias
         function showProfitDetails(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
-            const totalDeliveryCosts = (sales || []).reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
             // Ocultar tarjetas
             document.getElementById('historyCardsView').style.display = 'none';
             document.getElementById('historyDetailsView').style.display = 'block';
@@ -4541,7 +4538,7 @@
             const dateStr = currentMonth === -1 ? `Año ${currentYear}` : new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
             const title = `Análisis de Ganancias - ${dateStr}`;
 
-            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses, totalDeliveryCosts);
+            const detailsHTML = generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses);
 
             content.innerHTML = `
                 <div class="dialog-icon" style="color: var(--gold-primary);">
@@ -4556,11 +4553,11 @@
         }
 
         // Generar HTML del desglose de ganancias
-        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = [], deliveryCosts = 0) {
+        function generateProfitBreakdownHTML(retailSales, wholesaleSales, retailCOGS, wholesaleCOGS, retailProfit, wholesaleProfit, totalProfit, sales, expenses = []) {
             const totalExpenses = Array.isArray(expenses)
                 ? expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0)
                 : parseFloat(expenses) || 0;
-            const netProfit = totalProfit - totalExpenses - deliveryCosts;
+            const netProfit = totalProfit - totalExpenses;
             return `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -4588,11 +4585,10 @@
                             <div style="font-size: 1.8em; color: var(--gold-primary); margin: 10px 0; font-weight: bold;">
                                 ${formatCurrency(netProfit)}
                             </div>
-                            <small>Ventas Brutas: ${formatCurrency(retailSales + wholesaleSales + deliveryCosts)}</small><br>
+                            <small>Ventas Brutas: ${formatCurrency(retailSales + wholesaleSales)}</small><br>
                             <small>Total Costo: ${formatCurrency(retailCOGS + wholesaleCOGS)}</small>
-                            <small>Ganancia Operativa: ${formatCurrency(totalProfit + totalExpenses + deliveryCosts)}</small><br>
+                            <small>Ganancia Operativa: ${formatCurrency(totalProfit + totalExpenses)}</small><br>
                             <small style="color: var(--danger);">Gastos: -${formatCurrency(totalExpenses)}</small><br>
-                            <small style="color: #607d8b;">Envíos cobrados: -${formatCurrency(deliveryCosts)}</small>
                         </div>
                     </div>
                 </div>
@@ -4617,7 +4613,9 @@
                                 ${sales.map(sale => {
                 const products = JSON.parse(localStorage.getItem('destelloOroProducts')) || [];
                 const saleCOGS = (sale.products || []).reduce((sum, p) => sum + ((parseFloat(p.purchasePrice || p.purchase_price) || 0) * (parseInt(p.quantity) || 0)), 0);
-                const profit = (parseFloat(sale.total) || 0) - saleCOGS;
+                const delivery = parseFloat(sale.deliveryCost || sale.delivery_cost) || 0;
+                const saleNetTotal = (parseFloat(sale.total) || 0) - delivery;
+                const profit = saleNetTotal - saleCOGS;
                 const isMixed = sale.saleType === 'mixed';
                 const isRetail = sale.saleType === 'retail' || (!isMixed && sale.saleType !== 'wholesale');
                 
@@ -4651,7 +4649,7 @@
                                                     ` : ''}
                                                 </div>
                                             </td>
-                                            <td style="padding: 10px; text-align: right;">${formatCurrency(sale.total)}</td>
+                                            <td style="padding: 10px; text-align: right;">${formatCurrency(saleNetTotal)}</td>
                                             <td style="padding: 10px; text-align: right;">${formatCurrency(saleCOGS)}</td>
                                             <td style="padding: 10px; text-align: right; font-weight: bold; color: ${profit >= 0 ? '#4CAF50' : '#F44336'};">
                                                 ${formatCurrency(profit)}
@@ -5506,7 +5504,7 @@
             const totalWarrantyShippingCosts = monthlyWarranties.reduce((sum, warranty) => sum + (parseFloat(warranty.shippingValue || warranty.shipping_value) || 0), 0);
             const totalWarrantyIncrement = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.warrantyIncrement || sale.warranty_increment) || 0), 0);
             const totalDeliveryCosts = monthlySales.reduce((sum, sale) => sum + (parseFloat(sale.delivery_cost || sale.deliveryCost) || 0), 0);
-            const netProfit = totalSales - totalExpenses - costOfGoodsSold - totalDeliveryCosts;
+            const netProfit = (totalSales - totalDeliveryCosts) - totalExpenses - costOfGoodsSold;
             const expensesWithoutShipping = totalExpenses - totalWarrantyShippingCosts;
 
             let title = '';
@@ -5531,7 +5529,7 @@
                     break;
                 case 'profit':
                     title = `Resumen de Ganancias - ${new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-                    detailsHTML = generateProfitDetailsHTML(totalSales, expensesWithoutShipping, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit, totalDeliveryCosts);
+                    detailsHTML = generateProfitDetailsHTML(totalSales, expensesWithoutShipping, costOfGoodsSold, totalWarrantyShippingCosts, totalWarrantyIncrement, netProfit);
                     break;
             }
 
@@ -5913,7 +5911,7 @@
         }
 
         // Generar HTML para resumen de ganancias
-        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit, deliveryCosts = 0) {
+        function generateProfitDetailsHTML(salesTotal, expensesTotal, costOfGoodsSoldTotal, warrantyShippingCosts, warrantyIncrement, netProfit) {
             let html = `
                 <div style="margin-bottom: 20px;">
                     <h3 style="color: var(--gold-dark); border-bottom: 2px solid var(--gold-primary); padding-bottom: 10px;">
@@ -5937,18 +5935,13 @@
                             <strong style="font-size: 1.2em; color: #9c27b0;">${formatCurrency(warrantyShippingCosts)}</strong><br>
                             <small>Envíos de Garantías</small>
                         </div>
-                        <div style="background: #eceff1; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #607d8b;">
-                            <strong style="font-size: 1.2em; color: #607d8b;">${formatCurrency(deliveryCosts)}</strong><br>
-                            <small>Cobros por Envío</small>
-                        </div>
                         <div style="background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; grid-column: span 2;">
                             <strong style="font-size: 1.5em; color: ${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(netProfit)}</strong><br>
                             <small>Ganancias Totales</small>
                             <div style="font-size: 0.85em; color: #666; margin-top: 8px;">
-                                <span>Ventas Brutas: ${formatCurrency(salesTotal + deliveryCosts)}</span><br>
+                                <span>Ventas Brutas: ${formatCurrency(salesTotal)}</span><br>
                                 <span>Gastos: ${formatCurrency(expensesTotal)}</span><br>
                                 <span>Costo: ${formatCurrency(costOfGoodsSoldTotal)}</span><br>
-                                <span>Cobros Envío: ${formatCurrency(deliveryCosts)}</span>
                             </div>
                         </div>
                     </div>
@@ -5974,10 +5967,6 @@
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
                             <span>Envíos de Garantías:</span>
                             <strong style="color: #9c27b0;">-(${formatCurrency(warrantyShippingCosts)})</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                            <span>Cobros por Envío (Deducción):</span>
-                            <strong style="color: #607d8b;">-(${formatCurrency(deliveryCosts)})</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding: 15px; background: ${netProfit >= 0 ? '#e8f5e9' : '#ffebee'}; border-radius: 5px; font-size: 1.1em;">
                             <span><strong>Ganancia Neta:</strong></span>
