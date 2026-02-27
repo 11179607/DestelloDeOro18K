@@ -8082,8 +8082,6 @@
             }
         }
 
-        // Intro animada eliminada; se mantiene solo la voz de bienvenida
-
         function speakDestello(userName = '') {
             if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
                 return Promise.resolve();
