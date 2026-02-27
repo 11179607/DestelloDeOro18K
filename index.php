@@ -524,6 +524,7 @@
             --sx: 0px;
             --sy: 18px;
             --rot: 8deg;
+            position: relative;
         }
 
         @keyframes glassDrop {
@@ -550,6 +551,28 @@
         .intro-letter.drop { animation: glassDrop 1.2s forwards ease-in; }
         .intro-letter.shatter { animation: glassShatter 0.45s forwards ease-out; }
         .intro-letter.reveal { opacity: 0; animation: glassReveal 0.65s forwards ease-out; }
+
+        /* Shards */
+        .shard {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #f5e6c8;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.35);
+            opacity: 0.95;
+            font-family: inherit;
+        }
+        .shard-left { clip-path: polygon(0 0, 55% 0, 40% 100%, 0 100%); }
+        .shard-mid { clip-path: polygon(30% 0, 70% 0, 55% 100%, 25% 100%); }
+        .shard-right { clip-path: polygon(55% 0, 100% 0, 100% 100%, 40% 100%); }
+
+        @keyframes shardFly {
+            to {
+                transform: translate(var(--tx), var(--ty)) rotate(var(--rdeg));
+                opacity: 0;
+                filter: blur(1px);
+            }
+        }
 
         /* Header */
         .main-header {
@@ -8159,6 +8182,7 @@
                     letters.forEach((l, i) => {
                         l.classList.add('shatter');
                         l.style.animationDelay = (i * 40) + 'ms';
+                        createShards(l);
                     });
                 }, shatterDelay);
 
@@ -8185,6 +8209,35 @@
             });
         }
 
+        function createShards(letterSpan) {
+            if (!letterSpan || letterSpan.textContent.trim() === '') return;
+            const rect = letterSpan.getBoundingClientRect();
+            const parentRect = letterSpan.parentElement.getBoundingClientRect();
+            const baseLeft = rect.left - parentRect.left;
+            const baseTop = rect.top - parentRect.top;
+            const char = letterSpan.textContent;
+
+            const shardsData = [
+                { cls: 'shard-left', tx: -40, ty: 35, rot: -25 },
+                { cls: 'shard-mid',  tx: 0,   ty: 45, rot: 18 },
+                { cls: 'shard-right',tx: 40,  ty: 30, rot: 32 }
+            ];
+
+            shardsData.forEach(data => {
+                const shard = document.createElement('span');
+                shard.className = `shard ${data.cls}`;
+                shard.textContent = char;
+                shard.style.left = `${baseLeft}px`;
+                shard.style.top = `${baseTop}px`;
+                shard.style.setProperty('--tx', `${data.tx + (Math.random()*20-10)}px`);
+                shard.style.setProperty('--ty', `${data.ty + (Math.random()*15-8)}px`);
+                shard.style.setProperty('--rdeg', `${data.rot + (Math.random()*15-7)}deg`);
+                shard.style.animation = 'shardFly 0.6s ease-out forwards';
+                letterSpan.parentElement.appendChild(shard);
+                setTimeout(() => shard.remove(), 650);
+            });
+        }
+
         function speakDestello() {
             if (typeof window === 'undefined' || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
                 return;
@@ -8193,13 +8246,13 @@
                 try {
                     const utter = new SpeechSynthesisUtterance('Destello de Oro dieciocho k');
                     utter.lang = 'es-ES';
-                    utter.pitch = 0.65; // tono más grave
-                    utter.rate = 0.92;
+                    utter.pitch = 0.4; // más grave
+                    utter.rate = 0.85;
                     const voices = speechSynthesis.getVoices();
                     const priority = [
-                        /Google español de Estados Unidos/i,
-                        /Google español/i,
-                        /Microsoft (Raul|Enrique)/i,
+                        /Google español de Estados Unidos.*\(.*Male.*\)/i,
+                        /Google español.*\(.*Male.*\)/i,
+                        /Microsoft (Ra[uú]l|Enrique)/i,
                         /Juan/i,
                         /male|hombre/i
                     ];
